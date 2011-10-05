@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Zone1</title>
+  <%= stylesheet_link_tag    "application" %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+
+<%= yield %>
+
+<div>
+<% if current_user -%>
+Hi, <%= current_user.name %>!
+<% else -%>
+<%= link_to 'Sign in', new_user_session_path %>
+<% end -%>
+</div>
+
+</body>
+</html>

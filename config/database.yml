@@ -1,0 +1,11 @@
+development:
+  adapter: mysql2
+  database: rails
+  username: rails
+  password: railsbooya
+
+production:
+  adapter: mysql2
+  database: rails
+  username: rails
+  password: railsbooya
