@@ -8,15 +8,24 @@
 </head>
 <body>
 
-<%= yield %>
-
-<div>
+<header>
 <% if current_user -%>
 Hi, <%= current_user.name %>!
 <% else -%>
 <%= link_to 'Sign in', new_user_session_path %>
 <% end -%>
-</div>
+</header>
+
+<%= yield %>
+
+<footer>
+<%= link_to 'Upload File(s)', upload_path %>
+<%= form_tag(search_path, :method => "post") do %>
+<%= text_field_tag :q %>
+<%= submit_tag "Search" %>
+<% end -%>
+
+</footer>
 
 </body>
 </html>
