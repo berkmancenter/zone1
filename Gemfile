@@ -7,6 +7,7 @@ gem 'pg', :require => 'pg'
 # gem 'rails',     :git => 'git://github.com/rails/rails.git'
 
 gem 'json'
+gem 'will_paginate', '3.0.2'
 
 # Gems used only for assets and not required
 # in production environments by default.
