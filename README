@@ -22,9 +22,23 @@ railroad -M | neato -Tpng > app/assets/images/models.png
 == Notes on Stack, Dependencies
 
 - nginx + passenger
-- acl9 for role management
-- ajax-upload tool: valums.com/ajax-upload/ or plupload are in the running, more investigation
-- solr / sunspot for search
-- acts_as_taggable_on for tagging functionality
-- jQuery, jQuery UI standard stack / tools
-- will_paginate is standard pagination gem, so let's use it
+- authentication: devise
+- authorization: acl9
+- ajax-upload tool: plupload
+- search: solr, sunspot
+- tagging: acts_as_taggable_on 
+- javascript lib: jQuery, jQuery UI
+- pagination: will_paginate
+
+== Performance Considerations
+
+- upload page: no caching
+- batch management: no caching
+- group management: no caching
+- view / edit single file: page caching, with AJAX request followup for determining editability, sweepers to clear after edits
+- facet view: fragment or Rails low level caching, methods TBD
+- search view: cached, but with complex consideration of access levels
+  - one cached section which contains public files
+  - one section cached differently which contains partially open files 
+  - how to iterate through search view to view accessible files
+  - perhaps performance on Solr search will be better than h2o in the first place since objects aren't as large
