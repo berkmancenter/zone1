@@ -35,11 +35,6 @@ ActiveRecord::Schema.define(:version => 20111014030058) do
     t.integer "stored_file_id"
   end
 
-  create_table "flags_stored_files", :id => false, :force => true do |t|
-    t.integer "stored_file_id"
-    t.integer "flag_id"
-  end
-
   create_table "groups", :force => true do |t|
     t.string   "name",       :null => false
     t.integer  "user_id",    :null => false
@@ -76,13 +71,14 @@ ActiveRecord::Schema.define(:version => 20111014030058) do
 
   create_table "stored_files", :force => true do |t|
     t.integer  "batch_id"
-    t.integer  "user_id",               :null => false
-    t.string   "original_filename",     :null => false
+    t.integer  "user_id",           :null => false
+    t.string   "title"
+    t.string   "original_filename", :null => false
     t.string   "collection_name"
-    t.integer  "access_level_id",       :null => false
-    t.integer  "content_type_id",       :null => false
-    t.date     "retention_plan_date"
-    t.string   "retention_plan_action"
+    t.string   "office"
+    t.string   "disposition"
+    t.integer  "access_level_id",   :null => false
+    t.integer  "content_type_id",   :null => false
     t.string   "format_name"
     t.string   "format_version"
     t.string   "mime_type"
@@ -94,14 +90,8 @@ ActiveRecord::Schema.define(:version => 20111014030058) do
     t.text     "license_terms"
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "stored_files_flags", :id => false, :force => true do |t|
-    t.integer "stored_file_id"
-    t.integer "flag_id"
     t.string   "file"
     t.string   "author"
-    t.string   "title"
   end
 
   create_table "taggings", :force => true do |t|

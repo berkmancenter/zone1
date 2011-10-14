@@ -10,12 +10,13 @@ class StoredFile < ActiveRecord::Base
   before_save :update_file_attributes
 
   attr_accessible :file, :license_terms, :collection_name,
-    :author, :title, :copyright, :description, :access_level_id
+    :author, :title, :copyright, :description, :access_level_id,
+    :user_id, :content_type_id, :original_filename
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags]) do
-	text :original_file_name, :collection_name, :description, :copyright, :license_terms
+	text :original_filename, :collection_name, :description, :copyright, :license_terms
 	string :format_name, :format_version, :mime_type, :md5
 	string :tag_list, :stored => true, :multiple => true
 	integer :flag_ids, :multiple => true, :references => Flag 

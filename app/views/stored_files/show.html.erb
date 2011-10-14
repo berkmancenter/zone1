@@ -1,13 +1,11 @@
 
-<h1><%= @storedfile.original_file_name %></h1>
+<h1><%= @stored_file.original_filename %></h1>
 
-ID: <%= @storedfile.id %><br />
-Tags: <%= @storedfile.tag_list %><br />
-Description: <%= @storedfile.description %> <br />
-Copyright: <%= @storedfile.copyright %><br />
-Terms of License: <%= @storedfile.license_terms %><br />
-
-<div id="dialog"></div>
+ID: <%= @stored_file.id %><br />
+Tags: <%= @stored_file.tag_list %><br />
+Description: <%= @stored_file.description %> <br />
+Copyright: <%= @stored_file.copyright %><br />
+Terms of License: <%= @stored_file.license_terms %><br />
 
 <div class="actions">
 	<%= submit_tag "EDIT" %>

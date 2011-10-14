@@ -1,9 +1,9 @@
 <div id="dialog" title="Edit File" style="background:#ddd;padding:1em;">
 <p>
-	<%= form_for @storedfile do |f| %>
+	<%= form_for @stored_file do |f| %>
 		<p>
-			<%= f.label :original_file_name %><br />
-			<%=	f.text_field :original_file_name %>
+			<%= f.label :original_filename %><br />
+			<%=	f.text_field :original_filename %>
 		</p>
 		<p>
 			<%= f.label :description %><br />

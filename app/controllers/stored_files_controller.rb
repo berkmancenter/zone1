@@ -3,7 +3,7 @@ class StoredFilesController < ApplicationController
 
   # GET /storedfiles
   def index
-    @storedfiles = StoredFile.all
+    @stored_files = StoredFile.all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -12,45 +12,26 @@ class StoredFilesController < ApplicationController
 
   # GET /storedfiles/1
   def show
-    @storedfile = StoredFile.find(params[:id])
-
-    #respond_to do |format|
-    #  format.html do
-	#	render 'show'  # show.html.erb
-	#  end
-    #end
-  end
-
-  # GET /storedfiles/new
-  def new
-    @storedfile = StoredFile.new
-
-    #respond_to do |format|
-    #  format.html # new.html.erb
-    #end
+    @stored_file = StoredFile.find(params[:id])
   end
 
   # GET /storedfiles/1/edit
   def edit
-    @storedfile = StoredFile.find(params[:id])
+    @stored_file = StoredFile.find(params[:id])
 	respond_to do |format|
 		format.html { render :layout => false }
 	end
-
-	# returnining a form
-    # set layout false
-    # HTML
   end
 
   # PUT /storedfiles/1
   # PUT /storedfiles/1.json
   def update
-    @storedfile = StoredFile.find(params[:id])
+    @stored_file = StoredFile.find(params[:id])
     respond_to do |format|
-      if @storedfile.update_attributes(params[:stored_file])
+      if @stored_file.update_attributes(params[:stored_file])
         format.json { head :ok }
       else
-        format.json { render :json => @storedfile.errors, :status => :unprocessable_entity }
+        format.json { render :json => @stored_file.errors, :status => :unprocessable_entity }
       end
     end
   end
@@ -58,8 +39,8 @@ class StoredFilesController < ApplicationController
   # DELETE /storedfiles/1
   # DELETE /storedfiles/1.json
   def destroy
-    @storedfile = Storedfile.find(params[:id])
-    @storedfile.destroy
+    @stored_file = Storedfile.find(params[:id])
+    @stored_file.destroy
 
     respond_to do |format|
       format.html { redirect_to storedfiles_url }
@@ -79,7 +60,7 @@ class StoredFilesController < ApplicationController
       #todo: validate access_level_id is allowed, based on user permissions
       new_file.user_id = current_user.id
       new_file.original_filename = params[:name]
-      new_file.content_type_id = 1 #todo: from FITS
+      new_file.content_type_id = ContentType.first.id
 
       new_file.save!
       ::Rails.logger.debug "PHUNK: new file url #{new_file.file.url}"

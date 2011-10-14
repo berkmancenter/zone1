@@ -33,15 +33,16 @@ User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password
              {:email => 'etann@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Evan' }])
 (u1, u2, u3) = User.all
 
-g = Group.new(:name => 'End Point', :user_id => User.first.id)
+g = Group.new(:name => 'End Point', :user_id => u1.id)
 g.users << User.all
 g.save
 
+=begin
 40.times do
-	StoredFile.create([{:original_file_name => "abx99", :user_id => u1.id, :access_level_id => a1.id, :content_type_id => c1.id},
-					   {:original_file_name => "law", :user_id => u1.id, :access_level_id => a2.id, :content_type_id => c1.id},
-					   {:original_file_name => "berk", :user_id => u2.id, :access_level_id => a1.id, :content_type_id => c1.id},
-					   {:original_file_name => "berk2", :user_id => u3.id, :access_level_id => a1.id, :content_type_id => c2.id}]) 
+	StoredFile.create([{:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a1.id, :content_type_id => c1.id},
+					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a2.id, :content_type_id => c1.id},
+					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u2.id, :access_level_id => a1.id, :content_type_id => c1.id},
+					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u3.id, :access_level_id => a1.id, :content_type_id => c2.id}]) 
 end
 
 StoredFile.all.each do |a|
@@ -58,3 +59,4 @@ sf.save
 sf = StoredFile.last
 sf.tag_list = "thesis"
 sf.save 
+=end

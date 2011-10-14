@@ -5,8 +5,8 @@ $(document).ready(function() {
 			cache: false,
 			url: editUrl,
 			success: function(html) {
-				$( "#dialog" ).html(html);
-				$( "#dialog" ).dialog({
+				var node = $('<div></div>').attr('id', 'dialog').html(html);
+				node.dialog({
 					title:  'Edit File',
 					modal:   true,
 					width:  400,
@@ -15,7 +15,9 @@ $(document).ready(function() {
 						submit:	function(event, ui) {
 							$("#dialog").find("form").ajaxSubmit({
 								dataType: "JSON",
-								success: window.location.reload(true)
+								success: function() {
+									window.location.reload(true)
+								}
 							});
 						}
 					}
