@@ -6,7 +6,7 @@ Zone1::Application.routes.draw do
   match 'upload' => 'upload#index', :as => :upload
   match 'search' => 'search#index', :as => :search  #, :via => :post
 
-  resources :stored_files
+  resources :stored_files, :as => :stored_file
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

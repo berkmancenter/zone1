@@ -1,0 +1,14 @@
+
+<h1><%= @storedfile.original_file_name %></h1>
+
+ID: <%= @storedfile.id %><br />
+Tags: <%= @storedfile.tag_list %><br />
+Description: <%= @storedfile.description %> <br />
+Copyright: <%= @storedfile.copyright %><br />
+Terms of License: <%= @storedfile.license_terms %><br />
+
+<div id="dialog"></div>
+
+<div class="actions">
+	<%= submit_tag "EDIT" %>
+</div>

@@ -1,0 +1,26 @@
+<div id="dialog" title="Edit File" style="background:#ddd;padding:1em;">
+<p>
+	<%= form_for @storedfile do |f| %>
+		<p>
+			<%= f.label :original_file_name %><br />
+			<%=	f.text_field :original_file_name %>
+		</p>
+		<p>
+			<%= f.label :description %><br />
+			<%= f.text_area :description, :rows => 3 %>
+		</p>
+		<p>
+			<%= f.label :copyright %><br />
+			<%= f.text_field :copyright %>
+		</p>
+		<p>
+			<%= f.label :license_terms %><br />
+			<%= f.text_field :license_terms %>		
+		</p>
+		<p>
+			<%= f.label :tag_list %><br />
+			<%= f.text_field :tag_list %>
+		</p>
+	<% end %>
+</p>
+</div>

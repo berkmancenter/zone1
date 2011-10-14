@@ -17,7 +17,7 @@
 <h2>Results</h2>
 	<p><%=pluralize(@search.total, 'result') %> found.</p>
   	<% @storedfiles.each do |a| %> 
-  		<%= link_to a[:original_file_name] %>
+  		<%= link_to a[:original_file_name], stored_file_path(a) %>
 		<br />
   	<% end %>
 </div>

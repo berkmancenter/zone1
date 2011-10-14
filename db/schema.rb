@@ -89,6 +89,7 @@ ActiveRecord::Schema.define(:version => 20111012180516) do
     t.text     "license_terms"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "public_taggable"
   end
 
   create_table "stored_files_flags", :id => false, :force => true do |t|
