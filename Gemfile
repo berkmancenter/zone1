@@ -23,6 +23,8 @@ gem 'acts-as-taggable-on'
 gem 'sunspot_rails'
 gem 'acl9'
 gem 'will_paginate', '3.0.2'
+# gem 'rmagick'
+gem 'carrierwave'
 
 gem 'execjs'
 gem 'therubyracer'

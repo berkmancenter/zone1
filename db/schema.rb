@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111013023416) do
+ActiveRecord::Schema.define(:version => 20111014030058) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -77,7 +77,7 @@ ActiveRecord::Schema.define(:version => 20111013023416) do
   create_table "stored_files", :force => true do |t|
     t.integer  "batch_id"
     t.integer  "user_id",               :null => false
-    t.string   "original_file_name",    :null => false
+    t.string   "original_filename",     :null => false
     t.string   "collection_name"
     t.integer  "access_level_id",       :null => false
     t.integer  "content_type_id",       :null => false

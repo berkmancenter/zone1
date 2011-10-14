@@ -5,6 +5,7 @@ config/sunspot.yml
 db/*.sqlite3
 log/*.log
 log/*.log.lck
+uploads/
 tmp/
 .sass-cache/
 sunspot-solr.pid

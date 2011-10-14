@@ -8,13 +8,12 @@
 </head>
 <body>
 
-<header>
 <% if current_user -%>
 Hi, <%= current_user.name %>!
 <% else -%>
 <%= link_to 'Sign in', new_user_session_path %>
 <% end -%>
-</header>
+<br/>
 
 <%= yield %>
 
