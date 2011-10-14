@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111012180516) do
+ActiveRecord::Schema.define(:version => 20111013023416) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -33,6 +33,11 @@ ActiveRecord::Schema.define(:version => 20111012180516) do
   create_table "flags_stored_files", :id => false, :force => true do |t|
     t.integer "flag_id"
     t.integer "stored_file_id"
+  end
+
+  create_table "flags_stored_files", :id => false, :force => true do |t|
+    t.integer "stored_file_id"
+    t.integer "flag_id"
   end
 
   create_table "groups", :force => true do |t|
@@ -70,7 +75,7 @@ ActiveRecord::Schema.define(:version => 20111012180516) do
   end
 
   create_table "stored_files", :force => true do |t|
-    t.integer  "batch_id_id"
+    t.integer  "batch_id"
     t.integer  "user_id",               :null => false
     t.string   "original_file_name",    :null => false
     t.string   "collection_name"
@@ -89,12 +94,14 @@ ActiveRecord::Schema.define(:version => 20111012180516) do
     t.text     "license_terms"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.boolean  "public_taggable"
   end
 
   create_table "stored_files_flags", :id => false, :force => true do |t|
     t.integer "stored_file_id"
     t.integer "flag_id"
+    t.string   "file"
+    t.string   "author"
+    t.string   "title"
   end
 
   create_table "taggings", :force => true do |t|
