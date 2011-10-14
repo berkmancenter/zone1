@@ -1,0 +1,94 @@
+<h3>Filter Search Results</h3>
+
+<% @facets.each do |facet| -%>
+  <%= facet[:label] %><br />
+  <% facet[:links].each do |link| %>
+	<% if link[:remove] -%>
+      <%= link[:label] %>
+      (<%= link_to "remove", link[:url] %>)
+    <% else -%>
+      <%= link_to link[:label], link[:url] %>
+    <% end -%>
+    <br />
+  <% end %>
+<% end -%>
+
+
+<% if false %>
+<% @links.each do |key, array| %>
+	<%= key %><br />
+	<% array.collect do |x| %>
+		<% if key == "Access Level" %>
+			<%= link_to x.name, :aid => x.id, :uid => params[:uid], :aid => params[:aid], :cid => params[:cid], :tag => params[:tag], :flag => params[:flag] %><br />
+		<% else %>
+			<%= link_to x.name %>
+		<% end %>
+	<% end %>
+<% end %>
+
+<% end -%>
+
+
+<ul>
+<% if false -%>	
+	<div>Users</div>
+	<% @search.facet(:user_id).rows.each do |row| %>
+	 	 <li>
+		  		<%= link_to User.find(row.value), :search => params[:search], :size => params[:size], :aid => params[:aid], :cid => params[:cid], :tag => params[:tag], :flag => params[:flag], :uid => row.value %>
+			<% if params[:uid].to_i == row.value %>
+		  		(<%= link_to "remove", :uid => nil, :search => params[:search], :size => params[:size], :aid => params[:aid], :cid => params[:cid], :tag => params[:tag], :flag => params[:flag] %>)
+			<% end %>
+	  	</li>
+	<% end %>
+	
+	<div>File Size</div>
+    <% @search.facet(:file_size).rows.each do |row| %>
+		<li style="margin-bottom:1em;">
+          		<%= link_to row.value.to_s + "kb", :search => params[:search], :size => row.value, :aid => params[:aid], :uid => params[:uid], :cid => params[:cid], :tag => params[:tag], :flag => params[:flag] %>
+			<% if params[:size].to_i == row.value %>
+          		(<%= link_to "remove", :size => nil, :search => params[:search], :aid => params[:aid], :uid => params[:uid], :cid => params[:cid], :tag => params[:tag], :flag => params[:flag] %>)
+        	<% end %>
+      	</li>
+    <% end %>
+
+	<div>Access Level</div>
+	<% @search.facet(:access_level_id).rows.each do |row| %>
+		<li>
+		  	<%= link_to row.value.to_s, :search => params[:search], :size => params[:size], :aid => row.value, :uid => params[:uid], :cid => params[:cid], :tag => params[:tag], :flag => params[:flag] %>
+			<% if !params[:aid].blank? %>
+		  		(<%= link_to "remove", :aid => nil, :search => params[:search], :uid => params[:uid], :size => params[:size], :cid => params[:size], :tag => params[:tag], :flag => params[:flag] %>)
+			<% end %>
+	  	</li>
+	<% end %>
+	
+	<div>Content Type</div>
+	<% @search.facet(:content_type_id).rows.each do |row| %>
+		<li>
+		  		<%= link_to ContentType.find(row.value+2).name.capitalize, :search => params[:search], :size => params[:size], :aid => params[:aid], :tag => params[:tag], :flag => params[:flag], :uid => params[:uid], :cid => row.value %>
+			<% if params[:cid].to_i == row.value %>
+		  		(<%= link_to "remove", :cid => nil, :search => params[:search], :size => params[:size], :aid => params[:aid], :tag => params[:tag], :flag => params[:flag], :uid => params[:uid] %>)
+			<% end %>
+	  	</li>
+	<% end %>
+   
+	<div>Tags</div>
+	<% @search.facet(:tag_list).rows.each do |row| %>
+		<li>
+			<%= link_to row.value.capitalize, :search => params[:search], :tag => row.value, :size => params[:size], :aid => params[:aid], :uid => params[:uid], :cid => params[:cid], :flag => params[:flag] %>
+			<% if params[:tag] == row.value %>
+				(<%= link_to "remove", :tag => nil, :search => params[:search], :size => params[:size], :aid => params[:aid], :uid => params[:uid], :cid => params[:cid], :flag => params[:flag] %>)
+			<% end %>
+		</li>
+	<% end %>
+   
+	<div>Flags</div>
+	<% @search.facet(:flag_ids).rows.each do |row| %>
+		<li>
+			<%= link_to Flag.find(row.value).label, :search => params[:search], :flag => row.value, :aid => params[:aid], :uid => params[:uid], :cid => params[:cid], :tag => params[:tag] %>
+				<% if params[:flag].to_i == row.value %>
+					(<%= link_to "remove", :flag => nil, :search => params[:search], :aid => params[:aid], :uid => params[:uid], :cid => params[:cid], :tag => params[:tag] %>)
+				<% end %>
+		</li>
+	<% end %>
+</ul>
+<% end %>

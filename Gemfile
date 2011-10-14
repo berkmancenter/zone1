@@ -20,8 +20,9 @@ end
 gem 'jquery-rails'
 gem 'devise'
 gem 'acts-as-taggable-on'
-gem 'sunspot'
+gem 'sunspot_rails'
 gem 'acl9'
+gem 'will_paginate', '3.0.2'
 
 gem 'execjs'
 gem 'therubyracer'
@@ -29,3 +30,7 @@ gem 'rake', '0.8.7'
 
 # For ERD
 gem 'railroad'
+
+group :test, :development do
+  gem 'rspec-rails', '~> 2.6.1'
+end

@@ -1,1 +1,27 @@
-Evan!
+<%= form_tag search_path, :method => :get do %>
+  <p>
+    <%= text_field_tag :search, params[:search] %>
+    <%= submit_tag "Search", :name => nil %>
+  </p>
+<% end %>
+
+<div id="overview">
+	<%= link_to 'Reset search', search_path %>
+</div>
+
+<div id="facets" style="float:right">
+  	<%= render 'filter' %>
+</div>
+
+<div id="results" style="min-height:42em;">
+<h2>Results</h2>
+	<p><%=pluralize(@search.total, 'result') %> found.</p>
+  	<% @storedfiles.each do |a| %> 
+  		<%= link_to a[:original_file_name] %>
+		<br />
+  	<% end %>
+</div>
+
+<div style="margin-top:2em;">
+	<%= will_paginate @storedfiles %>
+</div>

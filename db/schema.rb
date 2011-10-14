@@ -10,11 +10,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111005194358) do
+ActiveRecord::Schema.define(:version => 20111012180516) do
 
   create_table "access_levels", :force => true do |t|
-    t.string "name",    :null => false
-    t.string "display", :null => false
+    t.string "name",  :null => false
+    t.string "label", :null => false
   end
 
   create_table "batches", :force => true do |t|
@@ -26,8 +26,13 @@ ActiveRecord::Schema.define(:version => 20111005194358) do
   end
 
   create_table "flags", :force => true do |t|
-    t.string "name",    :null => false
-    t.string "display", :null => false
+    t.string "name",  :null => false
+    t.string "label", :null => false
+  end
+
+  create_table "flags_stored_files", :id => false, :force => true do |t|
+    t.integer "flag_id"
+    t.integer "stored_file_id"
   end
 
   create_table "groups", :force => true do |t|

@@ -20,10 +20,12 @@ Hi, <%= current_user.name %>!
 
 <footer>
 <%= link_to 'Upload File(s)', upload_path %>
-<%= form_tag(search_path, :method => "post") do %>
-<%= text_field_tag :q %>
-<%= submit_tag "Search" %>
-<% end -%>
+<%= form_tag search_path, :method => :get do %>
+  <p>
+    <%= text_field_tag :search, params[:search] %>
+    <%= submit_tag "Search", :name => nil %>
+  </p>
+<% end %>
 
 </footer>
 
