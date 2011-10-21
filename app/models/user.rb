@@ -12,4 +12,5 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
   has_many :stored_files
   has_many :batches
+  has_one :sftp_users, :dependent => :destroy
 end

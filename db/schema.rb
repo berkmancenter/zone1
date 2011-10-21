@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111014030058) do
+ActiveRecord::Schema.define(:version => 20111021062654) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -65,6 +65,27 @@ ActiveRecord::Schema.define(:version => 20111014030058) do
   create_table "roles_users", :id => false, :force => true do |t|
     t.integer  "user_id"
     t.integer  "role_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "sftp_groups", :id => false, :force => true do |t|
+    t.integer  "id",         :null => false
+    t.string   "name"
+    t.text     "members"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "sftp_users", :id => false, :force => true do |t|
+    t.integer  "user_id",       :null => false
+    t.string   "username"
+    t.string   "passwd"
+    t.integer  "uid"
+    t.integer  "sftp_group_id"
+    t.string   "homedir"
+    t.string   "shell"
+    t.boolean  "active"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
