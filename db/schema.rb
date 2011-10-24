@@ -175,6 +175,11 @@ ActiveRecord::Schema.define(:version => 20111108124011) do
     t.boolean  "allow_tags"
   end
 
+  create_table "stored_files_flags", :id => false, :force => true do |t|
+    t.integer "stored_file_id"
+    t.integer "flag_id"
+  end
+
   create_table "taggings", :force => true do |t|
     t.integer  "tag_id"
     t.integer  "taggable_id"

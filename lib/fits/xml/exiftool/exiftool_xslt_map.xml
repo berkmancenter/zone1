@@ -1,0 +1,90 @@
+<?xml version="1.0" ?>
+<transformMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../xslt_map.xsd">
+	<!-- image -->
+	<map format="JPEG" transform="exiftool_image_to_fits.xslt"/>
+	<map format="JPG" transform="exiftool_image_to_fits.xslt"/>
+	<map format="TIFF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="TIF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="JP2" transform="exiftool_image_to_fits.xslt"/>
+	<map format="JPX" transform="exiftool_image_to_fits.xslt"/>
+	<map format="GIF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="BMP" transform="exiftool_image_to_fits.xslt"/>
+	<map format="DIB" transform="exiftool_image_to_fits.xslt"/>
+	<map format="PNG" transform="exiftool_image_to_fits.xslt"/>
+	<map format="PSD" transform="exiftool_image_to_fits.xslt"/> 
+	<map format="DNG" transform="exiftool_image_to_fits.xslt"/>
+	<map format="3FR" transform="exiftool_image_to_fits.xslt"/>
+	<map format="ARW" transform="exiftool_image_to_fits.xslt"/>
+	<map format="BTF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="CR2" transform="exiftool_image_to_fits.xslt"/>
+	<map format="CRW" transform="exiftool_image_to_fits.xslt"/>
+	<map format="CIFF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="CS1" transform="exiftool_image_to_fits.xslt"/>
+	<map format="DCR" transform="exiftool_image_to_fits.xslt"/>
+	<map format="ERF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="FPX" transform="exiftool_image_to_fits.xslt"/>
+	<map format="HDP" transform="exiftool_image_to_fits.xslt"/>
+	<map format="WDP" transform="exiftool_image_to_fits.xslt"/>
+	<map format="ITC" transform="exiftool_image_to_fits.xslt"/>
+	<map format="K25" transform="exiftool_image_to_fits.xslt"/>
+	<map format="KDC" transform="exiftool_image_to_fits.xslt"/>
+	<map format="MEF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="MIFF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="MIF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="MOS" transform="exiftool_image_to_fits.xslt"/>
+	<map format="MRW" transform="exiftool_image_to_fits.xslt"/>
+	<map format="NEF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="ORF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="PEF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="JNG" transform="exiftool_image_to_fits.xslt"/>
+	<map format="PPM" transform="exiftool_image_to_fits.xslt"/>
+	<map format="PBM" transform="exiftool_image_to_fits.xslt"/>
+	<map format="PGM" transform="exiftool_image_to_fits.xslt"/>
+	<map format="QTIF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="QTI" transform="exiftool_image_to_fits.xslt"/>
+	<map format="QIF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="RAF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="RAW" transform="exiftool_image_to_fits.xslt"/>
+	<map format="RW2" transform="exiftool_image_to_fits.xslt"/>
+	<map format="RWZ" transform="exiftool_image_to_fits.xslt"/>
+	<map format="SR2" transform="exiftool_image_to_fits.xslt"/>
+	<map format="SRF" transform="exiftool_image_to_fits.xslt"/>
+	<map format="THM" transform="exiftool_image_to_fits.xslt"/>
+	<map format="X3F" transform="exiftool_image_to_fits.xslt"/>
+	
+	<!-- audio -->
+	<map format="WAV" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="MP3" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="M4A" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="AIFF" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="AIF" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="RA" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="RM" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="OGG" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="FLAC" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="AIFC" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="APE" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="MPC" transform="exiftool_audio_to_fits.xslt"/>
+	<map format="WMA" transform="exiftool_audio_to_fits.xslt"/>
+
+	<!-- video -->
+	<map format="MP4" transform="exiftool_video_to_fits.xslt"/>
+	<map format="FLV" transform="exiftool_video_to_fits.xslt"/>
+	
+	<!-- text -->
+	<map format="XML" transform="exiftool_text_to_fits.xslt"/>
+	<map format="HTML" transform="exiftool_text_to_fits.xslt"/>
+	<map format="HTM" transform="exiftool_text_to_fits.xslt"/>
+	<map format="XHTML" transform="exiftool_text_to_fits.xslt"/>
+	<map format="ICC" transform="exiftool_text_to_fits.xslt"/>
+	<map format="ICM" transform="exiftool_text_to_fits.xslt"/>
+	<map format="RAM" transform="exiftool_text_to_fits.xslt"/>
+	<map format="RPM" transform="exiftool_text_to_fits.xslt"/>
+	<map format="SVG" transform="exiftool_text_to_fits.xslt"/>
+	<map format="XMP" transform="exiftool_text_to_fits.xslt"/>
+	 
+	<!-- document -->
+	<map format="PDF" transform="exiftool_document_to_fits.xslt"/> <!--  includes AI -->
+	<map format="DOC" transform="exiftool_document_to_fits.xslt"/>
+
+</transformMap>

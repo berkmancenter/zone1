@@ -203,6 +203,7 @@ DEPENDENCIES
   factory_girl_rails
   jquery-rails
   json
+  nokogiri
   pg
   railroad
   rails (= 3.1.0)

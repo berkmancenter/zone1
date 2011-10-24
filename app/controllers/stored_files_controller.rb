@@ -105,6 +105,7 @@ class StoredFilesController < ApplicationController
       # TODO: Figure out why this attribute is not getting updated in update_attributes 
       @stored_file.update_attribute(:allow_notes, params[:stored_file][:allow_notes])
 
+      # TODO: Once the :allow_notes issue is fixed, combine these into one update_attributes call
       @stored_file.update_attributes(validate_params(params, @stored_file))
    
       respond_to do |format|
@@ -289,4 +290,5 @@ class StoredFilesController < ApplicationController
       session[:upload_batches].delete temp_batch_id
     end
   end
+
 end
