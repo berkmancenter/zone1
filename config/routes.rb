@@ -1,7 +1,4 @@
 Zone1::Application.routes.draw do
-  resources :licenses
-
-  resources :groups
 
   devise_for :users
 
