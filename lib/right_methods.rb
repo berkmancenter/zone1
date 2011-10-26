@@ -23,7 +23,7 @@ module RightMethods
     toggle_flag(flag)
   end 
 
-  def toggle_nominated
+  def toggle_nominated_for_preservation
     flag = Flag.find_by_name("NOMINATED_FOR_PRESERVATION")
     toggle_flag(flag)
   end
@@ -33,12 +33,12 @@ module RightMethods
     toggle_flag(flag)
   end
 
-  def toggle_univ_record
+  def toggle_university_record
     flag = Flag.find_by_name("UNIVERSITY_RECORD")
     toggle_flag(flag)
   end
 
-  def toggle_possible_univ_record
+  def toggle_may_be_university_record
     flag = Flag.find_by_name("MAY_BE_UNIVERSITY_RECORD")
     toggle_flag(flag)
   end
@@ -67,16 +67,7 @@ module RightMethods
     toggle_access_level(AccessLevel.find_by_name("dark"))
   end
 
-  def toggle_description; end
-  def toggle_description_to_own_content; end
-  def toggle_copyright; end
-  def toggle_copyright_to_own_content; end 
-  def toggle_terms; end
-  def toggle_terms_to_own_content; end
-  def toggle_tags; end 
-  def toggle_tags_to_own_content; end
-  def toggle_disposition; end
-  def toggle_disposition_to_own_content; end
+  def update_disposition; end
   #def delete_item; end
   #def delete_item_to_own_content; end
   #def view_item; end 

@@ -17,9 +17,11 @@ class User < ActiveRecord::Base
   has_many :rights, :through => :right_assignments
 
   def list_rights
+    # TODO: Low level caching on this later
     [self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.method }
   end
 
+  # stored_file can be an id or it can be a StoredFile
   def can_do_method?(stored_file, method)
     rights = self.list_rights
     return true if rights.include?(method)

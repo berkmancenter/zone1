@@ -8,9 +8,7 @@
 	<%= f.label "Batch" %>: <%= @stored_file.batch_id %><br />
 	<% end -%>
 	<%= f.label :ingest_date %>: <%= @stored_file.created_at %><br />
-	<% if !@stored_file.deletion_date.nil? %>
-		<%= f.label :deletion_date %>: <%= @stored_file.deletion_date %><br />
-	<% end %>
+	<%= f.label :deletion_date %>: <%= @stored_file.deletion_date %><br />
 	<%= @record %><br />
 	<%= render :partial => "form", :locals => { :f => f } %>
 <% end %>

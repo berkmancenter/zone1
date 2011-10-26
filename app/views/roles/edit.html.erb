@@ -1,9 +1,13 @@
-<h1><%= @role.name %></h1>
+<h1><%= @role.name %> rights</h1>
 
-<%= form_tag(role_path(@role), :method => "put") do %>
+<%= form_tag(role_path(@role), :method => "put", :id => "edit_roles") do %>
 <% @rights.each do |right| %>
-<input name="rights[<%= right.id %>]" <%= raw 'checked="checked"' if @role.rights.include?(right) %> type="checkbox" value="1" /> <%= right.method %> 
-<small><%= right.description %></small><br />
+<p>
+<input name="rights[<%= right.id %>]" <%= raw 'checked="checked"' if @role.rights.include?(right) %> type="checkbox" value="1" />
+<%= right.method %><br />
+<small><%= right.description %></small>
+</p>
 <% end -%>
-<%= submit_tag("Update Roles") %>
+<div class="clear"></div>
+<%= submit_tag("Update Rights") %>
 <% end -%>

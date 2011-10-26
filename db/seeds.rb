@@ -46,59 +46,45 @@ g = Group.new(:name => 'End Point', :user_id => u3.id)
 g.users << User.all
 g.save
 
+Right.create([{ :method => "toggle_preserved", :description => "Ability to toggle PRESERVED flag." },
+  { :method => "toggle_nominated_for_preservation", :description => "Ability to toggle NOMINATED_FOR_PRESERVATION flag." },
+  { :method => "toggle_selected_for_preservation", :description => "Ability to toggle SELECTED_FOR_PRESERVATION flag." },
+  { :method => "toggle_university_record", :description => "Ability to toggle UNIVERSITY_RECORD flag." },
+  { :method => "toggle_may_be_university_record", :description => "Ability to toggle MAY_BE_UNIVERSITY_RECORD flag." },
+  { :method => "toggle_open", :description => "Ability to set access level to open on any content." },
+  { :method => "toggle_open_to_own_content", :description => "Ability to set access level to open on content owned by you." },
+  { :method => "toggle_partially_open", :description => "Ability to set access level to partially open on any content." },
+  { :method => "toggle_partially_open_to_own_content", :description => "Ability to set access level to partially open on content owned by you." },
+  { :method => "toggle_dark", :description => "Ability to set access level to dark on any content." },
+  { :method => "toggle_dark_to_own_content", :description => "Ability to set access level to dark on content owned by you." },
+  { :method => "update_disposition", :description => "Ability to update disposition on any content." },
+  { :method => "delete_items", :description => "Ability to delete any content." },
+  { :method => "delete_item_to_own_content", :description => "Ability to delete content owned by you." },
+  { :method => "view_items", :description => "Ability to view any content." }, 
+  { :method => "view_items_to_own_content", :description => "Ability to view content owned by you." },
+  { :method => "view_preserved_flag_content", :description => "Ability to view any content with preservation flag." }])
+(ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
+ ri11, ri12, ri13, ri13, ri15, ri16, ri17) = Right.all
+
 Role.create([{ :name => "admin" },
   { :name => "steward" },
   { :name => "records_manager" },
   { :name => "user" }])
 (r1, r2, r3, r4) = Role.all
 
-Right.create([{ :method => "toggle_preserved" },
-  { :method => "toggle_nominated" },
-  { :method => "toggle_selected_for_preservation" },
-  { :method => "toggle_univ_record" },
-  { :method => "toggle_possible_univ_record" },
-  { :method => "toggle_preserved_to_own_content" },
-  { :method => "toggle_nominated_to_own_content" },
-  { :method => "toggle_selected_for_preservation_to_own_content" },
-  { :method => "toggle_univ_record_to_own_content" },
-  { :method => "toggle_possible_univ_record_to_own_content" },
-  { :method => "toggle_description" },
-  { :method => "toggle_description_to_own_content" },
-  { :method => "toggle_copyright" },
-  { :method => "toggle_copyright_to_own_content" }, 
-  { :method => "toggle_terms" },
-  { :method => "toggle_terms_to_own_content" },
-  { :method => "toggle_tags" }, 
-  { :method => "toggle_tags_to_own_content" },
-  { :method => "toggle_disposition" },
-  { :method => "toggle_disposition_to_own_content" },
-  { :method => "toggle_open" },
-  { :method => "toggle_open_to_own_content" },
-  { :method => "toggle_partially_open" },
-  { :method => "toggle_partially_open_to_own_content" },
-  { :method => "toggle_dark" },
-  { :method => "toggle_dark_to_own_content" },
-  { :method => "delete_items" },
-  { :method => "delete_item_to_own_content" },
-  { :method => "view_items" }, 
-  { :method => "view_items_to_own_content" },
-  { :method => "view_preserved_flag_content" }])
-(ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
- ri11, ri12, ri13, ri13, ri15, ri16, ri17, ri18, ri19, ri20,
- ri21, ri22, ri23, ri24, ri25, ri26, ri27, ri28, ri29, ri30,
- ri31) = Right.all
-
-r1.rights = Right.all
+r1.rights = Right.all # all rights
 r1.save
-r2.rights = [ri1, ri2, ri3]
+r2.rights = [ri1, ri2, ri3, ri17] # preservation flags, view preserved flag content
 r2.save
-r3.rights = [ri4, ri5]
+r3.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content
 r3.save
-r4.rights = [ri6, ri7, ri8, ri9, ri10]
+r4.rights = [ri2, ri5, ri9, ri11, ri16] #nominate preservation flag, partially open and dark settings, view own content 
 r4.save
 
-u1.roles = [r2, r3, r4]
-u1.save
+# Assign user role to all users
+u1.roles << r4
+u2.roles << r4
+u3.roles << r4
 
 puts "Generating licenses"
 License.create([{ :name => 'CC BY' },

@@ -1,7 +1,15 @@
 class UploadController < ApplicationController
 
+  access_control do
+    allow logged_in, :to => :index
+  end
+
   def index
     @stored_file = StoredFile.new
+
+    # Important: For appropriate permissions to be shown
+	@stored_file.user = current_user 
+
     @stored_file.access_level_id = 3  #todo: just for testing
     init_new_batch
   end

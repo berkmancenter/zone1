@@ -8,6 +8,8 @@ class StoredFilesController < ApplicationController
     allow all, :to => :index
     allow logged_in, :to => :create
 
+    # allow logged_in, :to => :batch_edit, :if => :batch_allow_method
+
     #Toggle methods: flags, tags, various fields, access level
     allow logged_in, :to => :toggle_method, :if => :allow_toggle_method
 
@@ -32,6 +34,11 @@ class StoredFilesController < ApplicationController
 
     return true if current_user.list_rights.include?("view_preserved_flag_content") && 
       stored_file.has_preserved_flag?
+
+    # add does user have right to view own file
+
+    # does user groups have access to view file and is file partially open 
+
     true #false
   end
 
@@ -71,29 +78,32 @@ class StoredFilesController < ApplicationController
   def update
     begin
       @stored_file = StoredFile.find(params[:id])
-      @creator = @stored_file.user
 
-      params[:stored_file][:flag_ids] ||= []
-
-      @stored_file.tag_list = params[:stored_file][:tag_list]
-      @stored_file.collection_list = params[:stored_file][:collections]
-  
-      @creator_email = params[:stored_file][:creator_email]
-      if @creator_email
-        @user = User.find_by_email(@creator_email)
+      # Server side validation on rights to update
+      if !current_user.can_do_method?(@stored_file, "update_disposition")
+        params[:stored_file].delete(:disposition)
       end
 
-      if @user
-        params[:stored_file][:creator_email] = @user.id
-      else
-        flash[:error] = "Invalid creator email" 
-        raise "Invalid creator email"
+      if @stored_file.access_level_id != params[:stored_file][:access_level_id]
+        access_level = AccessLevel.find(params[:stored_file][:access_level_id])
+        if !current_user.can_do_method?(@stored_file, "toggle_#{access_level.name}")
+          params[:stored_file].delete(:access_level_id)
+        end
       end
-      
+
+      if params.has_key?(:flags)
+        new_flags = @stored_file.flags.collect { |f| f.id }
+        params[:flags].each do |k, v|
+          if current_user.can_do_method?(@stored_file, "toggle_#{k}")
+            new_flags << Flag.find_by_name(k.upcase).id
+          end
+        end
+        params[:stored_file][:flag_ids] = new_flags  
+      end 		
+
       @stored_file.update_attributes(params[:stored_file])
       
       render :json => { :success => 'true' }
-      return
     rescue Exception => e
       render :json => { :status => :unprocessable_entity, :message => e.to_s }
       ::Rails.logger.warn "Warning: stored_files_controller.update got exception: #{e}"

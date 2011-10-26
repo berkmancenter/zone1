@@ -38,6 +38,7 @@ $(document).ready(function() {
 		});
 	});
 
+/*
 	$('#edit_stored_file .flags input').click(function() {
 		var id = $('h1').data('id');
 		$.ajax({
@@ -71,5 +72,6 @@ $(document).ready(function() {
 			}
 		});
 	});
+*/
 });
 
