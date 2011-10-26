@@ -61,52 +61,52 @@ class StoredFilesController < ApplicationController
   # GET /storedfiles/1/edit
   def edit
     @stored_file = StoredFile.find(params[:id])
-  	@flag = @stored_file.flag_ids
+    @flag = @stored_file.flag_ids
 
     @stored_file.flags.each do |flag|
-  		if flag.id == 5
-  			@flag = "University Record"
-  		elsif flag.id == 3
-  			@flag = "Preserved"
-  		end 
-  	end
-  	@creator = @stored_file.user
-  	respond_to do |format|
-  		format.html { render :layout => false }
-  	end
+      if flag.id == 5
+        @flag = "University Record"
+      elsif flag.id == 3
+        @flag = "Preserved"
+      end 
+    end
+    @creator = @stored_file.user
+    respond_to do |format|
+      format.html { render :layout => false }
+    end
   end
 
   # PUT /storedfiles/1
   # PUT /storedfiles/1.json
   def update
-  	begin
+    begin
       @stored_file = StoredFile.find(params[:id])
-  	  @creator = @stored_file.user
+      @creator = @stored_file.user
 
-	    params[:stored_file][:flag_ids] ||= []
+      params[:stored_file][:flag_ids] ||= []
 
       @stored_file.tag_list = params[:stored_file][:tag_list]
-  	  @stored_file.collection_list = params[:stored_file][:collections]
+      @stored_file.collection_list = params[:stored_file][:collections]
   
       @creator_email = params[:stored_file][:creator_email]
       if @creator_email
         @user = User.find_by_email(@creator_email)
       end
 
-  	  if @user
-  		  params[:stored_file][:creator_email] = @user.id
-  	  else
-	  	  flash[:error] = "Invalid creator email" 
-		    raise "Invalid creator email"
-	    end
+      if @user
+        params[:stored_file][:creator_email] = @user.id
+      else
+        flash[:error] = "Invalid creator email" 
+        raise "Invalid creator email"
+      end
       
       @stored_file.update_attributes(params[:stored_file])
-	    
+      
       render :json => { :success => 'true' }
       return
     rescue Exception => e
       render :json => { :status => :unprocessable_entity, :message => e.to_s }
-	    ::Rails.logger.warn "Warning: stored_files_controller.update got exception: #{e}"
+      ::Rails.logger.warn "Warning: stored_files_controller.update got exception: #{e}"
     end
   end
 
