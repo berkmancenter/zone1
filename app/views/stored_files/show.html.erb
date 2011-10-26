@@ -1,10 +1,18 @@
-<h1 data-id="<%= @stored_file.id %>"><%= @stored_file.original_filename %></h1>
+<% if @stored_file.delete_flag != true %>
+  
+  <h1 data-id="<%= @stored_file.id %>"><%= @stored_file.original_filename %></h1>
 
-ID: <%= @stored_file.id %><br />
-Tags: <%= @stored_file.tag_list %><br />
-Description: <%= @stored_file.description %> <br />
-Copyright: <%= @stored_file.copyright %><br />
-Terms of License: <%= @stored_file.license_terms %><br />
+  ID: <%= @stored_file.id %><br />
+  Tags: <%= @stored_file.tag_list %><br />
+  Description: <%= @stored_file.description %> <br />
+  Copyright: <%= @stored_file.copyright %><br />
+  Terms of License: <%= @stored_file.license.name %><br />
+
+<% else %>
+  
+  This file has been deleted.
+
+<% end %>
 
 <div class="actions">
 	<%= submit_tag "EDIT" %>

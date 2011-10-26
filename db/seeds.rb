@@ -18,27 +18,31 @@ Right.delete_all
 connection = ActiveRecord::Base.connection
 connection.execute("DELETE FROM roles_users")
 
+puts "Generating access levels"
 AccessLevel.create([{ :name => 'open', :label => 'Open' },
   { :name => 'dark', :label => 'Dark' },
   { :name => 'partially_open', :label => 'Partially Open' }])
 (a1, a2, a3) = AccessLevel.all
 
+puts "Generating flags"
 Flag.create([{ :name => 'NOMINATED_FOR_PRESERVATION', :label => 'Nominated for Preservation' },
   { :name => 'SELECTED_FOR_PRESERVATION', :label => 'Selected for Preservation' },
   { :name => 'PRESERVED', :label => 'Preserved' },
   { :name => 'MAY_BE_UNIVERSITY_RECORD', :label => 'May be University Record' },
   { :name => 'UNIVERSITY_RECORD', :label => 'University Record' }])
 
-
+puts "Generating content type"
 ContentType.create([{ :name => "image" }, { :name => "doc" }])
 (c1, c2) = ContentType.all
 
+puts "Generating users"
 User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Steph' },
              {:email => 'bgadoury@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Phunk' },
              {:email => 'etann@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Evan' }])
 (u1, u2, u3) = User.all
 
-g = Group.new(:name => 'End Point', :user_id => u1.id)
+puts "Generating groups"
+g = Group.new(:name => 'End Point', :user_id => u3.id)
 g.users << User.all
 g.save
 
@@ -97,6 +101,7 @@ u1.roles = [r2, r3, r4]
 u1.save
 
 =begin
+puts "Generating stored files"
 40.times do
 	StoredFile.create([{:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a1.id, :content_type_id => c1.id},
 					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a2.id, :content_type_id => c1.id},
@@ -104,8 +109,18 @@ u1.save
 					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u3.id, :access_level_id => a1.id, :content_type_id => c2.id}]) 
 end
 
+puts "Generating licenses"
+License.create([{ :name => 'CC BY' },
+				{ :name => 'CC BY-SA' },
+				{ :name => 'CC BY-ND' },
+				{ :name => 'CC BY-NC' },
+				{ :name => 'CC BY-NC-SA' },
+				{ :name => 'CC BY-NC-ND' }])
+
+puts "Adding tags"
 StoredFile.all.each do |a|
   a.tag_list = "paper"
+  a.license = License.find(1)
   a.save
   a.flags << Flag.first
 end
@@ -113,9 +128,10 @@ end
 sf = StoredFile.first
 sf.tag_list = "dissertation"
 sf.flags << Flag.last
+sf.license = License.find(2)
 sf.save
 
 sf = StoredFile.last
 sf.tag_list = "thesis"
+sf.license = License.find(3)
 sf.save 
-=end

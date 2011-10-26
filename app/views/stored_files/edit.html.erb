@@ -1,6 +1,7 @@
 <div id="dialog" title="Edit File" style="background:#ddd;padding:1em;">
 <p>
 	<%= form_for @stored_file do |f| %>
+		<%= flash[:error] %>
 		<% if current_user.can_do_method?(@stored_file, "toggle_disposition") -%>
 		<p>
 			<%= f.label :disposition %><br />
@@ -13,6 +14,62 @@
 			<%= f.text_area :description, :rows => 3 %>
 		</p>
 		<% end -%>
+		<p>
+			<%= f.label :original_filename %>: <%= @stored_file.original_filename %><br />
+		</p>
+		<p>
+			<%= f.label :contributor %>: <%= @stored_file.author %>
+		</p>
+		<p>
+			<%= f.label :file_size %>: <%= @stored_file.file_size %>
+		</p>
+		<p>
+			URL: <%= stored_file_url %>
+		</p>
+		<p>
+			<%= f.label "Batch" %>: <%= @stored_file.batch_id %>
+		</p>
+		<p>
+			<%= f.label :ingest_date %>: <%= @stored_file.created_at %>
+		</p>
+		<p>
+			<% if !@stored_file.deletion_date.nil? %>
+				<%= f.label :deletion_date %>: <%= @stored_file.deletion_date %><br />
+			<% end %>
+			<%= @record %><br />
+		</p>
+		<hr>
+		<table>
+			<tr>
+				<td>
+					<%= f.label :collections %><br />
+					<%= f.text_field :collections, :value => @stored_file.collections.join(',') %><br />
+				</td>
+				<td valign="top">	
+					<%= f.label :creator_email, "Creator" %><br />
+					<%= f.text_field :creator_email, :value => @creator.email %><br />
+					<%= f.label :office %><br />
+					<%= f.text_field :office %><br />
+					<%= f.label :title %><br />
+					<%= f.text_field :title %>	
+				</td>
+			</tr>
+		</table>
+		<%= f.check_box :allow_notes %> <%= f.label "Allow users to add descriptions" %>
+		<hr>
+		<table>
+			<tr>
+				<td style="width:40%">
+					<%= check_box_tag :access_level %> <%= f.label "Open/Public" %><br />
+					<%= check_box_tag :access_level2 %> <%= f.label "Partially open" %>
+				</td>
+				<td>
+					<%= f.label "Groups" %><br />
+					<%= text_field_tag "groups" %>
+				</td>
+			</tr>
+		</table>
+		<hr>
 		<% if current_user.can_do_method?(@stored_file, "toggle_copyright") -%>
 		<p>
 			<%= f.label :copyright %><br />
@@ -21,16 +78,22 @@
 		<% end -%>
 		<% if current_user.can_do_method?(@stored_file, "toggle_terms") -%>
 		<p>
-			<%= f.label :license_terms %><br />
-			<%= f.text_field :license_terms %>		
+			<%= f.label :license_id, "License" %><br />
+			<% for license in License.find(:all).sort %>
+				<%= f.radio_button(:license_id, license.id) %> <%= license.name %><br />
+			<% end %>		
 		</p>
 		<% end -%>
 		<% if current_user.can_do_method?(@stored_file, "toggle_tags") -%>
-		<p>
-			<%= f.label :tag_list %><br />
-			<%= f.text_field :tag_list %>
-		</p>
+		<%= f.label :tag_list %><br />
+		<%= f.text_field :tag_list %><br />
 		<% end -%>
+		<hr>
+		<p>
+			<% for flag in Flag.find(:all) %>	
+				<%= check_box_tag "stored_file[flag_ids][]", flag.id, @stored_file.flags.include?(flag), :multiple => TRUE %> <%= flag.label %><br />
+			<% end %>
+		</p>
 	<% end %>
 </p>
 </div>

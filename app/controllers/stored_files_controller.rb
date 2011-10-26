@@ -1,6 +1,8 @@
 class StoredFilesController < ApplicationController
   include RightMethods
   protect_from_forgery
+  caches_page :show
+  cache_sweeper :stored_file_sweeper, :only => [:create, :update, :destroy]
 
   access_control do
     allow all, :to => :index
@@ -49,10 +51,6 @@ class StoredFilesController < ApplicationController
   # GET /storedfiles
   def index
     @stored_files = StoredFile.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-    end
   end
 
   # GET /storedfiles/1
@@ -63,33 +61,52 @@ class StoredFilesController < ApplicationController
   # GET /storedfiles/1/edit
   def edit
     @stored_file = StoredFile.find(params[:id])
-	respond_to do |format|
-		format.html { render :layout => false }
-	end
+  	@flag = @stored_file.flag_ids
+
+    @stored_file.flags.each do |flag|
+  		if flag.id == 5
+  			@flag = "University Record"
+  		elsif flag.id == 3
+  			@flag = "Preserved"
+  		end 
+  	end
+  	@creator = @stored_file.user
+  	respond_to do |format|
+  		format.html { render :layout => false }
+  	end
   end
 
   # PUT /storedfiles/1
   # PUT /storedfiles/1.json
   def update
-    @stored_file = StoredFile.find(params[:id])
-    respond_to do |format|
-      if @stored_file.update_attributes(params[:stored_file])
-        format.json { head :ok }
-      else
-        format.json { render :json => @stored_file.errors, :status => :unprocessable_entity }
+  	begin
+      @stored_file = StoredFile.find(params[:id])
+  	  @creator = @stored_file.user
+
+	    params[:stored_file][:flag_ids] ||= []
+
+      @stored_file.tag_list = params[:stored_file][:tag_list]
+  	  @stored_file.collection_list = params[:stored_file][:collections]
+  
+      @creator_email = params[:stored_file][:creator_email]
+      if @creator_email
+        @user = User.find_by_email(@creator_email)
       end
-    end
-  end
 
-  # DELETE /storedfiles/1
-  # DELETE /storedfiles/1.json
-  def destroy
-    @stored_file = Storedfile.find(params[:id])
-    @stored_file.destroy
-
-    respond_to do |format|
-      format.html { redirect_to storedfiles_url }
-      format.json { head :ok }
+  	  if @user
+  		  params[:stored_file][:creator_email] = @user.id
+  	  else
+	  	  flash[:error] = "Invalid creator email" 
+		    raise "Invalid creator email"
+	    end
+      
+      @stored_file.update_attributes(params[:stored_file])
+	    
+      render :json => { :success => 'true' }
+      return
+    rescue Exception => e
+      render :json => { :status => :unprocessable_entity, :message => e.to_s }
+	    ::Rails.logger.warn "Warning: stored_files_controller.update got exception: #{e}"
     end
   end
 

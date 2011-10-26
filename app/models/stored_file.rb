@@ -7,25 +7,28 @@ class StoredFile < ActiveRecord::Base
   acts_as_authorization_object
 
   before_save :update_file_attributes
+  has_one :license
 
   acts_as_taggable
-  acts_as_taggable_on :publication_types
+  acts_as_taggable_on :publication_types, :collections
   before_save :update_file_attributes
 
-  attr_accessible :file, :license_terms, :collection_name,
+  attr_accessible :file, :license_id, :collection_name,
     :author, :title, :copyright, :description, :access_level_id,
-    :user_id, :content_type_id, :original_filename, :batch_id
+    :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
+    :allow_notes, :delete_flag, :office
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags]) do
-	text :original_filename, :collection_name, :description, :copyright, :license_terms
+	text :original_filename, :collection_name, :description, :copyright
 	string :format_name, :format_version, :mime_type, :md5
 	string :tag_list, :stored => true, :multiple => true
 	integer :flag_ids, :multiple => true, :references => Flag 
 	date :ingest_date, :retention_plan_date, :retention_plan_action
 	integer :file_size
 	integer :access_level_id, :multiple => true, :references => AccessLevel
+	integer :license_id, :references => License
 	integer :user_id, :multiple => true, :references => User
 	integer :content_type_id, :multiple => true, :references => ContentType
 	time :created_at, :updated_at
