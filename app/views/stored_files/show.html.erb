@@ -1,49 +1,14 @@
 <% if @stored_file.delete_flag != true %>
-  
-  <h1 data-id="<%= @stored_file.id %>"><%= @stored_file.original_filename %></h1>
-
+  <h1 data-id="<%= @stored_file.id %>"><%= @stored_file.title %></h1>
   ID: <%= @stored_file.id %><br />
   Tags: <%= @stored_file.tag_list %><br />
   Description: <%= @stored_file.description %> <br />
   Copyright: <%= @stored_file.copyright %><br />
   Terms of License: <%= @stored_file.license.name %><br />
-
 <% else %>
-  
   This file has been deleted.
-
 <% end %>
 
 <div class="actions">
 	<%= submit_tag "EDIT" %>
-</div>
-
-<div class="flags">
-<% if current_user.can_do_method?(@stored_file, "toggle_univ_record") -%>
-<input type="checkbox" value="toggle_univ_record" /> University Record<br />
-<% end -%>
-<% if current_user.can_do_method?(@stored_file, "toggle_possible_univ_record") -%>
-<input type="checkbox" value="toggle_possible_univ_record" /> Possible University Record<br />
-<% end -%>
-<% if current_user.can_do_method?(@stored_file, "toggle_nominated") -%>
-<input type="checkbox" value="toggle_nominated" /> Nominated for Preservation<br />
-<% end -%>
-<% if current_user.can_do_method?(@stored_file, "toggle_selected_for_preservation") -%>
-<input type="checkbox" value="toggle_selected_for_preservation" /> Selected for Preservation<br />
-<% end -%>
-<% if current_user.can_do_method?(@stored_file, "toggle_preserved") -%>
-<input type="checkbox" value="toggle_preserved" /> Preserved<br />
-<% end -%>
-</div>
-
-<div class="access-level">
-<% if current_user.can_do_method?(@stored_file, "toggle_open") -%>
-<input type="radio" name="access_level_id" value="toggle_open" />Open<br />
-<% end -%>
-<% if current_user.can_do_method?(@stored_file, "toggle_partially_open") -%>
-<input type="radio" name="access_level_id" value="toggle_partially_open" />Partially Open<br />
-<% end -%>
-<% if current_user.can_do_method?(@stored_file, "toggle_dark") -%>
-<input type="radio" name="access_level_id" value="toggle_dark" />Dark<br />
-<% end -%>
 </div>

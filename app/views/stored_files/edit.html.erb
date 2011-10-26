@@ -1,99 +1,84 @@
 <div id="dialog" title="Edit File" style="background:#ddd;padding:1em;">
-<p>
 	<%= form_for @stored_file do |f| %>
 		<%= flash[:error] %>
+		<%= f.label :original_filename %>: <%= @stored_file.original_filename %><br />
+		<%= f.label :contributor %>: <%= @stored_file.author %><br />
+		<%= f.label :file_size %>: <%= @stored_file.file_size %><br />
+		URL: <%= stored_file_url %><br />
+		<% if @stored_file.batch_id -%>
+		<%= f.label "Batch" %>: <%= @stored_file.batch_id %><br />
+		<% end -%>
+		<%= f.label :ingest_date %>: <%= @stored_file.created_at %><br />
+		<% if !@stored_file.deletion_date.nil? %>
+			<%= f.label :deletion_date %>: <%= @stored_file.deletion_date %><br />
+		<% end %>
+		<%= @record %><br />
+		<hr />
 		<% if current_user.can_do_method?(@stored_file, "toggle_disposition") -%>
-		<p>
-			<%= f.label :disposition %><br />
-			<%= f.text_field :disposition %>
-		</p>
+		<%= f.label :disposition %>
+		<%= f.text_field :disposition %><br />
 		<% end -%>
 		<% if current_user.can_do_method?(@stored_file, "toggle_description") -%>
-		<p>
-			<%= f.label :description %><br />
-			<%= f.text_area :description, :rows => 3 %>
-		</p>
+		<%= f.label :description %>
+		<%= f.text_area :description, :rows => 3 %><br />
 		<% end -%>
-		<p>
-			<%= f.label :original_filename %>: <%= @stored_file.original_filename %><br />
-		</p>
-		<p>
-			<%= f.label :contributor %>: <%= @stored_file.author %>
-		</p>
-		<p>
-			<%= f.label :file_size %>: <%= @stored_file.file_size %>
-		</p>
-		<p>
-			URL: <%= stored_file_url %>
-		</p>
-		<p>
-			<%= f.label "Batch" %>: <%= @stored_file.batch_id %>
-		</p>
-		<p>
-			<%= f.label :ingest_date %>: <%= @stored_file.created_at %>
-		</p>
-		<p>
-			<% if !@stored_file.deletion_date.nil? %>
-				<%= f.label :deletion_date %>: <%= @stored_file.deletion_date %><br />
-			<% end %>
-			<%= @record %><br />
-		</p>
-		<hr>
-		<table>
-			<tr>
-				<td>
-					<%= f.label :collections %><br />
-					<%= f.text_field :collections, :value => @stored_file.collections.join(',') %><br />
-				</td>
-				<td valign="top">	
-					<%= f.label :creator_email, "Creator" %><br />
-					<%= f.text_field :creator_email, :value => @creator.email %><br />
-					<%= f.label :office %><br />
-					<%= f.text_field :office %><br />
-					<%= f.label :title %><br />
-					<%= f.text_field :title %>	
-				</td>
-			</tr>
-		</table>
-		<%= f.check_box :allow_notes %> <%= f.label "Allow users to add descriptions" %>
-		<hr>
-		<table>
-			<tr>
-				<td style="width:40%">
-					<%= check_box_tag :access_level %> <%= f.label "Open/Public" %><br />
-					<%= check_box_tag :access_level2 %> <%= f.label "Partially open" %>
-				</td>
-				<td>
-					<%= f.label "Groups" %><br />
-					<%= text_field_tag "groups" %>
-				</td>
-			</tr>
-		</table>
-		<hr>
 		<% if current_user.can_do_method?(@stored_file, "toggle_copyright") -%>
-		<p>
-			<%= f.label :copyright %><br />
-			<%= f.text_field :copyright %>
-		</p>
+		<%= f.label :copyright %>
+		<%= f.text_field :copyright %><br />
 		<% end -%>
-		<% if current_user.can_do_method?(@stored_file, "toggle_terms") -%>
-		<p>
-			<%= f.label :license_id, "License" %><br />
-			<% for license in License.find(:all).sort %>
-				<%= f.radio_button(:license_id, license.id) %> <%= license.name %><br />
-			<% end %>		
-		</p>
-		<% end -%>
+		<%= f.label :title %>
+		<%= f.text_field :title %><br />	
+		<%= f.label :collections %>
+		<%= f.text_field :collections, :value => @stored_file.collections.join(',') %><br />
+		<%= f.label :creator_email, "Creator" %>
+		<%= f.text_field :creator_email, :value => @creator.email %><br />
+		<%= f.label :office %>
+		<%= f.text_field :office %><br />
+		<%= f.check_box :allow_notes %> <%= f.label "Allow users to add descriptions" %>
+		<hr />
+		<%= f.label "Groups" %>
+		<%= text_field_tag "groups" %><br />
+		<hr />
+		<%= f.label :license_id, "License" %><br />
+		<% for license in License.find(:all).sort %>
+			<%= f.radio_button(:license_id, license.id) %> <%= license.name %>
+		<% end %>		
+		<br />
 		<% if current_user.can_do_method?(@stored_file, "toggle_tags") -%>
 		<%= f.label :tag_list %><br />
 		<%= f.text_field :tag_list %><br />
 		<% end -%>
-		<hr>
-		<p>
-			<% for flag in Flag.find(:all) %>	
-				<%= check_box_tag "stored_file[flag_ids][]", flag.id, @stored_file.flags.include?(flag), :multiple => TRUE %> <%= flag.label %><br />
-			<% end %>
-		</p>
 	<% end %>
-</p>
+
+<span>Flags</span>
+<div class="flags">
+<% if current_user.can_do_method?(@stored_file, "toggle_univ_record") -%>
+<input type="checkbox" value="toggle_univ_record" /> University Record<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_possible_univ_record") -%>
+<input type="checkbox" value="toggle_possible_univ_record" /> Possible University Record<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_nominated") -%>
+<input type="checkbox" value="toggle_nominated" /> Nominated for Preservation<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_selected_for_preservation") -%>
+<input type="checkbox" value="toggle_selected_for_preservation" /> Selected for Preservation<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_preserved") -%>
+<input type="checkbox" value="toggle_preserved" /> Preserved<br />
+<% end -%>
+</div>
+
+<div class="access-level">
+<% if current_user.can_do_method?(@stored_file, "toggle_open") -%>
+<input type="radio" name="access_level_id" value="toggle_open" />Open<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_partially_open") -%>
+<input type="radio" name="access_level_id" value="toggle_partially_open" />Partially Open<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_dark") -%>
+<input type="radio" name="access_level_id" value="toggle_dark" />Dark<br />
+<% end -%>
+</div>
+
 </div>

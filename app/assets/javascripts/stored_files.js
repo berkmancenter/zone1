@@ -1,4 +1,4 @@
-$(document).ready(function() {	
+$(document).ready(function() {
 	var editUrl = document.location.href + '/edit';
 	$( ".actions" ).click(function() {
 		$.ajax({
@@ -12,28 +12,28 @@ $(document).ready(function() {
 					width:  650,
 					height: 'auto',
 					buttons: {
-						Update:	function(event, ui) {
+						Update: function(event, ui) {
 							$("#dialog").find("form").ajaxSubmit({
 								dataType: "JSON",
 								type: "POST",
-                data: { "stored_file[delete_flag]": 0 },
+								data: { "stored_file[delete_flag]": 0 },
 								success: function() {
 									window.location.reload(true)
 								}
 							});
 						},
-						Delete:	function(event, ui) {
+						Delete: function(event, ui) {
 							$("#dialog").find("form").ajaxSubmit({
-                dataType: "JSON",
+								dataType: "JSON",
 								type: "POST",
-                data: { "stored_file[delete_flag]": 1 },
+								data: { "stored_file[delete_flag]": 1 },
 								success: function() {
 									document.location = '/search' 
 								}
 							});
 						}
 					}
-				}).dialog('open');		
+				}).dialog('open');
 			}
 		});
 	});

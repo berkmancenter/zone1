@@ -100,6 +100,15 @@ r4.save
 u1.roles = [r2, r3, r4]
 u1.save
 
+puts "Generating licenses"
+License.create([{ :name => 'CC BY' },
+				{ :name => 'CC BY-SA' },
+				{ :name => 'CC BY-ND' },
+				{ :name => 'CC BY-NC' },
+				{ :name => 'CC BY-NC-SA' },
+				{ :name => 'CC BY-NC-ND' }])
+
+
 =begin
 puts "Generating stored files"
 40.times do
@@ -108,14 +117,6 @@ puts "Generating stored files"
 					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u2.id, :access_level_id => a1.id, :content_type_id => c1.id},
 					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u3.id, :access_level_id => a1.id, :content_type_id => c2.id}]) 
 end
-
-puts "Generating licenses"
-License.create([{ :name => 'CC BY' },
-				{ :name => 'CC BY-SA' },
-				{ :name => 'CC BY-ND' },
-				{ :name => 'CC BY-NC' },
-				{ :name => 'CC BY-NC-SA' },
-				{ :name => 'CC BY-NC-ND' }])
 
 puts "Adding tags"
 StoredFile.all.each do |a|
@@ -134,4 +135,5 @@ sf.save
 sf = StoredFile.last
 sf.tag_list = "thesis"
 sf.license = License.find(3)
-sf.save 
+sf.save
+=end

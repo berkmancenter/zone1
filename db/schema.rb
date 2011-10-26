@@ -36,9 +36,8 @@ ActiveRecord::Schema.define(:version => 20111025135847) do
   end
 
   create_table "groups", :force => true do |t|
+    t.string   "name",       :null => false
     t.integer  "user_id",    :null => false
-    t.string   "name"
-    t.string   "status"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -46,6 +45,13 @@ ActiveRecord::Schema.define(:version => 20111025135847) do
   create_table "groups_users", :id => false, :force => true do |t|
     t.integer "user_id"
     t.integer "group_id"
+  end
+
+  create_table "licenses", :force => true do |t|
+    t.integer  "stored_file_id"
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "right_assignments", :force => true do |t|
@@ -57,13 +63,6 @@ ActiveRecord::Schema.define(:version => 20111025135847) do
   create_table "rights", :force => true do |t|
     t.string "method"
     t.string "description"
-  end
-
-  create_table "licenses", :force => true do |t|
-    t.integer  "stored_file_id"
-    t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "roles", :force => true do |t|
@@ -112,8 +111,10 @@ ActiveRecord::Schema.define(:version => 20111025135847) do
   create_table "stored_files", :force => true do |t|
     t.integer  "batch_id"
     t.integer  "user_id",           :null => false
+    t.string   "title"
     t.string   "original_filename", :null => false
     t.string   "collection_name"
+    t.string   "office"
     t.string   "disposition"
     t.integer  "access_level_id",   :null => false
     t.integer  "content_type_id",   :null => false
@@ -125,21 +126,15 @@ ActiveRecord::Schema.define(:version => 20111025135847) do
     t.text     "description"
     t.text     "copyright"
     t.datetime "ingest_date"
+    t.text     "license_terms"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "file"
     t.string   "author"
-    t.string   "title"
-    t.string   "office"
     t.integer  "license_id"
     t.datetime "deletion_date"
     t.boolean  "allow_notes"
     t.boolean  "delete_flag"
-  end
-
-  create_table "stored_files_flags", :id => false, :force => true do |t|
-    t.integer "stored_file_id"
-    t.integer "flag_id"
   end
 
   create_table "taggings", :force => true do |t|

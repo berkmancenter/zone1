@@ -1,8 +1,8 @@
 class StoredFilesController < ApplicationController
   include RightMethods
   protect_from_forgery
-  caches_page :show
-  cache_sweeper :stored_file_sweeper, :only => [:create, :update, :destroy]
+  #caches_page :show
+  #cache_sweeper :stored_file_sweeper, :only => :show
 
   access_control do
     allow all, :to => :index
@@ -121,7 +121,8 @@ class StoredFilesController < ApplicationController
       new_file = StoredFile.new(params[:stored_file])
       new_file.user_id = current_user.id
       new_file.original_filename = params[:name]
-      new_file.content_type_id = ContentType.first.id
+      new_file.content_type = ContentType.first
+      new_file.license = License.first
 
       new_file.save!
 
