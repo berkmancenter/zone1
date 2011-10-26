@@ -25,4 +25,38 @@ $(document).ready(function() {
 			}
 		});
 	});
+
+	$('.flags input').click(function() {
+		var id = $('h1').data('id');
+		$.ajax({
+			cache: false,
+			url: "/stored_files/" + id + "/toggle_method",
+			type: "POST",
+			data: { method: $(this).val(), checked: $(this).attr('checked') },
+			dataType: "JSON",
+			success: function(data) {
+				alert("Success");
+			},
+			error: function() {
+				alert("Sorry, you do not have permissions to make this change");
+			}
+		});
+	});
+
+	$('.access-level input').click(function() {
+		var id = $('h1').data('id');
+		$.ajax({
+			cache: false,
+			url: "/stored_files/" + id + "/toggle_method",
+			type: "POST",
+			data: { method: $(this).val() },
+			dataType: "JSON",
+			success: function(data) {
+				alert("Success");
+			},
+			error: function() {
+				alert("Sorry, you do not have permissions to make this change");
+			}
+		});
+	});
 });

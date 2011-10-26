@@ -13,4 +13,19 @@ class User < ActiveRecord::Base
   has_many :stored_files
   has_many :batches
   has_one :sftp_users, :dependent => :destroy
+  has_many :right_assignments, :as => :subject
+  has_many :rights, :through => :right_assignments
+
+  def list_rights
+    [self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.method }
+  end
+
+  def can_do_method?(stored_file, method)
+    rights = self.list_rights
+    return true if rights.include?(method)
+
+    stored_file = stored_file.is_a?(StoredFile) ? stored_file : StoredFile.find(stored_file)
+    return true if (stored_file.user == self && rights.include?("#{method}_to_own_content"))
+    false
+  end
 end

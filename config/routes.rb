@@ -3,8 +3,14 @@ Zone1::Application.routes.draw do
 
   root :to => "home#index"
 
-  resources :stored_files, :as => :stored_file
+  resources :stored_files, :as => :stored_file do
+    member do
+      post :toggle_method
+    end
+  end
+
+  resources :roles, :as => :role
+
   match 'upload' => 'upload#index', :as => :upload
   match 'search' => 'search#index', :as => :search  #, :via => :post
-
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111021062654) do
+ActiveRecord::Schema.define(:version => 20111025135847) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -47,7 +47,18 @@ ActiveRecord::Schema.define(:version => 20111021062654) do
     t.integer "group_id"
   end
 
-  create_table "roles", :id => false, :force => true do |t|
+  create_table "right_assignments", :force => true do |t|
+    t.integer "right_id"
+    t.integer "subject_id"
+    t.string  "subject_type"
+  end
+
+  create_table "rights", :force => true do |t|
+    t.string "method"
+    t.string "description"
+  end
+
+  create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
     t.string   "authorizable_type", :limit => 40
     t.integer  "authorizable_id"

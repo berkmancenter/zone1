@@ -1,26 +1,36 @@
 <div id="dialog" title="Edit File" style="background:#ddd;padding:1em;">
 <p>
 	<%= form_for @stored_file do |f| %>
+		<% if current_user.can_do_method?(@stored_file, "toggle_disposition") -%>
 		<p>
-			<%= f.label :original_filename %><br />
-			<%=	f.text_field :original_filename %>
+			<%= f.label :disposition %><br />
+			<%= f.text_field :disposition %>
 		</p>
+		<% end -%>
+		<% if current_user.can_do_method?(@stored_file, "toggle_description") -%>
 		<p>
 			<%= f.label :description %><br />
 			<%= f.text_area :description, :rows => 3 %>
 		</p>
+		<% end -%>
+		<% if current_user.can_do_method?(@stored_file, "toggle_copyright") -%>
 		<p>
 			<%= f.label :copyright %><br />
 			<%= f.text_field :copyright %>
 		</p>
+		<% end -%>
+		<% if current_user.can_do_method?(@stored_file, "toggle_terms") -%>
 		<p>
 			<%= f.label :license_terms %><br />
 			<%= f.text_field :license_terms %>		
 		</p>
+		<% end -%>
+		<% if current_user.can_do_method?(@stored_file, "toggle_tags") -%>
 		<p>
 			<%= f.label :tag_list %><br />
 			<%= f.text_field :tag_list %>
 		</p>
+		<% end -%>
 	<% end %>
 </p>
 </div>

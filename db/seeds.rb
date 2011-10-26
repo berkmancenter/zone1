@@ -12,6 +12,11 @@ User.delete_all
 Group.delete_all
 StoredFile.delete_all
 ContentType.delete_all
+Role.delete_all
+Right.delete_all
+
+connection = ActiveRecord::Base.connection
+connection.execute("DELETE FROM roles_users")
 
 AccessLevel.create([{ :name => 'open', :label => 'Open' },
   { :name => 'dark', :label => 'Dark' },
@@ -36,6 +41,60 @@ User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password
 g = Group.new(:name => 'End Point', :user_id => u1.id)
 g.users << User.all
 g.save
+
+Role.create([{ :name => "admin" },
+  { :name => "steward" },
+  { :name => "records_manager" },
+  { :name => "user" }])
+(r1, r2, r3, r4) = Role.all
+
+Right.create([{ :method => "toggle_preserved" },
+  { :method => "toggle_nominated" },
+  { :method => "toggle_selected_for_preservation" },
+  { :method => "toggle_univ_record" },
+  { :method => "toggle_possible_univ_record" },
+  { :method => "toggle_preserved_to_own_content" },
+  { :method => "toggle_nominated_to_own_content" },
+  { :method => "toggle_selected_for_preservation_to_own_content" },
+  { :method => "toggle_univ_record_to_own_content" },
+  { :method => "toggle_possible_univ_record_to_own_content" },
+  { :method => "toggle_description" },
+  { :method => "toggle_description_to_own_content" },
+  { :method => "toggle_copyright" },
+  { :method => "toggle_copyright_to_own_content" }, 
+  { :method => "toggle_terms" },
+  { :method => "toggle_terms_to_own_content" },
+  { :method => "toggle_tags" }, 
+  { :method => "toggle_tags_to_own_content" },
+  { :method => "toggle_disposition" },
+  { :method => "toggle_disposition_to_own_content" },
+  { :method => "toggle_open" },
+  { :method => "toggle_open_to_own_content" },
+  { :method => "toggle_partially_open" },
+  { :method => "toggle_partially_open_to_own_content" },
+  { :method => "toggle_dark" },
+  { :method => "toggle_dark_to_own_content" },
+  { :method => "delete_items" },
+  { :method => "delete_item_to_own_content" },
+  { :method => "view_items" }, 
+  { :method => "view_items_to_own_content" },
+  { :method => "view_preserved_flag_content" }])
+(ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
+ ri11, ri12, ri13, ri13, ri15, ri16, ri17, ri18, ri19, ri20,
+ ri21, ri22, ri23, ri24, ri25, ri26, ri27, ri28, ri29, ri30,
+ ri31) = Right.all
+
+r1.rights = Right.all
+r1.save
+r2.rights = [ri1, ri2, ri3]
+r2.save
+r3.rights = [ri4, ri5]
+r3.save
+r4.rights = [ri6, ri7, ri8, ri9, ri10]
+r4.save
+
+u1.roles = [r2, r3, r4]
+u1.save
 
 =begin
 40.times do

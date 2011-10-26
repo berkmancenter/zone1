@@ -4,6 +4,7 @@ class StoredFile < ActiveRecord::Base
   belongs_to :access_level
   belongs_to :batch
   has_and_belongs_to_many :flags
+  acts_as_authorization_object
 
   acts_as_taggable
   acts_as_taggable_on :publication_types
@@ -28,6 +29,11 @@ class StoredFile < ActiveRecord::Base
 	time :created_at, :updated_at
   end
 
+  def has_preserved_flag?
+    preserved_flags = Flag.find_all_by_name(["NOMINATED_FOR_PRESERVATION", "PRESERVED", "SELECTED_FOR_PRESERVATION"])
+    (self.flags & preserved_flags).any?
+  end
+
   private
 
   def update_file_attributes
@@ -36,4 +42,5 @@ class StoredFile < ActiveRecord::Base
       self.file_size = file.file.size
     end
   end
+
 end
