@@ -6,7 +6,7 @@ class StoredFilesController < ApplicationController
 
   access_control do
     allow all, :to => :index
-    allow logged_in, :to => :create
+    allow logged_in, :to => [:create, :new]
 
     # allow logged_in, :to => :batch_edit, :if => :batch_allow_method
 
@@ -79,35 +79,49 @@ class StoredFilesController < ApplicationController
     begin
       @stored_file = StoredFile.find(params[:id])
 
-      # Server side validation on rights to update
-      if !current_user.can_do_method?(@stored_file, "update_disposition")
-        params[:stored_file].delete(:disposition)
-      end
-
-      if @stored_file.access_level_id != params[:stored_file][:access_level_id]
-        access_level = AccessLevel.find(params[:stored_file][:access_level_id])
-        if !current_user.can_do_method?(@stored_file, "toggle_#{access_level.name}")
-          params[:stored_file].delete(:access_level_id)
-        end
-      end
-
-      if params.has_key?(:flags)
-        new_flags = @stored_file.flags.collect { |f| f.id }
-        params[:flags].each do |k, v|
-          if current_user.can_do_method?(@stored_file, "toggle_#{k}")
-            new_flags << Flag.find_by_name(k.upcase).id
-          end
-        end
-        params[:stored_file][:flag_ids] = new_flags  
-      end 		
-
-      @stored_file.update_attributes(params[:stored_file])
+      @stored_file.update_attributes(validate_params(params, @stored_file))
       
       render :json => { :success => 'true' }
     rescue Exception => e
       render :json => { :status => :unprocessable_entity, :message => e.to_s }
       ::Rails.logger.warn "Warning: stored_files_controller.update got exception: #{e}"
     end
+  end
+
+  def new
+    @stored_file = StoredFile.new
+
+    # Important: For appropriate permissions to be shown
+	@stored_file.user = current_user 
+
+    @stored_file.access_level_id = 3  #todo: just for testing
+    init_new_batch
+  end
+ 
+  # Method used for both update and create
+  def validate_params(params, stored_file)
+    # Server side validation on rights to update
+    if !current_user.can_do_method?(stored_file, "update_disposition")
+      params[:stored_file].delete(:disposition)
+    end
+
+    if stored_file.access_level_id != params[:stored_file][:access_level_id]
+      access_level = AccessLevel.find(params[:stored_file][:access_level_id])
+      if !current_user.can_do_method?(stored_file, "toggle_#{access_level.name}")
+        params[:stored_file].delete(:access_level_id)
+      end
+    end
+
+    if params.has_key?(:flags)
+      new_flags = stored_file.flags.collect { |f| f.id }
+      params[:flags].each do |k, v|
+        if current_user.can_do_method?(stored_file, "toggle_#{k}")
+          new_flags << Flag.find_by_name(k.upcase).id
+        end
+      end
+      params[:stored_file][:flag_ids] = new_flags  
+    end 		
+    params[:stored_file]
   end
 
   def create
@@ -117,14 +131,12 @@ class StoredFilesController < ApplicationController
         return
       end
 
+      new_file = StoredFile.new({ :original_filename => params[:name],
+        :user_id => current_user.id,
+        :content_type_id => ContentType.first.id }) #Note: First content type id for testing
       params[:stored_file][:file] = params.delete(:file)
-      new_file = StoredFile.new(params[:stored_file])
-      new_file.user_id = current_user.id
-      new_file.original_filename = params[:name]
-      new_file.content_type = ContentType.first
-      new_file.license = License.first
-
-      new_file.save!
+      stored_file_params = validate_params(params, new_file)
+      new_file.update_attributes(stored_file_params)
 
       raise Exception.new("Missing temp_batch_id") unless params[:temp_batch_id]
       update_batch(params[:temp_batch_id], new_file)
@@ -172,5 +184,39 @@ class StoredFilesController < ApplicationController
       :file_ids => file_ids
     }
     logger.debug "PHUNK: updated batch. Session->temp batch: #{session[:upload_batches][temp_batch_id].inspect}"
+  end
+
+  def init_new_batch
+    session[:upload_batches] ||= {}
+    expire_stale_temp_batches
+    @temp_batch_id = new_temp_batch_id
+    session[:upload_batches][@temp_batch_id] = {
+      :system_batch_id => nil,
+      :last_modified => Time.now.utc.iso8601,
+      :file_ids => []
+    }
+  end
+
+  def new_temp_batch_id
+    # just some small-ish string with good-enough randomness
+    SecureRandom.hex(2)
+  end
+
+  def expire_stale_temp_batches(max_age_hours = 4)
+    # Remove temp_batch_id hashes from the session if they are more than X hours stale
+    return if !session[:upload_batches].present?
+
+    stale_ids = []
+    session[:upload_batches].each do |temp_batch_id, batch_info|
+      diff = DateTime.parse(Time.now.utc.iso8601) - DateTime.parse(batch_info[:last_modified])
+      foo, hours, = Date.day_fraction_to_time diff
+      stale_ids << temp_batch_id if hours >= max_age_hours
+    end
+
+    # Now remove any stale temp batches we just found
+    stale_ids.each do |temp_batch_id|
+      logger.debug "PHUNK: Deleting stale temp_batch_id from session: #{temp_batch_id}"
+      session[:upload_batches].delete temp_batch_id
+    end
   end
 end

@@ -21,7 +21,7 @@
 <%= form_for @stored_file, :url => "/stored_files", :html => {:id => :upload_data} do |f| %>
 <%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
 
-<%= render :partial => "stored_files/form", :locals => { :f => f } %>
+<%= render :partial => "form", :locals => { :f => f } %>
 <% end %>
 
     <div id="uploader">

@@ -4,7 +4,7 @@
   Tags: <%= @stored_file.tag_list %><br />
   Description: <%= @stored_file.description %> <br />
   Copyright: <%= @stored_file.copyright %><br />
-  Terms of License: <%= @stored_file.license.name %><br />
+  Terms of License: <%= @stored_file.license.nil? ? '' : @stored_file.license.name %><br />
 <% else %>
   This file has been deleted.
 <% end %>
