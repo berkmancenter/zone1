@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(:version => 20111025135847) do
   end
 
   create_table "batches", :force => true do |t|
-    t.integer "user_id"
+    t.integer "user_id", :null => false
   end
 
   create_table "content_types", :force => true do |t|

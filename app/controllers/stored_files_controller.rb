@@ -102,19 +102,57 @@ class StoredFilesController < ApplicationController
 
       params[:stored_file][:file] = params.delete(:file)
       new_file = StoredFile.new(params[:stored_file])
-      #todo: validate access_level_id is allowed, based on user permissions
       new_file.user_id = current_user.id
       new_file.original_filename = params[:name]
       new_file.content_type_id = ContentType.first.id
 
       new_file.save!
-      ::Rails.logger.debug "PHUNK: new file url #{new_file.file.url}"
+
+      raise Exception.new("Missing temp_batch_id") unless params[:temp_batch_id]
+      update_batch(params[:temp_batch_id], new_file)
+    
       render :json => {:success => 'true'}
       #render :json => {:success => 'false', :message => 'Server too testy'}
       return
     rescue Exception => e
       render :json => {:success => 'false', :message => e.to_s}
-      ::Rails.logger.warn "Warning: stored_files_controller.create got exception: #{e}"
+      ::Rails.logger.warn "Warning: stored_files_controller.create exception: #{e}"
     end
+  end
+
+  private
+
+  def update_batch(temp_batch_id, new_file)
+    file_ids = session[:upload_batches][temp_batch_id][:file_ids]
+
+    if file_ids.length == 0
+      # Don't treat this like a legit batch yet because there's only one file in it and we
+      # can't be sure they'll upload any more. We turn it into a legit Batch instance
+      # on the next upload for this temp_batch_id
+      logger.debug "PHUNK: First file in this batch."
+      # Add new id to session for this temp_batch_id
+      file_ids << new_file.id
+      return
+    end      
+
+    if file_ids.length == 1
+      #logger.debug "PHUNK: Second file in this batch. Create and save new Batch instance"
+      batch = Batch.new(:user_id => current_user.id)
+      batch.stored_files << StoredFile.find(file_ids.first.to_i, new_file.id)
+      batch.save!
+    else
+      #logger.debug "PHUNK: 3+ file, update existing batch with new_file only"
+      batch = Batch.find( session[:upload_batches][temp_batch_id][:system_batch_id].to_i )
+      batch.stored_files << StoredFile.find(new_file.id)
+    end
+
+    # update this temp_batch in the session now that we know the batch update worked
+    file_ids << new_file.id
+    session[:upload_batches][temp_batch_id] = {
+      :system_batch_id => batch.id,
+      :last_modified => Time.now.utc.iso8601,
+      :file_ids => file_ids
+    }
+    logger.debug "PHUNK: updated batch. Session->temp batch: #{session[:upload_batches][temp_batch_id].inspect}"
   end
 end

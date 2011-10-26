@@ -6,13 +6,15 @@ class StoredFile < ActiveRecord::Base
   has_and_belongs_to_many :flags
   acts_as_authorization_object
 
+  before_save :update_file_attributes
+
   acts_as_taggable
   acts_as_taggable_on :publication_types
   before_save :update_file_attributes
 
   attr_accessible :file, :license_terms, :collection_name,
     :author, :title, :copyright, :description, :access_level_id,
-    :user_id, :content_type_id, :original_filename
+    :user_id, :content_type_id, :original_filename, :batch_id
 
   mount_uploader :file, FileUploader, :mount_on => :file
 

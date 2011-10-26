@@ -8,7 +8,6 @@ Zone1::Application.routes.draw do
       post :toggle_method
     end
   end
-
   resources :roles, :as => :role
 
   match 'upload' => 'upload#index', :as => :upload
