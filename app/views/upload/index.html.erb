@@ -20,54 +20,8 @@
 
 <%= form_for @stored_file, :url => "/stored_files", :html => {:id => :upload_data} do |f| %>
 <%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
-<table id="upload_data_table" style="border: 1px solid grey;">
 
-<tr>
-  <td>
-
-Access Level: <%= f.collection_select :access_level_id,
-    AccessLevel.order('id'), :id, :name,
-    {:include_blank => 'Select One'} %>
-<p/>
-
-<%= f.label :title, 'Title:' %>
-<%= f.text_field :title, {:value => 'title'} %>
-<p/>
-
-<%= f.label :collection_name, 'Collection Name:' %>
-<%= f.text_field :collection_name, {:value => 'cname'} %>
-<p/>
-
-<%= f.label :author, 'Author:' %>
-<%= f.text_field :author, {:value => 'author'} %>
-<p/>
-
-  </td>
-  <td>
-
-<%= f.label :description, 'Description:' %>
-<%= f.text_field :description, {:value => 'description'} %>
-<p/>
-
-<%= f.label :copyright, 'Copyright:' %>
-<%= f.text_field :copyright, {:value => 'copyright'} %>
-<p/>
-
-<%= f.label :license_terms, 'License Terms:' %>
-<%= f.text_field :license_terms, {:value => 'license_terms'} %>
-<p/>
-
-
-<ul style='display: none;'>
-<li>Office: select
-<li>Tags: HABTM
-<li>Creation Date: created_at
-<li>NOMINATED_FOR_PRESERVATION: +checkbox
-</ul>
-<p/>
-  </td>
-</tr>
-</table>
+<%= render :partial => "stored_files/form", :locals => { :f => f } %>
 <% end %>
 
     <div id="uploader">

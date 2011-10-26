@@ -61,16 +61,6 @@ class StoredFilesController < ApplicationController
   # GET /storedfiles/1/edit
   def edit
     @stored_file = StoredFile.find(params[:id])
-    @flag = @stored_file.flag_ids
-
-    @stored_file.flags.each do |flag|
-      if flag.id == 5
-        @flag = "University Record"
-      elsif flag.id == 3
-        @flag = "Preserved"
-      end 
-    end
-    @creator = @stored_file.user
     respond_to do |format|
       format.html { render :layout => false }
     end

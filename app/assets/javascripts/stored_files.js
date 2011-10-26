@@ -38,7 +38,7 @@ $(document).ready(function() {
 		});
 	});
 
-	$('.flags input').click(function() {
+	$('#edit_stored_file .flags input').click(function() {
 		var id = $('h1').data('id');
 		$.ajax({
 			cache: false,
@@ -55,13 +55,13 @@ $(document).ready(function() {
 		});
 	});
 
-	$('.access-level input').click(function() {
+	$('#edit_stored_file .access-level input').click(function() {
 		var id = $('h1').data('id');
 		$.ajax({
 			cache: false,
 			url: "/stored_files/" + id + "/toggle_method",
 			type: "POST",
-			data: { method: $(this).val() },
+			data: { method: $(this).data('method') },
 			dataType: "JSON",
 			success: function(data) {
 				alert("Success");

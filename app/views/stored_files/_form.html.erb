@@ -1,0 +1,80 @@
+<table width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<td>
+			<%= f.label :collections %>
+			<%= f.text_field :collections, :value => @stored_file.collections.join(',') %><br />
+			<% if current_user.can_do_method?(@stored_file, "toggle_tags") -%>
+			<%= f.label :tag_list %><br />
+			<%= f.text_field :tag_list %><br />
+			<% end -%>
+			<% if current_user.can_do_method?(@stored_file, "toggle_description") -%>
+			<%= f.label :description %>
+			<%= f.text_area :description, :rows => 3 %><br />
+			<% end -%>
+		</td>
+		<td>
+			<%= f.label :creator_email, "Creator" %>
+			<% if @stored_file.new_record? -%>
+			<%= f.text_field :creator_email, :value => current_user.email, :html => { :readonly => true } %><br />
+			<% else -%>
+			<%= f.text_field :creator_email, :value => @stored_file.user.email %><br />
+			<% end -%>
+			<%= f.label :office %>
+			<%= f.text_field :office %><br />
+			<%= f.label :title %>
+			<%= f.text_field :title %><br />	
+			<% if current_user.can_do_method?(@stored_file, "toggle_disposition") -%>
+			<%= f.label :disposition %>
+			<%= f.text_field :disposition %><br />
+			<% end -%>
+		</td>
+	</tr>
+</table>
+<%= f.check_box :allow_notes %> <%= f.label "Allow users to add descriptions" %>
+<hr />
+
+
+<table width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<td>
+			<div class="access-level">
+			<% AccessLevel.all.each do |access_level| -%>
+			<% if current_user.can_do_method?(@stored_file, "toggle_#{access_level.name}") -%>
+			<input name="stored_file[access_level_id]" type="radio" <%= raw 'checked="checked"' if @stored_file.access_level == access_level %> data-method="toggle_<%= access_level.name %>" value="<%= access_level.id %>" /><%= access_level.label %><br />
+			<% end -%>
+			<% end -%>
+			</div>
+		</td>
+		<td>
+			<%= f.label "Groups" %>
+			<%= text_field_tag "groups" %><br />
+		</td>
+	</tr>
+</table>
+<hr />
+<% if current_user.can_do_method?(@stored_file, "toggle_copyright") -%>
+<%= f.label :copyright %>
+<%= f.text_field :copyright %><br />
+<% end -%>
+<%= f.label :license_id, "License" %><br />
+<% for license in License.find(:all).sort %>
+	<%= f.radio_button(:license_id, license.id) %> <%= license.name %>
+<% end %>		
+<hr />
+<div class="flags">
+<% if current_user.can_do_method?(@stored_file, "toggle_univ_record") -%>
+<input type="checkbox" value="toggle_univ_record" /> University Record<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_possible_univ_record") -%>
+<input type="checkbox" value="toggle_possible_univ_record" /> Possible University Record<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_nominated") -%>
+<input type="checkbox" value="toggle_nominated" /> Nominated for Preservation<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_selected_for_preservation") -%>
+<input type="checkbox" value="toggle_selected_for_preservation" /> Selected for Preservation<br />
+<% end -%>
+<% if current_user.can_do_method?(@stored_file, "toggle_preserved") -%>
+<input type="checkbox" value="toggle_preserved" /> Preserved<br />
+<% end -%>
+</div>
