@@ -69,7 +69,7 @@ class SearchController < ApplicationController
       })
       arr
     end
-    @facets.push({ :label => "Access Levels", :links => links })
+    @facets.push({ :label => "Content Type", :links => links })
 
 	links = @search.facet(:flag_ids).rows.inject([]) do |arr, row|
       remove = params[:flag].to_i == row.value
