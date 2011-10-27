@@ -14,6 +14,8 @@ class User < ActiveRecord::Base
   has_one :sftp_users, :dependent => :destroy
   has_many :right_assignments, :as => :subject
   has_many :rights, :through => :right_assignments
+  has_and_belongs_to_many :groups
+  has_and_belongs_to_many :owned_groups, :class_name => "Group", :join_table => "groups_owners", :foreign_key => "owner_id"
 
   def list_rights
     # TODO: Low level caching on this later
@@ -22,7 +24,7 @@ class User < ActiveRecord::Base
 
   def can_do_global_method?(method)
     return true if self.list_rights.include?(method)
-	false
+    false
   end
 
   # stored_file can be an id or it can be a StoredFile
@@ -34,7 +36,4 @@ class User < ActiveRecord::Base
     return true if (stored_file.user == self && rights.include?("#{method}_to_own_content"))
     false
   end
-  has_many :licenses
-  has_and_belongs_to_many :groups
-  has_and_belongs_to_many :owned_groups, :class_name => "User", :join_table => "groups_owners", :foreign_key => "owner_id", :association_foreign_key => "group_id"
 end

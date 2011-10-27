@@ -1,41 +1,34 @@
-<%= link_to 'Add a group', new_group_path, :style => "float:right" %>
+<% if current_user -%>
+<%= link_to 'Add a group', new_group_path %>
 <h1>Listing groups</h1>
 
-<% if current_user %>
 <table style="width:800px">
-  <tr> 
-    <th style="border-bottom:1px solid black;">Groups</th>
-    <th style="border-bottom:1px solid black;">Status</th>
-    <th style="border-bottom:1px solid black;">Creation Date</th>
-    <th style="border-bottom:1px solid black;">Modification Date</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-<% for group in current_user.groups.each do %>
-  <tr>
-    <td><%= link_to group.name, group %></td>
-    <td>
-			<% if group.owners.include?(current_user) %>
-        <%= @status = "Owner" %>
-      <% else %>
-        <%= @status = "Member" %>
-      <% end %>
-	  </td>
-    <td><%= group.created_at.strftime("%b %d, %Y") %></td>
-    <td><%= group.updated_at.strftime("%b %d, %Y") %></td>
-    <% if @status  == "Owner"  %>
-   		<td><%= link_to 'Edit', edit_group_path(group) %></td>
-  		<td><%= link_to 'Destroy', group, :confirm => 'Are you sure?', :method => :delete %></td>
-    <% end %>
-  </tr>
-  <% if current_user.groups.first.nil? %>
-    <tr><td>You don't belong to any groups.</td></tr>
-  <% end %>
-<% end %>
+	<tr> 
+		<th>Groups</th>
+		<th>Status</th>
+		<th>Creation Date</th>
+		<th>Modification Date</th>
+	</tr>
+	<% @groups.each do |group| %>
+	<tr>
+		<td><%= group.name %></td>
+		<td>
+			<%= group.owners.include?(current_user) ? "Owner" : "Member" %>
+		</td>
+		<td><%= group.created_at.strftime("%b %d, %Y") %></td>
+		<td><%= group.updated_at.strftime("%b %d, %Y") %></td>
+		<% if group.owners.include?(current_user) %>
+ 		<td><%= link_to 'Edit', edit_group_path(group) %></td>
+		<td><%= link_to 'Destroy', group, :confirm => 'Are you sure?', :method => :delete %></td>
+		<% end %>
+	</tr>
+	<% end %>
+	<% if @groups.empty? %>
+	<tr><td>You don't belong to or own any groups.</td></tr>
+	<% end %>
 </table>
+<% else -%>
+You must be logged in to view groups.
 <% end %>
-
-<br />
 
 <%= flash[:notice] %><br /><br />

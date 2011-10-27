@@ -44,7 +44,8 @@ User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password
 
 puts "Generating groups"
 g = Group.new(:name => 'End Point')
-g.users << User.find(:all)
+g.users << User.all
+g.owners << u1
 g.save
 
 Right.create([{ :method => "toggle_preserved", :description => "Ability to toggle PRESERVED flag." },
@@ -129,19 +130,19 @@ u4.roles << [r1, r4]
 
 puts "Generating licenses"
 License.create([{ :name => 'CC BY' },
-				{ :name => 'CC BY-SA' },
-				{ :name => 'CC BY-ND' },
-				{ :name => 'CC BY-NC' },
-				{ :name => 'CC BY-NC-SA' },
-				{ :name => 'CC BY-NC-ND' }])
+        { :name => 'CC BY-SA' },
+        { :name => 'CC BY-ND' },
+        { :name => 'CC BY-NC' },
+        { :name => 'CC BY-NC-SA' },
+        { :name => 'CC BY-NC-ND' }])
 
 =begin
 puts "Generating stored files"
 40.times do
-	StoredFile.create([{:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a1.id, :content_type_id => c1.id},
-					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a2.id, :content_type_id => c1.id},
-					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u2.id, :access_level_id => a1.id, :content_type_id => c1.id},
-					   {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u3.id, :access_level_id => a1.id, :content_type_id => c2.id}]) 
+  StoredFile.create([{:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a1.id, :content_type_id => c1.id},
+             {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a2.id, :content_type_id => c1.id},
+             {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u2.id, :access_level_id => a1.id, :content_type_id => c1.id},
+             {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u3.id, :access_level_id => a1.id, :content_type_id => c2.id}]) 
 end
 
 

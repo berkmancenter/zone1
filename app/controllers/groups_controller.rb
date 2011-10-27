@@ -1,38 +1,63 @@
 class GroupsController < ApplicationController
+  access_control do
+    allow logged_in, :to => [:index, :new, :create]
+
+    # Add logic here to prohibit
+    allow logged_in, :to => [:edit, :update, :destroy]
+  end
+
   def index
-    @groups = Group.all
+    @groups = [current_user.owned_groups, current_user.groups].flatten.uniq
   end
 
   def show
     @group = Group.find(params[:id])
-    @status = []
+    @members = {}
+    @group.users.each do |user|
+      @members[user.email] = { 
+        :user => user,
+        :owner => false
+      }
+    end
+    @group.owners.each do |user|
+      @members[user.email] = { 
+        :user => user,
+        :owner => true
+      }
+    end
   end
 
   def new
     @group = Group.new
-    @emails = []
-    
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render :json => @group }
-    end
   end
 
   def edit
     @group = Group.find(params[:id])
-    @emails = @group.users.map { |user| user.email }
+    @members = {}
+    @group.users.each do |user|
+      @members[user.email] = { 
+        :user => user,
+        :owner => false
+      }
+    end
+    @group.owners.each do |user|
+      @members[user.email] = { 
+        :user => user,
+        :owner => true
+      }
+    end
   end
 
   def create
     begin
       @group = Group.new(params[:group])
-      emails = params[:user_email].split(',')
-      emails.each do |user_email|
-        @group.users << User.find_by_email(user_email)
-      end
+
+      @group.users = User.find_all_by_email(params[:user_email].split(', '))
+      @group.owners << current_user
 
       @group.save
-      redirect_to(@group)
+    
+      redirect_to edit_group_path(@group)
     rescue Exception => e
       render :json => {:success => 'false', :message => e.to_s}
       ::Rails.logger.warn "Warning: groups_controller.create got exception: #{e}"
@@ -42,36 +67,22 @@ class GroupsController < ApplicationController
   def update
     begin
       @group = Group.find(params[:id])
-      # If the add button is pressed.
-      if params[:commit] == "Add"
-		# TODO: Clean this up a lot (Evan)
-        emails = params[:user_email].split(',')
-        emails.each do |user_email|
-          @group.users << User.find_by_email(user_email)
-        end
-        # Ignore changes to the group when Add is pressed.
-        params[:group] = nil 
-      elsif params[:commit] == "Update"
-        # TODO: Clean this up a lot (Evan)
 
-        params[:user_email] = nil
+      #First, remove by remove params
+      @group.users.delete(User.find_all_by_id(params[:remove].keys)) if params.has_key?(:remove)
 
-        # Remove users that have been checked.
-        params[:group][:user_ids].each do |id|
-          if id != ''
-            @group.users = @group.users - User.find(id).to_a
-          end
-        end
-        # Change ownership based on checkboxes.
-        @group.owners = []
-        params[:group][:owner_ids].each do |id|
-          if id != ''
-            @group.owners << User.find(id)
-          end
-        end
-        @group.save
-      end
-      redirect_to group_path(@group)
+      #Next, set owners
+      @group.owners = User.find_all_by_id(params[:owner].keys) if params.has_key?(:owner)
+
+      #Then, add new users
+      @group.users << User.find_all_by_email(params[:user_email].split(', '))
+
+      # TODO: Maybe replace with update_column later
+      @group.update_attributes(params[:group])
+
+      @group.save
+
+      redirect_to edit_group_path(@group)
     rescue Exception => e
       render :json => { :message => e.to_s }
       ::Rails.logger.warn "Warning: groups_controller.update got exception: #{e}"

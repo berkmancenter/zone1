@@ -124,7 +124,7 @@ class StoredFilesController < ApplicationController
     @stored_file = StoredFile.new
 
     # Important: For appropriate permissions to be shown
-	  @stored_file.user = current_user 
+    @stored_file.user = current_user 
 
     @stored_file.access_level_id = 3  #todo: just for testing
     init_new_batch
@@ -151,7 +151,7 @@ class StoredFilesController < ApplicationController
         end
       end
       params[:stored_file][:flag_ids] = new_flags  
-    end 		
+    end
     params[:stored_file]
   end
 
@@ -219,7 +219,6 @@ class StoredFilesController < ApplicationController
       :file_ids => file_ids
     }
     logger.debug "PHUNK: updated batch. Session->temp batch: #{session[:upload_batches][temp_batch_id].inspect}"
-  
   end
 
   def init_new_batch
