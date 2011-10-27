@@ -36,10 +36,14 @@ ActiveRecord::Schema.define(:version => 20111025135847) do
   end
 
   create_table "groups", :force => true do |t|
-    t.string   "name",       :null => false
-    t.integer  "user_id",    :null => false
+    t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "groups_owners", :id => false, :force => true do |t|
+    t.integer "group_id"
+    t.integer "owner_id"
   end
 
   create_table "groups_users", :id => false, :force => true do |t|

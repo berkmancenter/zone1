@@ -1,0 +1,34 @@
+<% if current_user %>
+<%= form_for(@group) do |f| %>
+  <% if @group.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@group.errors.count, "error") %> prohibited this group from being saved:</h2>
+
+      <ul>
+      <% @group.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :name %><br />
+    <%= f.text_field :name %>
+  </div>
+  <div class="field" id="user">
+	  <%= label_tag :user_email, "Users" %><br />
+	  <%= text_field_tag :user_email, @emails.join(',') %>
+  </div>
+  <div class="field" style="display:none">
+    <%= f.hidden_field :created_at %>
+    <%= f.hidden_field :updated_at %>
+    <%= hidden_field_tag :user_id %>
+  </div>
+  <div class="actions" style="margin-top:1.5em;">
+    <%= f.submit %>
+  </div>
+<% end %>
+<% else %>
+  You must be logged in to create groups.
+<% end %>

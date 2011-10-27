@@ -1,0 +1,41 @@
+<%= link_to 'Add a group', new_group_path, :style => "float:right" %>
+<h1>Listing groups</h1>
+
+<% if current_user %>
+<table style="width:800px">
+  <tr> 
+    <th style="border-bottom:1px solid black;">Groups</th>
+    <th style="border-bottom:1px solid black;">Status</th>
+    <th style="border-bottom:1px solid black;">Creation Date</th>
+    <th style="border-bottom:1px solid black;">Modification Date</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+<% for group in current_user.groups.each do %>
+  <tr>
+    <td><%= link_to group.name, group %></td>
+    <td>
+			<% if group.owners.include?(current_user) %>
+        <%= @status = "Owner" %>
+      <% else %>
+        <%= @status = "Member" %>
+      <% end %>
+	  </td>
+    <td><%= group.created_at.strftime("%b %d, %Y") %></td>
+    <td><%= group.updated_at.strftime("%b %d, %Y") %></td>
+    <% if @status  == "Owner"  %>
+   		<td><%= link_to 'Edit', edit_group_path(group) %></td>
+  		<td><%= link_to 'Destroy', group, :confirm => 'Are you sure?', :method => :delete %></td>
+    <% end %>
+  </tr>
+  <% if current_user.groups.first.nil? %>
+    <tr><td>You don't belong to any groups.</td></tr>
+  <% end %>
+<% end %>
+</table>
+<% end %>
+
+<br />
+
+<%= flash[:notice] %><br /><br />

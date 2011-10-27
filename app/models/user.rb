@@ -9,7 +9,6 @@ class User < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name
 
   has_and_belongs_to_many :roles
-  has_and_belongs_to_many :groups
   has_many :stored_files
   has_many :batches
   has_one :sftp_users, :dependent => :destroy
@@ -35,4 +34,7 @@ class User < ActiveRecord::Base
     return true if (stored_file.user == self && rights.include?("#{method}_to_own_content"))
     false
   end
+  has_many :licenses
+  has_and_belongs_to_many :groups
+  has_and_belongs_to_many :owned_groups, :class_name => "User", :join_table => "groups_owners", :foreign_key => "owner_id", :association_foreign_key => "group_id"
 end
