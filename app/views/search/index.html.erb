@@ -1,27 +1,80 @@
-<%= form_tag search_path, :method => :get do %>
-  <p>
-    <%= text_field_tag :search, params[:search] %>
-    <%= submit_tag "Search", :name => nil %>
-  </p>
-<% end %>
-
-<div id="overview">
-	<%= link_to 'Reset search', search_path %>
-</div>
-
-<div id="facets" style="float:right">
-  	<%= render 'filter' %>
-</div>
-
-<div id="results" style="min-height:42em;">
-<h2>Results</h2>
-	<p><%=pluralize(@search.total, 'result') %> found.</p>
-  	<% @storedfiles.each do |a| %> 
-  		<%= link_to a[:original_filename], stored_file_path(a) %>
-		<br />
-  	<% end %>
-</div>
+<table width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<td id="facets" valign="top">
+  			<%= render 'filter' %>
+		</td>
+		<td id="results" valign="top">
+			<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
+              <%= submit_tag "Download Selected Files", :id => "download-submit" %>
+			<% end -%>
+			<h3>Results</h3>
+			<p><%=pluralize(@search.total, 'result') %> found.</p>
+			<span class="filename">Filename</span>
+			<span class="size">Size</span>
+			<span class="date">Date</span>
+			<span class="tags">Tags</span>
+			<span class="flags">Flags</span>
+			<span class="author">Author</span>
+			<span class="license">Copyright</span>
+			<span class="batch">Batch</span>
+			
+			<% @stored_files.each do |stored_file| %> 
+				<div class="file" data-id="<%= stored_file.id %>">
+					<span class="filename">	
+						<input class="downloadable" type="checkbox" name="stored_file[<%= stored_file.id %>]" value="1" />
+						<%= link_to (stored_file.title.blank? ? stored_file.original_filename : stored_file.title), download_stored_file_path(stored_file) %>
+					</span>
+					<span class="size">X KB</span>
+					<span class="date"><%= stored_file.created_at %></span>
+					<span class="tags"><%= stored_file.tag_list %></span>
+					<span class="flags">
+						<% @flags.each do |flag| %>
+						<input type="checkbox" disabled="true" data-method="toggle_<%= flag.name.downcase %>" title="<%= flag.label %>" <%= raw 'checked="checked"' if stored_file.flags.include?(flag) %> />
+						<% end -%>	
+					</span>
+					<span class="author"><%= stored_file.user.name %></span>
+					<span class="license"><%= stored_file.license ? stored_file.license.name : '' %></span>
+					<span class="batch"><%= stored_file.batch_id %></span> 
+				</div>
+			<% end %>
+		</td>
+</table>
 
 <div style="margin-top:2em;">
-	<%= will_paginate @storedfiles %>
+	<%= will_paginate @stored_files %>
+</div>
+
+<div id="quick_edit_panel">
+	<h3 id="snippet"></h3>
+	<div id="meta_data">
+		<span id="size"></span>
+		<span id="date"></span>
+		<span id="author"></span>
+		<span id="license"></span>
+		<span id="batch"></span>
+	</div>
+	<% if current_user -%>
+	<h3>Quick Edit</h3>
+	<div id="tags">
+		Tag List
+		<input type="text" name="stored_file[tag_list]" id="tag_list" />
+	</div>
+	<div id="access-level">
+		<% @access_levels.each do |access_level| -%>
+		<% if current_user.can_do_global_method?("toggle_#{access_level.name}") -%>
+		<input name="stored_file[access_level_id]" type="radio" id="toggle_<%= access_level.name %>" value="<%= access_level.id %>" /><%= access_level.label %><br />
+		<% end -%>
+		<% end -%>
+	</div>
+	<div id="flags">
+		<% @flags.each do |flag| -%>
+		<% if current_user.can_do_global_method?("toggle_#{flag.name.downcase}") -%>
+		<input type="checkbox" id="toggle_<%= flag.name.downcase %>" name="flags[<%= flag.name.downcase %>]" value="1" /><%= flag.label %><br />
+		<% end -%>
+		<% end -%>
+	</div>	
+	<% end -%>
+	<%= link_to 'Delete', '#', :id => 'delete' %>
+	<%= link_to 'Full edit', '#', :id => 'full_edit' %>
+	<%= link_to 'Update', '#', :id => 'update' %> 	
 </div>

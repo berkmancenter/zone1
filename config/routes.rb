@@ -5,8 +5,12 @@ Zone1::Application.routes.draw do
   root :to => "home#index"
 
   resources :stored_files, :as => :stored_file do
+    collection do
+      post :download_set
+    end
     member do
       post :toggle_method
+      get :download
     end
   end
   resources :roles, :as => :role

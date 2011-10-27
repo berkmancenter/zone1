@@ -6,6 +6,7 @@ class StoredFilesController < ApplicationController
 
   access_control do
     allow all, :to => :index
+
     allow logged_in, :to => [:create, :new]
 
     # allow logged_in, :to => :batch_edit, :if => :batch_allow_method
@@ -16,11 +17,14 @@ class StoredFilesController < ApplicationController
     # additional acl9 methods:
     allow logged_in, :to => [:edit, :update], :if => :allow_update_or_edit
 
-    allow logged_in, :to => :show, :if => :allow_show
+    allow logged_in, :to => [:show, :download], :if => :allow_show
 
     # delete (delete_items, delete_items_to_own_content
     allow logged_in, :to => :destroy, :if => :allow_destroy
-  end 
+
+    # TODO: Add validation for download set later
+    allow logged_in, :to => :download_set
+  end
 
   def allow_destroy
     true
@@ -65,13 +69,29 @@ class StoredFilesController < ApplicationController
     @stored_file = StoredFile.find(params[:id])
   end
 
+  def download
+    @stored_file = StoredFile.find(params[:id])
+    # TODO: Ask Phunk to clean this up / refactor
+    send_file @stored_file.file.file.file
+  end
+
   # GET /storedfiles/1/edit
   def edit
     @stored_file = StoredFile.find(params[:id])
-    respond_to do |format|
-      format.html { render :layout => false }
-    end
   end
+
+  def destroy
+    # TODO: Add JSON response here, so that this can be done via AJAX
+    begin
+      StoredFile.delete(params[:id])
+      flash[:notice] = "deleted"
+      redirect_to root_path
+    rescue Exception => e
+      flash[:error] = "problem deleting file"
+      @stored_file = StoredFile.find(params[:id])
+      redirect_to edit_stored_file_path(@stored_file)
+    end
+  end 
 
   # PUT /storedfiles/1
   # PUT /storedfiles/1.json
@@ -80,10 +100,22 @@ class StoredFilesController < ApplicationController
       @stored_file = StoredFile.find(params[:id])
 
       @stored_file.update_attributes(validate_params(params, @stored_file))
-      
-      render :json => { :success => 'true' }
+   
+      respond_to do |format|
+        format.json { render :json => { :success => 'true' } }
+        format.html do
+          flash[:error] = "success"
+          redirect_to edit_stored_file_path(@stored_file)
+        end
+      end
     rescue Exception => e
-      render :json => { :status => :unprocessable_entity, :message => e.to_s }
+      respond_to do |format|
+        format.json { render :json => { :status => :unprocessable_entity, :message => e.to_s } }
+        format.html do
+          flash[:error] = "failed: #{e.to_s}"
+          redirect_to edit_stored_file_path(@stored_file)
+        end
+      end
       ::Rails.logger.warn "Warning: stored_files_controller.update got exception: #{e}"
     end
   end
@@ -98,9 +130,8 @@ class StoredFilesController < ApplicationController
     init_new_batch
   end
  
-  # Method used for both update and create
+  # Server side validation updatable attributes
   def validate_params(params, stored_file)
-    # Server side validation on rights to update
     if !current_user.can_do_method?(stored_file, "update_disposition")
       params[:stored_file].delete(:disposition)
     end
@@ -142,12 +173,16 @@ class StoredFilesController < ApplicationController
       update_batch(params[:temp_batch_id], new_file)
     
       render :json => {:success => 'true'}
-      #render :json => {:success => 'false', :message => 'Server too testy'}
       return
     rescue Exception => e
       render :json => {:success => 'false', :message => e.to_s}
       ::Rails.logger.warn "Warning: stored_files_controller.create exception: #{e}"
     end
+  end
+
+  def download_set
+    # TODO: Implement archival here and send zipped file
+    send_file StoredFile.first.file.file.file
   end
 
   private

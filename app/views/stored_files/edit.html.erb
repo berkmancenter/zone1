@@ -1,14 +1,18 @@
 <%= form_for @stored_file, :html => { :id => "edit_stored_file" } do |f| %>
+	<div id="error" style="color:red; font-weight: bold; margin: 10px 0px; font-size: 18px;">
 	<%= flash[:error] %>
+	</div>
 	<%= f.label :original_filename %>: <%= @stored_file.original_filename %><br />
-	<%= f.label :contributor %>: <%= @stored_file.author %><br />
+	<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
 	<%= f.label :file_size %>: <%= @stored_file.file_size %><br />
-	URL: <%= stored_file_url %><br />
+	URL: Not implemented yet, <%= @stored_file.file.file.file %><br />
 	<% if @stored_file.batch_id -%>
 	<%= f.label "Batch" %>: <%= @stored_file.batch_id %><br />
 	<% end -%>
-	<%= f.label :ingest_date %>: <%= @stored_file.created_at %><br />
-	<%= f.label :deletion_date %>: <%= @stored_file.deletion_date %><br />
+	<%= f.label :ingest_date %>: <%= @stored_file.created_at.strftime("%m-%d-%Y") %><br />
 	<%= @record %><br />
 	<%= render :partial => "form", :locals => { :f => f } %>
+	<%= f.submit "Update" %>
+	<%= link_to "Download", download_stored_file_path(@stored_file) %>
+	<%= link_to "Delete", stored_file_path(@stored_file), :method => :delete %> 
 <% end %>

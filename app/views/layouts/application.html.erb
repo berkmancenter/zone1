@@ -9,17 +9,13 @@
 <body>
 
 <% if current_user -%>
-Hi, <%= current_user.name %>!
-<%= link_to 'Sign Out', destroy_user_session_path, :method => :delete %>
+Hi, <%= current_user.name %> |
+<%= link_to 'Sign Out', destroy_user_session_path, :method => :delete %> | 
+<%= link_to 'Upload File(s)', upload_path %>
 <% else -%>
 <%= link_to 'Sign In', new_user_session_path %>
 <% end -%>
 <br/>
-
-<%= yield %>
-
-<footer>
-<%= link_to 'Upload File(s)', upload_path %>
 <%= form_tag search_path, :method => :get do %>
   <p>
     <%= text_field_tag :search, params[:search] %>
@@ -27,6 +23,9 @@ Hi, <%= current_user.name %>!
   </p>
 <% end %>
 
+<%= yield %>
+
+<footer>
 </footer>
 
 </body>

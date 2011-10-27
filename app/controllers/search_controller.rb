@@ -1,87 +1,65 @@
 class SearchController < ApplicationController
+  def label_batch_id(value)
+    value
+  end
+  def label_collection_list(value)
+    value
+  end
+  def label_author(value)
+    value == '' ? 'empty string' : value
+  end
+  def label_office(value)
+    value == '' ? 'empty string' : value
+  end
+  def label_user_id(value)
+    User.find(value).name
+  end
+  def label_tag_list(value)
+    value
+  end
+  def label_flag_ids(value)
+    Flag.find(value).label
+  end
+  def label_license_id(value)
+    License.find(value).name
+  end
+  def label_format_name(value)
+    "label"
+  end
+  
   def index
+    facets = [:batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name] #:copyright
 	@search = Sunspot.new_search(StoredFile)
 	@search.build do
-		if params.has_key?(:tag)
-			with :tag_list, CGI.unescape(params[:tag])
-		end
-		if params.has_key?(:aid)
-			with :access_level_id, CGI.unescape(params[:aid])
-		end
-		if params.has_key?(:uid)
-			with :user_id, CGI.unescape(params[:uid])
-		end
-		if params.has_key?(:cid)
-			with :content_type_id, CGI.unescape(params[:cid])
-		end
-		if params.has_key?(:flag)
-			with :flag_ids, CGI.unescape(params[:flag])
-		end
+        facets.each do |facet|
+          if params.has_key?(facet)
+			with facet, CGI.unescape(params[facet])
+          end
+        end
 		fulltext params[:search] do
 			query_phrase_slop 1 
 		end
-		facet :file_size, :access_level_id, :user_id, :content_type_id, :flag_ids, :tag_list
+        facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name #:copyright
 		paginate :page => params[:page], :per_page => 30 
 	end
 	@search.execute!
-	@storedfiles = @search.results
+	@stored_files = @search.results
 	@facets = []
 
-    links = @search.facet(:tag_list).rows.inject([]) do |arr, row|
-      remove = params[:tag] == row.value
-      arr.push({
-        :label => row.value.capitalize,
-        :remove => remove,
-        :url => remove ? url_for(params.clone.remove!(:tag)) : url_for(params.clone.merge({ :tag => row.value }))
-      })
-      arr
+    facets.each do |facet|
+      links = @search.facet(facet).rows.inject([]) do |arr, row|
+        remove = (params[facet] == row.value)
+        arr.push({
+          :label => self.send("label_#{facet.to_s}", row.value),
+          :remove => remove,
+          :url => remove ? url_for(params.clone.remove!(facet)) : url_for(params.clone.merge({ facet => row.value }))
+        })
+        arr
+      end
+      @facets.push({ :label => facet.to_s, :links => links })
     end
-    @facets.push({ :label => "Tags", :links => links })
-	
-	links = @search.facet(:user_id).rows.inject([]) do |arr, row|
-      remove = params[:uid].to_i == row.value
-      arr.push({
-        :label => User.find(row.value).name,
-        :remove => remove,
-        :url => remove ? url_for(params.clone.remove!(:uid)) : url_for(params.clone.merge({ :uid => row.value }))
-      })
-      arr
-    end
-    @facets.push({ :label => "Users", :links => links })
 
-	links = @search.facet(:access_level_id).rows.inject([]) do |arr, row|
-      remove = params[:aid].to_i == row.value
-      arr.push({
-        :label => AccessLevel.find(row.value).label,
-        :remove => remove,
-        :url => remove ? url_for(params.clone.remove!(:aid)) : url_for(params.clone.merge({ :aid => row.value }))
-      })
-      arr
-    end
-    @facets.push({ :label => "Access Levels", :links => links })
-
-	links = @search.facet(:content_type_id).rows.inject([]) do |arr, row|
-      remove = params[:cid].to_i == row.value
-      arr.push({
-        :label => ContentType.find(row.value).name.capitalize,
-        :remove => remove,
-        :url => remove ? url_for(params.clone.remove!(:cid)) : url_for(params.clone.merge({ :cid => row.value }))
-      })
-      arr
-    end
-    @facets.push({ :label => "Content Type", :links => links })
-
-	links = @search.facet(:flag_ids).rows.inject([]) do |arr, row|
-      remove = params[:flag].to_i == row.value
-      arr.push({
-        :label => Flag.find(row.value).label,
-        :remove => remove,
-        :url => remove ? url_for(params.clone.remove!(:flag)) : url_for(params.clone.merge({ :flag => row.value }))
-      })
-      arr
-    end
-    @facets.push({ :label => "Flags", :links => links })
-
-
+	@access_levels = AccessLevel.all
+    @flags = Flag.all
   end
 end

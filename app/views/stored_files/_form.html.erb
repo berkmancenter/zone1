@@ -9,12 +9,8 @@
 			<%= f.text_area :description, :rows => 3 %><br />
 		</td>
 		<td>
-			<%= f.label :creator_email, "Creator" %>
-			<% if @stored_file.new_record? -%>
-			<input type="text" value="<%= current_user.email %>" readonly="readonly" class="readonly" /><br />
-			<% else -%>
-			<input type="text" value="<%= current_user.email %>" readonly="readonly" class="readonly" /><br />
-			<% end -%>
+			<%= f.label :author, "Author" %>
+			<%= f.text_field :author %><br />
 			<%= f.label :office %>
 			<%= f.text_field :office %><br />
 			<%= f.label :title %>

@@ -1,0 +1,16 @@
+#quick_edit_panel { 
+  display: none;
+  position: absolute;
+  background: #FFF; 
+  border: 1px solid #999; 
+  padding: 20px;
+  #meta_data {
+    span { 
+      display: block;
+    }
+  }
+}
+
+#download-set {
+  input { display: none; }
+}

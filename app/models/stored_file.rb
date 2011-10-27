@@ -22,17 +22,19 @@ class StoredFile < ActiveRecord::Base
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags]) do
-	text :original_filename, :collection_name, :description, :copyright
-	string :format_name, :format_version, :mime_type, :md5
+	text :original_filename, :description
+	date :ingest_date
+    date :created_at
+    integer :batch_id
+	string :collection_list, :stored => true, :multiple => true
+    string :author
+    string :office
+	integer :user_id, :references => User
 	string :tag_list, :stored => true, :multiple => true
 	integer :flag_ids, :multiple => true, :references => Flag 
-	date :ingest_date, :retention_plan_date, :retention_plan_action
-	integer :file_size
-	integer :access_level_id, :multiple => true, :references => AccessLevel
+    text :copyright
 	integer :license_id, :references => License
-	integer :user_id, :multiple => true, :references => User
-	integer :content_type_id, :multiple => true, :references => ContentType
-	time :created_at, :updated_at
+	string :format_name
   end
 
   def has_preserved_flag?

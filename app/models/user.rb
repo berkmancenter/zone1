@@ -21,6 +21,11 @@ class User < ActiveRecord::Base
     [self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.method }
   end
 
+  def can_do_global_method?(method)
+    return true if self.list_rights.include?(method)
+	false
+  end
+
   # stored_file can be an id or it can be a StoredFile
   def can_do_method?(stored_file, method)
     rights = self.list_rights
