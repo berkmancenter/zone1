@@ -1,4 +1,13 @@
 $(function() {
+	$('#list,#thumb').click(function() {
+		if($('#results').hasClass($(this).attr('id'))) {
+			return false;
+		}
+		$('.file').css('background', '#FFF');
+		$('#quick_edit_panel').hide();
+		$('#results').toggleClass('list').toggleClass('thumb');
+		return false;
+	});
 	$('.downloadable').attr('checked', false);
 	$('.downloadable').click(function() {
 		if($('.downloadable:checked').size() > 0) {
@@ -11,6 +20,11 @@ $(function() {
 		$('#download-set input:checked').remove();
 		$('#download-set').append($('.downloadable:checked').clone());
 		return true;
+	});
+	$('#close_quick_edit').click(function() {
+		$('.file').css('background', '#FFF');
+		$('#quick_edit_panel').hide();
+		return false;
 	});
 	$('.file').click(function() {
 		var current_file = $(this);
@@ -32,14 +46,48 @@ $(function() {
 		});
 
 		var p = current_file.position();
-		$('#quick_edit_panel').css({ top: p.top, left: p.left + 500 }).show();
+		var left_shift = ($('#results').hasClass('thumb') ? 120 : 500);
+		$('#quick_edit_panel').css({ top: p.top, left: p.left + left_shift }).show();
 
 		// set onclick for update and delete
 		$('#delete').unbind('click').click(function() {
-			alert('This will delete stored file ' + id + ' via ajax');
+			$.ajax({
+				cache: false,
+				url: '/stored_files/' + id,
+				type: 'DELETE',
+				success: function(data) {
+					if(data.success) {
+						$('.response').html('deleted!');
+						current_file.remove();
+						$('#quick_edit_panel').hide();
+					} else {
+						$('.response').html(data.message);
+					}
+				},
+				error: function() {
+					$('.response').html('Sorry, you do not have permissions, or fail.');
+				}
+			});	
 		});
+		// TODO: Finish updating this, to pass tags, flags, permissions per quick edit
 		$('#update').unbind('click').click(function() {
-			alert('This will update stored file ' + id);
+			$('.response').html('Not implemented yet');
+			$.ajax({
+				cache: false,
+				url: '/stored_files/' + id,
+				type: 'PUT',
+				data: { "stored_file" : {} },
+				success: function(data) {
+					if(data.success) {
+						$('.response').html('updated!');
+					} else {
+						$('.response').html(data.message);
+					}
+				},
+				error: function() {
+					$('.response').html('Sorry, you do not have permissions, or fail.');
+				}
+			});	
 		});
 	})
 });

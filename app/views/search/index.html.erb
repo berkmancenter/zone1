@@ -3,29 +3,36 @@
 		<td id="facets" valign="top">
   			<%= render 'filter' %>
 		</td>
-		<td id="results" valign="top">
+		<td id="results" valign="top" class="list" width="750">
+			<p class="response"></p>
 			<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
               <%= submit_tag "Download Selected Files", :id => "download-submit" %>
 			<% end -%>
 			<h3>Results</h3>
+			<a href="#" id="list">List</a> | <a href="#" id="thumb">Thumb</a>
 			<p><%=pluralize(@search.total, 'result') %> found.</p>
-			<span class="filename">Filename</span>
-			<span class="size">Size</span>
-			<span class="date">Date</span>
-			<span class="tags">Tags</span>
-			<span class="flags">Flags</span>
-			<span class="author">Author</span>
-			<span class="license">Copyright</span>
-			<span class="batch">Batch</span>
+			<div class="menu">
+				<span class="filename">Filename</span>
+				<span class="size">Size</span>
+				<span class="date">Date</span>
+				<span class="tags">Tags</span>
+				<span class="flags">Flags</span>
+				<span class="author">Author</span>
+				<span class="license">Copyright</span>
+				<span class="batch">Batch</span>
+			</div>
 			
 			<% @stored_files.each do |stored_file| %> 
 				<div class="file" data-id="<%= stored_file.id %>">
+					<span class="icon">
+						<%= image_tag "image.png" %>
+					</span>
 					<span class="filename">	
 						<input class="downloadable" type="checkbox" name="stored_file[<%= stored_file.id %>]" value="1" />
 						<%= link_to (stored_file.title.blank? ? stored_file.original_filename : stored_file.title), download_stored_file_path(stored_file) %>
 					</span>
 					<span class="size">X KB</span>
-					<span class="date"><%= stored_file.created_at %></span>
+					<span class="date"><%= stored_file.created_at.strftime("%m-%d-%Y") %></span>
 					<span class="tags"><%= stored_file.tag_list %></span>
 					<span class="flags">
 						<% @flags.each do |flag| %>
@@ -45,6 +52,7 @@
 </div>
 
 <div id="quick_edit_panel">
+	<a href="#" id="close_quick_edit">x</a>
 	<h3 id="snippet"></h3>
 	<div id="meta_data">
 		<span id="size"></span>

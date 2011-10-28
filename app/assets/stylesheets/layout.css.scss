@@ -1,13 +1,17 @@
 header { display: block; border-bottom: 1px solid #999; margin-bottom: 100px; }
 footer { display: block; border-top: 1px solid #999; margin-top: 100px; }
 
+.error,
+.response { font-weight: bold; color: red; display: block; }
 .clear { clear: both; }
 
 body {
   background-color: #fff;
   color: #333;
   font-size: 11px;
-  line-height: 18px; }
+  line-height: 18px; 
+  width: 900px;
+  margin: 0px auto; }
 
 p, ol, ul, td {
   font-size: 13px;

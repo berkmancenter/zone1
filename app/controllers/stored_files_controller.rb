@@ -27,7 +27,7 @@ class StoredFilesController < ApplicationController
   end
 
   def allow_destroy
-    true
+    return true if current_user.can_do_method?(params[:id], "delete_items") 
   end
 
   def allow_show
@@ -38,8 +38,6 @@ class StoredFilesController < ApplicationController
 
     return true if current_user.list_rights.include?("view_preserved_flag_content") && 
       stored_file.has_preserved_flag?
-
-    # add does user have right to view own file
 
     # does user groups have access to view file and is file partially open 
 
@@ -81,20 +79,27 @@ class StoredFilesController < ApplicationController
   end
 
   def destroy
-    # TODO: Add JSON response here, so that this can be done via AJAX
     begin
       StoredFile.delete(params[:id])
-      flash[:notice] = "deleted"
-      redirect_to root_path
+      respond_to do |format|
+        format.json { render :json => { :success => true } }
+        format.html do
+          flash[:notice] = "deleted"
+          redirect_to root_path
+        end
+      end
     rescue Exception => e
       flash[:error] = "problem deleting file"
-      @stored_file = StoredFile.find(params[:id])
-      redirect_to edit_stored_file_path(@stored_file)
+      respond_to do |format|
+        format.json { render :json => { :success => false, :message => e.to_s } }
+        format.html do
+          @stored_file = StoredFile.find(params[:id])
+          redirect_to edit_stored_file_path(@stored_file)
+        end
+      end
     end
   end 
 
-  # PUT /storedfiles/1
-  # PUT /storedfiles/1.json
   def update
     begin
       @stored_file = StoredFile.find(params[:id])
@@ -102,7 +107,7 @@ class StoredFilesController < ApplicationController
       @stored_file.update_attributes(validate_params(params, @stored_file))
    
       respond_to do |format|
-        format.json { render :json => { :success => 'true' } }
+        format.json { render :json => { :success => true } }
         format.html do
           flash[:error] = "success"
           redirect_to edit_stored_file_path(@stored_file)
@@ -110,7 +115,7 @@ class StoredFilesController < ApplicationController
       end
     rescue Exception => e
       respond_to do |format|
-        format.json { render :json => { :status => :unprocessable_entity, :message => e.to_s } }
+        format.json { render :json => { :success => false, :message => e.to_s } }
         format.html do
           flash[:error] = "failed: #{e.to_s}"
           redirect_to edit_stored_file_path(@stored_file)
@@ -158,7 +163,7 @@ class StoredFilesController < ApplicationController
   def create
     begin
       if current_user.nil?
-        render :json => {:success => 'false', :message => "It doesn't look like you're logged in."}
+        render :json => {:success => false, :message => "It doesn't look like you're logged in."}
         return
       end
 
@@ -172,10 +177,10 @@ class StoredFilesController < ApplicationController
       raise Exception.new("Missing temp_batch_id") unless params[:temp_batch_id]
       update_batch(params[:temp_batch_id], new_file)
     
-      render :json => {:success => 'true'}
+      render :json => {:success => true}
       return
     rescue Exception => e
-      render :json => {:success => 'false', :message => e.to_s}
+      render :json => {:success => false, :message => e.to_s}
       ::Rails.logger.warn "Warning: stored_files_controller.create exception: #{e}"
     end
   end
