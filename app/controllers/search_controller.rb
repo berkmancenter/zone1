@@ -48,7 +48,7 @@ class SearchController < ApplicationController
 
     facets.each do |facet|
       links = @search.facet(facet).rows.inject([]) do |arr, row|
-        remove = (params[facet] == row.value)
+        remove = (params[facet] == row.value.to_s)
         arr.push({
           :label => self.send("label_#{facet.to_s}", row.value),
           :remove => remove,
