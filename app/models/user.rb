@@ -36,4 +36,8 @@ class User < ActiveRecord::Base
     return true if (stored_file.user == self && rights.include?("#{method}_to_own_content"))
     false
   end
+
+  def all_groups
+    [self.owned_groups, self.groups].flatten.uniq
+  end
 end

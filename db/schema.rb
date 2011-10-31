@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111025135847) do
+ActiveRecord::Schema.define(:version => 20111031134614) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -44,6 +44,11 @@ ActiveRecord::Schema.define(:version => 20111025135847) do
   create_table "groups_owners", :id => false, :force => true do |t|
     t.integer "group_id"
     t.integer "owner_id"
+  end
+
+  create_table "groups_stored_files", :id => false, :force => true do |t|
+    t.integer "group_id"
+    t.integer "stored_file_id"
   end
 
   create_table "groups_users", :id => false, :force => true do |t|

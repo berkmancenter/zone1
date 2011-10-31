@@ -7,7 +7,7 @@ class GroupsController < ApplicationController
   end
 
   def index
-    @groups = [current_user.owned_groups, current_user.groups].flatten.uniq
+    @groups = current_user.all_groups
   end
 
   def show

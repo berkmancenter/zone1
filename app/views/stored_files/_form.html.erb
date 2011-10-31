@@ -39,8 +39,10 @@
 			</div>
 		</td>
 		<td>
-			<%= f.label "Groups" %>
-			<%= text_field_tag "groups" %><br />
+			<%= f.label "Groups" %><br />
+			<% current_user.all_groups.each do |group| -%>
+			<%= check_box_tag "stored_file[group_ids][]", group.id, @stored_file.groups.include?(group) %><%= group.name %><br />
+			<% end -%>
 		</td>
 	</tr>
 </table>
