@@ -23,6 +23,10 @@ Hi, <%= current_user.name %> |
   </p>
 <% end %>
 
+<div id="error" style="color:red; font-weight: bold; margin: 10px 0px; font-size: 18px;">
+<%= flash[:error] %>
+</div>
+
 <%= yield %>
 
 <footer>

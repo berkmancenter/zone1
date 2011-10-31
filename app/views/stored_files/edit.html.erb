@@ -1,7 +1,4 @@
 <%= form_for @stored_file, :html => { :id => "edit_stored_file" } do |f| %>
-	<div id="error" style="color:red; font-weight: bold; margin: 10px 0px; font-size: 18px;">
-	<%= flash[:error] %>
-	</div>
 	<%= f.label :original_filename %>: <%= @stored_file.original_filename %><br />
 	<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
 	<%= f.label :file_size %>: <%= @stored_file.file_size %><br />
