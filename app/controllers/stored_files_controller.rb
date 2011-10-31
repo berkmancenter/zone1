@@ -75,6 +75,7 @@ class StoredFilesController < ApplicationController
 
   # GET /storedfiles/1/edit
   def edit
+    @licenses = License.all
     @stored_file = StoredFile.find(params[:id])
   end
 
@@ -126,6 +127,7 @@ class StoredFilesController < ApplicationController
   end
 
   def new
+    @licenses = License.all
     @stored_file = StoredFile.new
 
     # Important: For appropriate permissions to be shown

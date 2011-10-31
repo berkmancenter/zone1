@@ -50,9 +50,9 @@
 <%= f.label :copyright %>
 <%= f.text_field :copyright %><br />
 <%= f.label :license_id, "License" %><br />
-<% for license in License.find(:all).sort %>
+<% @licenses.each do |license| -%>
 	<%= f.radio_button(:license_id, license.id) %> <%= license.name %>
-<% end %>		
+<% end -%>		
 <hr />
 <div class="flags">
 <% Flag.all.each do |flag| -%>
