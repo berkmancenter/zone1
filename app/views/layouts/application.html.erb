@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Zone1</title>
-  <%= stylesheet_link_tag    "application" %>
-  <%= javascript_include_tag "application" %>
-  <%= csrf_meta_tags %>
+	<title>Zone1</title>
+	<%= stylesheet_link_tag "application" %>
+	<%= javascript_include_tag "application" %>
+	<%= csrf_meta_tags %>
+	<%= yield :head %>
 </head>
 <body>
 
@@ -17,10 +18,10 @@ Hi, <%= current_user.name %> |
 <% end -%>
 <br/>
 <%= form_tag search_path, :method => :get do %>
-  <p>
-    <%= text_field_tag :search, params[:search] %>
-    <%= submit_tag "Search", :name => nil %>
-  </p>
+	<p>
+		<%= text_field_tag :search, params[:search] %>
+		<%= submit_tag "Search", :name => nil %>
+	</p>
 <% end %>
 
 <div id="error" style="color:red; font-weight: bold; margin: 10px 0px; font-size: 18px;">
