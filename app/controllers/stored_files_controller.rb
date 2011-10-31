@@ -139,6 +139,8 @@ class StoredFilesController < ApplicationController
  
   # Server side validation updatable attributes
   def validate_params(params, stored_file)
+    params[:stored_file][:group_ids] ||= []
+
     if !current_user.can_do_method?(stored_file, "update_disposition")
       params[:stored_file].delete(:disposition)
     end
@@ -174,6 +176,7 @@ class StoredFilesController < ApplicationController
         :content_type_id => ContentType.first.id }) #Note: First content type id for testing
       params[:stored_file][:file] = params.delete(:file)
       stored_file_params = validate_params(params, new_file)
+      stored_file_params[:group_ids] = params[:groups].keys if params.has_key?(:groups)
       new_file.update_attributes(stored_file_params)
 
       raise Exception.new("Missing temp_batch_id") unless params[:temp_batch_id]

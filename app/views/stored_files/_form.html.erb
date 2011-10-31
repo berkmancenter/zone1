@@ -40,8 +40,14 @@
 		</td>
 		<td>
 			<%= f.label "Groups" %><br />
+			<% if @stored_file.new_record? -%>
+			<% current_user.all_groups.each do |group| -%>
+			<%= check_box_tag "groups[#{group.id}]", 1, @stored_file.groups.include?(group) %><%= group.name %><br />
+			<% end -%>
+			<% else -%>
 			<% current_user.all_groups.each do |group| -%>
 			<%= check_box_tag "stored_file[group_ids][]", group.id, @stored_file.groups.include?(group) %><%= group.name %><br />
+			<% end -%>
 			<% end -%>
 		</td>
 	</tr>
