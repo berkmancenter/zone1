@@ -29,22 +29,24 @@ class SearchController < ApplicationController
   
   def index
     facets = [:batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name] #:copyright
-	@search = Sunspot.new_search(StoredFile)
-	@search.build do
-        facets.each do |facet|
-          if params.has_key?(facet)
-			with facet, CGI.unescape(params[facet])
-          end
+    @search = Sunspot.new_search(StoredFile)
+    @search.build do
+      facets.each do |facet|
+        if params.has_key?(facet)
+          with facet, CGI.unescape(params[facet])
         end
-		fulltext params[:search] do
-			query_phrase_slop 1 
-		end
-        facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name #:copyright
-		paginate :page => params[:page], :per_page => 30 
-	end
-	@search.execute!
-	@stored_files = @search.results
-	@facets = []
+      end
+
+      # TODO: Figure out what this is for (Steph)
+      fulltext params[:search] do
+        query_phrase_slop 1 
+      end
+      facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name #:copyright
+      paginate :page => params[:page], :per_page => 30 
+    end
+    @search.execute!
+    @stored_files = @search.results
+    @facets = []
 
     facets.each do |facet|
       links = @search.facet(facet).rows.inject([]) do |arr, row|
@@ -59,7 +61,7 @@ class SearchController < ApplicationController
       @facets.push({ :label => facet.to_s, :links => links })
     end
 
-	@access_levels = AccessLevel.all
+    @access_levels = AccessLevel.all
     @flags = Flag.all
   end
 end

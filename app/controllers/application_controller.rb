@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
+  # Rescuing from any Access denied messages, generic JSON response or redirect and flash message
   rescue_from Acl9::AccessDenied do |exception|
     respond_to do |format|
       format.json do 

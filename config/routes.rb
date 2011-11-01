@@ -18,5 +18,5 @@ Zone1::Application.routes.draw do
   resources :groups
 
   match 'upload' => 'stored_files#new', :as => :upload
-  match 'search' => 'search#index', :as => :search  #, :via => :post
+  match 'search' => 'search#index', :as => :search
 end

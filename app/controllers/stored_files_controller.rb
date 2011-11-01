@@ -1,25 +1,24 @@
 class StoredFilesController < ApplicationController
   include RightMethods
   protect_from_forgery
+
+  # TODO: Re-add later
   #caches_page :show
   #cache_sweeper :stored_file_sweeper, :only => :show
 
   access_control do
-    allow all, :to => :index
-
     allow logged_in, :to => [:create, :new]
 
+    # TODO: Add conditional for batch updates
     # allow logged_in, :to => :batch_edit, :if => :batch_allow_method
 
     #Toggle methods: flags, tags, various fields, access level
     allow logged_in, :to => :toggle_method, :if => :allow_toggle_method
 
-    # additional acl9 methods:
     allow logged_in, :to => [:edit, :update], :if => :allow_update_or_edit
 
     allow logged_in, :to => [:show, :download], :if => :allow_show
 
-    # delete (delete_items, delete_items_to_own_content
     allow logged_in, :to => :destroy, :if => :allow_destroy
 
     # TODO: Add validation for download set later
@@ -47,12 +46,6 @@ class StoredFilesController < ApplicationController
     self.send(params[:method]) 
   end
 
-  # GET /storedfiles
-  def index
-    @stored_files = StoredFile.all
-  end
-
-  # GET /storedfiles/1
   def show
     @stored_file = StoredFile.find(params[:id])
   end
@@ -63,7 +56,6 @@ class StoredFilesController < ApplicationController
     send_file @stored_file.file.file.file
   end
 
-  # GET /storedfiles/1/edit
   def edit
     @licenses = License.all
     @stored_file = StoredFile.find(params[:id], :include => :comments)
@@ -121,12 +113,11 @@ class StoredFilesController < ApplicationController
 
   def new
     @licenses = License.all
-    @stored_file = StoredFile.new
+    @stored_file = StoredFile.new(:user_id => current_user.id)
 
-    # Important: For appropriate permissions to be shown
-    @stored_file.user = current_user 
+    # TODO: Figure out if default here
+    @stored_file.access_level_id = 3
 
-    @stored_file.access_level_id = 3  #todo: just for testing
     init_new_batch
   end
  
@@ -164,7 +155,6 @@ class StoredFilesController < ApplicationController
       end
       params[:stored_file][:flag_ids] = new_flags  
     end
-#logger.warn "steph: #{
 
     params[:stored_file]
   end
@@ -191,7 +181,7 @@ class StoredFilesController < ApplicationController
       return
     rescue Exception => e
       render :json => {:success => false, :message => e.to_s}
-      ::Rails.logger.warn "Warning: stored_files_controller.create exception: #{e}"
+      logger.warn "Warning: stored_files_controller.create exception: #{e}"
     end
   end
 
@@ -209,20 +199,17 @@ class StoredFilesController < ApplicationController
       # Don't treat this like a legit batch yet because there's only one file in it and we
       # can't be sure they'll upload any more. We turn it into a legit Batch instance
       # on the next upload for this temp_batch_id
-      logger.debug "PHUNK: First file in this batch."
       # Add new id to session for this temp_batch_id
       file_ids << new_file.id
       return
     end      
 
     if file_ids.length == 1
-      #logger.debug "PHUNK: Second file in this batch. Create and save new Batch instance"
       batch = Batch.new(:user_id => current_user.id)
       batch.stored_files << StoredFile.find(file_ids.first.to_i, new_file.id)
       batch.save!
     else
-      #logger.debug "PHUNK: 3+ file, update existing batch with new_file only"
-      batch = Batch.find( session[:upload_batches][temp_batch_id][:system_batch_id].to_i )
+      batch = Batch.find(session[:upload_batches][temp_batch_id][:system_batch_id].to_i)
       batch.stored_files << StoredFile.find(new_file.id)
     end
 
@@ -233,7 +220,6 @@ class StoredFilesController < ApplicationController
       :last_modified => Time.now.utc.iso8601,
       :file_ids => file_ids
     }
-    logger.debug "PHUNK: updated batch. Session->temp batch: #{session[:upload_batches][temp_batch_id].inspect}"
   end
 
   def init_new_batch
@@ -263,9 +249,8 @@ class StoredFilesController < ApplicationController
       stale_ids << temp_batch_id if hours >= max_age_hours
     end
 
-    # Now remove any stale temp batches we just found
+    # Remove any stale temp batches we just found
     stale_ids.each do |temp_batch_id|
-      logger.debug "PHUNK: Deleting stale temp_batch_id from session: #{temp_batch_id}"
       session[:upload_batches].delete temp_batch_id
     end
   end

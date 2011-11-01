@@ -2,7 +2,7 @@ class GroupsController < ApplicationController
   access_control do
     allow logged_in, :to => [:index, :new, :create]
 
-    # Add logic here to prohibit
+    # TODO: Add logic here to prohibit to user owned groups only, and perhaps additional rights
     allow logged_in, :to => [:edit, :update, :destroy]
   end
 
@@ -60,7 +60,6 @@ class GroupsController < ApplicationController
       redirect_to edit_group_path(@group)
     rescue Exception => e
       render :json => {:success => 'false', :message => e.to_s}
-      ::Rails.logger.warn "Warning: groups_controller.create got exception: #{e}"
     end
   end
 
@@ -68,13 +67,13 @@ class GroupsController < ApplicationController
     begin
       @group = Group.find(params[:id])
 
-      #First, remove by remove params
+      # Remove by remove params
       @group.users.delete(User.find_all_by_id(params[:remove].keys)) if params.has_key?(:remove)
 
-      #Next, set owners
+      # Set owners
       @group.owners = User.find_all_by_id(params[:owner].keys) if params.has_key?(:owner)
 
-      #Then, add new users
+      # Add new users
       @group.users << User.find_all_by_email(params[:user_email].split(', '))
 
       # TODO: Maybe replace with update_column later
@@ -85,7 +84,6 @@ class GroupsController < ApplicationController
       redirect_to edit_group_path(@group)
     rescue Exception => e
       render :json => { :message => e.to_s }
-      ::Rails.logger.warn "Warning: groups_controller.update got exception: #{e}"
     end
   end
 
@@ -99,7 +97,6 @@ class GroupsController < ApplicationController
       end
     rescue Exception => e
       render :json => { :success => 'false', :message => e.to_s }
-      ::Rails.logger.warn "Warning: groups_controller.destroy got exception: #{e}"
     end
   end
 end
