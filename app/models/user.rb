@@ -8,14 +8,15 @@ class User < ActiveRecord::Base
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name
 
-  has_and_belongs_to_many :roles
-  has_many :stored_files
-  has_many :batches
-  has_one :sftp_users, :dependent => :destroy
-  has_many :right_assignments, :as => :subject
-  has_many :rights, :through => :right_assignments
   has_and_belongs_to_many :groups
+  has_and_belongs_to_many :roles
   has_and_belongs_to_many :owned_groups, :class_name => "Group", :join_table => "groups_owners", :foreign_key => "owner_id"
+  has_one :sftp_users, :dependent => :destroy
+  has_many :batches
+  has_many :comments
+  has_many :stored_files
+  has_many :rights, :through => :right_assignments
+  has_many :right_assignments, :as => :subject
 
   def list_rights
     # TODO: Low level caching on this later

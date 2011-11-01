@@ -24,7 +24,22 @@
 		</td>
 	</tr>
 </table>
-<%= f.check_box :allow_notes %> <%= f.label "Allow users to add descriptions" %>
+<%= f.check_box :allow_notes %> <%= f.label "Allow users to add comments" %>
+<% if false -%>
+<% if !@stored_file.new_record? && @stored_file.allow_notes && current_user.can_do_method?(@stored_file, "manage_comments") -%>
+<% @stored_file.comments.each do |comment| -%>
+<div style="border:1px dashed #dfdfdf;">
+<%= comment.content %> / <%= comment.user.name %>
+</div>
+<% end -%>
+<div id="comments">
+<%= f.fields_for :comment do |c| -%>
+<%= c.label :content %>
+<%= c.text_area :content, :rows => 3 %>
+<% end -%>
+</div>
+<% end -%>
+<% end -%>
 <hr />
 
 <table width="100%" cellpadding="0" cellspacing="0">

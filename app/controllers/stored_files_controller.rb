@@ -31,22 +31,12 @@ class StoredFilesController < ApplicationController
   end
 
   def allow_show
-    return true if current_user.can_do_method?(params[:id], "view_items") 
-
     stored_file = StoredFile.find(params[:id])
-    return true if stored_file.access_level.name == "open" 
-
-    return true if current_user.list_rights.include?("view_preserved_flag_content") && 
-      stored_file.has_preserved_flag?
-
-    # does user groups have access to view file and is file partially open 
-
-    true #false
+    stored_file.can_user_view?(current_user)
   end
 
   def allow_update_or_edit
-    #if current user has some toggle rights, check here
-    true
+    current_user.can_do_method?(params[:id], "edit_items")
   end
 
   def allow_toggle_method
@@ -76,7 +66,7 @@ class StoredFilesController < ApplicationController
   # GET /storedfiles/1/edit
   def edit
     @licenses = License.all
-    @stored_file = StoredFile.find(params[:id])
+    @stored_file = StoredFile.find(params[:id], :include => :comments)
   end
 
   def destroy
@@ -90,10 +80,10 @@ class StoredFilesController < ApplicationController
         end
       end
     rescue Exception => e
-      flash[:error] = "problem deleting file"
       respond_to do |format|
         format.json { render :json => { :success => false, :message => e.to_s } }
         format.html do
+          flash[:error] = "problem deleting file"
           @stored_file = StoredFile.find(params[:id])
           redirect_to edit_stored_file_path(@stored_file)
         end
@@ -104,6 +94,9 @@ class StoredFilesController < ApplicationController
   def update
     begin
       @stored_file = StoredFile.find(params[:id])
+
+      # TODO: Figure out why this attribute is not getting updated in update_attributes 
+      @stored_file.update_attribute(:allow_notes, params[:stored_file][:allow_notes])
 
       @stored_file.update_attributes(validate_params(params, @stored_file))
    
@@ -141,6 +134,16 @@ class StoredFilesController < ApplicationController
   def validate_params(params, stored_file)
     params[:stored_file][:group_ids] ||= []
 
+    # User with view_item access and item can accept comments 
+    if params[:stored_file].has_key?(:comment)
+      if stored_file.allow_notes && current_user.can_do_method?(stored_file, "view_items")
+        comment_params = params[:stored_file].delete(:comment).merge({ :user_id => current_user.id })
+        params[:stored_file][:comments_attributes] = [comment_params]
+      else
+        params[:stored_file].delete(:comment)
+      end
+    end
+
     if !current_user.can_do_method?(stored_file, "update_disposition")
       params[:stored_file].delete(:disposition)
     end
@@ -161,6 +164,8 @@ class StoredFilesController < ApplicationController
       end
       params[:stored_file][:flag_ids] = new_flags  
     end
+#logger.warn "steph: #{
+
     params[:stored_file]
   end
 

@@ -1,8 +1,15 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
 
-  rescue_from Acl9::AccessDenied  do |exception|
-    flash[:error] = 'You do not have access to view this page.'
-    redirect_to root_url
+  rescue_from Acl9::AccessDenied do |exception|
+    respond_to do |format|
+      format.json do 
+        render :json => { :success => false, :message => "You do not have access to do this action." }
+      end
+      format.html do
+        flash[:error] = 'You do not have access to view this page.'
+        redirect_to root_url
+      end
+    end
   end
 end

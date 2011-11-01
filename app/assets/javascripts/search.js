@@ -32,6 +32,7 @@ $(function() {
 
 		$('.file').css('background', '#FFF');
 		$('#full_edit').attr('href', '/stored_files/' + id + '/edit');
+		$('#full_show').attr('href', '/stored_files/' + id);
 		current_file.css('background', '#d3d3d3');
 
 		//Populate data and fields

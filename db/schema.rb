@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111031134614) do
+ActiveRecord::Schema.define(:version => 20111101132701) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -19,6 +19,14 @@ ActiveRecord::Schema.define(:version => 20111031134614) do
 
   create_table "batches", :force => true do |t|
     t.integer "user_id", :null => false
+  end
+
+  create_table "comments", :force => true do |t|
+    t.text     "content"
+    t.integer  "user_id"
+    t.integer  "stored_file_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "content_types", :force => true do |t|
@@ -119,14 +127,14 @@ ActiveRecord::Schema.define(:version => 20111031134614) do
 
   create_table "stored_files", :force => true do |t|
     t.integer  "batch_id"
-    t.integer  "user_id",           :null => false
+    t.integer  "user_id",                              :null => false
     t.string   "title"
-    t.string   "original_filename", :null => false
+    t.string   "original_filename",                    :null => false
     t.string   "collection_name"
     t.string   "office"
     t.string   "disposition"
-    t.integer  "access_level_id",   :null => false
-    t.integer  "content_type_id",   :null => false
+    t.integer  "access_level_id",                      :null => false
+    t.integer  "content_type_id",                      :null => false
     t.string   "format_name"
     t.string   "format_version"
     t.string   "mime_type"
@@ -142,8 +150,8 @@ ActiveRecord::Schema.define(:version => 20111031134614) do
     t.string   "author"
     t.integer  "license_id"
     t.datetime "deletion_date"
-    t.boolean  "allow_notes"
     t.boolean  "delete_flag"
+    t.boolean  "allow_notes",       :default => false
   end
 
   create_table "taggings", :force => true do |t|

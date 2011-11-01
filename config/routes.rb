@@ -12,6 +12,7 @@ Zone1::Application.routes.draw do
       post :toggle_method
       get :download
     end
+    resources :comments
   end
   resources :roles, :as => :role
   resources :groups

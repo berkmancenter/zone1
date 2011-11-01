@@ -1,14 +1,28 @@
-<% if @stored_file.delete_flag != true %>
-  <h1 data-id="<%= @stored_file.id %>"><%= @stored_file.title %></h1>
-  ID: <%= @stored_file.id %><br />
-  Tags: <%= @stored_file.tag_list %><br />
-  Description: <%= @stored_file.description %> <br />
-  Copyright: <%= @stored_file.copyright %><br />
-  Terms of License: <%= @stored_file.license.nil? ? '' : @stored_file.license.name %><br />
-<% else %>
-  This file has been deleted.
-<% end %>
+<h1 data-id="<%= @stored_file.id %>"><%= @stored_file.title %></h1>
+ID: <%= @stored_file.id %><br />
+Tags: <%= @stored_file.tag_list %><br />
+Description: <%= @stored_file.description %> <br />
+Copyright: <%= @stored_file.copyright %><br />
+Terms of License: <%= @stored_file.license.nil? ? '' : @stored_file.license.name %><br />
 
-<div class="actions">
-	<%= submit_tag "EDIT" %>
+<% if @stored_file.allow_notes -%>
+<% @stored_file.comments.each do |comment| -%>
+<div style="border:1px dashed #dfdfdf;">
+<%= comment.content %> / <%= comment.user.name %>
+<% if current_user.can_do_method?(@stored_file, "manage_comments") || comment.user == current_user -%>
+<%= link_to 'X', stored_file_comment_path(@stored_file, comment), :method => :delete, :class => "delete-comment" %>
+<% end -%>
 </div>
+<% end -%>
+<div id="comments">
+<%= form_for :comment, :url => "/stored_files/#{@stored_file.id}/comments", :html => { :id => "new-comment" } do |f| %>
+<%= f.label :content %>
+<%= f.text_area :content, :rows => 3 %>
+<%= f.submit "Add Comment" %>
+<% end -%>
+</div>
+<% end -%>
+
+<% if current_user.can_do_method?(@stored_file, "edit_items") -%>
+<%= link_to "Edit", edit_stored_file_path(@stored_file) %>
+<% end -%>

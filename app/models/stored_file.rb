@@ -6,8 +6,11 @@ class StoredFile < ActiveRecord::Base
   belongs_to :batch
   has_and_belongs_to_many :flags
   has_and_belongs_to_many :groups
-  acts_as_authorization_object
+  has_many :comments, :dependent => :destroy
 
+  accepts_nested_attributes_for :comments
+
+  acts_as_authorization_object
   before_save :update_file_attributes
 
   acts_as_taggable
@@ -18,7 +21,7 @@ class StoredFile < ActiveRecord::Base
     :author, :title, :copyright, :description, :access_level_id,
     :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
     :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
-    :collection_list, :disposition, :group_ids
+    :collection_list, :disposition, :group_ids, :comments_attributes
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
@@ -43,6 +46,25 @@ class StoredFile < ActiveRecord::Base
     (self.flags & preserved_flags).any?
   end
 
+  def users_via_groups
+    # TODO: Add performance improvements here (possibly via low level caching, raw SQL)
+    self.groups.collect { |b| b.users }.flatten.uniq
+  end
+
+  def can_user_view?(user) 
+    return true if user.can_do_method?(self, "view_items") 
+
+    return true if self.access_level.name == "open" 
+
+    return true if user.list_rights.include?("view_preserved_flag_content") && 
+      self.has_preserved_flag?
+ 
+    return true if self.users_via_groups.include?(user) && 
+      self.access_level.name == "partially_open"
+
+    false
+  end
+
   private
 
   def update_file_attributes
@@ -51,5 +73,4 @@ class StoredFile < ActiveRecord::Base
       self.file_size = file.file.size
     end
   end
-
 end
