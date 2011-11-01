@@ -39,8 +39,9 @@ puts "Generating users"
 User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Steph' },
              {:email => 'bgadoury@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Phunk' },
              {:email => 'etann@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Evan' },
-             {:email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin' }])
-(u1, u2, u3, u4) = User.all
+             {:email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin' },
+             {:email => 'brianb@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Brian' }])
+(u1, u2, u3, u4, u5) = User.all
 
 puts "Generating groups"
 g = Group.new(:name => 'End Point')
@@ -95,6 +96,7 @@ u1.roles << r4
 u2.roles << r4
 u3.roles << r4
 u4.roles << [r1, r4]
+u5.roles << r4
 
 puts "Generating licenses"
 License.create([{ :name => 'CC BY' },
