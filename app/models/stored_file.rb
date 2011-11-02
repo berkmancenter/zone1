@@ -4,11 +4,13 @@ class StoredFile < ActiveRecord::Base
   belongs_to :content_type
   belongs_to :access_level
   belongs_to :batch
-  has_and_belongs_to_many :flags
+  has_many :flaggings, :dependent => :destroy
+  has_many :flags, :through => :flaggings
   has_and_belongs_to_many :groups
   has_many :comments, :dependent => :destroy
 
   accepts_nested_attributes_for :comments
+  accepts_nested_attributes_for :flaggings
 
   acts_as_authorization_object
   before_save :update_file_attributes
@@ -21,7 +23,7 @@ class StoredFile < ActiveRecord::Base
     :author, :title, :copyright, :description, :access_level_id,
     :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
     :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
-    :collection_list, :disposition, :group_ids, :comments_attributes
+    :collection_list, :disposition, :group_ids, :comments_attributes, :flaggings_attributes
 
   mount_uploader :file, FileUploader, :mount_on => :file
 

@@ -146,14 +146,18 @@ class StoredFilesController < ApplicationController
       end
     end
 
-    if params.has_key?(:flags)
-      new_flags = stored_file.flags.collect { |f| f.id }
-      params[:flags].each do |k, v|
-        if current_user.can_do_method?(stored_file, "toggle_#{k}")
-          new_flags << Flag.find_by_name(k.upcase).id
+    if params.has_key?(:flaggings)
+      params[:flaggings].each do |flag_id, attrs|
+        if attrs.has_key?(:flag_id)  #ie, is it checked?
+          f = Flag.find(flag_id)
+          if !stored_file.flags.include?(f)
+            attrs[:flag_id] = flag_id.to_i
+            attrs.merge!({ :user_id => current_user.id })
+            params[:stored_file][:flaggings_attributes] ||= []
+            params[:stored_file][:flaggings_attributes] << attrs
+          end
         end
       end
-      params[:stored_file][:flag_ids] = new_flags  
     end
 
     params[:stored_file]

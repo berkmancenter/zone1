@@ -80,7 +80,8 @@
 <% if @stored_file.flags.include?(flag) %>
 <input type="checkbox" checked="checked" disabled="true" /><span class="readonly"><%= flag.label %></span><br />
 <% elsif current_user.can_do_method?(@stored_file, "toggle_#{flag.name.downcase}") -%>
-<input type="checkbox" name="flags[<%= flag.name.downcase %>]" value="1" /><%= flag.label %><br />
+<input type="checkbox" name="flaggings[<%= flag.id %>][flag_id]" value="<%= flag.id %>" /><%= flag.label %><br />
+<textarea name="flaggings[<%= flag.id %>][note]"></textarea><br />
 <% end -%>
 <% end -%>
 </div>
