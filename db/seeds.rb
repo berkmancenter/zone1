@@ -88,7 +88,7 @@ r2.rights = [ri1, ri2, ri3, ri17] # preservation flags, view preserved flag cont
 r2.save
 r3.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content
 r3.save
-r4.rights = [ri2, ri5, ri9, ri11, ri16, ri19, r21] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
+r4.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, r21] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
 r4.save
 
 # Assign user role to all users

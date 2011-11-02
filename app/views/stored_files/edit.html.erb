@@ -11,7 +11,7 @@
 	<%= render :partial => "form", :locals => { :f => f } %>
 	<%= f.submit "Update" %>
 	<%= link_to "Download", download_stored_file_path(@stored_file) %>
-	<% if current_user.can_do_method?(@stored_file, "delete_items") -%>
+	<% if @stored_file.can_user_destroy?(current_user) -%>
 	<%= link_to "Delete", stored_file_path(@stored_file), :method => :delete %> 
     <% end -%>
 <% end %>

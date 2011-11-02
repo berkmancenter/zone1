@@ -26,7 +26,7 @@ class StoredFilesController < ApplicationController
   end
 
   def allow_destroy
-    return true if current_user.can_do_method?(params[:id], "delete_items") 
+    StoredFile.find(params[:id]).can_user_destroy?(current_user)
   end
 
   def allow_show

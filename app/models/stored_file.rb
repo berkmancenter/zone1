@@ -42,7 +42,14 @@ class StoredFile < ActiveRecord::Base
   end
 
   def has_preserved_flag?
+    # TODO: Add caching here
     preserved_flags = Flag.find_all_by_name(["NOMINATED_FOR_PRESERVATION", "PRESERVED", "SELECTED_FOR_PRESERVATION"])
+    (self.flags & preserved_flags).any?
+  end
+
+  def has_preserved_or_record_flag?
+    # TODO: Add caching here
+    preserved_flags = Flag.find_all_by_name(["SELECTED_FOR_PRESERVATION", "UNIVERSITY_RECORD"])
     (self.flags & preserved_flags).any?
   end
 
@@ -63,6 +70,15 @@ class StoredFile < ActiveRecord::Base
       self.access_level.name == "partially_open"
 
     false
+  end
+
+  def can_user_destroy?(user)
+    # TODO: Right now, flags trump global right to delete items
+    # Possibly, update this so global right to delete item 
+    # will give user the right to delete regardless of flags.
+    return false if self.has_preserved_or_record_flag?
+    return true if user.can_do_method?(self, "delete_items")
+    return false
   end
 
   private
