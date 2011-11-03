@@ -5,7 +5,7 @@
 			<%= f.text_field :collection_list %><br />
 			<%= f.label :tag_list %>
 			<%= f.text_field :tag_list %><br />
-			<%= f.label :description %>
+			<%= f.label :description %><br />
 			<%= f.text_area :description, :rows => 3 %><br />
 		</td>
 		<td>
@@ -14,12 +14,25 @@
 			<%= f.label :office %>
 			<%= f.text_field :office %><br />
 			<%= f.label :title %>
-			<%= f.text_field :title %><br />	
-			<%= f.label :disposition %>
-			<% if current_user.can_do_method?(@stored_file, "update_disposition") -%>
-			<%= f.text_field :disposition %><br />
-			<% else -%>
-			<%= f.text_field :disposition, :readonly => true, :class => "readonly" %><br />
+			<%= f.text_field :title %><br />
+            <% if !@stored_file.new_record? -%>
+            <% if @stored_file.disposition -%>
+            <b>Current Disposition</b><br />
+            <%= @stored_file.disposition.disposition_action.action %><br />
+            <%= @stored_file.disposition.location %><br />
+            <%= @stored_file.disposition.note %><br />
+            <% end -%>
+			<% if current_user.can_do_method?(@stored_file, "manage_disposition") -%>
+            <b>Override Disposition</b><br />
+            <%= f.fields_for :disposition_attributes do |d| -%>
+              <%= d.label :disposition_action_id %>
+              <%= d.select :disposition_action_id, DispositionAction.all.collect { |p| [ p.action, p.id ] }, { :include_blank => 'None' } %><br />
+              <%= d.label :location %><br />
+              <%= d.text_area :location, :rows => 3 %><br />
+              <%= d.label :note %><br />
+              <%= d.text_area :note, :rows => 3 %>
+            <% end -%>
+			<% end -%>
 			<% end -%>
 		</td>
 	</tr>

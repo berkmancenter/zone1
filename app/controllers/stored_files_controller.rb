@@ -135,8 +135,11 @@ class StoredFilesController < ApplicationController
       end
     end
 
-    if !current_user.can_do_method?(stored_file, "update_disposition")
-      params[:stored_file].delete(:disposition)
+    # Ensure user can manage disposition and disposition_action_id is not blank
+    if !current_user.can_do_method?(stored_file, "manage_disposition")
+      params[:stored_file].delete(:disposition_attributes)
+    elsif params[:stored_file].has_key?(:disposition_attributes) && params[:stored_file][:disposition_attributes][:disposition_action_id].blank?
+      params[:stored_file].delete(:disposition_attributes)
     end
 
     if stored_file.access_level_id != params[:stored_file][:access_level_id]

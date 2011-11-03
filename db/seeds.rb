@@ -14,9 +14,16 @@ StoredFile.delete_all
 ContentType.delete_all
 Role.delete_all
 Right.delete_all
+Disposition.delete_all
+DispositionAction.delete_all
 
 connection = ActiveRecord::Base.connection
 connection.execute("DELETE FROM roles_users")
+
+puts "Creating disposition actions"
+DispositionAction.create([{ :action => "DELETE" },
+                          { :action => "REVIEW" },
+                          { :action => "TRANSFER" }])
 
 puts "Generating access levels"
 AccessLevel.create([{ :name => 'open', :label => 'Open' },
@@ -61,7 +68,7 @@ Right.create([{ :method => "toggle_preserved", :description => "Ability to toggl
   { :method => "toggle_partially_open_to_own_content", :description => "Ability to set access level to partially open on content owned by you." },
   { :method => "toggle_dark", :description => "Ability to set access level to dark on any content." },
   { :method => "toggle_dark_to_own_content", :description => "Ability to set access level to dark on content owned by you." },
-  { :method => "update_disposition", :description => "Ability to update disposition on any content." },
+  { :method => "manage_disposition", :description => "Ability to update disposition on any content." },
   { :method => "delete_items", :description => "Ability to delete any content." },
   { :method => "delete_items_to_own_content", :description => "Ability to delete content owned by you." },
   { :method => "view_items", :description => "Ability to view any content." }, 
@@ -86,7 +93,7 @@ r1.rights = Right.all
 r1.save
 r2.rights = [ri1, ri2, ri3, ri17] # preservation flags, view preserved flag content
 r2.save
-r3.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content
+r3.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content, manage_dispositions
 r3.save
 r4.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
 r4.save

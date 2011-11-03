@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111102211803) do
+ActiveRecord::Schema.define(:version => 20111103135909) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -31,6 +31,18 @@ ActiveRecord::Schema.define(:version => 20111102211803) do
 
   create_table "content_types", :force => true do |t|
     t.string "name", :null => false
+  end
+
+  create_table "disposition_actions", :force => true do |t|
+    t.string "action"
+  end
+
+  create_table "dispositions", :force => true do |t|
+    t.integer  "disposition_action_id"
+    t.integer  "stored_file_id"
+    t.text     "location"
+    t.text     "note"
+    t.datetime "action_date"
   end
 
   create_table "flaggings", :force => true do |t|
@@ -134,7 +146,6 @@ ActiveRecord::Schema.define(:version => 20111102211803) do
     t.string   "original_filename",                    :null => false
     t.string   "collection_name"
     t.string   "office"
-    t.string   "disposition"
     t.integer  "access_level_id",                      :null => false
     t.integer  "content_type_id",                      :null => false
     t.string   "format_name"
