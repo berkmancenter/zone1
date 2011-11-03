@@ -34,7 +34,7 @@ class StoredFile < ActiveRecord::Base
   searchable(:include => [:tags]) do
 	text :original_filename, :description
 	date :ingest_date
-    date :created_at
+    time :created_at, :trie => true
     integer :batch_id
 	string :collection_list, :stored => true, :multiple => true
     string :author

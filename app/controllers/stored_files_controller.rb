@@ -1,6 +1,7 @@
 class StoredFilesController < ApplicationController
   include RightMethods
   protect_from_forgery
+  include ApplicationHelper
 
   # TODO: Re-add later
   #caches_page :show
@@ -72,6 +73,7 @@ class StoredFilesController < ApplicationController
         end
       end
     rescue Exception => e
+      log_exception e
       respond_to do |format|
         format.json { render :json => { :success => false, :message => e.to_s } }
         format.html do
@@ -100,6 +102,7 @@ class StoredFilesController < ApplicationController
         end
       end
     rescue Exception => e
+      log_exception e
       respond_to do |format|
         format.json { render :json => { :success => false, :message => e.to_s } }
         format.html do
@@ -107,8 +110,6 @@ class StoredFilesController < ApplicationController
           redirect_to edit_stored_file_path(@stored_file)
         end
       end
-      ::Rails.logger.warn "Warning: stored_files_controller.update got exception: #{e}"
-      ::Rails.logger.warn e.backtrace.inspect
     end
   end
 
@@ -188,8 +189,8 @@ class StoredFilesController < ApplicationController
       render :json => {:success => true}
       return
     rescue Exception => e
+      log_exception(e)
       render :json => {:success => false, :message => e.to_s}
-      logger.warn "Warning: stored_files_controller.create exception: #{e}"
     end
   end
 

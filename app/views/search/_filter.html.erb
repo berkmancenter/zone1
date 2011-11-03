@@ -1,5 +1,13 @@
 <h3>Refine</h3>
 
+Date<br/>
+  <%= form_tag search_path, :method => "POST" do %>
+    Created between <%= text_field_tag "created_at_start_date", safe_strftime(@created_at_start_date) %><br/>
+    and <%= text_field_tag "created_at_end_date", safe_strftime(@created_at_end_date) %>
+    <%= submit_tag "refine" %>
+    <%= submit_tag "clear" %>
+  <% end %>
+<hr/>
 <% @facets.each do |facet| -%>
   <%= facet[:label] %><br />
   <% facet[:links].each do |link| %>

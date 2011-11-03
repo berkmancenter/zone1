@@ -1,4 +1,6 @@
 $(function() {
+        $("#created_at_start_date").datepicker();
+        $("#created_at_end_date").datepicker();
 	$('#list,#thumb').click(function() {
 		if($('#results').hasClass($(this).attr('id'))) {
 			return false;

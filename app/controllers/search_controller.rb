@@ -1,6 +1,8 @@
 class SearchController < ApplicationController
 
   helper_method :sort_column, :sort_direction, :per_page
+  include ApplicationHelper
+
  
   def label_batch_id(value)
     value
@@ -29,9 +31,16 @@ class SearchController < ApplicationController
   def label_format_name(value)
     "label"
   end
-
   
   def index
+    
+    unless params[:commit] == "clear"
+      #must setup both instance and local variables
+      @created_at_start_date = created_at_start_date = build_date_from_string_safe(params[:created_at_start_date]) #for filter partial
+      @created_at_end_date = created_at_end_date = build_date_from_string_safe(params[:created_at_end_date]) #for inside @search.build block
+    end
+
+   
     facets = [:batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name] #:copyright
     @search = Sunspot.new_search(StoredFile)
     @search.build do
@@ -46,6 +55,7 @@ class SearchController < ApplicationController
         query_phrase_slop 1 
       end
       facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name #:copyright
+      with(:created_at, created_at_start_date..created_at_end_date) if created_at_start_date && created_at_end_date
       paginate :page => params[:page], :per_page => per_page
       order_by sort_column, sort_direction 
     end
@@ -76,12 +86,21 @@ class SearchController < ApplicationController
     session[:per_page] = params[:per_page] || session[:per_page] || "30"
   end
 
-  
   def sort_column
-    StoredFile.column_names.include?(params[:sort_column]) ? params[:sort_column] : "ingest_date"
+    column = params[:sort_column] || session[:sort_column]
+    if StoredFile.column_names.include?(column)
+      session[:sort_column] = column
+    else
+      "created_at"
+    end
   end
 
   def sort_direction
-    %w(asc desc).include?(params[:sort_direction]) ? params[:sort_direction] : "desc"
+    direction = params[:sort_direction] || session[:sort_direction]
+    if %w(asc desc).include?(direction)
+      session[:sort_direction] = direction
+    else
+      "desc"
+    end
   end
 end
