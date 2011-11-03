@@ -89,6 +89,15 @@ class StoredFilesController < ApplicationController
     begin
       @stored_file = StoredFile.find(params[:id])
 
+      if params[:stored_file].has_key?(:tag_list)
+        @stored_file.update_tags(params[:stored_file][:tag_list], :tags, current_user)
+        params[:stored_file].delete(:tag_list)
+      end
+      if params[:stored_file].has_key?(:collection_list)
+        @stored_file.update_tags(params[:stored_file][:collection_list], :collections, current_user)
+        params[:stored_file].delete(:collection_list)
+      end
+
       # TODO: Figure out why this attribute is not getting updated in update_attributes 
       @stored_file.update_attribute(:allow_notes, params[:stored_file][:allow_notes])
 

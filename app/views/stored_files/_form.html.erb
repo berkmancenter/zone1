@@ -2,9 +2,9 @@
 	<tr>
 		<td>
 			<%= f.label :collection_list %>
-			<%= f.text_field :collection_list %><br />
+			<%= f.text_field :collection_list, { :value => @stored_file.anonymous_tag_list(:collections) } %><br />
 			<%= f.label :tag_list %>
-			<%= f.text_field :tag_list %><br />
+			<%= f.text_field :tag_list, { :value => @stored_file.anonymous_tag_list(:tags) } %><br />
 			<%= f.label :description %><br />
 			<%= f.text_area :description, :rows => 3 %><br />
 		</td>

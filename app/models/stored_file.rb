@@ -89,6 +89,31 @@ class StoredFile < ActiveRecord::Base
     return false
   end
 
+  def anonymous_tag_list(context)
+    self.send(context).collect { |t| t.name }.join(", ")
+  end
+
+  def update_tags(param, context, user)
+    begin
+      existing_tags = self.anonymous_tag_list(context).split(", ")
+      submitted_tags = param.gsub(/\s+/, '').split(',')
+
+      # Figure out which tags user is adding, and add
+      user_tags = self.owner_tags_on(user, context).collect { |b| b.name }
+      updated_tags = user_tags + (submitted_tags - existing_tags)
+      user.tag(self, :with => updated_tags.join(","), :on => context)
+
+      # Figure out which global tags user is removing, and remove
+      removed_tags = existing_tags - (existing_tags & submitted_tags)
+      removed_tags.each do |removed_tag|
+        # TODO: If possible, avoid raw SQL here. But acts-as-taggable doesn't give you an easy way to delete owned tags.
+        st = ActiveRecord::Base.connection.execute("DELETE FROM taggings WHERE taggable_id = '#{self.id}' AND context = '#{context.to_s}' AND tag_id = (SELECT id FROM tags WHERE name = '#{removed_tag}')")
+      end
+    rescue Exception => e
+      # TODO: Add some rescue statement here
+    end
+  end
+
   private
 
   def update_file_attributes
