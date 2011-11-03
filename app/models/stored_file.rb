@@ -45,6 +45,8 @@ class StoredFile < ActiveRecord::Base
     text :copyright
 	integer :license_id, :references => License
 	string :format_name
+    string :title
+    integer :file_size
   end
 
   def has_preserved_flag?

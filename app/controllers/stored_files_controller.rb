@@ -108,6 +108,7 @@ class StoredFilesController < ApplicationController
         end
       end
       ::Rails.logger.warn "Warning: stored_files_controller.update got exception: #{e}"
+      ::Rails.logger.warn e.backtrace.inspect
     end
   end
 
@@ -142,7 +143,7 @@ class StoredFilesController < ApplicationController
       params[:stored_file].delete(:disposition_attributes)
     end
 
-    if stored_file.access_level_id != params[:stored_file][:access_level_id]
+    if params[:stored_file].has_key?(:access_level_id) && stored_file.access_level_id != params[:stored_file][:access_level_id]
       access_level = AccessLevel.find(params[:stored_file][:access_level_id])
       if !current_user.can_do_method?(stored_file, "toggle_#{access_level.name}")
         params[:stored_file].delete(:access_level_id)
@@ -193,8 +194,16 @@ class StoredFilesController < ApplicationController
   end
 
   def download_set
-    # TODO: Implement archival here and send zipped file
-    send_file StoredFile.first.file.file.file
+    selected_stored_file_ids = params[:stored_file].collect { |k,v| k.to_i }
+    selected_files = StoredFile.find(selected_stored_file_ids)
+
+
+    set = DownloadSet.new(selected_files)
+    
+    send_file set.path
+
+    #TODO when we get the x_sendfile implemented, we will need a cron script to do the clean up
+    File.delete(set.path) if File.file?(set.path)
   end
 
   private

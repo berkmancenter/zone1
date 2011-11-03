@@ -11,6 +11,22 @@
 			<h3>Results</h3>
 			<a href="#" id="list">List</a> | <a href="#" id="thumb">Thumb</a>
 			<p><%=pluralize(@search.total, 'result') %> found.</p>
+            <p>
+              Sort by: 
+              <%= sortable "created_at", "Date" %>,
+              <%= sortable "title" %>, 
+              <%= sortable "file_size", "Size" %>, 
+              <%= sortable "author" %>, 
+              <%= sortable "batch_id", "Batch ID" %>
+            </p>
+            <p>
+              <%= form_tag search_path, :method => "POST" do %>
+                Items per page: <%= text_field_tag "per_page", per_page, :size => 2 %>
+                <%= hidden_field_tag "sort_column", sort_column %>
+                <%= hidden_field_tag "sort_direction", sort_direction %>
+                <%=submit_tag "Refresh" %>
+              <% end %>
+            </p>
 			<div class="menu">
 				<span class="filename">Filename</span>
 				<span class="size">Size</span>

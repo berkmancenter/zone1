@@ -46,6 +46,8 @@ $(function() {
 			$('#' + $(j).data('method')).attr('checked', true);
 		});
 
+		//TODO: implement access level radio buttons
+
 		var p = current_file.position();
 		var left_shift = ($('#results').hasClass('thumb') ? 120 : 500);
 		$('#quick_edit_panel').css({ top: p.top, left: p.left + left_shift }).show();
@@ -72,12 +74,20 @@ $(function() {
 		});
 		// TODO: Finish updating this, to pass tags, flags, permissions per quick edit
 		$('#update').unbind('click').click(function() {
-			$('.response').html('Not implemented yet');
 			$.ajax({
 				cache: false,
 				url: '/stored_files/' + id,
 				type: 'PUT',
-				data: { "stored_file" : {} },
+				data: { "stored_file" : { 
+						"tag_list" : $("#tag_list").val(),
+						"access_level_id" : $("#access-level input:checked").val(),
+						//TODO: Update this to work for all listed flags
+						"flags" : {
+							"nominated_for_preservation" : $("#toggle_nominated_for_preservation:checked").length,
+							"may_be_university_record" : $("#toggle_may_be_university_record:checked").length
+						}	
+					}
+				},
 				success: function(data) {
 					if(data.success) {
 						$('.response').html('updated!');

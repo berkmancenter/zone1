@@ -103,7 +103,7 @@ u1.roles << r4
 u2.roles << r4
 u3.roles << r4
 u4.roles << [r1, r4]
-u5.roles << r4
+u5.roles << [r1, r4]
 
 puts "Generating licenses"
 License.create([{ :name => 'CC BY' },

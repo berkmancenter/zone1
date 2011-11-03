@@ -1,4 +1,7 @@
 class SearchController < ApplicationController
+
+  helper_method :sort_column, :sort_direction, :per_page
+ 
   def label_batch_id(value)
     value
   end
@@ -26,6 +29,7 @@ class SearchController < ApplicationController
   def label_format_name(value)
     "label"
   end
+
   
   def index
     facets = [:batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name] #:copyright
@@ -42,7 +46,8 @@ class SearchController < ApplicationController
         query_phrase_slop 1 
       end
       facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name #:copyright
-      paginate :page => params[:page], :per_page => 30 
+      paginate :page => params[:page], :per_page => per_page
+      order_by sort_column, sort_direction 
     end
     @search.execute!
     @stored_files = @search.results
@@ -63,5 +68,20 @@ class SearchController < ApplicationController
 
     @access_levels = AccessLevel.all
     @flags = Flag.all
+  end
+
+  private
+
+  def per_page
+    session[:per_page] = params[:per_page] || session[:per_page] || "30"
+  end
+
+  
+  def sort_column
+    StoredFile.column_names.include?(params[:sort_column]) ? params[:sort_column] : "ingest_date"
+  end
+
+  def sort_direction
+    %w(asc desc).include?(params[:sort_direction]) ? params[:sort_direction] : "desc"
   end
 end
