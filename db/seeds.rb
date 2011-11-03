@@ -67,13 +67,13 @@ Right.create([{ :method => "toggle_preserved", :description => "Ability to toggl
   { :method => "view_items", :description => "Ability to view any content." }, 
   { :method => "view_items_to_own_content", :description => "Ability to view content owned by you." },
   { :method => "view_preserved_flag_content", :description => "Ability to view any content with preservation flag." },
-  { :method => "manage_comments", :description => "Ability to manage comments on any content." },
-  { :method => "manage_comments_to_own_content", :description => "Ability to manage comments on content owned by you." },
+  { :method => "delete_comments", :description => "Ability to manage comments on any content." },
+  { :method => "delete_comments_to_own_content", :description => "Ability to manage comments on content owned by you." },
   { :method => "edit_items", :description => "Ability to edit metadata of any content." },
   { :method => "edit_items_to_own_content", :description => "Ability to edit metadata on content owned by you." }])
 (ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
- ri11, ri12, ri13, ri13, ri15, ri16, ri17, ri18, ri19, r20,
- r21) = Right.all
+ ri11, ri12, ri13, ri14, ri15, ri16, ri17, ri18, ri19, ri20,
+ ri21) = Right.all
 
 puts "Generating roles"
 Role.create([{ :name => "admin" },
@@ -88,7 +88,7 @@ r2.rights = [ri1, ri2, ri3, ri17] # preservation flags, view preserved flag cont
 r2.save
 r3.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content
 r3.save
-r4.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, r21] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
+r4.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
 r4.save
 
 # Assign user role to all users

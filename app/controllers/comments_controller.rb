@@ -8,7 +8,7 @@ class CommentsController < ApplicationController
     comment = Comment.find(params[:id], :include => :user)
     return true if comment.user == current_user
 
-    current_user.can_do_method?(params[:stored_file_id], "manage_comments")
+    current_user.can_do_method?(params[:stored_file_id], "delete_comments")
   end
 
   def allow_create

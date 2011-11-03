@@ -26,7 +26,7 @@
 </table>
 <%= f.check_box :allow_notes %> <%= f.label "Allow users to add comments" %>
 <% if false -%>
-<% if !@stored_file.new_record? && @stored_file.allow_notes && current_user.can_do_method?(@stored_file, "manage_comments") -%>
+<% if !@stored_file.new_record? && @stored_file.allow_notes && current_user.can_do_method?(@stored_file, "delete_comments") -%>
 <% @stored_file.comments.each do |comment| -%>
 <div style="border:1px dashed #dfdfdf;">
 <%= comment.content %> / <%= comment.user.name %>
