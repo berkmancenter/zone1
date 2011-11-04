@@ -14,32 +14,32 @@ class StoredFilesController < ApplicationController
     # allow logged_in, :to => :batch_edit, :if => :batch_allow_method
 
     #Toggle methods: flags, tags, various fields, access level
-    allow logged_in, :to => :toggle_method, :if => :allow_toggle_method
+    allow logged_in, :to => :toggle_method, :if => :allow_toggle_method?
 
-    allow logged_in, :to => [:edit, :update], :if => :allow_update_or_edit
+    allow logged_in, :to => [:edit, :update], :if => :allow_manage?
 
-    allow logged_in, :to => [:show, :download], :if => :allow_show
+    allow logged_in, :to => [:show, :download], :if => :allow_show?
 
-    allow logged_in, :to => :destroy, :if => :allow_destroy
+    allow logged_in, :to => :destroy, :if => :allow_destroy?
 
     # TODO: Add validation for download set later
     allow logged_in, :to => :download_set
   end
 
-  def allow_destroy
+  def allow_destroy?
     StoredFile.find(params[:id]).can_user_destroy?(current_user)
   end
 
-  def allow_show
+  def allow_show?
     stored_file = StoredFile.find(params[:id])
     stored_file.can_user_view?(current_user)
   end
 
-  def allow_update_or_edit
+  def allow_manage?
     current_user.can_do_method?(params[:id], "edit_items")
   end
 
-  def allow_toggle_method
+  def allow_toggle_method?
     current_user.can_do_method?(params[:id], params[:method])
   end
 

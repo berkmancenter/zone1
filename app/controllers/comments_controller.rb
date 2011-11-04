@@ -1,17 +1,17 @@
 class CommentsController < ApplicationController
   access_control do
-    allow logged_in, :to => :destroy, :if => :allow_destroy
-    allow logged_in, :to => :create, :if => :allow_create
+    allow logged_in, :to => :destroy, :if => :allow_destroy?
+    allow logged_in, :to => :create, :if => :allow_create?
   end
 
-  def allow_destroy
+  def allow_destroy?
     comment = Comment.find(params[:id], :include => :user)
     return true if comment.user == current_user
 
     current_user.can_do_method?(params[:stored_file_id], "delete_comments")
   end
 
-  def allow_create
+  def allow_create?
     stored_file = StoredFile.find(params[:stored_file_id])
     stored_file.can_user_view?(current_user)
   end
