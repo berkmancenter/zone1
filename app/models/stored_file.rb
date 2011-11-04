@@ -12,16 +12,18 @@ class StoredFile < ActiveRecord::Base
 
   # TODO: Maybe implement this later based on design
   #accepts_nested_attributes_for :comments
-
   accepts_nested_attributes_for :flaggings
   accepts_nested_attributes_for :disposition
 
   acts_as_authorization_object
-  before_save :update_file_attributes
-
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
+  
   before_save :update_file_attributes
+
+  after_create :decrease_available_user_quota
+  after_destroy :increase_available_user_quota
+
 
   attr_accessible :file, :license_id, :collection_name,
     :author, :title, :copyright, :description, :access_level_id,
@@ -32,21 +34,29 @@ class StoredFile < ActiveRecord::Base
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags]) do
-	text :original_filename, :description
-	date :ingest_date
+    text :original_filename, :description
+    date :ingest_date
     time :created_at, :trie => true
     integer :batch_id
-	string :collection_list, :stored => true, :multiple => true
+    string :collection_list, :stored => true, :multiple => true
     string :author
     string :office
-	integer :user_id, :references => User
-	string :tag_list, :stored => true, :multiple => true
-	integer :flag_ids, :multiple => true, :references => Flag 
+    integer :user_id, :references => User
+    string :tag_list, :stored => true, :multiple => true
+    integer :flag_ids, :multiple => true, :references => Flag 
     text :copyright
-	integer :license_id, :references => License
-	string :format_name
+    integer :license_id, :references => License
+    string :format_name
     string :title
     integer :file_size
+  end
+
+  def decrease_available_user_quota
+    Quota.decrease_available_for(self)
+  end
+
+  def increase_available_user_quota
+    Quota.increase_available_for(self)
   end
 
   def has_preserved_flag?

@@ -68,7 +68,7 @@ class StoredFilesController < ApplicationController
 
   def destroy
     begin
-      StoredFile.delete(params[:id])
+      StoredFile.find(params[:id]).destroy
       respond_to do |format|
         format.json { render :json => { :success => true } }
         format.html do
