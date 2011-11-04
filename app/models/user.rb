@@ -39,7 +39,18 @@ class User < ActiveRecord::Base
     false
   end
 
+  # stored_file can be an id or it can be a StoredFile
+  def can_do_group_method?(group, method)
+    rights = self.list_rights
+    return true if rights.include?(method)
+
+    group = group.is_a?(Group) ? group : Group.find(group)
+    return true if (group.owners.include?(self) && rights.include?("#{method}_on_owned"))
+
+    false
+  end
+
   def all_groups
-    [self.owned_groups, self.groups].flatten.uniq
+    self.list_rights.include?("edit_groups") ? Group.all : [self.owned_groups, self.groups].flatten.uniq
   end
 end

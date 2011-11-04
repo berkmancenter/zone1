@@ -7,6 +7,17 @@ class Group < ActiveRecord::Base
   
   validates_uniqueness_of :name
 
+  def members
+    members = {}
+    self.users.each do |user|
+      members[user.email] = { :user => user, :owner => false }
+    end
+    self.owners.each do |user|
+      members[user.email] = { :user => user, :owner => true }
+    end
+    members
+  end
+
   private
   def validates_user(user)
     true #raise ActiveRecord::Rollback if self.users.include? user

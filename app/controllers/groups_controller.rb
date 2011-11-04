@@ -2,29 +2,15 @@ class GroupsController < ApplicationController
   access_control do
     allow logged_in, :to => [:index, :new, :create]
 
-    # TODO: Add logic here to prohibit to user owned groups only, and perhaps additional rights
-    allow logged_in, :to => [:edit, :update, :destroy]
+    allow logged_in, :to => [:edit, :update, :destroy], :if => :allow_manage?
   end
 
+  def allow_manage?
+    current_user.can_do_group_method?(params[:id], "edit_groups")
+  end
+  
   def index
     @groups = current_user.all_groups
-  end
-
-  def show
-    @group = Group.find(params[:id])
-    @members = {}
-    @group.users.each do |user|
-      @members[user.email] = { 
-        :user => user,
-        :owner => false
-      }
-    end
-    @group.owners.each do |user|
-      @members[user.email] = { 
-        :user => user,
-        :owner => true
-      }
-    end
   end
 
   def new
@@ -33,19 +19,7 @@ class GroupsController < ApplicationController
 
   def edit
     @group = Group.find(params[:id])
-    @members = {}
-    @group.users.each do |user|
-      @members[user.email] = { 
-        :user => user,
-        :owner => false
-      }
-    end
-    @group.owners.each do |user|
-      @members[user.email] = { 
-        :user => user,
-        :owner => true
-      }
-    end
+    @members = @group.members
   end
 
   def create
@@ -76,10 +50,7 @@ class GroupsController < ApplicationController
       # Add new users
       @group.users << User.find_all_by_email(params[:user_email].split(', '))
 
-      # TODO: Maybe replace with update_column later
       @group.update_attributes(params[:group])
-
-      @group.save
 
       redirect_to edit_group_path(@group)
     rescue Exception => e

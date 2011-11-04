@@ -51,10 +51,20 @@ User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password
 (u1, u2, u3, u4, u5) = User.all
 
 puts "Generating groups"
-g = Group.new(:name => 'End Point')
-g.users << User.all
-g.owners << u1
-g.save
+Group.create([{ :name => "End Point" },
+              { :name => "Test 1" },
+              { :name => "Test 2" },
+              { :name => "Test 3" }])
+(g1, g2, g3, g4) = Group.all
+
+g1.users << User.all
+g1.owners << u1
+g2.users = [u1, u2]
+g2.owners << u1
+g3.users = [u1, u2]
+g3.owners << u1
+g4.users = [u1, u2]
+g4.owners << u1
 
 puts "Generating rights"
 Right.create([{ :method => "toggle_preserved", :description => "Ability to toggle PRESERVED flag." },
@@ -77,10 +87,12 @@ Right.create([{ :method => "toggle_preserved", :description => "Ability to toggl
   { :method => "delete_comments", :description => "Ability to manage comments on any content." },
   { :method => "delete_comments_to_own_content", :description => "Ability to manage comments on content owned by you." },
   { :method => "edit_items", :description => "Ability to edit metadata of any content." },
-  { :method => "edit_items_to_own_content", :description => "Ability to edit metadata on content owned by you." }])
+  { :method => "edit_items_to_own_content", :description => "Ability to edit metadata on content owned by you." },
+  { :method => "edit_groups", :description => "Ability to edit metadata and members of any group." },
+  { :method => "edit_groups_on_owned", :description => "Ability to edit metadata and members on groups owned by you." }])
 (ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
  ri11, ri12, ri13, ri14, ri15, ri16, ri17, ri18, ri19, ri20,
- ri21) = Right.all
+ ri21, ri22, ri23) = Right.all
 
 puts "Generating roles"
 Role.create([{ :name => "admin" },
@@ -95,7 +107,7 @@ r2.rights = [ri1, ri2, ri3, ri17] # preservation flags, view preserved flag cont
 r2.save
 r3.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content, manage_dispositions
 r3.save
-r4.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
+r4.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
 r4.save
 
 # Assign user role to all users

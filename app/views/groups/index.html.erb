@@ -13,11 +13,17 @@
 	<tr>
 		<td><%= group.name %></td>
 		<td>
-			<%= group.owners.include?(current_user) ? "Owner" : "Member" %>
+            <% if group.owners.include?(current_user) -%>
+            Owner
+            <% elsif group.users.include?(current_user) -%>
+            Member
+            <% else -%>
+            General Admin
+            <% end -%>
 		</td>
 		<td><%= group.created_at.strftime("%b %d, %Y") %></td>
 		<td><%= group.updated_at.strftime("%b %d, %Y") %></td>
-		<% if group.owners.include?(current_user) %>
+		<% if current_user.can_do_group_method?(group, "edit_groups") %>
  		<td><%= link_to 'Edit', edit_group_path(group) %></td>
 		<td><%= link_to 'Destroy', group, :confirm => 'Are you sure?', :method => :delete %></td>
 		<% end %>
