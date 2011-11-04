@@ -16,6 +16,8 @@ railroad -M | neato -Tpng > app/assets/images/models.png
 - tagging: acts_as_taggable_on 
 - javascript lib: jQuery, jQuery UI
 - pagination: will_paginate
+- file metadata: fits
+- background jobs: resque + redis
 
 == Performance Considerations
 

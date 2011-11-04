@@ -27,6 +27,7 @@ gem 'will_paginate', '3.0.2'
 gem 'nokogiri'
 gem 'carrierwave'
 gem 'rubyzip'
+gem 'resque', :require => "resque/server"
 
 gem 'execjs'
 gem 'therubyracer'

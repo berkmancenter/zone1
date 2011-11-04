@@ -32,9 +32,9 @@ class StoredFile < ActiveRecord::Base
     :collection_list, :disposition, :group_ids, :comments_attributes, :flaggings_attributes, :disposition_attributes,
     :mime_type, :format_name, :format_version, :file_size, :md5
 
-  before_save :update_metadata, :if => :file_changed?
   mount_uploader :file, FileUploader, :mount_on => :file
-  
+
+  if false  #disable during my development because it is not working in my camp
   searchable(:include => [:tags]) do
     text :original_filename, :description
     time :created_at, :trie => true
@@ -59,6 +59,7 @@ class StoredFile < ActiveRecord::Base
   def increase_available_user_quota
     user.increase_available_quota!(file_size)
   end
+  end #disable during my development because it is not working in my camp
 
   def has_preserved_flag?
     # TODO: Add caching here
@@ -128,11 +129,11 @@ class StoredFile < ActiveRecord::Base
 
   private
 
-  def update_metadata
-    metadata = Fits::run_fits(self.id, self.file.url)
+  def update_metadata_inline
+    metadata = Fits::analyze(self.file.url)
 
     if metadata.class == Hash and metadata.keys.length > 0
-      ::Rails.logger.debug "PHUNK: updating metadata attributes"
+      ::Rails.logger.debug "PHUNK: updating metadata attributes INLINE"
       metadata.each do |name, value|
         # Use send like this instead of update_attributes because update_attributes
         # would require we first call reload in this method (so the before_save

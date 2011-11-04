@@ -1,17 +1,17 @@
 module Fits
 
-  def self.run_fits(file_id, input_file)
+  def self.analyze(file_url)
+    ::Rails.logger.debug "PHUNK: entering Fits::analyze()"
     # Fields returned by this method must match stored_file attribute names so
     # the return value of this method is suitable to pass to model.update_attribute()
-    raise "File not found: #{input_file}" unless test(?f, input_file)
+    raise "File not found: #{file_url}" unless test(?f, file_url)
 
     # TODO: use system to call fits with -o $outputfile and check return value to
     # see if FITS crashed. We'll also want to keep fits output XML around for a bit
     # to debug
-    fits_output = open("|/home/phunk/camp12/lib/fits/fits.sh -i #{input_file}") {|f| f.read}
+    fits_output = open("|/usr/local/bin/fits/fits.sh -i #{file_url}") {|f| f.read}
     raise "FITS call failed" if fits_output == ''
 
-    ::Rails.logger.debug "FITS: id/filename: #{file_id} - #{input_file}"
     xml = Nokogiri::XML(fits_output)
     xml.remove_namespaces!
     fits_data = {}
