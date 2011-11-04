@@ -33,6 +33,9 @@ class SearchController < ApplicationController
   end
   
   def index
+
+    @flags = Flag.all
+    @access_levels = AccessLevel.all
     
     unless params[:commit] == "clear"
       #must setup both instance and local variables
@@ -55,7 +58,7 @@ class SearchController < ApplicationController
         query_phrase_slop 1 
       end
       facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name #:copyright
-      with(:created_at, created_at_start_date..created_at_end_date) if created_at_start_date && created_at_end_date
+      with(:created_at, created_at_start_date.beginning_of_day..created_at_end_date.end_of_day) if created_at_start_date && created_at_end_date
       paginate :page => params[:page], :per_page => per_page
       order_by sort_column, sort_direction 
     end
@@ -75,9 +78,6 @@ class SearchController < ApplicationController
       end
       @facets.push({ :label => facet.to_s, :links => links })
     end
-
-    @access_levels = AccessLevel.all
-    @flags = Flag.all
   end
 
   private
