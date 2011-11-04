@@ -23,84 +23,23 @@ $(function() {
 		$('#download-set').append($('.downloadable:checked').clone());
 		return true;
 	});
-	$('#close_quick_edit').click(function() {
+	$('#close_quick_edit').live("click", function() {
 		$('.file').css('background', '#FFF');
 		$('#quick_edit_panel').hide();
-		return false;
+		//return false;
 	});
 	$('.file').click(function() {
-		var current_file = $(this);
-		var id = current_file.data('id');
+	  //Reset state
+	  $("#quick_edit_panel").hide();
+	  $('.file').css('background', '#FFF');
 
-		$('.file').css('background', '#FFF');
-		$('#full_edit').attr('href', '/stored_files/' + id + '/edit');
-		$('#full_show').attr('href', '/stored_files/' + id);
-		current_file.css('background', '#d3d3d3');
+	  //Select file and highlight
+	  var current_file = $(this);
+	  current_file.css('background', '#d3d3d3');
 
-		//Populate data and fields
-		$('#snippet').html(current_file.find('.filename	a').html());
-		$.each($('#meta_data span'), function(i, j) {
-			$(j).html($(j).attr('id') + ': ' + current_file.find('.' + $(j).attr('id')).html());
-		});
-		$('#tag_list').val(current_file.find('.tags').html());
-		$('#flags input').attr('checked', false);
-		$.each(current_file.find('.flags input[checked=checked]'), function(i, j) {
-			$('#' + $(j).data('method')).attr('checked', true);
-		});
-
-		//TODO: implement access level radio buttons
-
-		var p = current_file.position();
-		var left_shift = ($('#results').hasClass('thumb') ? 120 : 500);
-		$('#quick_edit_panel').css({ top: p.top, left: p.left + left_shift }).show();
-
-		// set onclick for update and delete
-		$('#delete').unbind('click').click(function() {
-			$.ajax({
-				cache: false,
-				url: '/stored_files/' + id,
-				type: 'DELETE',
-				success: function(data) {
-					if(data.success) {
-						$('.response').html('deleted!');
-						current_file.remove();
-						$('#quick_edit_panel').hide();
-					} else {
-						$('.response').html(data.message);
-					}
-				},
-				error: function() {
-					$('.response').html('Sorry, you do not have permissions, or fail.');
-				}
-			});	
-		});
-		// TODO: Finish updating this, to pass tags, flags, permissions per quick edit
-		$('#update').unbind('click').click(function() {
-			$.ajax({
-				cache: false,
-				url: '/stored_files/' + id,
-				type: 'PUT',
-				data: { "stored_file" : { 
-						"tag_list" : $("#tag_list").val(),
-						"access_level_id" : $("#access-level input:checked").val(),
-						//TODO: Update this to work for all listed flags
-						"flags" : {
-							"nominated_for_preservation" : $("#toggle_nominated_for_preservation:checked").length,
-							"may_be_university_record" : $("#toggle_may_be_university_record:checked").length
-						}	
-					}
-				},
-				success: function(data) {
-					if(data.success) {
-						$('.response').html('updated!');
-					} else {
-						$('.response').html(data.message);
-					}
-				},
-				error: function() {
-					$('.response').html('Sorry, you do not have permissions, or fail.');
-				}
-			});	
-		});
-	})
+	  //Position quick pannel, the ajax call will show it
+  	  var p = current_file.position();
+	  var left_shift = ($('#results').hasClass('thumb') ? 120 : 500);
+	  $('#quick_edit_panel').css({ top: p.top, left: p.left + left_shift });
+	});
 });

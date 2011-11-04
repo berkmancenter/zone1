@@ -60,6 +60,10 @@ class StoredFilesController < ApplicationController
   def edit
     @licenses = License.all
     @stored_file = StoredFile.find(params[:id], :include => :comments)
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   def destroy
@@ -104,6 +108,7 @@ class StoredFilesController < ApplicationController
       @stored_file.update_attributes(validate_params(params, @stored_file))
    
       respond_to do |format|
+        format.js
         format.json { render :json => { :success => true } }
         format.html do
           flash[:error] = "success"

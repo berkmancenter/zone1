@@ -56,7 +56,8 @@
 					</span>
 					<span class="author"><%= stored_file.user.name %></span>
 					<span class="license"><%= stored_file.license ? stored_file.license.name : '' %></span>
-					<span class="batch"><%= stored_file.batch_id %></span> 
+					<span class="batch"><%= stored_file.batch_id %></span>
+					<span><%= link_to "QE", edit_stored_file_path(stored_file), :remote => true, :class => "quick_edit_link" %></span>
 				</div>
 			<% end %>
 		</td>
@@ -66,39 +67,5 @@
 	<%= will_paginate @stored_files %>
 </div>
 
-<div id="quick_edit_panel">
-	<a href="#" id="close_quick_edit">x</a>
-	<h3 id="snippet"></h3>
-	<div id="meta_data">
-		<span id="size"></span>
-		<span id="date"></span>
-		<span id="author"></span>
-		<span id="license"></span>
-		<span id="batch"></span>
-	</div>
-	<% if current_user -%>
-	<h3>Quick Edit</h3>
-	<div id="tags">
-		Tag List
-		<input type="text" name="stored_file[tag_list]" id="tag_list" />
-	</div>
-	<div id="access-level">
-		<% @access_levels.each do |access_level| -%>
-		<% if current_user.can_do_global_method?("toggle_#{access_level.name}") -%>
-		<input name="stored_file[access_level_id]" type="radio" id="toggle_<%= access_level.name %>" value="<%= access_level.id %>" /><%= access_level.label %><br />
-		<% end -%>
-		<% end -%>
-	</div>
-	<div id="flags">
-		<% @flags.each do |flag| -%>
-		<% if current_user.can_do_global_method?("toggle_#{flag.name.downcase}") -%>
-		<input type="checkbox" id="toggle_<%= flag.name.downcase %>" name="flags[<%= flag.name.downcase %>]" value="1" /><%= flag.label %><br />
-		<% end -%>
-		<% end -%>
-	</div>	
-	<% end -%>
-	<%= link_to 'Delete', '#', :id => 'delete' %>
-	<%= link_to 'Full edit', '#', :id => 'full_edit' %>
-	<%= link_to 'Full show (incl. comments)', '#', :id => 'full_show' %>
-	<%= link_to 'Update', '#', :id => 'update' %> 	
-</div>
+
+<div id="quick_edit_panel"></div>

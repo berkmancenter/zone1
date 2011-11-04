@@ -3,8 +3,8 @@
 		<td>
 			<%= f.label :collection_list %>
 			<%= f.text_field :collection_list, { :value => @stored_file.anonymous_tag_list(:collections) } %><br />
-			<%= f.label :tag_list %>
-			<%= f.text_field :tag_list, { :value => @stored_file.anonymous_tag_list(:tags) } %><br />
+			<%= render :partial => "tags/form", :locals => {:f => f}  %><br/>
+
 			<%= f.label :description %><br />
 			<%= f.text_area :description, :rows => 3 %><br />
 		</td>
@@ -58,13 +58,7 @@
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td>
-			<div class="access-level">
-			<% AccessLevel.all.each do |access_level| -%>
-			<% if current_user.can_do_method?(@stored_file, "toggle_#{access_level.name}") -%>
-			<input name="stored_file[access_level_id]" type="radio" <%= raw 'checked="checked"' if @stored_file.access_level == access_level %> data-method="toggle_<%= access_level.name %>" value="<%= access_level.id %>" /><%= access_level.label %><br />
-			<% end -%>
-			<% end -%>
-			</div>
+		  <%= render :partial => "access_levels/form" %>
 		</td>
 		<td>
 			<%= f.label "Groups" %><br />
@@ -88,13 +82,4 @@
 	<%= f.radio_button(:license_id, license.id) %> <%= license.name %>
 <% end -%>		
 <hr />
-<div class="flags">
-<% Flag.all.each do |flag| -%>
-<% if @stored_file.flags.include?(flag) %>
-<input type="checkbox" checked="checked" disabled="true" /><span class="readonly"><%= flag.label %></span><br />
-<% elsif current_user.can_do_method?(@stored_file, "toggle_#{flag.name.downcase}") -%>
-<input type="checkbox" name="flaggings[<%= flag.id %>][flag_id]" value="<%= flag.id %>" /><%= flag.label %><br />
-<textarea name="flaggings[<%= flag.id %>][note]"></textarea><br />
-<% end -%>
-<% end -%>
-</div>
+<%= render :partial => "flaggings/form" %>

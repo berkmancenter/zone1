@@ -1,0 +1,13 @@
+<div class="access-level">
+
+  <% AccessLevel.all.each do |access_level| %>
+
+    <% if current_user.can_do_method?(@stored_file, "toggle_#{access_level.name}") -%>
+
+    <input name="stored_file[access_level_id]" type="radio" <%= raw 'checked="checked"' if @stored_file.access_level == access_level %> data-method="toggle_<%= access_level.name %>" value="<%= access_level.id %>" />
+
+    <%= access_level.label %><br />
+
+    <% end %>
+  <% end %>
+</div>
