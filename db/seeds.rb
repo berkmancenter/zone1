@@ -67,32 +67,32 @@ g4.users = [u1, u2]
 g4.owners << u1
 
 puts "Generating rights"
-Right.create([{ :method => "toggle_preserved", :description => "Ability to toggle PRESERVED flag." },
-  { :method => "toggle_nominated_for_preservation", :description => "Ability to toggle NOMINATED_FOR_PRESERVATION flag." },
-  { :method => "toggle_selected_for_preservation", :description => "Ability to toggle SELECTED_FOR_PRESERVATION flag." },
-  { :method => "toggle_university_record", :description => "Ability to toggle UNIVERSITY_RECORD flag." },
-  { :method => "toggle_may_be_university_record", :description => "Ability to toggle MAY_BE_UNIVERSITY_RECORD flag." },
-  { :method => "toggle_open", :description => "Ability to set access level to open on any content." },
-  { :method => "toggle_open_on_owned", :description => "Ability to set access level to open on content owned by you." },
-  { :method => "toggle_partially_open", :description => "Ability to set access level to partially open on any content." },
-  { :method => "toggle_partially_open_on_owned", :description => "Ability to set access level to partially open on content owned by you." },
-  { :method => "toggle_dark", :description => "Ability to set access level to dark on any content." },
-  { :method => "toggle_dark_on_owned", :description => "Ability to set access level to dark on content owned by you." },
-  { :method => "manage_disposition", :description => "Ability to update disposition on any content." },
-  { :method => "delete_items", :description => "Ability to delete any content." },
-  { :method => "delete_items_on_owned", :description => "Ability to delete content owned by you." },
-  { :method => "view_items", :description => "Ability to view any content." }, 
-  { :method => "view_items_on_owned", :description => "Ability to view content owned by you." },
-  { :method => "view_preserved_flag_content", :description => "Ability to view any content with preservation flag." },
-  { :method => "delete_comments", :description => "Ability to manage comments on any content." },
-  { :method => "delete_comments_on_owned", :description => "Ability to manage comments on content owned by you." },
-  { :method => "edit_items", :description => "Ability to edit metadata of any content." },
-  { :method => "edit_items_on_owned", :description => "Ability to edit metadata on content owned by you." },
-  { :method => "edit_groups", :description => "Ability to edit metadata and members of any group." },
-  { :method => "edit_groups_on_owned", :description => "Ability to edit metadata and members on groups owned by you." },
-  { :method => "view_reports", :description => "Ability to view any reports."},
-  { :method => "view_reports_on_owned", :description => "Ability to view reports on content owned by you."},
-  { :method => "view_admin", :description => "Ability to view admin interface."}])
+Right.create([{ :action => "toggle_preserved", :description => "Ability to toggle PRESERVED flag." },
+  { :action => "toggle_nominated_for_preservation", :description => "Ability to toggle NOMINATED_FOR_PRESERVATION flag." },
+  { :action => "toggle_selected_for_preservation", :description => "Ability to toggle SELECTED_FOR_PRESERVATION flag." },
+  { :action => "toggle_university_record", :description => "Ability to toggle UNIVERSITY_RECORD flag." },
+  { :action => "toggle_may_be_university_record", :description => "Ability to toggle MAY_BE_UNIVERSITY_RECORD flag." },
+  { :action => "toggle_open", :description => "Ability to set access level to open on any content." },
+  { :action => "toggle_open_on_owned", :description => "Ability to set access level to open on content owned by you." },
+  { :action => "toggle_partially_open", :description => "Ability to set access level to partially open on any content." },
+  { :action => "toggle_partially_open_on_owned", :description => "Ability to set access level to partially open on content owned by you." },
+  { :action => "toggle_dark", :description => "Ability to set access level to dark on any content." },
+  { :action => "toggle_dark_on_owned", :description => "Ability to set access level to dark on content owned by you." },
+  { :action => "manage_disposition", :description => "Ability to update disposition on any content." },
+  { :action => "delete_items", :description => "Ability to delete any content." },
+  { :action => "delete_items_on_owned", :description => "Ability to delete content owned by you." },
+  { :action => "view_items", :description => "Ability to view any content." }, 
+  { :action => "view_items_on_owned", :description => "Ability to view content owned by you." },
+  { :action => "view_preserved_flag_content", :description => "Ability to view any content with preservation flag." },
+  { :action => "delete_comments", :description => "Ability to manage comments on any content." },
+  { :action => "delete_comments_on_owned", :description => "Ability to manage comments on content owned by you." },
+  { :action => "edit_items", :description => "Ability to edit metadata of any content." },
+  { :action => "edit_items_on_owned", :description => "Ability to edit metadata on content owned by you." },
+  { :action => "edit_groups", :description => "Ability to edit metadata and members of any group." },
+  { :action => "edit_groups_on_owned", :description => "Ability to edit metadata and members on groups owned by you." },
+  { :action => "view_reports", :description => "Ability to view any reports."},
+  { :action => "view_reports_on_owned", :description => "Ability to view reports on content owned by you."},
+  { :action => "view_admin", :description => "Ability to view admin interface."}])
 (ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
  ri11, ri12, ri13, ri14, ri15, ri16, ri17, ri18, ri19, ri20,
  ri21, ri22, ri23, ri24, ri25) = Right.all
@@ -127,33 +127,3 @@ License.create([{ :name => 'CC BY' },
         { :name => 'CC BY-NC' },
         { :name => 'CC BY-NC-SA' },
         { :name => 'CC BY-NC-ND' }])
-
-=begin
-puts "Generating stored files"
-40.times do
-  StoredFile.create([{:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a1.id, :content_type_id => c1.id},
-             {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u1.id, :access_level_id => a2.id, :content_type_id => c1.id},
-             {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u2.id, :access_level_id => a1.id, :content_type_id => c1.id},
-             {:original_filename => "file_#{rand(36**8).to_s(36)}", :user_id => u3.id, :access_level_id => a1.id, :content_type_id => c2.id}]) 
-end
-
-
-puts "Adding tags"
-StoredFile.all.each do |a|
-  a.tag_list = "paper"
-  a.license = License.find(1)
-  a.save
-  a.flags << Flag.first
-end
-
-sf = StoredFile.first
-sf.tag_list = "dissertation"
-sf.flags << Flag.last
-sf.license = License.find(2)
-sf.save
-
-sf = StoredFile.last
-sf.tag_list = "thesis"
-sf.license = License.find(3)
-sf.save
-=end
