@@ -16,8 +16,7 @@
 <%= link_to 'Groups', groups_path %> |
 <%= link_to 'Sign Out', destroy_user_session_path, :method => :delete %> 
 <% if current_user.can_do_global_method?("view_admin") %>
-<br />Admin:
-<%= link_to 'Dasbboard', "/admin" %> |
+<%= link_to 'Admin Dasbboard', "/admin" %> |
 <%= link_to 'Users', admin_users_path %> |
 <%= link_to 'Flags', admin_flags_path %> |
 <%= link_to 'Rights', admin_rights_path %> |
