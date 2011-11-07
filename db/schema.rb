@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111103135909) do
+ActiveRecord::Schema.define(:version => 20111107173440) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -85,6 +85,16 @@ ActiveRecord::Schema.define(:version => 20111103135909) do
     t.datetime "updated_at"
   end
 
+  create_table "quota", :force => true do |t|
+    t.integer  "used",       :default => 0
+    t.integer  "max",        :default => 10485760
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "quota", ["user_id"], :name => "index_quota_on_user_id"
+
   create_table "right_assignments", :force => true do |t|
     t.integer "right_id"
     t.integer "subject_id"
@@ -92,7 +102,7 @@ ActiveRecord::Schema.define(:version => 20111103135909) do
   end
 
   create_table "rights", :force => true do |t|
-    t.string "method"
+    t.string "action"
     t.string "description"
   end
 

@@ -1,0 +1,31 @@
+<h1>Edit/View User</h1>
+
+<%= form_for @user, :url => admin_user_path(@user) do |f| -%>
+<%= f.label :name %>
+<%= f.text_field :name %><br />
+
+<%= f.label :email %>
+<%= f.text_field :email %><br />
+
+Quota: <%= @user.quota.max %> Bytes<br />
+
+List User Roles here
+- via checkbox<br />
+
+List Users Rights here
+- via checkboxes<br />
+
+<%= f.submit "Update User" %>
+<% end -%>
+
+<h2>Owned Groups</h2>
+
+<% @user.owned_groups.each do |group| %>
+<%= link_to group.name, edit_group_path(group) %><br />
+<% end -%>
+
+<h2>Groups as Member</h2>
+
+<% @user.groups.each do |group| %>
+<%= link_to group.name, edit_group_path(group) %><br />
+<% end -%>

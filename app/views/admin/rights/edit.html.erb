@@ -1,0 +1,15 @@
+<h1>Right</h1>
+
+<%= form_for @right, :url => admin_right_path(@right) do |f| -%>
+<%= f.label :action %>
+<%= f.text_field :action %><br />
+<%= f.label :description %>
+<%= f.text_field :description %><br />
+<%= f.submit "Update Right" %>
+<% end -%>
+
+<h3>Attached Roles to Right</h3>
+
+<% @right.roles.each do |role| -%>
+<%= link_to role.name, edit_admin_role_path(role) %><br />
+<% end -%>

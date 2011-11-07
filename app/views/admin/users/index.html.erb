@@ -1,0 +1,16 @@
+<h1>Users</h1>
+
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<th>Name</th>
+<th>Email</th>
+</tr>
+<% @users.each do |user| %>
+<tr>
+<td><%= link_to user.name, edit_admin_user_path(user) %></td>
+<td><%= user.email %></td>
+</tr>
+<% end -%>
+</table>
+
+<%= will_paginate @users %>

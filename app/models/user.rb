@@ -30,7 +30,7 @@ class User < ActiveRecord::Base
 
   def list_rights
     # TODO: Low level caching on this later
-    [self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.method }
+    [self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
   end
 
   def can_do_global_method?(method)

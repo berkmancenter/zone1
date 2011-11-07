@@ -91,7 +91,8 @@ Right.create([{ :method => "toggle_preserved", :description => "Ability to toggl
   { :method => "edit_groups", :description => "Ability to edit metadata and members of any group." },
   { :method => "edit_groups_on_owned", :description => "Ability to edit metadata and members on groups owned by you." },
   { :method => "view_reports", :description => "Ability to view any reports."},
-  { :method => "view_reports_on_owned", :description => "Ability to view reports on content owned by you."}])
+  { :method => "view_reports_on_owned", :description => "Ability to view reports on content owned by you."},
+  { :method => "view_admin", :description => "Ability to view admin interface."}])
 (ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
  ri11, ri12, ri13, ri14, ri15, ri16, ri17, ri18, ri19, ri20,
  ri21, ri22, ri23, ri24, ri25) = Right.all
@@ -113,7 +114,7 @@ r4.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23, ri25] #nominate 
 r4.save
 
 # Assign user role to all users
-u1.roles << r4
+u1.roles << [r1, r4]
 u2.roles << r4
 u3.roles << r4
 u4.roles << [r1, r4]

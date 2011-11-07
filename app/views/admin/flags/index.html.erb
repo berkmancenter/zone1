@@ -1,0 +1,26 @@
+<h1>Create New Flag</h1>
+
+<%= form_for @flag, :url => admin_flags_path do |f| %>
+<%= f.label :name %>
+<%= f.text_field :name %><br />
+<%= f.label :label %>
+<%= f.text_field :label %><br />
+<%= f.submit "Update" %>
+<% end -%>
+
+<h1>Flags</h1>
+
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<th>Name</th>
+<th>Label</th>
+<th></th>
+</tr>
+<% @flags.each do |flag| %>
+<tr>
+<td><%= link_to flag.name, edit_admin_flag_path(flag) %></td>
+<td><%= flag.label %></td>
+<td><%= link_to 'Delete', admin_flag_path(flag), :method => "DELETE" %></td>
+</tr>
+<% end -%>
+</table>

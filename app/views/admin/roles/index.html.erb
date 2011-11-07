@@ -1,0 +1,11 @@
+<h1>New Role</h1>
+<%= form_for(@role, :url => admin_roles_path) do |f| %>
+<%= f.label :name %>
+<%= f.text_field :name %>
+<%= f.submit %>
+<% end -%>
+
+<h1>Roles</h1>
+<% @roles.each do |role| %>
+<%= link_to role.name, edit_admin_role_path(role) %><br />
+<% end -%>

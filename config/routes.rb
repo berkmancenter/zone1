@@ -14,8 +14,15 @@ Zone1::Application.routes.draw do
     end
     resources :comments
   end
-  resources :roles, :as => :role
   resources :groups
+
+  namespace :admin, :as => :admin do
+    resources :users
+    resources :flags
+    resources :roles
+    resources :rights
+  end
+  match '/admin' => 'admin::Base#index'
 
   match 'upload' => 'stored_files#new', :as => :upload
   match 'search' => 'search#index', :as => :search

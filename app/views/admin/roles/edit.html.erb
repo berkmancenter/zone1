@@ -1,10 +1,12 @@
-<h1><%= @role.name %> rights</h1>
+<h1>Edit Role</h1>
 
-<%= form_tag(role_path(@role), :method => "put", :id => "edit_roles") do %>
+<%= form_for(@role, :url => admin_role_path(@role), :html => { :id => "edit_roles" }) do |f| %>
+<%= f.label :name %>
+<%= f.text_field :name %><br /><br />
 <% @rights.each do |right| %>
 <p>
 <input name="rights[<%= right.id %>]" <%= raw 'checked="checked"' if @role.rights.include?(right) %> type="checkbox" value="1" />
-<%= right.method %><br />
+<%= right.action %><br />
 <small><%= right.description %></small>
 </p>
 <% end -%>
