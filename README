@@ -29,3 +29,8 @@ railroad -M | neato -Tpng > app/assets/images/models.png
   - one section cached differently which contains partially open files 
   - how to iterate through search view to view accessible files
   - perhaps performance on Solr search will be better than h2o in the first place since objects aren't as large
+
+== TESTING
+
+ - unit testing with RSpec (rake spec)
+ - code coverage reports with RCov (rake rcov:rspec)

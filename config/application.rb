@@ -46,5 +46,8 @@ module Zone1
 
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
+
+    #Require all attributes to be marked as accessible in models
+    config.active_record.whitelist_attributes = true
   end
 end

@@ -9,7 +9,7 @@ uploads/
 tmp/
 .sass-cache/
 sunspot-solr.pid
-
+public/coverage
 httpd/
 pgsql/
 *.swp

@@ -35,5 +35,14 @@ gem 'rake', '0.8.7'
 gem 'railroad'
 
 group :test, :development do
+  gem 'rspec' 
   gem 'rspec-rails', '~> 2.6.1'
+  gem 'factory_girl_rails'
+  gem 'shoulda'
+  gem 'simplecov', :require => false
+  gem 'capybara'
+  gem 'database_cleaner'
+  gem 'remarkable', "~> 4.0.0.alpha4"
+  gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
+  gem 'rcov'
 end

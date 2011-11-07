@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :groups
   has_and_belongs_to_many :roles
   has_and_belongs_to_many :owned_groups, :class_name => "Group", :join_table => "groups_owners", :foreign_key => "owner_id"
-  has_one :sftp_users, :dependent => :destroy
+  has_one :sftp_user, :dependent => :destroy
   has_many :batches
   has_many :comments
   has_many :stored_files
