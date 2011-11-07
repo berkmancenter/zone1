@@ -20,12 +20,12 @@ class User < ActiveRecord::Base
   has_many :right_assignments, :as => :subject
   has_one :quota
 
-  after_create :initialize_quota
+  before_create :initialize_quota
 
   validates_presence_of :name
 
   def initialize_quota
-    Quota.create(:user => self)
+    self.quota = Quota.new
   end
 
   def list_rights
