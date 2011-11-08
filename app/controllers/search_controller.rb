@@ -1,5 +1,5 @@
 class SearchController < ApplicationController
-
+  require 'will_paginate/array'
   helper_method :sort_column, :sort_direction, :per_page
   include ApplicationHelper
 
@@ -60,11 +60,10 @@ class SearchController < ApplicationController
       end
       facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name #:copyright
       with(:created_at, created_at_start_date.beginning_of_day..created_at_end_date.end_of_day) if created_at_start_date && created_at_end_date
-      paginate :page => params[:page], :per_page => per_page
       order_by sort_column, sort_direction 
     end
     @search.execute!
-    @stored_files = @search.results
+    @stored_files = filter_and_paginate_search_results(@search)
     @facets = []
 
     facets.each do |facet|
@@ -82,6 +81,16 @@ class SearchController < ApplicationController
   end
 
   private
+
+  def filter_and_paginate_search_results(search)
+    if search.results.present?
+      filtered_results = []
+      search.results.each do |stored_file|
+        filtered_results << stored_file if stored_file.can_user_view?(current_user)
+      end
+       filtered_results.paginate :page => params[:page], :per_page => per_page
+    end
+  end
 
   def per_page
     session[:per_page] = params[:per_page] || session[:per_page] || "30"

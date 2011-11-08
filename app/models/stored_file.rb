@@ -36,7 +36,7 @@ class StoredFile < ActiveRecord::Base
 
   searchable(:include => [:tags]) do
     text :original_filename, :description
-    time :created_at, :trie => true
+    time :created_at, :trie => true  #trie optimizes the index for ranges
     integer :batch_id
     string :collection_list, :stored => true, :multiple => true
     string :author
