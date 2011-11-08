@@ -23,6 +23,7 @@ Zone1::Application.routes.draw do
     resources :rights
   end
   match '/admin' => 'admin::Base#index'
+  match '/admin/update' => 'admin::Base#update'
 
   match 'upload' => 'stored_files#new', :as => :upload
   match 'search' => 'search#index', :as => :search

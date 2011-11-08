@@ -1,4 +1,5 @@
 class Admin::BaseController < ApplicationController
+  layout "admin"
   include ApplicationHelper
 
   access_control do
@@ -10,5 +11,14 @@ class Admin::BaseController < ApplicationController
   end
 
   def index
+    @preferences = Preference.all
+  end
+
+  def update
+    params[:preference].each do |k, v|
+      Preference.find(k).update_attribute(:value, v)
+    end
+    flash[:notice] = "Updated!"
+    redirect_to "/admin"
   end
 end

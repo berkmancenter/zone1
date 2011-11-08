@@ -7,13 +7,26 @@
 <%= f.label :email %>
 <%= f.text_field :email %><br />
 
-Quota: <%= number_to_human_size @user.quota_max %><br />
+<%= f.label :quota_max %> (Bytes)
+<%= f.text_field :quota_max %><br />
 
-List User Roles here
-- via checkbox<br />
+<%= f.label :quota_used %>:
+<%= number_to_human_size @user.quota_used %><br />
 
-List Users Rights here
-- via checkboxes<br />
+<h3>Roles</h3>
+<% @roles.each do |role| -%>
+<input name="user[role_ids][]" <%= raw 'checked="checked"' if @user.roles.include?(role) %> type="checkbox" value="<%= role.id %>" />
+<%= role.name %><br />
+<% end -%>
+
+<h3>User Rights Based on Roles</h3>
+<%= @user.role_rights.join(', ') %>
+
+<h3>User-Override Rights</h3>
+<% @rights.each do |right| -%>
+<input name="user[right_ids][]" <%= raw 'checked="checked"' if @user.rights.include?(right) %> type="checkbox" value="<%= right.id %>" />
+<%= right.action %><br />
+<% end -%>
 
 <%= f.submit "Update User" %>
 <% end -%>

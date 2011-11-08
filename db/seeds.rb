@@ -15,6 +15,7 @@ ContentType.delete_all
 Role.delete_all
 Right.delete_all
 Disposition.delete_all
+Preference.delete_all
 DispositionAction.delete_all
 
 connection = ActiveRecord::Base.connection
@@ -22,6 +23,7 @@ connection.execute("DELETE FROM roles_users")
 
 puts "Generating default preferences"
 Preference.create([{:name => "Default User Upload Quota", :value => "10485760" }])
+Preference.create([{:name => "Retention Period", :value => "1825" }])
 
 puts "Creating disposition actions"
 DispositionAction.create([{ :action => "DELETE" },

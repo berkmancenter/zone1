@@ -5,11 +5,13 @@
 <%= f.text_field :action %><br />
 <%= f.label :description %>
 <%= f.text_field :description %><br />
-<%= f.submit "Update Right" %>
+
+<h3>Attached Roles</h3>
+
+<% @roles.each do |role| -%>
+<input type="checkbox" name="right[role_ids][]" <%= raw 'checked="checked"' if @right.roles.include?(role) %> value="<%= role.id %>" />
+<%= role.name %><br />
 <% end -%>
 
-<h3>Attached Roles to Right</h3>
-
-<% @right.roles.each do |role| -%>
-<%= link_to role.name, edit_admin_role_path(role) %><br />
+<%= f.submit "Update Right" %>
 <% end -%>

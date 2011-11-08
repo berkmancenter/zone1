@@ -7,7 +7,8 @@ class User < ActiveRecord::Base
   acts_as_tagger
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :password, :password_confirmation, :remember_me, :name, :quota_used, :quota_max
+  attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
+    :quota_used, :quota_max, :role_ids, :right_ids
 
   has_and_belongs_to_many :groups
   has_and_belongs_to_many :roles
@@ -75,6 +76,11 @@ class User < ActiveRecord::Base
 
   def will_quota_be_zeroed?(amount)
     self.quota_used - amount.to_i <= 0
+  end
+
+  def role_rights
+    # TODO: Low level caching on this later
+    self.roles.collect { |r| r.rights }.flatten.uniq.collect { |r| r.action }
   end
 
   def list_rights

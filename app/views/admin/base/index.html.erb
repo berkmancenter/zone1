@@ -1,6 +1,11 @@
-This is the admin dashboard.
+Welcome to the admin dashboard.
 
-It will have:<br />
-- retention period<br />
-- system wide quota<br />
-- max http uploads
+<%= form_tag "/admin/update" do %>
+<% @preferences.each do |preference| -%>
+<label><%= preference.name %></label>
+<%= text_field :preference, preference.id, { :value => preference.value } %><br />
+<% end -%>
+<%= submit_tag "Update" %>
+<% end -%>
+
+Also? max http uploads

@@ -6,35 +6,31 @@ class Admin::FlagsController < Admin::BaseController
 
   def create
     begin
-      @flag = Flag.new(params[:flag])
-      if @flag.save
+      flag = Flag.new(params[:flag])
+      if flag.save
         flash[:notice] = "created!"
-        redirect_to edit_admin_flag_path(@flag)
+        redirect_to edit_admin_flag_path(flag)
       else
-        flash[:error] = "Errors #{@flag.errors.full_messages.join(', ')}"
-        @flags = Flag.all 
-        render 'index'
+        flash[:error] = "Errors #{flag.errors.full_messages.join(', ')}"
+        redirect_to admin_flags_path
       end
     rescue Exception => e
-      @flag = Flag.new
       flash[:error] = "problems creating. try again."
       log_exception e
-      @flags = Flag.all 
-      render 'index'
+      redirect_to admin_flags_path
     end
   end
 
   def update
     begin
-      @flag = Flag.find(params[:id])
-      @flag.update_attributes(params[:flag])
+      flag = Flag.find(params[:id])
+      flag.update_attributes(params[:flag])
       flash[:notice] = "updated!"
-      @right = Right.find_by_action("toggle_#{@flag.name.downcase}")
-      render 'edit'
+      redirect_to edit_admin_flag_path(flag)
     rescue Exception => e
       flash[:error] = "Problems updating! Please try again."
       log_exception e
-      render 'edit'
+      redirect_to edit_admin_flag_path(flag)
     end
   end
 

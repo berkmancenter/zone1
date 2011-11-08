@@ -21,29 +21,31 @@ class Admin::RolesController < Admin::BaseController
         redirect_to edit_admin_role_path(@role)
       else
         flash[:notice] = "Errors: #{@role.errors.full_messages.join(', ')}"
-        @roles = Role.all
-        render 'index'
+        redirect_to admin_roles_path
       end
     rescue Exception => e
       flash[:error] = "Problems creating! Please try again."
       log_exception e
-      render 'index'
+      redirect_to admin_roles_path
     end
   end
 
   def update
     begin
-      @rights = Right.all
-      @role = Role.find(params[:id])
-      @role.update_attributes(params[:role])
-      @role.rights = Right.find(params[:rights].keys)
-      @role.save
+      role = Role.find(params[:id])
+      role.update_attributes(params[:role])
       flash[:notice] = "Updated!"
-      render 'edit'
+      redirect_to edit_admin_role_path(role)
     rescue Exception => e
-      flash[:error] = "Problems updating! Please try again."
+      flash[:error] = "Problems updating! Please try again. #{e.inspect}."
       log_exception e
-      render 'edit'
+      redirect_to edit_admin_role_path(role)
     end
+  end
+
+  def destroy
+    Role.delete(params[:id])
+    flash[:notice] = "Deleted role."
+    redirect_to admin_roles_path
   end
 end

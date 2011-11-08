@@ -6,6 +6,12 @@
 <% end -%>
 
 <h1>Roles</h1>
+
+<table width="100%" cellpadding="0" cellspacing="0">
 <% @roles.each do |role| %>
-<%= link_to role.name, edit_admin_role_path(role) %><br />
+<tr>
+<td><%= link_to role.name, edit_admin_role_path(role) %></td>
+<td><%= link_to 'Delete',  admin_role_path(role), :method => "DELETE" %></td>
+</tr>
 <% end -%>
+</table>

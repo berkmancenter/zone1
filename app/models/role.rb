@@ -6,5 +6,5 @@ class Role < ActiveRecord::Base
   has_many :right_assignments, :as => :subject
   has_many :rights, :through => :right_assignments
   
-  attr_accessible :name, :rights
+  attr_accessible :name, :right_ids
 end
