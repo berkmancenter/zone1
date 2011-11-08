@@ -118,6 +118,11 @@ GEM
       thor (~> 0.14.6)
     rake (0.8.7)
     rcov (0.9.11)
+    rdoc (3.11)
+      json (~> 1.4)
+    redis (2.2.2)
+    redis-namespace (1.0.3)
+      redis (< 3.0.0)
     remarkable (4.0.0.alpha4)
       rspec (>= 2.0.0.alpha11)
     remarkable_activemodel (4.0.0.alpha4)
@@ -127,11 +132,6 @@ GEM
       remarkable (~> 4.0.0.alpha4)
       remarkable_activemodel (~> 4.0.0.alpha4)
       rspec (>= 2.0.0.alpha11)
-    rdoc (3.11)
-      json (~> 1.4)
-    redis (2.2.2)
-    redis-namespace (1.0.3)
-      redis (< 3.0.0)
     resque (1.19.0)
       multi_json (~> 1.0)
       redis-namespace (~> 1.0.2)
@@ -227,8 +227,8 @@ DEPENDENCIES
   rcov
   remarkable (~> 4.0.0.alpha4)
   remarkable_activerecord (~> 4.0.0.alpha4)
-  rspec
   resque
+  rspec
   rspec-rails (~> 2.6.1)
   rubyzip
   sass-rails (~> 3.1.0)

@@ -28,13 +28,12 @@ class StoredFile < ActiveRecord::Base
     :author, :title, :copyright, :description, :access_level_id,
     :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
     :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
-    :allow_tags,
-    :collection_list, :disposition, :group_ids, :comments_attributes, :flaggings_attributes, :disposition_attributes,
+    :comments_attributes, :flaggings_attributes, :disposition_attributes,
+    :allow_tags, :collection_list, :disposition, :group_ids, 
     :mime_type, :format_name, :format_version, :file_size, :md5
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
-  if false  #disable during my development because it is not working in my camp
   searchable(:include => [:tags]) do
     text :original_filename, :description
     time :created_at, :trie => true
@@ -59,7 +58,6 @@ class StoredFile < ActiveRecord::Base
   def increase_available_user_quota
     user.increase_available_quota!(file_size)
   end
-  end #disable during my development because it is not working in my camp
 
   def has_preserved_flag?
     # TODO: Add caching here
@@ -145,4 +143,5 @@ class StoredFile < ActiveRecord::Base
       ::Rails.logger.warn "Warning: stored_file.update_metadata received zero usable data from FITS for id/file #{self.id} - ${self.file.url}"
     end
   end
+
 end
