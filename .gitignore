@@ -1,15 +1,19 @@
 config/database.yml
 config/sunspot.yml
+config/resque.yml
 
+*.swp
 .bundle
+.sass-cache/
 db/*.sqlite3
-log/*.log
-log/*.log.lck
+log/*
 uploads/
 tmp/
-.sass-cache/
 sunspot-solr.pid
 public/coverage
+redis/redis-local.conf
+redis/dump.rdb
+var/run
+
 httpd/
 pgsql/
-*.swp

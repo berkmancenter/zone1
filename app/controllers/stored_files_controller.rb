@@ -81,7 +81,8 @@ class StoredFilesController < ApplicationController
       respond_to do |format|
         format.json { render :json => { :success => false, :message => e.to_s } }
         format.html do
-          flash[:error] = "problem deleting file"
+          flash[:error] = "Problem deleting file: #{e}"
+          ::Rails.logger.warn "Warning: stored_files_controller.delete got exception: #{e}"
           @stored_file = StoredFile.find(params[:id])
           redirect_to edit_stored_file_path(@stored_file)
         end
@@ -105,6 +106,7 @@ class StoredFilesController < ApplicationController
       # TODO: Figure out why this attribute is not getting updated in update_attributes 
       @stored_file.update_attribute(:allow_notes, params[:stored_file][:allow_notes])
 
+      # TODO: Once the :allow_notes issue is fixed, combine these into one update_attributes call
       @stored_file.update_attributes(validate_params(params, @stored_file))
    
       respond_to do |format|
@@ -120,7 +122,7 @@ class StoredFilesController < ApplicationController
       respond_to do |format|
         format.json { render :json => { :success => false, :message => e.to_s } }
         format.html do
-          flash[:error] = "failed: #{e.to_s}"
+          flash[:error] = "File update failed: #{e}"
           redirect_to edit_stored_file_path(@stored_file)
         end
       end
@@ -193,17 +195,20 @@ class StoredFilesController < ApplicationController
         return
       end
 
-      new_file = StoredFile.new({ :original_filename => params[:name],
+      raise Exception.new("Missing temp_batch_id") unless params[:temp_batch_id]
+
+      new_file = StoredFile.new({ :original_filename => params.delete(:name),
         :user_id => current_user.id,
-        :content_type_id => ContentType.first.id }) #Note: First content type id for testing
-      params[:stored_file][:file] = params.delete(:file)
+        :file => params.delete(:file)
+      })
+
       stored_file_params = validate_params(params, new_file)
       stored_file_params[:group_ids] = params[:groups].keys if params.has_key?(:groups)
       new_file.update_attributes(stored_file_params)
-
-      raise Exception.new("Missing temp_batch_id") unless params[:temp_batch_id]
+      # TODO: Do update_batch first and have it return a batch_id and include that in the new_file.UA call?
       update_batch(params[:temp_batch_id], new_file)
-    
+
+      Resque.enqueue(FitsRunner, new_file.id, new_file.file.url)
       render :json => {:success => true}
       return
     rescue Exception => e
@@ -239,6 +244,7 @@ class StoredFilesController < ApplicationController
       return
     end      
 
+    # TODO: I think we should assign directly to batch.stored_file_ids. That would avoid the extra SF.find, too.
     if file_ids.length == 1
       batch = Batch.new(:user_id => current_user.id)
       batch.stored_files << StoredFile.find(file_ids.first.to_i, new_file.id)
@@ -289,4 +295,5 @@ class StoredFilesController < ApplicationController
       session[:upload_batches].delete temp_batch_id
     end
   end
+
 end

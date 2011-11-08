@@ -16,10 +16,9 @@ class StoredFile < ActiveRecord::Base
   accepts_nested_attributes_for :disposition
 
   acts_as_authorization_object
+
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
-  
-  before_save :update_file_attributes
 
   after_create :decrease_available_user_quota
   after_destroy :increase_available_user_quota
@@ -29,14 +28,14 @@ class StoredFile < ActiveRecord::Base
     :author, :title, :copyright, :description, :access_level_id,
     :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
     :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
-    :collection_list, :disposition, :group_ids, :flaggings_attributes, :disposition_attributes,
-    :allow_tags
+    :comments_attributes, :flaggings_attributes, :disposition_attributes,
+    :allow_tags, :collection_list, :disposition, :group_ids, 
+    :mime_type, :format_name, :format_version, :file_size, :md5
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags]) do
     text :original_filename, :description
-    date :ingest_date
     time :created_at, :trie => true
     integer :batch_id
     string :collection_list, :stored => true, :multiple => true
@@ -125,12 +124,24 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
+
   private
 
-  def update_file_attributes
-    if file.present? && file_changed?
-      #self.content_type = file.file.content_type
-      self.file_size = file.file.size
+  def update_metadata_inline
+    metadata = Fits::analyze(self.file.url)
+
+    if metadata.class == Hash and metadata.keys.length > 0
+      ::Rails.logger.debug "PHUNK: updating metadata attributes INLINE"
+      metadata.each do |name, value|
+        # Use send like this instead of update_attributes because update_attributes
+        # would require we first call reload in this method (so the before_save
+        # conditional works), AND it will make ActiveRecord call save() on this 
+        # object a second time.
+        self.send("#{name}=", value)
+      end
+    else
+      ::Rails.logger.warn "Warning: stored_file.update_metadata received zero usable data from FITS for id/file #{self.id} - ${self.file.url}"
     end
   end
+
 end

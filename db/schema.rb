@@ -150,11 +150,10 @@ ActiveRecord::Schema.define(:version => 20111108124011) do
     t.integer  "batch_id"
     t.integer  "user_id",                              :null => false
     t.string   "title"
-    t.string   "original_filename",                    :null => false
-    t.string   "collection_name"
+    t.string   "original_filename"
     t.string   "office"
     t.integer  "access_level_id",                      :null => false
-    t.integer  "content_type_id",                      :null => false
+    t.integer  "content_type_id"
     t.string   "format_name"
     t.string   "format_version"
     t.string   "mime_type"
@@ -162,8 +161,6 @@ ActiveRecord::Schema.define(:version => 20111108124011) do
     t.integer  "file_size"
     t.text     "description"
     t.text     "copyright"
-    t.datetime "ingest_date"
-    t.text     "license_terms"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "file"
@@ -173,6 +170,11 @@ ActiveRecord::Schema.define(:version => 20111108124011) do
     t.boolean  "allow_notes",       :default => false
     t.boolean  "delete_flag"
     t.boolean  "allow_tags"
+  end
+
+  create_table "stored_files_flags", :id => false, :force => true do |t|
+    t.integer "stored_file_id"
+    t.integer "flag_id"
   end
 
   create_table "taggings", :force => true do |t|
