@@ -3,9 +3,12 @@
 <%= form_for(@role, :url => admin_role_path(@role), :html => { :id => "edit_roles" }) do |f| %>
 <%= f.label :name %>
 <%= f.text_field :name %><br /><br />
+
+f.object_name = <%= f.object_name %>
+
 <% @rights.each do |right| %>
 <p>
-<input name="role[right_ids][]" <%= raw 'checked="checked"' if @role.rights.include?(right) %> type="checkbox" value="<%= right.id %>" />
+<%= check_box_tag "role[right_ids][]", right.id, @role.rights.include?(right) %>
 <%= right.action %><br />
 <small><%= right.description %></small>
 </p>

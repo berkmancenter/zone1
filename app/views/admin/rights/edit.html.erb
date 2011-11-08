@@ -9,7 +9,7 @@
 <h3>Attached Roles</h3>
 
 <% @roles.each do |role| -%>
-<input type="checkbox" name="right[role_ids][]" <%= raw 'checked="checked"' if @right.roles.include?(role) %> value="<%= role.id %>" />
+<%= check_box_tag "right[role_ids][]", role.id, @right.roles.include?(role) %>
 <%= role.name %><br />
 <% end -%>
 

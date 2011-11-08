@@ -15,7 +15,7 @@
 
 <h3>Roles</h3>
 <% @roles.each do |role| -%>
-<input name="user[role_ids][]" <%= raw 'checked="checked"' if @user.roles.include?(role) %> type="checkbox" value="<%= role.id %>" />
+<%= check_box_tag "user[role_ids][]", role.id, @user.roles.include?(role) %>
 <%= role.name %><br />
 <% end -%>
 
@@ -24,7 +24,7 @@
 
 <h3>User-Override Rights</h3>
 <% @rights.each do |right| -%>
-<input name="user[right_ids][]" <%= raw 'checked="checked"' if @user.rights.include?(right) %> type="checkbox" value="<%= right.id %>" />
+<%= check_box_tag "user[right_ids][]", right.id, @user.rights.include?(right) %>
 <%= right.action %><br />
 <% end -%>
 
