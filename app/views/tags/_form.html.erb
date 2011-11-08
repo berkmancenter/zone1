@@ -1,2 +1,7 @@
 <%= f.label :tag_list %>
 <%= f.text_field :tag_list, { :value => @stored_file.anonymous_tag_list(:tags) } %>
+<br/>
+<% if current_user.can_do_method?(f.object, :edit_items) %>
+<%= f.label :allow_tags, "Allow non-contributors to add tags?" %>
+<%= f.check_box :allow_tags %>
+<% end %>

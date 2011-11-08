@@ -38,6 +38,7 @@ describe StoredFile do
   it { should allow_mass_assignment_of :group_ids }
   it { should allow_mass_assignment_of :flaggings_attributes }
   it { should allow_mass_assignment_of :disposition_attributes }
+  it { should allow_mass_assignment_of :allow_tags }
 
 
 end

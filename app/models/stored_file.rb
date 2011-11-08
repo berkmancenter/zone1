@@ -29,7 +29,8 @@ class StoredFile < ActiveRecord::Base
     :author, :title, :copyright, :description, :access_level_id,
     :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
     :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
-    :collection_list, :disposition, :group_ids, :flaggings_attributes, :disposition_attributes
+    :collection_list, :disposition, :group_ids, :flaggings_attributes, :disposition_attributes,
+    :allow_tags
 
   mount_uploader :file, FileUploader, :mount_on => :file
 

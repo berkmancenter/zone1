@@ -50,8 +50,9 @@ User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password
              {:email => 'bgadoury@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Phunk' },
              {:email => 'etann@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Evan' },
              {:email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin' },
-             {:email => 'brianb@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Brian' }])
-(u1, u2, u3, u4, u5) = User.all
+             {:email => 'brianb@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Brian' },
+             {:email => "user@endpoint.com", :password => "berkman", :password_confirmation => "berkman", :name => "User"}])
+(user_steph, user_bgadoury, user_etann, user_admin, user_brianb, user_user) = User.all
 
 puts "Generating groups"
 Group.create([{ :name => "End Point" },
@@ -61,13 +62,13 @@ Group.create([{ :name => "End Point" },
 (g1, g2, g3, g4) = Group.all
 
 g1.users << User.all
-g1.owners << u1
-g2.users = [u1, u2]
-g2.owners << u1
-g3.users = [u1, u2]
-g3.owners << u1
-g4.users = [u1, u2]
-g4.owners << u1
+g1.owners << user_steph
+g2.users = [user_steph, user_bgadoury, user_brianb, user_user]
+g2.owners << user_steph
+g3.users = [user_steph, user_bgadoury]
+g3.owners << user_steph
+g4.users = [user_steph, user_bgadoury]
+g4.owners << user_steph
 
 puts "Generating rights"
 Right.create([{ :action => "toggle_preserved", :description => "Ability to toggle PRESERVED flag." },
@@ -105,23 +106,24 @@ Role.create([{ :name => "admin" },
   { :name => "steward" },
   { :name => "records_manager" },
   { :name => "user" }])
-(r1, r2, r3, r4) = Role.all
+(role_admin, role_steward, role_records_manager, role_user) = Role.all
 
-r1.rights = Right.all
-r1.save
-r2.rights = [ri1, ri2, ri3, ri17] # preservation flags, view preserved flag content
-r2.save
-r3.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content, manage_dispositions
-r3.save
-r4.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23, ri25] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
-r4.save
+role_admin.rights = Right.all
+role_admin.save
+role_steward.rights = [ri1, ri2, ri3, ri17] # preservation flags, view preserved flag content
+role_steward.save
+role_records_manager.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content, manage_dispositions
+role_records_manager.save
+role_user.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23, ri25] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
+role_user.save
 
 # Assign user role to all users
-u1.roles << [r1, r4]
-u2.roles << r4
-u3.roles << r4
-u4.roles << [r1, r4]
-u5.roles << [r1, r4]
+user_steph.roles << [role_admin, role_user]
+user_bgadoury.roles << role_user
+user_etann.roles << role_user
+user_admin.roles << [role_admin, role_user]
+user_brianb.roles << [role_admin, role_user]
+user_user.roles << [role_user]
 
 puts "Generating licenses"
 License.create([{ :name => 'CC BY' },
