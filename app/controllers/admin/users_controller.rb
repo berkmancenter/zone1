@@ -11,7 +11,6 @@ class Admin::UsersController < Admin::BaseController
 
   def update
     begin
-logger.warn "steph: #{params.inspect}"
       user = User.find(params[:id])
       user.update_attributes(params[:user]) 
       flash[:notice] = "updated!"

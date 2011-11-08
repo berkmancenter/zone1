@@ -26,7 +26,6 @@ class Admin::RightsController < Admin::BaseController
   end
 
   def update
-logger.warn "steph: #{params.inspect}"
     begin
       right = Right.find(params[:id])
       right.update_attributes(params[:right])
