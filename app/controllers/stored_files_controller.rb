@@ -179,6 +179,10 @@ class StoredFilesController < ApplicationController
       end
     end
 
+    if params.has_key?(:tag_list)
+      params[:stored_file].delete(:tag_list) unless stored_file.allow_tags || current_user.can_do_method?(stored_file, "edit_items")
+    end
+
     params[:stored_file]
   end
 
