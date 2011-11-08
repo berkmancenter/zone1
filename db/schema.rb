@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111107173440) do
+ActiveRecord::Schema.define(:version => 20111107204438) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -85,15 +85,12 @@ ActiveRecord::Schema.define(:version => 20111107173440) do
     t.datetime "updated_at"
   end
 
-  create_table "quota", :force => true do |t|
-    t.integer  "used",       :default => 0
-    t.integer  "max",        :default => 10485760
-    t.integer  "user_id"
+  create_table "preferences", :force => true do |t|
+    t.string   "name"
+    t.string   "value"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  add_index "quota", ["user_id"], :name => "index_quota_on_user_id"
 
   create_table "right_assignments", :force => true do |t|
     t.integer "right_id"
@@ -173,8 +170,8 @@ ActiveRecord::Schema.define(:version => 20111107173440) do
     t.string   "author"
     t.integer  "license_id"
     t.datetime "deletion_date"
-    t.boolean  "delete_flag"
     t.boolean  "allow_notes",       :default => false
+    t.boolean  "delete_flag"
   end
 
   create_table "taggings", :force => true do |t|
@@ -209,6 +206,8 @@ ActiveRecord::Schema.define(:version => 20111107173440) do
     t.string   "affiliation"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "quota_used"
+    t.integer  "quota_max"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

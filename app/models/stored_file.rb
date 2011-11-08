@@ -52,11 +52,11 @@ class StoredFile < ActiveRecord::Base
   end
 
   def decrease_available_user_quota
-    Quota.decrease_available_for(self)
+    user.decrease_available_quota!(file_size)
   end
 
   def increase_available_user_quota
-    Quota.increase_available_for(self)
+    user.increase_available_quota!(file_size)
   end
 
   def has_preserved_flag?

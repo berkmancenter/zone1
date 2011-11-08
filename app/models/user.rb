@@ -7,7 +7,7 @@ class User < ActiveRecord::Base
   acts_as_tagger
 
   # Setup accessible (or protected) attributes for your model
-  attr_accessible :email, :password, :password_confirmation, :remember_me, :name
+  attr_accessible :email, :password, :password_confirmation, :remember_me, :name, :quota_used, :quota_max
 
   has_and_belongs_to_many :groups
   has_and_belongs_to_many :roles
@@ -18,14 +18,63 @@ class User < ActiveRecord::Base
   has_many :stored_files
   has_many :rights, :through => :right_assignments
   has_many :right_assignments, :as => :subject
-  has_one :quota
-
-  before_create :initialize_quota
 
   validates_presence_of :name
 
-  def initialize_quota
-    self.quota = Quota.new
+  validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
+  validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true }
+
+  def quota_used
+     #must use self.quota_used in order to call instance method instead of directly accessing database value
+    read_attribute(:quota_used) || 0
+  end
+
+  def quota_max
+    #must use self.quota_max in order to call instance method instead of directly accessing database value
+    read_attribute(:quota_max) || default_quota_max
+  end
+
+  def default_quota_max
+    default = Preference.find_by_name("Default User Upload Quota")
+    default.present? ? default.value.to_i : 0
+  end
+
+  def quota_max=(amount)
+    if amount.to_i != default_quota_max
+      write_attribute :quota_max, amount
+    else
+      write_attribute :quota_max, nil
+    end
+  end
+
+  def decrease_available_quota!(amount)
+    update_attribute(:quota_used, self.quota_used + amount.to_i) 
+  end
+
+  def increase_available_quota!(amount)
+    if will_quota_be_zeroed?(amount)
+      update_attribute(:quota_used, 0)
+
+    else
+      update_attribute(:quota_used, self.quota_used - amount.to_i)
+
+    end
+  end
+
+  def quota_exceeded?
+    self.quota_used >= self.quota_max
+  end
+
+  def percent_quota_available
+    (self.quota_used.to_f / self.quota_max.to_f)*100
+  end
+
+  def quota_available?(amount)
+    self.quota_used + amount.to_i <= self.quota_max
+  end
+
+  def will_quota_be_zeroed?(amount)
+    self.quota_used - amount.to_i <= 0
   end
 
   def list_rights

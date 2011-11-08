@@ -7,7 +7,7 @@
 <%= f.label :email %>
 <%= f.text_field :email %><br />
 
-Quota: <%= @user.quota.max %> Bytes<br />
+Quota: <%= number_to_human_size @user.quota_max %><br />
 
 List User Roles here
 - via checkbox<br />

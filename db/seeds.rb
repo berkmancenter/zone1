@@ -20,6 +20,9 @@ DispositionAction.delete_all
 connection = ActiveRecord::Base.connection
 connection.execute("DELETE FROM roles_users")
 
+puts "Generating default preferences"
+Preference.create([{:name => "Default User Upload Quota", :value => "10485760" }])
+
 puts "Creating disposition actions"
 DispositionAction.create([{ :action => "DELETE" },
                           { :action => "REVIEW" },
@@ -127,3 +130,4 @@ License.create([{ :name => 'CC BY' },
         { :name => 'CC BY-NC' },
         { :name => 'CC BY-NC-SA' },
         { :name => 'CC BY-NC-ND' }])
+

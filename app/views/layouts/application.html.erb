@@ -11,7 +11,7 @@
 
 <% if current_user -%>
 <%= current_user.name %> 
-(<%= render :partial => "quotas/user_stats", :locals => { :quota => current_user.quota || Quota.new } %>) |
+(<%= render :partial => "users/quota_summary", :locals => { :user => current_user } %>) |
 <%= link_to 'Upload File(s)', upload_path %> |
 <%= link_to 'Groups', groups_path %> |
 <%= link_to 'Sign Out', destroy_user_session_path, :method => :delete %> 

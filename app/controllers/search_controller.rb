@@ -17,7 +17,8 @@ class SearchController < ApplicationController
     value == '' ? 'empty string' : value
   end
   def label_user_id(value)
-    User.find(value).name
+    user = User.find_by_id(value)
+    user.present? ? user.name : "Unknown user"
   end
   def label_tag_list(value)
     value
