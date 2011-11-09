@@ -34,5 +34,6 @@ railroad -M | neato -Tpng > app/assets/images/models.png
 
 == TESTING
 
+ - config/database.yml must have test database defined
  - unit testing with RSpec (rake spec)
  - code coverage reports with RCov (rake rcov:rspec, then see http://<your_camp>/coverage/index.html)

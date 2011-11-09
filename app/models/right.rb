@@ -1,6 +1,5 @@
 class Right < ActiveRecord::Base
   validates_presence_of :action
-  validates_uniqueness_of :description
 
   has_many :right_assignments
   has_many :roles,
