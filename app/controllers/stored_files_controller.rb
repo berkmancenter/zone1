@@ -188,13 +188,16 @@ class StoredFilesController < ApplicationController
       })
 
       stored_file_params = validate_params(params, new_file)
-      new_file.update_attributes(stored_file_params)
-      # TODO: Do update_batch first and have it return a batch_id and include that in the new_file.UA call?
-      update_batch(params[:temp_batch_id], new_file)
+      if new_file.update_attributes(stored_file_params)
 
-      Resque.enqueue(FitsRunner, new_file.id, new_file.file.url)
-      render :json => {:success => true}
-      return
+        # TODO: Do update_batch first and have it return a batch_id and include that in the new_file.UA call?
+        update_batch(params[:temp_batch_id], new_file)
+
+        Resque.enqueue(FitsRunner, new_file.id, new_file.file.url)
+        render :json => {:success => true}
+      else
+        raise "StoredFile not created. see logs!"
+      end
     rescue Exception => e
       log_exception(e)
       render :json => {:success => false, :message => e.to_s}
