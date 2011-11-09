@@ -1,11 +1,25 @@
-<div class="flags">
-<% Flag.all.each do |flag| -%>
-<% if @stored_file.flags.include?(flag) %>
-<input type="checkbox" checked="checked" disabled="true" /><span class="readonly"><%= flag.label %></span><br />
-<% elsif current_user.can_do_method?(@stored_file, "toggle_#{flag.name.downcase}") -%>
-<input type="checkbox" name="flaggings[<%= flag.id %>][flag_id]" value="<%= flag.id %>" /><%= flag.label %><br />
-<textarea name="flaggings[<%= flag.id %>][note]"></textarea><br />
-<% end -%>
-<% end -%>
-</div>
+<div class="flagging">
 
+    <% if stored_file.flags.include?(f.object.flag) %>
+ 
+      <%= check_box_tag "disabled_flagging_#{f.object.id}", 1, true, :disabled => true %>
+      <%= content_tag :span, f.object.flag.label, :class => "readonly" %>
+
+
+    <% elsif current_user.can_do_method?(stored_file, "toggle_#{f.object.flag.name.downcase}") %>
+
+
+      <% #Assume user doesn't want flag.  This must appear BEFORE the CHECKBOX %>
+      <%= f.hidden_field :_destroy, :value => 1 %>       
+
+      <% #Allow user to opt-in to the flag.  This must appear AFTER the _destroy field  %>
+      <%= check_box_tag f.object_name + "[_destroy]", 0 %> <%= f.label :flag_id, f.object.flag.label %><br/>
+      
+      <%= f.text_area :note, :rows => 2, :cols => 20 %><br/>
+      
+      <%= f.hidden_field :flag_id %>
+      <%= f.hidden_field :user_id, :value => current_user.id %>
+
+    <% end %>
+ 
+</div> 

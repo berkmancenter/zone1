@@ -167,20 +167,6 @@ class StoredFilesController < ApplicationController
       end
     end
 
-    if params.has_key?(:flaggings)
-      params[:flaggings].each do |flag_id, attrs|
-        if attrs.has_key?(:flag_id)  #ie, is it checked?
-          f = Flag.find(flag_id)
-          if !stored_file.flags.include?(f)
-            attrs[:flag_id] = flag_id.to_i
-            attrs.merge!({ :user_id => current_user.id })
-            params[:stored_file][:flaggings_attributes] ||= []
-            params[:stored_file][:flaggings_attributes] << attrs
-          end
-        end
-      end
-    end
-
     if params.has_key?(:tag_list)
       params[:stored_file].delete(:tag_list) unless stored_file.allow_tags || current_user.can_do_method?(stored_file, "edit_items")
     end

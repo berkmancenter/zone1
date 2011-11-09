@@ -82,4 +82,5 @@
 	<%= f.radio_button(:license_id, license.id) %> <%= license.name %>
 <% end -%>		
 <hr />
-<%= render :partial => "flaggings/form" %>
+
+<%= render "flags/form", :f => f, :stored_file => @stored_file, :flags => Flag.all %>

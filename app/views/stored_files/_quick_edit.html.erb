@@ -9,7 +9,7 @@
 
     <%= render :partial => "access_levels/form" %>
 
-    <%= render :partial => "flaggings/form" %>
+    <%= render "flags/form", :f => f, :stored_file => @stored_file, :flags => Flag.all %>
 
     <%= submit_tag %>	
   

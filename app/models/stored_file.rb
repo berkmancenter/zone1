@@ -26,7 +26,7 @@ class StoredFile < ActiveRecord::Base
 
   attr_accessible :file, :license_id, :collection_name,
     :author, :title, :copyright, :description, :access_level_id,
-    :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
+    :user_id, :content_type_id, :original_filename, :batch_id,
     :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
     :comments_attributes, :flaggings_attributes, :disposition_attributes,
     :allow_tags, :collection_list, :disposition, :group_ids, 
@@ -120,7 +120,7 @@ class StoredFile < ActiveRecord::Base
         st = ActiveRecord::Base.connection.execute("DELETE FROM taggings WHERE taggable_id = '#{self.id}' AND context = '#{context.to_s}' AND tag_id = (SELECT id FROM tags WHERE name = '#{removed_tag}')")
       end
     rescue Exception => e
-      # TODO: Add some rescue statement here
+      log_exception e
     end
   end
 
