@@ -89,6 +89,8 @@ class SearchController < ApplicationController
         filtered_results << stored_file if stored_file.can_user_view?(current_user)
       end
        filtered_results.paginate :page => params[:page], :per_page => per_page
+    else
+      [].paginate
     end
   end
 
