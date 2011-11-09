@@ -64,9 +64,9 @@ Group.create([{ :name => "End Point" },
 (g1, g2, g3, g4) = Group.all
 
 g1.users << User.all
-g1.owners << user_steph
+g1.owners = [user_steph, user_brianb]
 g2.users = [user_steph, user_bgadoury, user_brianb, user_user]
-g2.owners << user_steph
+g2.owners = [user_steph, user_brianb]
 g3.users = [user_steph, user_bgadoury]
 g3.owners << user_steph
 g4.users = [user_steph, user_bgadoury]

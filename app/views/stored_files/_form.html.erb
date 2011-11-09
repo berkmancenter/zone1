@@ -61,16 +61,12 @@
 		  <%= render :partial => "access_levels/form" %>
 		</td>
 		<td>
-			<%= f.label "Groups" %><br />
-			<% if @stored_file.new_record? -%>
-			<% current_user.owned_groups.each do |group| -%>
-			<%= check_box_tag "groups[#{group.id}]", 1, @stored_file.groups.include?(group) %><%= group.name %><br />
-			<% end -%>
-			<% else -%>
-			<% current_user.owned_groups.each do |group| -%>
-			<%= check_box_tag "stored_file[group_ids][]", group.id, @stored_file.groups.include?(group) %><%= group.name %><br />
-			<% end -%>
-			<% end -%>
+                  <%= f.label "Groups" %>
+                  <% current_user.owned_groups.each do |group| %>
+                    <%= f.fields_for :groups_stored_files, @stored_file.groups_stored_files.build(:group_id => group.id) do |group_form| %>
+                      <%= render "groups_stored_files/form", :f => group_form, :stored_file => @stored_file %>
+                    <% end %>
+                  <% end %>
 		</td>
 	</tr>
 </table>

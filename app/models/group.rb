@@ -1,7 +1,9 @@
 class Group < ActiveRecord::Base
   has_and_belongs_to_many :owners, :association_foreign_key => "owner_id", :join_table => "groups_owners", :class_name => "User"
   has_and_belongs_to_many :users, :before_add => :validates_user
-  has_and_belongs_to_many :stored_files
+
+  has_many :groups_stored_files
+  has_many :stored_files, :through => :groups_stored_files
 
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_groups
   

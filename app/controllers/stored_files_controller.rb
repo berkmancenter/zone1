@@ -141,7 +141,6 @@ class StoredFilesController < ApplicationController
  
   # Server side validation updatable attributes
   def validate_params(params, stored_file)
-    params[:stored_file][:group_ids] ||= []
 
     # User with view_item access and item can accept comments 
     if params[:stored_file].has_key?(:comment)
@@ -189,7 +188,6 @@ class StoredFilesController < ApplicationController
       })
 
       stored_file_params = validate_params(params, new_file)
-      stored_file_params[:group_ids] = params[:groups].keys if params.has_key?(:groups)
       new_file.update_attributes(stored_file_params)
       # TODO: Do update_batch first and have it return a batch_id and include that in the new_file.UA call?
       update_batch(params[:temp_batch_id], new_file)

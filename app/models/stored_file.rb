@@ -7,13 +7,15 @@ class StoredFile < ActiveRecord::Base
   has_many :comments, :dependent => :destroy
   has_many :flaggings, :dependent => :destroy
   has_many :flags, :through => :flaggings
-  has_and_belongs_to_many :groups
+  has_many :groups_stored_files
+  has_many :groups, :through => :groups_stored_files
   has_one :disposition, :dependent => :destroy
 
   # TODO: Maybe implement this later based on design
   #accepts_nested_attributes_for :comments
   accepts_nested_attributes_for :flaggings
   accepts_nested_attributes_for :disposition
+  accepts_nested_attributes_for :groups_stored_files 
 
   acts_as_authorization_object
 
@@ -31,8 +33,9 @@ class StoredFile < ActiveRecord::Base
     :user_id, :content_type_id, :original_filename, :batch_id,
     :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
     :comments_attributes, :flaggings_attributes, :disposition_attributes,
-    :allow_tags, :collection_list, :disposition, :group_ids, 
-    :mime_type, :format_name, :format_version, :file_size, :md5
+    :allow_tags, :collection_list, :disposition, 
+    :mime_type, :format_name, :format_version, :file_size, :md5,
+    :groups_stored_files_attributes
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
