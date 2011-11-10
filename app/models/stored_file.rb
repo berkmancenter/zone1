@@ -23,6 +23,8 @@ class StoredFile < ActiveRecord::Base
   after_create :decrease_available_user_quota
   after_destroy :increase_available_user_quota
 
+  validates_presence_of :user_id
+
 
   attr_accessible :file, :license_id, :collection_name,
     :author, :title, :copyright, :description, :access_level_id,
