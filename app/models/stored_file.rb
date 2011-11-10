@@ -15,7 +15,7 @@ class StoredFile < ActiveRecord::Base
   #accepts_nested_attributes_for :comments
   accepts_nested_attributes_for :flaggings
   accepts_nested_attributes_for :disposition
-  accepts_nested_attributes_for :groups_stored_files 
+  accepts_nested_attributes_for :groups_stored_files, :allow_destroy => true 
 
   acts_as_authorization_object
 

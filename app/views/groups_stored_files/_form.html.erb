@@ -1,5 +1,7 @@
 <div class="groups_stored_files">
   <%= f.hidden_field :_destroy, :value => 1 %>
-  <%= check_box_tag f.object_name + "[_destroy]", 0 %> <%= f.label :group_id, f.object.group.name %>
+  <%= check_box_tag f.object_name + "[_destroy]", 0, !f.object.new_record? %> <%= f.label :group_id, f.object.group.name %>
   <%= f.hidden_field :group_id %>
+<%= f.object.inspect %>
+<%= f.object.id.inspect %>
 </div>

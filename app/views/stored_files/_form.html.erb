@@ -62,9 +62,12 @@
 		</td>
 		<td>
                   <%= f.label "Groups" %>
-                  <% current_user.owned_groups.each do |group| %>
+                  <%= f.fields_for :groups_stored_files, @stored_file.groups_stored_files do |existing_groups_form| %>
+                    <%= render "groups_stored_files/form", :f => existing_groups_form %>
+                  <% end %>
+                  <% (current_user.owned_groups - @stored_file.groups).each do |group| %>
                     <%= f.fields_for :groups_stored_files, @stored_file.groups_stored_files.build(:group_id => group.id) do |group_form| %>
-                      <%= render "groups_stored_files/form", :f => group_form, :stored_file => @stored_file %>
+                      <%= render "groups_stored_files/form", :f => group_form %>
                     <% end %>
                   <% end %>
 		</td>
