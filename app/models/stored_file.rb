@@ -11,8 +11,7 @@ class StoredFile < ActiveRecord::Base
   has_many :groups, :through => :groups_stored_files
   has_one :disposition, :dependent => :destroy
 
-  # TODO: Maybe implement this later based on design
-  #accepts_nested_attributes_for :comments
+  accepts_nested_attributes_for :comments
   accepts_nested_attributes_for :flaggings
   accepts_nested_attributes_for :disposition
   accepts_nested_attributes_for :groups_stored_files, :allow_destroy => true 

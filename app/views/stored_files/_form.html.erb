@@ -15,44 +15,32 @@
 			<%= f.text_field :office %><br />
 			<%= f.label :title %>
 			<%= f.text_field :title %><br />
-            <% if !@stored_file.new_record? -%>
-            <% if @stored_file.disposition -%>
-            <b>Current Disposition</b><br />
-            <%= @stored_file.disposition.disposition_action.action %><br />
-            <%= @stored_file.disposition.location %><br />
-            <%= @stored_file.disposition.note %><br />
+
+
+            <% if false && !@stored_file.new_record? -%>
+	      <% #TODO add javascript to set _destroy if NONE is selected as disposition %>
+              <% if current_user.can_do_method?(@stored_file, "manage_disposition") -%>
+		
+		<%= f.fields_for :disposition_attributes, @stored_file.disposition do |d| -%>
+		  <%= d.label :disposition_action_id %>
+		  <%= d.select :disposition_action_id, DispositionAction.all.collect { |p| [ p.action, p.id ] }, { :include_blank => 'None' } %><br />
+		  <%= d.label :location %><br />
+		  <%= d.text_area :location, :rows => 3 %><br />
+		  <%= d.label :note %><br />
+  		  <%= d.text_area :note, :rows => 3 %>
+                <% end %>
+		
+	      <% elsif @stored_file.disposition -%>
+                <b>Current Disposition</b><br />
+                <%= @stored_file.disposition.disposition_action.action %><br />
+                <%= @stored_file.disposition.location %><br />
+                <%= @stored_file.disposition.note %><br />
+              <% end -%>
             <% end -%>
-			<% if current_user.can_do_method?(@stored_file, "manage_disposition") -%>
-            <b>Override Disposition</b><br />
-            <%= f.fields_for :disposition_attributes do |d| -%>
-              <%= d.label :disposition_action_id %>
-              <%= d.select :disposition_action_id, DispositionAction.all.collect { |p| [ p.action, p.id ] }, { :include_blank => 'None' } %><br />
-              <%= d.label :location %><br />
-              <%= d.text_area :location, :rows => 3 %><br />
-              <%= d.label :note %><br />
-              <%= d.text_area :note, :rows => 3 %>
-            <% end -%>
-			<% end -%>
-			<% end -%>
-		</td>
+	  </td>
 	</tr>
 </table>
 <%= f.check_box :allow_notes %> <%= f.label "Allow users to add comments" %>
-<% if false -%>
-<% if !@stored_file.new_record? && @stored_file.allow_notes && current_user.can_do_method?(@stored_file, "delete_comments") -%>
-<% @stored_file.comments.each do |comment| -%>
-<div style="border:1px dashed #dfdfdf;">
-<%= comment.content %> / <%= comment.user.name %>
-</div>
-<% end -%>
-<div id="comments">
-<%= f.fields_for :comment do |c| -%>
-<%= c.label :content %>
-<%= c.text_area :content, :rows => 3 %>
-<% end -%>
-</div>
-<% end -%>
-<% end -%>
 <hr />
 
 <table width="100%" cellpadding="0" cellspacing="0">
