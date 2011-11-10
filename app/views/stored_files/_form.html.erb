@@ -17,8 +17,8 @@
 			<%= f.text_field :title %><br />
 
 
-            <% if !@stored_file.new_record? -%>
-	            
+            <% if false && !@stored_file.new_record? -%>
+	      <% #TODO add javascript to set _destroy if NONE is selected as disposition %>
               <% if current_user.can_do_method?(@stored_file, "manage_disposition") -%>
 		
 		<%= f.fields_for :disposition_attributes, @stored_file.disposition do |d| -%>
