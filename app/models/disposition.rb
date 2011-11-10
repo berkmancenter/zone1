@@ -4,4 +4,6 @@ class Disposition < ActiveRecord::Base
 
   validates_presence_of :disposition_action_id
   validates_presence_of :stored_file_id
+
+  attr_accessible :stored_file_id, :disposition_action_id, :location, :note
 end
