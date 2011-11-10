@@ -138,15 +138,6 @@ class StoredFilesController < ApplicationController
   # Server side validation updatable attributes
   def validate_params(params, stored_file)
 
-    # User with view_item access and item can accept comments 
-    if params[:stored_file].has_key?(:comment)
-      if stored_file.allow_notes && current_user.can_do_method?(stored_file, "view_items")
-        comment_params = params[:stored_file].delete(:comment).merge({ :user_id => current_user.id })
-        params[:stored_file][:comments_attributes] = [comment_params]
-      else
-        params[:stored_file].delete(:comment)
-      end
-    end
 
     # Ensure user can manage disposition and disposition_action_id is not blank
     if !current_user.can_do_method?(stored_file, "manage_disposition")
