@@ -65,15 +65,13 @@ class StoredFile < ActiveRecord::Base
   end
 
   def has_preserved_flag?
-    # TODO: Add caching here
-    preserved_flags = Flag.find_all_by_name(["NOMINATED_FOR_PRESERVATION", "PRESERVED", "SELECTED_FOR_PRESERVATION"])
-    (self.flags & preserved_flags).any?
+    # TODO: Possibly Add caching here
+    (self.flags & Flag.preserved).any?
   end
 
   def has_preserved_or_record_flag?
-    # TODO: Add caching here
-    preserved_flags = Flag.find_all_by_name(["SELECTED_FOR_PRESERVATION", "UNIVERSITY_RECORD"])
-    (self.flags & preserved_flags).any?
+    # TODO: Possibly Add caching here
+    (self.flags & Flag.selected).any?
   end
 
   def users_via_groups
@@ -86,7 +84,7 @@ class StoredFile < ActiveRecord::Base
 
     return true if self.access_level.name == "open" 
 
-    return true if user.list_rights.include?("view_preserved_flag_content") && 
+    return true if user.all_rights.include?("view_preserved_flag_content") && 
       self.has_preserved_flag?
  
     return true if self.users_via_groups.include?(user) && 
@@ -105,7 +103,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def anonymous_tag_list(context)
-    self.send(context).collect { |t| t.name }.join(", ")
+    self.owner_tags_on(nil, context).collect { |t| t.name }.join(', ')
   end
 
   def update_tags(param, context, user)
@@ -113,15 +111,16 @@ class StoredFile < ActiveRecord::Base
       existing_tags = self.anonymous_tag_list(context).split(", ")
       submitted_tags = param.gsub(/\s+/, '').split(',')
 
+      removed_tags = existing_tags - (existing_tags & submitted_tags)
+
       # Figure out which tags user is adding, and add
       user_tags = self.owner_tags_on(user, context).collect { |b| b.name }
-      updated_tags = user_tags + (submitted_tags - existing_tags)
+      updated_tags = user_tags + (submitted_tags - existing_tags) - removed_tags
       user.tag(self, :with => updated_tags.join(","), :on => context)
 
       # Figure out which global tags user is removing, and remove
-      removed_tags = existing_tags - (existing_tags & submitted_tags)
       removed_tags.each do |removed_tag|
-        # TODO: If possible, avoid raw SQL here. But acts-as-taggable doesn't give you an easy way to delete owned tags.
+        # TODO: But acts-as-taggable doesn't give you an easy way to delete another user's tags.
         st = ActiveRecord::Base.connection.execute("DELETE FROM taggings WHERE taggable_id = '#{self.id}' AND context = '#{context.to_s}' AND tag_id = (SELECT id FROM tags WHERE name = '#{removed_tag}')")
       end
     rescue Exception => e

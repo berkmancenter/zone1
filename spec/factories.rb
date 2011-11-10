@@ -33,7 +33,7 @@ FactoryGirl.define do
   end
 
   factory :right do
-    method 'test_right'
+    action 'test_right'
     description 'test_description'
   end
 
@@ -46,5 +46,11 @@ FactoryGirl.define do
     user_id '1'
     access_level_id '1'
     content_type_id '1'
+  end
+
+  factory :flagging do
+    flag_id '1'
+    stored_file_id '1'
+    user_id '1'
   end
 end

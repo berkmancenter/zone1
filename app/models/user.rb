@@ -83,19 +83,18 @@ class User < ActiveRecord::Base
     self.roles.collect { |r| r.rights }.flatten.uniq.collect { |r| r.action }
   end
 
-  def list_rights
+  def all_rights
     # TODO: Low level caching on this later
     [self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
   end
 
   def can_do_global_method?(method)
-    return true if self.list_rights.include?(method)
-    false
+    self.all_rights.include?(method)
   end
 
   # stored_file can be an id or it can be a StoredFile
   def can_do_method?(stored_file, method)
-    rights = self.list_rights
+    rights = self.all_rights
     return true if rights.include?(method)
 
     stored_file = stored_file.is_a?(StoredFile) ? stored_file : StoredFile.find(stored_file)
@@ -105,7 +104,7 @@ class User < ActiveRecord::Base
 
   # stored_file can be an id or it can be a StoredFile
   def can_do_group_method?(group, method)
-    rights = self.list_rights
+    rights = self.all_rights
     return true if rights.include?(method)
 
     group = group.is_a?(Group) ? group : Group.find(group)
@@ -115,6 +114,6 @@ class User < ActiveRecord::Base
   end
 
   def all_groups
-    self.list_rights.include?("edit_groups") ? Group.all : [self.owned_groups, self.groups].flatten.uniq
+    self.all_rights.include?("edit_groups") ? Group.all : [self.owned_groups, self.groups].flatten.uniq
   end
 end

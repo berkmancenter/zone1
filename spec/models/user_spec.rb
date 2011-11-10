@@ -18,4 +18,43 @@ describe User do
   it { should allow_mass_assignment_of :name }
   it { should allow_mass_assignment_of :quota_used }
   it { should allow_mass_assignment_of :quota_max }
+
+  describe "#role_rights" do
+    let(:user) { Factory(:user, :email => "test1@email.com") }
+    let(:role) { Factory(:role) }
+    let(:right) { Factory(:right, :action => "be_awesome") }
+    let(:right2) { Factory(:right, :action => "be_radical") }
+    let(:rights) { ["be_awesome", "be_radical"] }
+
+    context "when user has role and role has rights" do
+      before(:each) do
+        user.roles << role
+        role.rights = [right, right2]
+      end
+      it "user role_rights should map to rights" do
+        user.role_rights.all? { |n| rights.include?(n) }.should == true
+      end
+    end
+  end
+
+  describe "#all_rights" do
+    let(:user) { Factory(:user, :email => "test1@email.com") }
+    let(:role) { Factory(:role) }
+    let(:right) { Factory(:right, :action => "be_awesome") }
+    let(:right2) { Factory(:right, :action => "be_radical") }
+    let(:right3) { Factory(:right, :action => "be_cool") }
+    let(:right4) { Factory(:right, :action => "be_tubular") }
+    let(:rights) { ["be_awesome", "be_radical", "be_cool", "be_tubular"] }
+
+    context "when user has role and role has rights" do
+      before(:each) do
+        user.roles << role
+        role.rights = [right, right2]
+        user.rights = [right3, right4]
+      end
+      it "user role_rights should map to rights" do
+        user.all_rights.all? { |n| rights.include?(n) }.should == true
+      end
+    end
+  end
 end
