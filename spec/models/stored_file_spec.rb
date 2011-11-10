@@ -9,7 +9,7 @@ describe StoredFile do
   it { should have_many :comments }
   it { should have_many :flaggings }
   it { should have_many :flags }
-  it { should have_and_belong_to_many :groups }
+  it { should have_many :groups }
   it { should have_one :disposition }
 
   it { should accept_nested_attributes_for :flaggings }
@@ -34,7 +34,7 @@ describe StoredFile do
   it { should allow_mass_assignment_of :publication_type_list }
   it { should allow_mass_assignment_of :collection_list }
   it { should allow_mass_assignment_of :disposition }
-  it { should allow_mass_assignment_of :group_ids }
+  it { should allow_mass_assignment_of :groups_stored_files_attributes }
   it { should allow_mass_assignment_of :flaggings_attributes }
   it { should allow_mass_assignment_of :disposition_attributes }
   it { should allow_mass_assignment_of :allow_tags }
