@@ -103,10 +103,6 @@ class StoredFilesController < ApplicationController
         params[:stored_file].delete(:collection_list)
       end
 
-      # TODO: Figure out why this attribute is not getting updated in update_attributes 
-      #@stored_file.update_attribute(:allow_notes, params[:stored_file][:allow_notes])
-
-      # TODO: Once the :allow_notes issue is fixed, combine these into one update_attributes call
       @stored_file.update_attributes(validate_params(params, @stored_file))
    
       respond_to do |format|
@@ -182,18 +178,17 @@ class StoredFilesController < ApplicationController
 
       raise Exception.new("Missing temp_batch_id") unless params[:temp_batch_id]
 
-      new_file = StoredFile.new({ :original_filename => params.delete(:name),
+      @stored_file = StoredFile.new({ :original_filename => params.delete(:name),
         :user_id => current_user.id,
         :file => params.delete(:file)
       })
 
-      stored_file_params = validate_params(params, new_file)
-      if new_file.update_attributes(stored_file_params)
+      if @stored_file.update_attributes(validate_params(params, @stored_file))
 
-        # TODO: Do update_batch first and have it return a batch_id and include that in the new_file.UA call?
-        update_batch(params[:temp_batch_id], new_file)
+        # TODO: Do update_batch first and have it return a batch_id and include that in the @stored_file.UA call?
+        update_batch(params[:temp_batch_id], @stored_file)
 
-        Resque.enqueue(FitsRunner, new_file.id, new_file.file.url)
+        Resque.enqueue(FitsRunner, @stored_file.id, @stored_file.file.url)
         render :json => {:success => true}
       else
         raise "StoredFile not created. see logs!"
@@ -219,7 +214,7 @@ class StoredFilesController < ApplicationController
 
   private
 
-  def update_batch(temp_batch_id, new_file)
+  def update_batch(temp_batch_id, stored_file)
     file_ids = session[:upload_batches][temp_batch_id][:file_ids]
 
     if file_ids.length == 0
@@ -227,22 +222,22 @@ class StoredFilesController < ApplicationController
       # can't be sure they'll upload any more. We turn it into a legit Batch instance
       # on the next upload for this temp_batch_id
       # Add new id to session for this temp_batch_id
-      file_ids << new_file.id
+      file_ids << stored_file.id
       return
     end      
 
     # TODO: I think we should assign directly to batch.stored_file_ids. That would avoid the extra SF.find, too.
     if file_ids.length == 1
       batch = Batch.new(:user_id => current_user.id)
-      batch.stored_files << StoredFile.find(file_ids.first.to_i, new_file.id)
+      batch.stored_files << StoredFile.find(file_ids.first.to_i, stored_file.id)
       batch.save!
     else
       batch = Batch.find(session[:upload_batches][temp_batch_id][:system_batch_id].to_i)
-      batch.stored_files << StoredFile.find(new_file.id)
+      batch.stored_files << StoredFile.find(stored_file.id)
     end
 
     # update this temp_batch in the session now that we know the batch update worked
-    file_ids << new_file.id
+    file_ids << stored_file.id
     session[:upload_batches][temp_batch_id] = {
       :system_batch_id => batch.id,
       :last_modified => Time.now.utc.iso8601,
