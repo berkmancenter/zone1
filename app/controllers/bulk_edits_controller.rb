@@ -5,7 +5,8 @@ class BulkEditsController < ApplicationController
   def new
     if params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length > 1
       @stored_files = StoredFile.find(params[:stored_file_ids])
-      @stored_file = StoredFile.new(matching_attributes_from(@stored_files))
+      matching_attributes = StoredFile.matching_attriubtes_from(@stored_files)
+      @stored_file = StoredFile.new(matching_attributes)
       @licenses = License.all
     elsif params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length == 1
       redirect_to edit_stored_file_path(params[:stored_file_ids].first)
@@ -13,28 +14,6 @@ class BulkEditsController < ApplicationController
       redirect_to search_path
     end
   end
-
-  def matching_attributes_from(stored_files)
-
-
-    matching = {}
-    attributes_to_match = StoredFile.new.attribute_names + ["tag_list", "collection_list"]
-
-
-    stored_files.each do |stored_file|
-
-    
-      attributes_to_match.each do |attribute|
-
-        value = stored_file.__send__(attribute)  #must use send in order to call tag_list, collection_list methods
-
-        matching[attribute] = value if matching[attribute] == value || matching[attribute].nil?
-      end
-    end
-    
-    matching
-  end
-
 
   def create
     begin 
