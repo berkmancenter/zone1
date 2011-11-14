@@ -19,28 +19,6 @@
 			<%= f.text_field :office %><br />
 			<%= f.label :title %>
 			<%= f.text_field :title %><br />
-
-
-            <% if false && !@stored_file.new_record? -%>
-	      <% #TODO add javascript to set _destroy if NONE is selected as disposition %>
-              <% if current_user.can_do_method?(@stored_file, "manage_disposition") -%>
-		
-		<%= f.fields_for :disposition_attributes, @stored_file.disposition do |d| -%>
-		  <%= d.label :disposition_action_id %>
-		  <%= d.select :disposition_action_id, DispositionAction.all.collect { |p| [ p.action, p.id ] }, { :include_blank => 'None' } %><br />
-		  <%= d.label :location %><br />
-		  <%= d.text_area :location, :rows => 3 %><br />
-		  <%= d.label :note %><br />
-  		  <%= d.text_area :note, :rows => 3 %>
-                <% end %>
-		
-	      <% elsif @stored_file.disposition -%>
-                <b>Current Disposition</b><br />
-                <%= @stored_file.disposition.disposition_action.action %><br />
-                <%= @stored_file.disposition.location %><br />
-                <%= @stored_file.disposition.note %><br />
-              <% end -%>
-            <% end -%>
 	  </td>
 	</tr>
 </table>

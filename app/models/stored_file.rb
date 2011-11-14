@@ -88,9 +88,7 @@ class StoredFile < ActiveRecord::Base
 
     valid_attr = []
 
-    valid_attr << :disposition_attributes if current_user.can_do_method?(self, "manage_disposition")
-
-    
+    #valid_attr << :disposition_attributes if current_user.can_do_method?(self, "manage_disposition")
 
     if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
       access_level = AccessLevel.find(params[:access_level_id])
