@@ -14,6 +14,8 @@ class StoredFile < ActiveRecord::Base
   has_many :groups, :through => :groups_stored_files
   has_one :disposition, :dependent => :destroy
 
+  delegate :name, :to => :user, :prefix => :contributor
+
   accepts_nested_attributes_for :comments
   accepts_nested_attributes_for :flaggings
   accepts_nested_attributes_for :disposition
