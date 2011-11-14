@@ -12,17 +12,20 @@ $(function() {
 	});
 	$('.downloadable').attr('checked', false);
 	$('.downloadable').click(function() {
-		if($('.downloadable:checked').size() > 0) {
+		if($('.downloadable:checked').size() > 1) {
 			$('#download-submit').show();
+                        $('#bulk-edit-submit').show();
 		} else {
 			$('#download-submit').hide();
+                        $('#bulk-edit-submit').hide();
 		}
 	});
 	$('#download-set').submit(function() {
-		$('#download-set input:checked').remove();
-		$('#download-set').append($('.downloadable:checked').clone());
-		return true;
-	});
+	  Zone1.clone_downloadable_checkboxes_to($(this));
+        });
+        $('#bulk-edit').submit(function() {
+          Zone1.clone_downloadable_checkboxes_to($(this));
+        });
 	$('#close_quick_edit').live("click", function() {
 		$('.file').css('background', '#FFF');
 		$('#quick_edit_panel').hide();
@@ -43,3 +46,14 @@ $(function() {
 	  $('#quick_edit_panel').css({ top: p.top, left: p.left + left_shift });
 	});
 });
+
+if(!window.Zone1) {
+  //Initializes namespace for functions
+  Zone1 = {};
+}
+
+Zone1.clone_downloadable_checkboxes_to = function(destination) {
+  destination.children("input:checked").remove();
+  destination.append($('.downloadable:checked').clone());
+  return true;
+};

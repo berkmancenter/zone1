@@ -1,0 +1,10 @@
+<%= form_for @stored_file, :url => "/bulk_edits", :method => "POST" do |f| %>
+
+  <% @stored_files.each do |stored_file| %>
+    <%= hidden_field_tag "stored_file_ids[]", stored_file.id %>
+  <% end %>
+
+  <%= render "form", :f => f %>  
+  
+  <%= f.submit "Update #{@stored_files.count} files" %> 
+<% end %>

@@ -1,10 +1,14 @@
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td>
+			<%= check_box_tag "attr_for_bulk_edit[]", :collection_list %>
 			<%= f.label :collection_list %>
 			<%= f.text_field :collection_list %><br />
+			
+			<%= check_box_tag "attr_for_bulk_edit[]", :tag_list %>
 			<%= render :partial => "tags/form", :locals => {:f => f}  %><br/>
 
+			<%= check_box_tag "attr_for_bulk_edit[]", :description %>
 			<%= f.label :description %><br />
 			<%= f.text_area :description, :rows => 3 %><br />
 		</td>

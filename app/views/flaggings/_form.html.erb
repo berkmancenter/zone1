@@ -9,6 +9,8 @@
     <% elsif current_user.can_do_method?(stored_file, "toggle_#{f.object.flag.name.downcase}") %>
 
 
+      <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", f.object.flag_id) if params[:controller] == "bulk_edits" %>
+
       <% #Assume user doesn't want flag.  This must appear BEFORE the CHECKBOX %>
       <%= f.hidden_field :_destroy, :value => 1 %>       
 

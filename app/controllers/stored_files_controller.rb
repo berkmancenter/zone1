@@ -16,7 +16,8 @@ class StoredFilesController < ApplicationController
     #Toggle methods: flags, tags, various fields, access level
     allow logged_in, :to => :toggle_method, :if => :allow_toggle_method?
 
-    allow logged_in, :to => [:edit, :update], :if => :allow_manage?
+    #TODO determine appropriate permissions for bulk_edit
+    allow logged_in, :to => [:edit, :update, :bulk_edit], :if => :allow_manage?
 
     allow logged_in, :to => [:show, :download], :if => :allow_show?
 
@@ -88,22 +89,17 @@ class StoredFilesController < ApplicationController
         end
       end
     end
-  end 
+  end
+
+ def bulk_edit
+   redirect_to new_bulk_edit_path(:stored_file_ids => params[:stored_file].keys)
+ end 
 
   def update
     begin
       @stored_file = StoredFile.find(params[:id])
 
-      if params[:stored_file].has_key?(:tag_list)
-        @stored_file.update_tags(params[:stored_file][:tag_list], :tags, current_user)
-        params[:stored_file].delete(:tag_list)
-      end
-      if params[:stored_file].has_key?(:collection_list)
-        @stored_file.update_tags(params[:stored_file][:collection_list], :collections, current_user)
-        params[:stored_file].delete(:collection_list)
-      end
-
-      @stored_file.update_attributes(validate_params(params, @stored_file))
+      @stored_file.custom_save(params[:stored_file], current_user)
    
       respond_to do |format|
         format.js
@@ -135,30 +131,6 @@ class StoredFilesController < ApplicationController
     init_new_batch
   end
  
-  # Server side validation updatable attributes
-  def validate_params(params, stored_file)
-
-
-    # Ensure user can manage disposition and disposition_action_id is not blank
-    if !current_user.can_do_method?(stored_file, "manage_disposition")
-      params[:stored_file].delete(:disposition_attributes)
-    elsif params[:stored_file].has_key?(:disposition_attributes) && params[:stored_file][:disposition_attributes][:disposition_action_id].blank?
-      params[:stored_file].delete(:disposition_attributes)
-    end
-
-    if params[:stored_file].has_key?(:access_level_id) && stored_file.access_level_id != params[:stored_file][:access_level_id]
-      access_level = AccessLevel.find(params[:stored_file][:access_level_id])
-      if !current_user.can_do_method?(stored_file, "toggle_#{access_level.name}")
-        params[:stored_file].delete(:access_level_id)
-      end
-    end
-
-    if params.has_key?(:tag_list)
-      params[:stored_file].delete(:tag_list) unless stored_file.allow_tags || current_user.can_do_method?(stored_file, "edit_items")
-    end
-
-    params[:stored_file]
-  end
 
   def create
     begin
@@ -174,7 +146,7 @@ class StoredFilesController < ApplicationController
         :file => params.delete(:file)
       })
 
-      if @stored_file.update_attributes(validate_params(params, @stored_file))
+      if @stored_file.custom_save(params[:stored_file], current_user)
 
         # TODO: Do update_batch first and have it return a batch_id and include that in the @stored_file.UA call?
         update_batch(params[:temp_batch_id], @stored_file)

@@ -4,9 +4,12 @@ Zone1::Application.routes.draw do
 
   root :to => "home#index"
 
+  resources :bulk_edits
+
   resources :stored_files, :as => :stored_file do
     collection do
       post :download_set
+      post :bulk_edit
     end
     member do
       post :toggle_method

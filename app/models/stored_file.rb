@@ -1,4 +1,7 @@
 class StoredFile < ActiveRecord::Base
+
+  include ApplicationHelper
+
   belongs_to :license
   belongs_to :user
   belongs_to :content_type
@@ -28,10 +31,10 @@ class StoredFile < ActiveRecord::Base
 
 
   attr_accessible :file, :license_id, :collection_name,
-    :author, :title, :copyright, :description, :access_level_id,
+    :author, :title, :copyright, :description, 
     :user_id, :content_type_id, :original_filename, :batch_id,
-    :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
-    :comments_attributes, :flaggings_attributes, :disposition_attributes,
+    :allow_notes, :delete_flag, :office, :publication_type_list,
+    :comments_attributes, :flaggings_attributes, 
     :allow_tags, :collection_list, :disposition, 
     :mime_type, :format_name, :format_version, :file_size, :md5,
     :groups_stored_files_attributes
@@ -53,6 +56,58 @@ class StoredFile < ActiveRecord::Base
     string :format_name
     string :title
     integer :file_size
+  end
+
+  def custom_save(params, current_user)
+
+    attr_accessible_for(params, current_user)
+
+    if update_attributes params
+
+      if params.has_key?(:tag_list)
+  
+        update_tags(params[:tag_list], :tags, current_user)
+        params.delete(:tag_list)
+  
+      end
+  
+      if params.has_key?(:collection_list)
+  
+        update_tags(params[:collection_list], :collections, current_user)
+        params.delete(:collection_list)
+  
+      end
+    end
+  end
+
+
+  # Server side validation updatable attributes
+  def attr_accessible_for(params, current_user)
+
+    valid_attr = []
+
+    valid_attr << :disposition_attributes if current_user.can_do_method?(self, "manage_disposition")
+
+    
+
+    if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
+      access_level = AccessLevel.find(params[:access_level_id])
+      valid_attr << :access_level_id if current_user.can_do_method?(self, "toggle_#{access_level.name}")
+    end
+
+    valid_attr << :tag_list if allow_tags || current_user.can_do_method?(self, "edit_items")
+
+    self.accessible = valid_attr
+  end
+
+  def collection_list
+    #so form value does not have to be manually set
+    @collection_list ||= self.anonymous_tag_list(:collections)
+  end
+
+  def tag_list
+    #so form value does not have to be manually set
+    @tag_list ||= self.anonymous_tag_list(:tags)
   end
 
   def decrease_available_user_quota

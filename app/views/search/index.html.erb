@@ -6,8 +6,12 @@
 		<td id="results" valign="top" class="list" width="750">
 			<p class="response"></p>
 			<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
-              <%= submit_tag "Download Selected Files", :id => "download-submit" %>
+                          <%= submit_tag "Download Selected Files", :id => "download-submit" %>
 			<% end -%>
+			<%= form_tag(bulk_edit_stored_file_index_path, :method => "POST", :id => "bulk-edit") do %>
+                          <%= submit_tag "Bulk Edit", :id => "bulk-edit-submit" %>
+			<% end -%>
+                        
 			<h3>Results</h3>
 			<a href="#" id="list">List</a> | <a href="#" id="thumb">Thumb</a>
 			<p><%=pluralize(@search.total, 'result') %> found.</p>
