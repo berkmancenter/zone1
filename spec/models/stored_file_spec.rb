@@ -14,30 +14,12 @@ describe StoredFile do
 
   it { should accept_nested_attributes_for :flaggings }
   it { should accept_nested_attributes_for :disposition }
+  it { should accept_nested_attributes_for :comments }
+  it { should accept_nested_attributes_for :groups_stored_files }
 
-  it { should allow_mass_assignment_of :file }
-  it { should allow_mass_assignment_of :license_id }
-  it { should allow_mass_assignment_of :collection_name }
-  it { should allow_mass_assignment_of :author }
-  it { should allow_mass_assignment_of :title }
-  it { should allow_mass_assignment_of :copyright }
-  it { should allow_mass_assignment_of :description }
-  it { should allow_mass_assignment_of :access_level_id }
-  it { should allow_mass_assignment_of :user_id }
-  it { should allow_mass_assignment_of :content_type_id }
-  it { should allow_mass_assignment_of :original_filename }
-  it { should allow_mass_assignment_of :batch_id }
-  it { should allow_mass_assignment_of :allow_notes }
-  it { should allow_mass_assignment_of :delete_flag }
-  it { should allow_mass_assignment_of :office }
-  it { should allow_mass_assignment_of :tag_list }
-  it { should allow_mass_assignment_of :publication_type_list }
-  it { should allow_mass_assignment_of :collection_list }
-  it { should allow_mass_assignment_of :disposition }
   it { should allow_mass_assignment_of :groups_stored_files_attributes }
   it { should allow_mass_assignment_of :flaggings_attributes }
-  it { should allow_mass_assignment_of :disposition_attributes }
-  it { should allow_mass_assignment_of :allow_tags }
+  it { should allow_mass_assignment_of :comments_attributes }
 
   # Examples of double / stub
   #stored_file = double("stored_file")
