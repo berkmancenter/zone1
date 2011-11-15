@@ -5,7 +5,7 @@ class BulkEditsController < ApplicationController
   def new
     if params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length > 1
       @stored_files = StoredFile.find(params[:stored_file_ids])
-      matching_attributes = StoredFile.matching_attriubtes_from(@stored_files)
+      matching_attributes = StoredFile.matching_attributes_from(@stored_files)
       @stored_file = StoredFile.new(matching_attributes)
       @licenses = License.all
     elsif params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length == 1
