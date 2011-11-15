@@ -31,15 +31,12 @@
 		  <%= render :partial => "access_levels/form" %>
 		</td>
 		<td>
-                  <%= f.label "Groups" %>
-                  <%= f.fields_for :groups_stored_files, @stored_file.groups_stored_files do |existing_groups_form| %>
-                    <%= render "groups_stored_files/form", :f => existing_groups_form %>
-                  <% end %>
-                  <% (current_user.owned_groups - @stored_file.groups).each do |group| %>
-                    <%= f.fields_for :groups_stored_files, @stored_file.groups_stored_files.build(:group_id => group.id) do |group_form| %>
-                      <%= render "groups_stored_files/form", :f => group_form %>
-                    <% end %>
-                  <% end %>
+          <%= f.label "Groups" %>
+		  <% @stored_file.group_map(current_user).each do |group_map| -%>
+		  <%= f.fields_for :groups_stored_files, group_map[:groups_stored_files_entry] do |groups_stored_files_form| -%>
+		  <%= render "groups_stored_files/form", :f => groups_stored_files_form %>
+	  	  <% end -%>
+		  <% end -%>
 		</td>
 	</tr>
 </table>
@@ -52,4 +49,9 @@
 <% end -%>		
 <hr />
 
-<%= render "flags/form", :f => f, :stored_file => @stored_file, :flags => Flag.all %>
+<%= f.label "Flags" %>
+<% @stored_file.flag_map.each do |flag_map| -%>
+<%= f.fields_for :flaggings, flag_map[:flagging] do |flaggings_form| %>
+<%= render "flaggings/form", :f => flaggings_form, :stored_file => @stored_file %>
+<% end -%>
+<% end -%>

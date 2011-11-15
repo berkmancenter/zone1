@@ -8,6 +8,11 @@ class Flag < ActiveRecord::Base
   # TODO: Maybe come up with a better name for this
   SELECTED = ["SELECTED_FOR_PRESERVATION", "UNIVERSITY_RECORD"]
 
+  def self.all
+    # TODO: Add caching here
+    Flag.find(:all)
+  end
+
   def self.preserved
     Flag.find_all_by_name(PRESERVED)
   end

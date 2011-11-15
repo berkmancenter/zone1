@@ -73,11 +73,11 @@ g4.users = [user_steph, user_bgadoury]
 g4.owners << user_steph
 
 puts "Generating rights"
-Right.create([{ :action => "toggle_preserved", :description => "Ability to toggle PRESERVED flag." },
-  { :action => "toggle_nominated_for_preservation", :description => "Ability to toggle NOMINATED_FOR_PRESERVATION flag." },
-  { :action => "toggle_selected_for_preservation", :description => "Ability to toggle SELECTED_FOR_PRESERVATION flag." },
-  { :action => "toggle_university_record", :description => "Ability to toggle UNIVERSITY_RECORD flag." },
-  { :action => "toggle_may_be_university_record", :description => "Ability to toggle MAY_BE_UNIVERSITY_RECORD flag." },
+Right.create([{ :action => "add_preserved", :description => "Ability to add PRESERVED flag." },
+  { :action => "add_nominated_for_preservation", :description => "Ability to add NOMINATED_FOR_PRESERVATION flag." },
+  { :action => "add_selected_for_preservation", :description => "Ability to add SELECTED_FOR_PRESERVATION flag." },
+  { :action => "add_university_record", :description => "Ability to add UNIVERSITY_RECORD flag." },
+  { :action => "add_may_be_university_record", :description => "Ability to add MAY_BE_UNIVERSITY_RECORD flag." },
   { :action => "toggle_open", :description => "Ability to set access level to open on any content." },
   { :action => "toggle_open_on_owned", :description => "Ability to set access level to open on content owned by you." },
   { :action => "toggle_partially_open", :description => "Ability to set access level to partially open on any content." },
@@ -98,10 +98,16 @@ Right.create([{ :action => "toggle_preserved", :description => "Ability to toggl
   { :action => "edit_groups_on_owned", :description => "Ability to edit metadata and members on groups owned by you." },
   { :action => "view_reports", :description => "Ability to view any reports."},
   { :action => "view_reports_on_owned", :description => "Ability to view reports on content owned by you."},
-  { :action => "view_admin", :description => "Ability to view admin interface."}])
+  { :action => "view_admin", :description => "Ability to view admin interface."},
+  { :action => "remove_preserved", :description => "Ability to remove PRESERVED flag." },
+  { :action => "remove_nominated_for_preservation", :description => "Ability to remove NOMINATED_FOR_PRESERVATION flag." },
+  { :action => "remove_selected_for_preservation", :description => "Ability to remove SELECTED_FOR_PRESERVATION flag." },
+  { :action => "remove_university_record", :description => "Ability to remove UNIVERSITY_RECORD flag." },
+  { :action => "remove_may_be_university_record", :description => "Ability to remove MAY_BE_UNIVERSITY_RECORD flag." }])
 (ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
  ri11, ri12, ri13, ri14, ri15, ri16, ri17, ri18, ri19, ri20,
- ri21, ri22, ri23, ri24, ri25) = Right.all
+ ri21, ri22, ri23, ri24, ri25, ri26, ri27, ri28, ri29, ri30,
+ ri31) = Right.all
 
 puts "Generating roles"
 Role.create([{ :name => "admin" },
@@ -112,9 +118,9 @@ Role.create([{ :name => "admin" },
 
 role_admin.rights = Right.all
 role_admin.save
-role_steward.rights = [ri1, ri2, ri3, ri17] # preservation flags, view preserved flag content
+role_steward.rights = [ri1, ri2, ri3, ri17, ri27, ri28, ri29] # preservation flags, view preserved flag content
 role_steward.save
-role_records_manager.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15] #university flags, accessibility, view any content, manage_dispositions
+role_records_manager.rights = [ri4, ri5, ri6, ri8, ri10, ri12, ri15, ri30, ri31] #university flags, accessibility, view any content, manage_dispositions
 role_records_manager.save
 role_user.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23, ri25] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
 role_user.save

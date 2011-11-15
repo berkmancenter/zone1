@@ -61,6 +61,7 @@ class StoredFilesController < ApplicationController
   def edit
     @licenses = License.all
     @stored_file = StoredFile.find(params[:id], :include => :comments)
+
     respond_to do |format|
       format.html
       format.js
@@ -141,11 +142,13 @@ class StoredFilesController < ApplicationController
 
       raise Exception.new("Missing temp_batch_id") unless params[:temp_batch_id]
 
-      @stored_file = StoredFile.new({ :original_filename => params.delete(:name),
+      @stored_file = StoredFile.new
+
+      # Note: This is done because the custom_save handles accepted attributes
+      params[:stored_file].merge!({ :original_filename => params.delete(:name),
         :user_id => current_user.id,
         :file => params.delete(:file)
       })
-
       if @stored_file.custom_save(params[:stored_file], current_user)
 
         # TODO: Do update_batch first and have it return a batch_id and include that in the @stored_file.UA call?

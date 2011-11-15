@@ -1,5 +1,4 @@
 <div class="access-level">
-
   <% AccessLevel.all.each do |access_level| %>
 
     <% if current_user.can_do_method?(@stored_file, "toggle_#{access_level.name}") -%>

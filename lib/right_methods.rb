@@ -1,4 +1,5 @@
 module RightMethods
+  # TODO: Server side validation on flag toggling here
   def toggle_flag(flag)
     begin
       stored_file = StoredFile.find(params[:id])
@@ -18,27 +19,27 @@ module RightMethods
     end
   end
 
-  def toggle_preserved
+  def add_preserved
     flag = Flag.find_by_name("PRESERVED")
     toggle_flag(flag)
   end 
 
-  def toggle_nominated_for_preservation
+  def add_nominated_for_preservation
     flag = Flag.find_by_name("NOMINATED_FOR_PRESERVATION")
     toggle_flag(flag)
   end
 
-  def toggle_selected_for_preservation
+  def add_selected_for_preservation
     flag = Flag.find_by_name("SELECTED_FOR_PRESERVATION")
     toggle_flag(flag)
   end
 
-  def toggle_university_record
+  def add_university_record
     flag = Flag.find_by_name("UNIVERSITY_RECORD")
     toggle_flag(flag)
   end
 
-  def toggle_may_be_university_record
+  def add_may_be_university_record
     flag = Flag.find_by_name("MAY_BE_UNIVERSITY_RECORD")
     toggle_flag(flag)
   end

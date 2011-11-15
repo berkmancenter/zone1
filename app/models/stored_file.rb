@@ -17,7 +17,7 @@ class StoredFile < ActiveRecord::Base
   delegate :name, :to => :user, :prefix => :contributor
 
   accepts_nested_attributes_for :comments
-  accepts_nested_attributes_for :flaggings
+  accepts_nested_attributes_for :flaggings, :allow_destroy => true
   accepts_nested_attributes_for :disposition
   accepts_nested_attributes_for :groups_stored_files, :allow_destroy => true 
 
@@ -31,16 +31,15 @@ class StoredFile < ActiveRecord::Base
 
   validates_presence_of :user_id
 
-
-  attr_accessible :file, :license_id, :collection_name,
-    :author, :title, :copyright, :description, 
-    :user_id, :content_type_id, :original_filename, :batch_id,
-    :allow_notes, :delete_flag, :office, :publication_type_list,
-    :comments_attributes, :flaggings_attributes, 
-    :allow_tags, :collection_list, :disposition, 
-    :mime_type, :format_name, :format_version, :file_size, :md5,
+  attr_accessible :flaggings_attributes, :comments_attributes,
     :groups_stored_files_attributes
 
+  ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office,
+    :description, :title, :copyright, :allow_tags, :allow_notes,
+    :license_id, :publication_type_list, :groups_stored_files_attributes]
+
+  CREATE_ATTRIBUTES = [:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES
+  
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags]) do
@@ -61,17 +60,11 @@ class StoredFile < ActiveRecord::Base
   end
 
   def self.matching_attributes_from(stored_files)
-
-
     matching = {}
     attributes_to_match = StoredFile.new.attribute_names + ["tag_list", "collection_list"]
 
-
     stored_files.each do |stored_file|
-
-    
       attributes_to_match.each do |attribute|
-
         value = stored_file.__send__(attribute)  #must use send in order to call tag_list, collection_list methods
 
         if matching[attribute].nil?
@@ -79,51 +72,75 @@ class StoredFile < ActiveRecord::Base
         elsif matching[attribute] != value #on any mis-match
           matching[attribute] = ""
         end
-      
       end
     end
     
     matching
   end
 
-  def custom_save(params, current_user)
+  def flaggings_server_side_validation(params, user)
+    # This isn't quite as simple as a global attribute to be updated
+    # So, we are checking if the user has add and remove rights
 
-    attr_accessible_for(params, current_user)
+    if params.has_key?(:flaggings_attributes)
+      Flag.all.each do |flag|
+        if params[:flaggings_attributes].has_key?(flag.id.to_s)
+          if params[:flaggings_attributes][flag.id.to_s].has_key?(:user_id)
+            if !user.can_do_global_method?("add_#{flag.name.downcase}")
+              params[:flaggings_attributes].delete(flag.id.to_s)
+            end
+          elsif params[:flaggings_attributes][flag.id.to_s][:_destroy] == "1"
+            if !user.can_do_global_method?("remove_#{flag.name.downcase}")
+              params[:flaggings_attributes].delete(flag.id.to_s)
+            end
+          end
+        end
+      end
+    end
 
-    if update_attributes params
+    params
+  end
 
+  def custom_save(params, user)
+    attr_accessible_for(params, user)
+
+    params = flaggings_server_side_validation(params, user)
+logger.warn "steph: #{params.inspect}"
+
+    if update_attributes(params)
       if params.has_key?(:tag_list)
-  
-        update_tags(params[:tag_list], :tags, current_user)
+        update_tags(params[:tag_list], :tags, user)
         params.delete(:tag_list)
-  
       end
   
       if params.has_key?(:collection_list)
-  
-        update_tags(params[:collection_list], :collections, current_user)
+        update_tags(params[:collection_list], :collections, user)
         params.delete(:collection_list)
-  
       end
+    else
+      raise Exception.new(self.errors.full_messages.join(', '))
     end
   end
 
-
   # Server side validation updatable attributes
-  def attr_accessible_for(params, current_user)
+  def attr_accessible_for(params, user)
 
     valid_attr = []
 
-    #valid_attr << :disposition_attributes if current_user.can_do_method?(self, "manage_disposition")
+    if self.new_record?
+      valid_attr = valid_attr + CREATE_ATTRIBUTES
+    elsif user.can_do_method?(self, "edit_items")
+      valid_attr = valid_attr + ALLOW_MANAGE_ATTRIBUTES
+    end
 
     if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
       access_level = AccessLevel.find(params[:access_level_id])
-      valid_attr << :access_level_id if current_user.can_do_method?(self, "toggle_#{access_level.name}")
+      valid_attr << :access_level_id if user.can_do_method?(self, "toggle_#{access_level.name}")
     end
 
-    valid_attr << :tag_list if allow_tags || current_user.can_do_method?(self, "edit_items")
+    valid_attr << :tag_list if allow_tags
 
-    self.accessible = valid_attr
+    self.accessible = valid_attr.uniq
   end
 
   def collection_list
@@ -208,6 +225,35 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
+  def flag_map
+    flag_map = []
+
+    Flag.all.each do |flag|
+      flagging = self.flaggings.detect { |f| f.flag_id == flag.id }
+      if flagging
+        flag_map << { :flagging => flagging }
+      else
+        flag_map << { :flagging => self.flaggings.build(:flag_id => flag.id) }
+      end
+    end
+
+    flag_map
+  end
+
+  def group_map(user)
+    group_map = []
+
+    user.owned_groups.each do |group|
+      groups_stored_files_entry = self.groups_stored_files.detect { |g| g.group_id == group.id }
+      if groups_stored_files_entry
+        group_map << { :groups_stored_files_entry => groups_stored_files_entry }
+      else 
+        group_map << { :groups_stored_files_entry => self.groups_stored_files.build(:group_id => group.id) }
+      end
+    end
+ 
+    group_map
+  end
 
   private
 
