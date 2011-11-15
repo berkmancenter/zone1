@@ -57,6 +57,7 @@ class DownloadSet
 
   def update_manifest(file, index, manifest)
     manifest.puts "File #{index+1}: #{file.original_filename}"
+    manifest.puts tab + "MD5 checksum: #{file.md5}"
     manifest.puts tab + "Contributor: #{file.contributor_name}"
     manifest.puts tab + "File size: #{number_to_human_size(file.file_size)}"
     if file.batch_id
