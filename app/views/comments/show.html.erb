@@ -1,10 +1,3 @@
-<h1 data-id="<%= @stored_file.id %>"><%= @stored_file.title %></h1>
-ID: <%= @stored_file.id %><br />
-Tags: <%= @stored_file.tag_list %><br />
-Description: <%= @stored_file.description %> <br />
-Copyright: <%= @stored_file.copyright %><br />
-Terms of License: <%= @stored_file.license.nil? ? '' : @stored_file.license.name %><br />
-
 <% if @stored_file.allow_notes -%>
 <% @stored_file.comments.each do |comment| -%>
 <div style="border:1px dashed #dfdfdf;">
@@ -21,8 +14,4 @@ Terms of License: <%= @stored_file.license.nil? ? '' : @stored_file.license.name
 <%= f.submit "Add Comment" %>
 <% end -%>
 </div>
-<% end -%>
-
-<% if current_user.can_do_method?(@stored_file, "edit_items") -%>
-<%= link_to "Edit", edit_stored_file_path(@stored_file) %>
 <% end -%>

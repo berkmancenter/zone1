@@ -3,6 +3,9 @@ class BulkEditsController < ApplicationController
   include ApplicationHelper
 
   def new
+    # TODO: Figure out what this should be
+    @attr_accessible = StoredFile::ALLOW_MANAGE_ATTRIBUTES 
+
     if params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length > 1
       @stored_files = StoredFile.find(params[:stored_file_ids])
       matching_attributes = StoredFile.matching_attributes_from(@stored_files)
@@ -22,7 +25,6 @@ class BulkEditsController < ApplicationController
       raise "Please select items to update."
 
     else
-
       stored_files = StoredFile.find(params[:stored_file_ids])
 
       eligible_params = {}
@@ -30,12 +32,9 @@ class BulkEditsController < ApplicationController
         eligible_params.merge!({ attr => params[:stored_file][attr] }) if params[:stored_file].has_key?(attr)
       end
 
-      
       stored_files.each do |stored_file|
         stored_file.custom_save(eligible_params, current_user)
       end
-
-      
       
       flag_ids = params[:attr_for_bulk_edit].select{ |attr| attr.is_a?(Hash) && attr.has_key?("flag_ids") }
       

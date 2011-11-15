@@ -31,12 +31,12 @@ class StoredFile < ActiveRecord::Base
 
   validates_presence_of :user_id
 
-  attr_accessible :flaggings_attributes, :comments_attributes,
-    :groups_stored_files_attributes
+  attr_accessible :flaggings_attributes, :comments_attributes
 
   ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office,
     :description, :title, :copyright, :allow_tags, :allow_notes,
-    :license_id, :publication_type_list, :groups_stored_files_attributes]
+    :license_id, :publication_type_list, :groups_stored_files_attributes,
+    :access_level_id]
 
   CREATE_ATTRIBUTES = [:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES
   
@@ -86,7 +86,7 @@ class StoredFile < ActiveRecord::Base
       Flag.all.each do |flag|
         if params[:flaggings_attributes].has_key?(flag.id.to_s)
           if params[:flaggings_attributes][flag.id.to_s].has_key?(:user_id)
-            if !user.can_do_global_method?("add_#{flag.name.downcase}")
+            if !user.can_flag?(flag)
               params[:flaggings_attributes].delete(flag.id.to_s)
             end
           elsif params[:flaggings_attributes][flag.id.to_s][:_destroy] == "1"
@@ -105,7 +105,6 @@ class StoredFile < ActiveRecord::Base
     attr_accessible_for(params, user)
 
     params = flaggings_server_side_validation(params, user)
-logger.warn "steph: #{params.inspect}"
 
     if update_attributes(params)
       if params.has_key?(:tag_list)
@@ -228,14 +227,14 @@ logger.warn "steph: #{params.inspect}"
     end
   end
 
-  def flag_map
+  def flag_map(user)
     flag_map = []
 
     Flag.all.each do |flag|
       flagging = self.flaggings.detect { |f| f.flag_id == flag.id }
       if flagging
         flag_map << { :flagging => flagging }
-      else
+      elsif user.can_flag?(flag)
         flag_map << { :flagging => self.flaggings.build(:flag_id => flag.id) }
       end
     end

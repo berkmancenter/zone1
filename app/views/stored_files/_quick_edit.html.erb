@@ -4,7 +4,7 @@
   <h3><%= @stored_file.original_filename %></h3>
 
   <%= form_for @stored_file, :remote => true, :html => { :id => "edit_stored_file" } do |f| %>
-    <%= render :partial => "tags/form", :locals => {:f => f} %>
+    <%= editable_field(f, @attr_accessible, :tag_list, {}, "text_field") %>
     <%= render :partial => "access_levels/form" %>
     <%= render "flags/form", :f => f %>
 
@@ -13,5 +13,4 @@
 <% end -%>
 
 <%= link_to 'Delete', stored_file_path(@stored_file), {:confirm => "Are you sure?", :method => :delete} %>
-<%= link_to 'Full edit', edit_stored_file_path(@stored_file) %>
-<%= link_to 'Full show (incl. comments)', @stored_file %>
+<%= link_to 'View/Edit', edit_stored_file_path(@stored_file) %>

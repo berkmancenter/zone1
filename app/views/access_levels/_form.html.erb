@@ -1,3 +1,6 @@
+<% if attrs.include?(:access_level_id) %>
+<%= bulk_edit :access_level_id %>
+<%= f.label "Access Level" %>
 <div class="access-level">
   <% AccessLevel.all.each do |access_level| %>
 
@@ -10,3 +13,9 @@
     <% end %>
   <% end %>
 </div>
+<% else -%>
+<%= f.label "Access Level" %>
+<%= @stored_file.access_level ? @stored_file.access_level.name : '' %>
+<% end -%>
+<br />
+

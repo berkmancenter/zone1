@@ -97,6 +97,7 @@ class User < ActiveRecord::Base
     rights = self.all_rights
     return true if rights.include?(method)
 
+logger.warn "steph: #{stored_file.inspect}"
     stored_file = stored_file.is_a?(StoredFile) ? stored_file : StoredFile.find(stored_file)
     return true if (stored_file.user == self && rights.include?("#{method}_on_owned"))
     false
@@ -115,5 +116,9 @@ class User < ActiveRecord::Base
 
   def all_groups
     self.all_rights.include?("edit_groups") ? Group.all : [self.owned_groups, self.groups].flatten.uniq
+  end
+
+  def can_flag?(flag)
+    self.can_do_global_method?("add_#{flag.name.downcase}")
   end
 end

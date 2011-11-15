@@ -13,9 +13,9 @@ class StoredFilesController < ApplicationController
     # allow logged_in, :to => :batch_edit, :if => :batch_allow_method
 
     #TODO determine appropriate permissions for bulk_edit
-    allow logged_in, :to => [:edit, :update, :bulk_edit], :if => :allow_manage?
+    allow logged_in, :to => :bulk_edit, :if => :allow_bulk_edit?
 
-    allow logged_in, :to => [:show, :download], :if => :allow_show?
+    allow logged_in, :to => [:update, :edit, :download], :if => :allow_show?
 
     allow logged_in, :to => :destroy, :if => :allow_destroy?
 
@@ -27,17 +27,14 @@ class StoredFilesController < ApplicationController
     StoredFile.find(params[:id]).can_user_destroy?(current_user)
   end
 
+  # Note: View/edit are on same form now, so this is really "can the user view or edit"
   def allow_show?
-    stored_file = StoredFile.find(params[:id])
-    stored_file.can_user_view?(current_user)
+    StoredFile.find(params[:id]).can_user_view?(current_user)
   end
 
-  def allow_manage?
-    current_user.can_do_method?(params[:id], "edit_items")
-  end
-
-  def show
-    @stored_file = StoredFile.find(params[:id])
+  # TODO: Update this later to hanlde stored file params
+  def allow_bulk_edit?
+    true
   end
 
   def download
@@ -49,6 +46,8 @@ class StoredFilesController < ApplicationController
   def edit
     @licenses = License.all
     @stored_file = StoredFile.find(params[:id], :include => :comments)
+
+    @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
 
     respond_to do |format|
       format.html

@@ -1,0 +1,9 @@
+<% if attrs.include?(field) %>
+<%= bulk_edit field %>
+<%= form.label field %>
+<%= form.send(type, field, options) %>
+<% else -%>
+<%= form.label field %>
+<%= form.send(type, field, options.merge({:disabled => true})) %>
+<% end -%>
+<br />

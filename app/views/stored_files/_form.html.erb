@@ -1,53 +1,38 @@
 <table width="100%" cellpadding="0" cellspacing="0">
   <tr>
     <td>
-      <%= bulk_edit :collection_list %>
-      <%= f.label(:collection_list) %>
-      <%= f.text_field(:collection_list) %><br />
+      <%= editable_field(f, @attr_accessible, :collection_list, {}, :text_field) %>
 
-      <%= render :partial => "tags/form", :locals => {:f => f}  %><br />
+      <%= editable_field(f, @attr_accessible, :tag_list, {}, :text_field) %>
+      <%= editable_field(f, @attr_accessible, :allow_tags, {}, :check_box) %>
 
-      <%= f.label :description %> <br />
-      <%= f.text_area :description, :rows => 3 %><br />
+      <%= editable_field(f, @attr_accessible, :description, { :rows => 3}, :text_area) %>
     </td>
     <td>
-      <%= f.label :author, "Author" %>
-      <%= f.text_field :author %><br />
+      <%= editable_field(f, @attr_accessible, :author, {}, :text_field) %>
 
-      <%= f.label :office %>
-      <%= f.text_field :office %><br />
+      <%= editable_field(f, @attr_accessible, :office, {}, :text_field) %>
 
-      <%= f.label :title %>
-	<%= f.text_field :title %><br />
+      <%= editable_field(f, @attr_accessible, :title, {}, :text_field) %>
   </td>
 </tr>
 </table>
-<%= f.check_box :allow_notes %> <%= f.label "Allow users to add comments" %>
-<hr />
+<%= editable_field(f, @attr_accessible, :allow_notes, {}, :check_box) %>
 
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td>
-		  <%= render :partial => "access_levels/form" %>
+		  <%= render :partial => "access_levels/form", :locals => { :attrs => @attr_accessible, :f => f } %>
 		</td>
 		<td>
-          <%= f.label "Groups" %>
-		  <% @stored_file.group_map(current_user).each do |group_map| -%>
-		  <%= f.fields_for :groups_stored_files, group_map[:groups_stored_files_entry] do |groups_stored_files_form| -%>
-		  <%= render "groups_stored_files/form", :f => groups_stored_files_form %>
-	  	  <% end -%>
-		  <% end -%>
+		  <%= render :partial => "groups/stored_file_form", :locals => { :attrs => @attr_accessible, :f => f } %>
 		</td>
 	</tr>
 </table>
 <hr />
-<%= f.label :copyright %>
-<%= f.text_field :copyright %><br />
-<%= f.label :license_id, "License" %><br />
-<% @licenses.each do |license| -%>
-	<%= f.radio_button(:license_id, license.id) %> <%= license.name %>
-<% end -%>		
-<hr />
+
+<%= editable_field(f, @attr_accessible, :copyright, {}, :text_field) %>
+
+<%= render :partial => "licenses/form", :locals => { :attrs => @attr_accessible, :f => f } %>
     
 <%= render "flags/form", :f => f %>
-

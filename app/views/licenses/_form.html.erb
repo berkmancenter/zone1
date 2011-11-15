@@ -1,0 +1,10 @@
+<% if attrs.include?(:license_id) %>
+<%= bulk_edit :license_id %>
+<%= f.label :license_id, "License" %><br />
+<% @licenses.each do |license| -%>
+	<%= f.radio_button(:license_id, license.id) %> <%= license.name %>
+<% end -%>		
+<% else -%>
+<%= f.label "License" %>
+<%= @stored_file.license ? @stored_file.license.name : '' %>
+<% end -%>
