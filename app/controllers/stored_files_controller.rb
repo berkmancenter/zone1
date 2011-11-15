@@ -1,5 +1,4 @@
 class StoredFilesController < ApplicationController
-  include RightMethods
   protect_from_forgery
   include ApplicationHelper
 
@@ -12,9 +11,6 @@ class StoredFilesController < ApplicationController
 
     # TODO: Add conditional for batch updates
     # allow logged_in, :to => :batch_edit, :if => :batch_allow_method
-
-    #Toggle methods: flags, tags, various fields, access level
-    allow logged_in, :to => :toggle_method, :if => :allow_toggle_method?
 
     #TODO determine appropriate permissions for bulk_edit
     allow logged_in, :to => [:edit, :update, :bulk_edit], :if => :allow_manage?
@@ -38,14 +34,6 @@ class StoredFilesController < ApplicationController
 
   def allow_manage?
     current_user.can_do_method?(params[:id], "edit_items")
-  end
-
-  def allow_toggle_method?
-    current_user.can_do_method?(params[:id], params[:method])
-  end
-
-  def toggle_method
-    self.send(params[:method]) 
   end
 
   def show
