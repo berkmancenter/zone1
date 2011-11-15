@@ -192,13 +192,14 @@ logger.warn "steph: #{params.inspect}"
     false
   end
 
+  # User can destroy if a) they have global right to delete items or
+  # b) they are the contributor and flag is not preserved or university record
   def can_user_destroy?(user)
-    # TODO: Right now, flags trump global right to delete items
-    # Possibly, update this so global right to delete item 
-    # will give user the right to delete regardless of flags.
-    return false if self.has_preserved_or_record_flag?
-    return true if user.can_do_method?(self, "delete_items")
-    return false
+    return true if user.can_do_global_method?("delete_items")
+
+    return true if self.user_id == user.id && !self.has_preserved_or_record_flag?
+
+    false
   end
 
   def anonymous_tag_list(context)
