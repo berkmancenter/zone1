@@ -177,9 +177,11 @@ logger.warn "steph: #{params.inspect}"
   end
 
   def can_user_view?(user) 
-    return true if user.can_do_method?(self, "view_items") 
-
     return true if self.access_level.name == "open" 
+
+    return false if user.nil?
+
+    return true if user.can_do_method?(self, "view_items") 
 
     return true if user.all_rights.include?("view_preserved_flag_content") && 
       self.has_preserved_flag?

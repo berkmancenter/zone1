@@ -1,0 +1,6 @@
+<%= f.label "Flags" %>
+<% @stored_file.flag_map.each do |flag_map| -%>
+<%= f.fields_for :flaggings, flag_map[:flagging] do |flaggings_form| %>
+<%= render "flaggings/form", :f => flaggings_form, :stored_file => @stored_file %>
+<% end -%>
+<% end -%>
