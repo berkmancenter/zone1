@@ -36,3 +36,5 @@
 <%= render :partial => "licenses/form", :locals => { :attrs => @attr_accessible, :f => f } %>
     
 <%= render "flags/form", :f => f %>
+<hr />
+<%= render "comments/form", :f => f, :attrs => @attr_accessible %>

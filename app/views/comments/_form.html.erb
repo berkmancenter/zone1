@@ -1,0 +1,10 @@
+<% f.object.comments.each do |comment| %>
+  <%= render comment, :stored_file => f.object %>
+<% end %>
+
+<% if attrs.include?(:comments_attributes) %>
+  <%= f.fields_for :comments, f.object.comments.build do |comment_form| %>
+    <%= comment_form.label :content, "New Comment" %><br/>
+    <%= comment_form.text_area :content, :rows => 2, :cols => 40 %>
+  <% end %>
+<% end %>

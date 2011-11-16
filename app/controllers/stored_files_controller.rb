@@ -113,6 +113,8 @@ class StoredFilesController < ApplicationController
     @licenses = License.all
     @stored_file = StoredFile.new(:user_id => current_user.id)
 
+    @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
+    
     # TODO: Figure out if default here
     @stored_file.access_level_id = 3
 

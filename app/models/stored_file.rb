@@ -31,7 +31,7 @@ class StoredFile < ActiveRecord::Base
 
   validates_presence_of :user_id
 
-  attr_accessible :flaggings_attributes, :comments_attributes
+  GLOBAL_ATTRIBUTES = [:flaggings_attributes, :comments_attributes]
 
   ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office,
     :description, :title, :copyright, :allow_tags, :allow_notes,
@@ -78,6 +78,7 @@ class StoredFile < ActiveRecord::Base
     matching
   end
 
+
   def flaggings_server_side_validation(params, user)
     # This isn't quite as simple as a global attribute to be updated
     # So, we are checking if the user has add and remove rights
@@ -101,10 +102,13 @@ class StoredFile < ActiveRecord::Base
     params
   end
 
+
   def custom_save(params, user)
     attr_accessible_for(params, user)
 
     params = flaggings_server_side_validation(params, user)
+
+    add_user_id_to_comments(params, user)
 
     if update_attributes(params)
       if params.has_key?(:tag_list)
@@ -124,7 +128,7 @@ class StoredFile < ActiveRecord::Base
   # Server side validation updatable attributes
   def attr_accessible_for(params, user)
 
-    valid_attr = []
+    valid_attr = GLOBAL_ATTRIBUTES
 
     if self.new_record?
       valid_attr = valid_attr + CREATE_ATTRIBUTES
@@ -138,7 +142,8 @@ class StoredFile < ActiveRecord::Base
     end
 
     valid_attr << :tag_list if allow_tags
-
+    logger.debug "ATTR_ACCESSIBLE_FOR"
+    logger.debug valid_attr.uniq.inspect
     self.accessible = valid_attr.uniq
   end
 
@@ -258,6 +263,15 @@ class StoredFile < ActiveRecord::Base
   end
 
   private
+
+
+  def add_user_id_to_comments(params, user)
+    if params[:comments_attributes]
+      params[:comments_attributes].values.each do |comment_hash|
+        comment_hash.merge!("user_id" => user.id)
+      end
+    end
+  end
 
   def update_metadata_inline
     metadata = Fits::analyze(self.file.url)
