@@ -22,6 +22,9 @@
 <h3>User Rights Based on Roles</h3>
 <%= @user.role_rights.join(', ') %>
 
+<h3>User Rights Based on Groups</h3>
+<%= @user.group_rights.join(', ') %>
+
 <h3>User-Override Rights</h3>
 <% @rights.each do |right| -%>
 <%= check_box_tag "user[right_ids][]", right.id, @user.rights.include?(right) %>

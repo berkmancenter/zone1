@@ -83,9 +83,13 @@ class User < ActiveRecord::Base
     self.roles.collect { |r| r.rights }.flatten.uniq.collect { |r| r.action }
   end
 
+  def group_rights
+    self.groups.collect { |r| r.allowed_rights }.flatten.uniq.collect { |r| r.action }
+  end
+
   def all_rights
     # TODO: Low level caching on this later
-    [self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
+    [self.groups.collect { |r| r.allowed_rights } + self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
   end
 
   def can_do_global_method?(method)

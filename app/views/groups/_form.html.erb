@@ -14,6 +14,22 @@
 	<%= f.text_field :name %>
 </div>
 
+<% if current_user.can_do_global_method?("edit_group_rights") -%>
+<%= f.label :assignable_rights %>
+<%= f.check_box :assignable_rights %>
+Note: This is a dangerous field to play with.
+
+<% if @group.assignable_rights %>
+<% Right.all.each do |right| -%>
+<p>
+<%= check_box_tag "group[right_ids][]", right.id, @group.rights.include?(right) %>
+<%= right.action %><br />
+<small><%= right.description %></small>
+</p>
+<% end -%>
+<% end -%>
+<% end -%>
+
 <% if @group.new_record? -%>
 <div class="field" id="user">
 	<%= label_tag :user_email, "Users" %><br />

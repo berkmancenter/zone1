@@ -103,7 +103,8 @@ Right.create([{ :action => "add_preserved", :description => "Ability to add PRES
   { :action => "remove_nominated_for_preservation", :description => "Ability to remove NOMINATED_FOR_PRESERVATION flag." },
   { :action => "remove_selected_for_preservation", :description => "Ability to remove SELECTED_FOR_PRESERVATION flag." },
   { :action => "remove_university_record", :description => "Ability to remove UNIVERSITY_RECORD flag." },
-  { :action => "remove_may_be_university_record", :description => "Ability to remove MAY_BE_UNIVERSITY_RECORD flag." }])
+  { :action => "remove_may_be_university_record", :description => "Ability to remove MAY_BE_UNIVERSITY_RECORD flag." },
+  { :action => "edit_group_rights", :description => "Ability to assign rights to groups."}])
 (ri1, ri2, ri3, ri4, ri5, ri6, ri7, ri8, ri9, ri10,
  ri11, ri12, ri13, ri14, ri15, ri16, ri17, ri18, ri19, ri20,
  ri21, ri22, ri23, ri24, ri25, ri26, ri27, ri28, ri29, ri30,

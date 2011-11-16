@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111108124011) do
+ActiveRecord::Schema.define(:version => 20111116212631) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -61,6 +61,7 @@ ActiveRecord::Schema.define(:version => 20111108124011) do
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.boolean  "assignable_rights", :default => false
   end
 
   create_table "groups_owners", :id => false, :force => true do |t|
@@ -170,6 +171,11 @@ ActiveRecord::Schema.define(:version => 20111108124011) do
     t.boolean  "allow_notes",       :default => false
     t.boolean  "delete_flag"
     t.boolean  "allow_tags"
+  end
+
+  create_table "stored_files_flags", :id => false, :force => true do |t|
+    t.integer "stored_file_id"
+    t.integer "flag_id"
   end
 
   create_table "taggings", :force => true do |t|

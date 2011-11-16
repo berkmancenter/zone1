@@ -1,15 +1,20 @@
 class Group < ActiveRecord::Base
   has_and_belongs_to_many :owners, :association_foreign_key => "owner_id", :join_table => "groups_owners", :class_name => "User"
   has_and_belongs_to_many :users, :before_add => :validates_user
-
   has_many :groups_stored_files
   has_many :stored_files, :through => :groups_stored_files
+  has_many :rights, :through => :right_assignments
+  has_many :right_assignments, :as => :subject
 
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_groups
   
   validates_uniqueness_of :name
 
-  attr_accessible :name
+  attr_accessible :name, :assignable_rights, :right_ids
+
+  def allowed_rights
+    self.assignable_rights ? self.rights : []
+  end
 
   def members
     members = {}
