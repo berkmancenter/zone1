@@ -91,7 +91,7 @@ class StoredFile < ActiveRecord::Base
               params[:flaggings_attributes].delete(flag.id.to_s)
             end
           elsif params[:flaggings_attributes][flag.id.to_s][:_destroy] == "1"
-            if !user.can_do_global_method?("remove_#{flag.name.downcase}")
+            if !user.can_unflag?(flag)
               params[:flaggings_attributes].delete(flag.id.to_s)
             end
           end
@@ -108,6 +108,8 @@ class StoredFile < ActiveRecord::Base
 
     params = flaggings_server_side_validation(params, user)
 
+    # TODO: Figure out best way to do comment manipulation here to 
+    # empty comments_attribute if content is empty.
     add_user_id_to_comments(params, user)
 
     if update_attributes(params)
@@ -138,7 +140,7 @@ class StoredFile < ActiveRecord::Base
 
     if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
       access_level = AccessLevel.find(params[:access_level_id])
-      valid_attr << :access_level_id if user.can_do_method?(self, "toggle_#{access_level.name}")
+      valid_attr << :access_level_id if user.can_set_access_level?(self, access_level)
     end
 
     valid_attr << :tag_list if allow_tags

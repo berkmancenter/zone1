@@ -22,10 +22,10 @@
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td>
-		  <%= render :partial => "access_levels/form", :locals => { :attrs => @attr_accessible, :f => f } %>
+		  <%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
 		</td>
 		<td>
-		  <%= render :partial => "groups/stored_file_form", :locals => { :attrs => @attr_accessible, :f => f } %>
+		  <%= render "groups/stored_file_form", :attrs => @attr_accessible, :f => f %>
 		</td>
 	</tr>
 </table>
@@ -33,8 +33,8 @@
 
 <%= editable_field(f, @attr_accessible, :copyright, {}, :text_field) %>
 
-<%= render :partial => "licenses/form", :locals => { :attrs => @attr_accessible, :f => f } %>
+<%= render "licenses/form", :attrs => @attr_accessible, :f => f %>
     
 <%= render "flags/form", :f => f %>
 <hr />
-<%= render "comments/form", :f => f, :attrs => @attr_accessible %>
+<%= render "comments/form", :stored_file => @stored_file, :attrs => @attr_accessible, :f => f %>

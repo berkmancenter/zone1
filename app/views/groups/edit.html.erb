@@ -1,7 +1,7 @@
 <h1>Editing group <%= @group.name %></h1>
 
 <%= form_for(@group) do |f| %>
-	<%= render :partial => "form", :locals => { :f => f } %>
+	<%= render "form", :f => f %>
 	<table style="width:25%">
 		<tr>
 			<th>Members:</th>

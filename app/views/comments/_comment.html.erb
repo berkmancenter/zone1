@@ -1,6 +1,6 @@
 <div style="border:1px dashed #dfdfdf;">
 <%= comment.content %> / <%= comment.user.name %>
-<% if current_user.can_do_method?(stored_file, "delete_comments") || comment.user == current_user -%>
+<% if comment.can_user_delete?(current_user) %>
 <%= link_to 'X', stored_file_comment_path(stored_file, comment), :method => :delete, :class => "delete-comment" %>
 <% end -%>
 </div>

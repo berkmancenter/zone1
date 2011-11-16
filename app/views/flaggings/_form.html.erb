@@ -1,6 +1,6 @@
 <div class="flagging">
     <% if stored_file.flags.include?(f.object.flag) %>
-      <% if current_user.can_do_method?(stored_file, "remove_#{f.object.flag.name.downcase}") %>
+      <% if current_user.can_unflag?(f.object.flag) %>
       <%= f.hidden_field :_destroy, :value => 1 %>       
       <%= check_box_tag f.object_name + "[_destroy]", 0, true %>
       <% else -%>
@@ -9,7 +9,7 @@
 
       <%= content_tag :span, f.object.flag.label %>
 
-    <% elsif current_user.can_do_method?(stored_file, "add_#{f.object.flag.name.downcase}") %>
+    <% elsif current_user.can_flag?(f.object.flag) %>
       <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", f.object.flag_id) if params[:controller] == "bulk_edits" %>
 
       <% #Assume user doesn't want flag.  This must appear BEFORE the CHECKBOX %>

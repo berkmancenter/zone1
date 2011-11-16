@@ -2,15 +2,8 @@ class StoredFilesController < ApplicationController
   protect_from_forgery
   include ApplicationHelper
 
-  # TODO: Re-add later
-  #caches_page :show
-  #cache_sweeper :stored_file_sweeper, :only => :show
-
   access_control do
     allow logged_in, :to => [:create, :new]
-
-    # TODO: Add conditional for batch updates
-    # allow logged_in, :to => :batch_edit, :if => :batch_allow_method
 
     #TODO determine appropriate permissions for bulk_edit
     allow logged_in, :to => :bulk_edit, :if => :allow_bulk_edit?
@@ -20,7 +13,7 @@ class StoredFilesController < ApplicationController
     allow logged_in, :to => :destroy, :if => :allow_destroy?
 
     # TODO: Add validation for download set later
-    allow logged_in, :to => :download_set
+    allow logged_in, :to => :download_set, :if => :download_set?
   end
 
   def allow_destroy?
@@ -34,6 +27,11 @@ class StoredFilesController < ApplicationController
 
   # TODO: Update this later to hanlde stored file params
   def allow_bulk_edit?
+    true
+  end
+
+  # TODO: Update this later to handle stored file params
+  def download_set?
     true
   end
 
@@ -157,7 +155,6 @@ class StoredFilesController < ApplicationController
   def download_set
     selected_stored_file_ids = params[:stored_file].collect { |k,v| k.to_i }
     selected_files = StoredFile.find(selected_stored_file_ids)
-
 
     set = DownloadSet.new(selected_files)
     

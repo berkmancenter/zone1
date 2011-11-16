@@ -97,7 +97,6 @@ class User < ActiveRecord::Base
     rights = self.all_rights
     return true if rights.include?(method)
 
-logger.warn "steph: #{stored_file.inspect}"
     stored_file = stored_file.is_a?(StoredFile) ? stored_file : StoredFile.find(stored_file)
     return true if (stored_file.user == self && rights.include?("#{method}_on_owned"))
     false
@@ -120,5 +119,13 @@ logger.warn "steph: #{stored_file.inspect}"
 
   def can_flag?(flag)
     self.can_do_global_method?("add_#{flag.name.downcase}")
+  end
+
+  def can_unflag?(flag)
+    self.can_do_global_method?("remove_#{flag.name.downcase}")
+  end
+
+  def can_set_access_level?(stored_file, access_level)
+    self.can_do_method?(stored_file, "toggle_#{access_level.name}") 
   end
 end

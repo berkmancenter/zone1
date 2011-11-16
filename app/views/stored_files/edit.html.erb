@@ -10,7 +10,7 @@
 	<%= f.label :ingest_date %>: <%= @stored_file.created_at.strftime("%m-%d-%Y") %><br />
 	<%= @record %><br />
 
-  <%= render :partial => "form", :locals => { :f => f } %><br/>
+	<%= render "form", :f => f %>
 
 	<%= f.submit "Update" %>
 	<%= link_to "Download", download_stored_file_path(@stored_file) %>

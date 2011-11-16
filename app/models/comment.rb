@@ -8,4 +8,8 @@ class Comment < ActiveRecord::Base
 
   attr_accessible :content, :user_id, :stored_file_id,
     :created_at, :updated_at
+
+  def can_user_delete?(user)
+    user.can_do_method?(self.stored_file, "delete_comments") || self.user == user
+  end
 end
