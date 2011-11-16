@@ -3,7 +3,6 @@ class SearchController < ApplicationController
   helper_method :sort_column, :sort_direction, :per_page
   include ApplicationHelper
 
- 
   def label_batch_id(value)
     value
   end
@@ -34,16 +33,11 @@ class SearchController < ApplicationController
   end
   
   def index
-
-    @flags = Flag.all
-    @access_levels = AccessLevel.all
-    
     unless params[:commit] == "clear"
       #must setup both instance and local variables
       @created_at_start_date = created_at_start_date = build_date_from_string_safe(params[:created_at_start_date]) #for filter partial
       @created_at_end_date = created_at_end_date = build_date_from_string_safe(params[:created_at_end_date]) #for inside @search.build block
     end
-
    
     facets = [:batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name] #:copyright
     @search = Sunspot.new_search(StoredFile)
@@ -63,7 +57,8 @@ class SearchController < ApplicationController
       order_by sort_column, sort_direction 
     end
     @search.execute!
-    @stored_files = filter_and_paginate_search_results(@search)
+    @hits = filter_and_paginate_search_results(@search)
+
     @facets = []
 
     facets.each do |facet|
@@ -83,12 +78,14 @@ class SearchController < ApplicationController
   private
 
   def filter_and_paginate_search_results(search)
+   
     if search.results.present?
+      @flag_lookup = {}
       filtered_results = []
-      search.results.each do |stored_file|
-        filtered_results << stored_file if stored_file.can_user_view?(current_user)
+      search.hits.each do |hit|
+        filtered_results << hit if hit.result.can_user_view?(current_user)
       end
-       filtered_results.paginate :page => params[:page], :per_page => per_page
+      filtered_results.paginate :page => params[:page], :per_page => per_page
     else
       [].paginate
     end

@@ -47,16 +47,21 @@ class StoredFile < ActiveRecord::Base
     time :created_at, :trie => true  #trie optimizes the index for ranges
     integer :batch_id
     string :collection_list, :stored => true, :multiple => true
-    string :author
+    string :author, :stored => true
     string :office
     integer :user_id, :references => User
     string :tag_list, :stored => true, :multiple => true
-    integer :flag_ids, :multiple => true, :references => Flag 
+    integer :flag_ids, :stored => true, :multiple => true, :references => Flag 
     text :copyright
-    integer :license_id, :references => License
+    string :license_name, :stored => true
+    integer :license_id, :stored => true, :references => License
     string :format_name
-    string :title
+    string :title, :stored => true
     integer :file_size
+  end
+
+  def license_name
+    self.license ? self.license.name : ''
   end
 
   def self.bulk_editable_attributes(stored_files, user)
@@ -116,7 +121,6 @@ class StoredFile < ActiveRecord::Base
 
     params = flaggings_server_side_validation(params, user)
 
-logger.warn "steph: updating #{self.id}"
     # TODO: Figure out best way to do comment manipulation here to 
     # empty comments_attribute if content is empty.
     add_user_id_to_comments(params, user)
@@ -271,6 +275,34 @@ logger.warn "steph: updating #{self.id}"
     end
  
     group_map
+  end
+
+  def users_can_view
+    # if access level is open, then ALL users
+
+    #otherwise, 
+    # contributor
+    # users with rights where right = "view_items"
+    # users with role where role.rights includes "view_items"
+    # users in groups where right includes "view_items"
+
+    # SELECT FROM right_assignments WHERE right == "view_items"
+    # if $subject is user, add user to pile
+    # if $subject is role or groups, loop through $subjects users and add to pile
+   
+    # if stored file has preserved_flag, then
+    # users with rights where right = "view_preserved_flag_content"
+    # users with role where role.rights includes "view_preserved_flag_content"
+    # users in groups where right includes "view_preserved_flag_content"
+
+    # SELECT FROM right_assignments WHERE right == "view_preserved_flag_content"
+    # if $subject is user, add user to pile
+    # if $subject is role or groups, loop through $subjects users and add to pile
+
+    # Then, cache all this in Redis or wherever
+    # Cache will expire when: 
+    # - this file is updated
+    # - anything touching the above rights are updated (groups, users, roles)
   end
 
   private

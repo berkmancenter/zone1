@@ -41,34 +41,34 @@
 				<span class="batch">Batch</span>
 			</div>
 			
-			<% @stored_files.each do |stored_file| %> 
-				<div class="file" data-id="<%= stored_file.id %>">
+			<% @hits.each do |hit| %> 
+				<div class="file" data-id="<%= hit.result.id %>">
 					<span class="icon">
 						<%= image_tag "image.png" %>
 					</span>
 					<span class="filename">	
-						<input class="downloadable" type="checkbox" name="stored_file[<%= stored_file.id %>]" value="1" />
-						<%= link_to (stored_file.title.blank? ? stored_file.original_filename : stored_file.title), download_stored_file_path(stored_file) %>
+						<input class="downloadable" type="checkbox" name="stored_file[<%= hit.result.id %>]" value="1" />
+						<%= link_to (hit.result.title.blank? ? hit.result.original_filename : hit.result.title), download_stored_file_path(hit.result) %>
 					</span>
 					<span class="size">X KB</span>
-					<span class="date"><%= stored_file.created_at.strftime("%m-%d-%Y") %></span>
-					<span class="tags"><%= stored_file.tag_list %></span>
+					<span class="date"><%= hit.result.created_at.strftime("%m-%d-%Y") %></span>
+					<span class="tags"><%= hit.stored(:tag_list) %></span>
 					<span class="flags">
-						<% @flags.each do |flag| %>
-						<input type="checkbox" disabled="true" data-method="toggle_<%= flag.name.downcase %>" title="<%= flag.label %>" <%= raw 'checked="checked"' if stored_file.flags.include?(flag) %> />
+						<% Flag.all.each do |flag| %>
+						<input type="checkbox" disabled="true" data-method="toggle_<%= flag.name.downcase %>" title="<%= flag.label %>" <%= raw 'checked="checked"' if !hit.stored(:flag_ids).nil? && hit.stored(:flag_ids).include?(flag.id) %> />
 						<% end -%>	
 					</span>
-					<span class="author"><%= stored_file.user.name %></span>
-					<span class="license"><%= stored_file.license ? stored_file.license.name : '' %></span>
-					<span class="batch"><%= stored_file.batch_id %></span>
-					<span><%= link_to "QE", edit_stored_file_path(stored_file), :remote => true, :class => "quick_edit_link" %></span>
+					<span class="author"><%= hit.result.author %></span>
+					<span class="license"><%= hit.stored(:license_name) %></span>
+					<span class="batch"><%= hit.result.batch_id %></span>
+					<span><%= link_to "QE", edit_stored_file_path(hit.result), :remote => true, :class => "quick_edit_link" %></span>
 				</div>
 			<% end %>
 		</td>
 </table>
 
 <div style="margin-top:2em;">
-	<%= will_paginate @stored_files %>
+	<%= will_paginate @hits %>
 </div>
 
 
