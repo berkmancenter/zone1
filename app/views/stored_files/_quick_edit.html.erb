@@ -5,7 +5,7 @@
 
   <%= form_for @stored_file, :remote => true, :html => { :id => "edit_stored_file" } do |f| %>
     <%= editable_field(f, @attr_accessible, :tag_list, {}, "text_field") %>
-    <%= render :partial => "access_levels/form" %>
+    <%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
     <%= render "flags/form", :f => f %>
 
     <%= submit_tag %>	
