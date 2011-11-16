@@ -59,6 +59,14 @@ class StoredFile < ActiveRecord::Base
     integer :file_size
   end
 
+  def self.bulk_editable_attributes(stored_files, user)
+    attrs = stored_files.first.attr_accessible_for({}, user)
+    stored_files.each do |stored_file|
+      attrs = attrs & stored_file.attr_accessible_for({}, user)
+    end
+    attrs
+  end
+
   def self.matching_attributes_from(stored_files)
     matching = {}
     attributes_to_match = StoredFile.new.attribute_names + ["tag_list", "collection_list"]
@@ -104,10 +112,11 @@ class StoredFile < ActiveRecord::Base
 
 
   def custom_save(params, user)
-    attr_accessible_for(params, user)
+    self.accessible = attr_accessible_for(params, user)
 
     params = flaggings_server_side_validation(params, user)
 
+logger.warn "steph: updating #{self.id}"
     # TODO: Figure out best way to do comment manipulation here to 
     # empty comments_attribute if content is empty.
     add_user_id_to_comments(params, user)
@@ -146,7 +155,7 @@ class StoredFile < ActiveRecord::Base
     valid_attr << :tag_list if allow_tags
     logger.debug "ATTR_ACCESSIBLE_FOR"
     logger.debug valid_attr.uniq.inspect
-    self.accessible = valid_attr.uniq
+    valid_attr.uniq
   end
 
   def collection_list

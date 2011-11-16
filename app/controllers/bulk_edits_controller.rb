@@ -3,13 +3,14 @@ class BulkEditsController < ApplicationController
   include ApplicationHelper
 
   def new
-    # TODO: Figure out what this should be
-    @attr_accessible = StoredFile::ALLOW_MANAGE_ATTRIBUTES 
-
     if params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length > 1
       @stored_files = StoredFile.find(params[:stored_file_ids])
+
+      @attr_accessible = StoredFile.bulk_editable_attributes(@stored_files, current_user)
+ 
       matching_attributes = StoredFile.matching_attributes_from(@stored_files)
       @stored_file = StoredFile.new(matching_attributes)
+
       @licenses = License.all
     elsif params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length == 1
       redirect_to edit_stored_file_path(params[:stored_file_ids].first)

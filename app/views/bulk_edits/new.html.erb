@@ -1,5 +1,7 @@
 <%= form_for @stored_file, :url => "/bulk_edits", :method => "POST" do |f| %>
 
+  <p>Note: Only fields that can be updated in all files are shown as editable below.</p>
+
   <% @stored_files.each do |stored_file| %>
     <%= hidden_field_tag "stored_file_ids[]", stored_file.id %>
   <% end %>

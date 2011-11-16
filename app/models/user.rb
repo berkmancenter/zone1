@@ -103,6 +103,7 @@ class User < ActiveRecord::Base
 
     stored_file = stored_file.is_a?(StoredFile) ? stored_file : StoredFile.find(stored_file)
     return true if (stored_file.user == self && rights.include?("#{method}_on_owned"))
+
     false
   end
 

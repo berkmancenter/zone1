@@ -5,14 +5,12 @@ class StoredFilesController < ApplicationController
   access_control do
     allow logged_in, :to => [:create, :new]
 
-    #TODO determine appropriate permissions for bulk_edit
-    allow logged_in, :to => :bulk_edit, :if => :allow_bulk_edit?
+    allow logged_in, :to => :bulk_edit
 
     allow logged_in, :to => [:update, :edit, :download], :if => :allow_show?
 
     allow logged_in, :to => :destroy, :if => :allow_destroy?
 
-    # TODO: Add validation for download set later
     allow logged_in, :to => :download_set, :if => :download_set?
   end
 
@@ -23,11 +21,6 @@ class StoredFilesController < ApplicationController
   # Note: View/edit are on same form now, so this is really "can the user view or edit"
   def allow_show?
     StoredFile.find(params[:id]).can_user_view?(current_user)
-  end
-
-  # TODO: Update this later to hanlde stored file params
-  def allow_bulk_edit?
-    true
   end
 
   # TODO: Update this later to handle stored file params
@@ -109,11 +102,12 @@ class StoredFilesController < ApplicationController
 
   def new
     @licenses = License.all
-    @stored_file = StoredFile.new(:user_id => current_user.id)
+    @stored_file = StoredFile.new
 
     @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
     
-    # TODO: Figure out if default here
+    # Note: This is important, to be set after initialized and attributes set
+    @stored_file.user_id = current_user.id
     @stored_file.access_level_id = 3
 
     init_new_batch
