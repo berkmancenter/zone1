@@ -92,9 +92,7 @@ class User < ActiveRecord::Base
     # A users rights includese all rights assigned through
     # groups, roles, and directly to rights, through the 
     # polymorphic right_assignments table
-    [self.groups.collect { |r| r.allowed_rights }
-      + self.roles.collect { |r| r.rights }
-      + self.rights].flatten.uniq.collect { |r| r.action }
+    [self.groups.collect { |r| r.allowed_rights } + self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
   end
 
   def can_do_global_method?(method)
