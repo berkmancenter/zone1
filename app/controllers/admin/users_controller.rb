@@ -1,4 +1,6 @@
 class Admin::UsersController < Admin::BaseController
+  cache_sweeper :user_sweeper
+
   def index
     @users = User.paginate(:page => params[:page], :per_page => 30)
   end

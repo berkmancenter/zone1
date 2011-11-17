@@ -7,4 +7,16 @@ class Role < ActiveRecord::Base
   has_many :rights, :through => :right_assignments
   
   attr_accessible :name, :right_ids
+
+  def self.cached_viewable_users(right)
+    Rails.cache.fetch("roles-viewable-users-#{right}") do
+      User.find_by_sql("SELECT u.id
+        FROM users u
+        JOIN roles_users gu ON u.id = gu.user_id
+        JOIN right_assignments ra ON ra.subject_id = gu.role_id
+        JOIN rights r ON r.id = ra.right_id
+        WHERE ra.subject_type = 'Role'
+        AND r.action = '#{right}'").collect { |user| user.id }
+    end
+  end
 end

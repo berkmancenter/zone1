@@ -136,4 +136,27 @@ class User < ActiveRecord::Base
   def can_set_access_level?(stored_file, access_level)
     self.can_do_method?(stored_file, "toggle_#{access_level.name}") 
   end
+
+  def self.cached_viewable_users(right)
+    Rails.cache.fetch("users-viewable-users-#{right}") do
+      User.find_by_sql("SELECT u.id
+        FROM users u
+        JOIN right_assignments ra ON ra.subject_id = u.id
+        JOIN rights r ON r.id = ra.right_id
+        WHERE ra.subject_type = 'User'
+        AND r.action = '#{right}'").collect { |user| user.id }
+    end
+  end
+
+  # Note: This is a class method because we want to handle
+  # when current_user is nil, without reproducing logic
+  def self.can_view_cached?(stored_file_id, current_user)
+    users = StoredFile.cached_viewable_users(stored_file_id)
+    if !current_user.nil?
+      users += Group.cached_viewable_users("view_items")
+      users += Role.cached_viewable_users("view_items")
+      users += User.cached_viewable_users("view_items")
+    end
+    users.uniq.include?(current_user.id) 
+  end
 end

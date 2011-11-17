@@ -1,4 +1,6 @@
 class Admin::FlagsController < Admin::BaseController
+  cache_sweeper :flag_sweeper
+
   def index
     @flags = Flag.all
     @flag = Flag.new

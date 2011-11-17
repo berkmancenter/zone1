@@ -93,8 +93,9 @@ class SearchController < ApplicationController
   # stored file object, and eliminates object instantiation
   def filter_and_paginate_search_results(search)
     filtered_results = []
+
     search.hits.each do |hit|
-      filtered_results << hit if StoredFile.cache_lookup(hit.stored(:id), current_user.id)
+      filtered_results << hit if User.can_view_cached?(hit.stored(:id), current_user)
     end
 
     filtered_results.paginate :page => params[:page], :per_page => per_page

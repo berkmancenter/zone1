@@ -316,43 +316,25 @@ class StoredFile < ActiveRecord::Base
     group_map
   end
 
-  def self.cache_lookup(id, user_id)
-    # Cache will expire when: 
-    # - this file is updated or destroyed
-    # - anything touching the above rights are updated (groups, users, roles)
-
-    # TODO: Push this caching to another mechanism (e.g. Redis)
-    users = Rails.cache.fetch("stored-file-users-#{id}") do
+  def self.cached_viewable_users(id)
+    Rails.cache.fetch("stored-file-#{id}-viewable-users") do
       stored_file = StoredFile.find(id)
 
-      # TODO: Find a better way to check access level 
-      return User.all if stored_file.access_level.name == "open"
+      return User.all.collect { |user| user.id } if stored_file.access_level.name == "open"
 
       users = [stored_file.user.id] + stored_file.users_via_groups.collect { |user| user.id }
 
-      # First, determine which rights we are looking up
-      rights = stored_file.has_preserved_flag? ? ["view_items", "view_preserved_flag_content"] :
-        ["view_items"] 
+      if stored_file.has_preserved_flag?
+        users += Group.cached_viewable_users("view_preserved_flag_content")
+        users += Role.cached_viewable_users("view_preserved_flag_content")
+        users += User.cached_viewable_users("view_preserved_flag_content")
+      end
 
-      # Next, collect the right_assignments corresponding to the selected rights
-      right_assignments = Right.find_all_by_action(rights, :include => :right_assignments).collect { |r| r.right_assignments }.flatten
-
-      right_assignments.each do |ra|
-        if ra.subject.is_a?(User)
-            users << subject.id
-        else
-            users = users + ra.subject.users.collect { |user| user.id }
-        end
-      end     
-
-      users.uniq
+      users
     end
-
-    return users.include?(user_id)
   end
 
   private
-
 
   def add_user_id_to_comments(params, user)
     if params[:comments_attributes]

@@ -27,6 +27,20 @@ class Group < ActiveRecord::Base
     members
   end
 
+  def self.cached_viewable_users(right)
+    Rails.cache.fetch("groups-viewable-users-#{right}") do
+      User.find_by_sql("SELECT u.id
+        FROM users u
+        JOIN groups_users gu ON u.id = gu.user_id
+        JOIN groups g ON g.id = gu.group_id
+        JOIN right_assignments ra ON ra.subject_id = gu.group_id
+        JOIN rights r ON r.id = ra.right_id
+        WHERE ra.subject_type = 'Group'
+        AND g.assignable_rights
+        AND r.action = '#{right}'").collect { |user| user.id }
+    end
+  end
+
   private
   def validates_user(user)
     true #raise ActiveRecord::Rollback if self.users.include? user

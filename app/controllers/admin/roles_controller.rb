@@ -1,4 +1,6 @@
 class Admin::RolesController < Admin::BaseController
+  cache_sweeper :role_sweeper
+
   def index
     @roles = Role.all
     @role = Role.new
