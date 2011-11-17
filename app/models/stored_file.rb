@@ -64,6 +64,9 @@ class StoredFile < ActiveRecord::Base
     self.license ? self.license.name : ''
   end
 
+  # This determines the intersection of all editable fields in 
+  # all selected files in bulk edit. The bulk editable fields
+  # are the only fields shown as editable on the bulk edit display.
   def self.bulk_editable_attributes(stored_files, user)
     attrs = stored_files.first.attr_accessible_for({}, user)
     stored_files.each do |stored_file|

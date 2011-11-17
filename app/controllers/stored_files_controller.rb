@@ -106,7 +106,10 @@ class StoredFilesController < ApplicationController
 
     @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
     
-    # Note: This is important, to be set after initialized and attributes set
+    # Note: This is important, to be set after initialized because
+    # accessible attributes are defined by attr_accessible_for, 
+    # and access_level_id and user_id are not global attributes
+    # TODO: Possibly clean up later, but low priority
     @stored_file.user_id = current_user.id
     @stored_file.access_level_id = 3
 
