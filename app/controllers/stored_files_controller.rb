@@ -1,6 +1,7 @@
 class StoredFilesController < ApplicationController
   protect_from_forgery
   include ApplicationHelper
+  cache_sweeper :stored_file_sweeper
 
   access_control do
     allow logged_in, :to => [:create, :new]

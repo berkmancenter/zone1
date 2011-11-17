@@ -11,6 +11,8 @@ class FitsRunner
         stored_file = StoredFile.find(file_id)
         stored_file.accessible = StoredFile::ALLOW_FITS_ATTRIBUTES
         stored_file.update_attributes(metadata)
+        # TODO: Add functionality here to reindex file
+
         # TODO: Either use update_all or roll your own update that doesn't need the rails environment
         #Avatar.update_all ['migrated_at = ?', Time.now.utc], ['migrated_at > ?', 1.week.ago]
       else

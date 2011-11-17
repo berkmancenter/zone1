@@ -16,6 +16,7 @@ class SearchController < ApplicationController
     value == '' ? 'empty string' : value
   end
   def label_user_id(value)
+    # TODO: This is hitting the database. can_optimize? yes
     user = User.find_by_id(value)
     user.present? ? user.name : "Unknown user"
   end
@@ -23,10 +24,18 @@ class SearchController < ApplicationController
     value
   end
   def label_flag_ids(value)
-    Flag.find(value).label
+    # Original code:
+    # Flag.find(value).label
+
+    # TODO: Possibly find a more elegant performance optimization
+    # This is an optimization because Flag.all is cached,
+    # but it's not very elegant IMO. The goal is to minimize lookup
+    # of flags on every search.
+    Flag.label_map[value.to_s]
   end
   def label_license_id(value)
-    License.find(value).name
+    # TODO: See label_flag_ids
+    License.name_map[value.to_s]
   end
   def label_format_name(value)
     "label"
@@ -60,7 +69,6 @@ class SearchController < ApplicationController
     @hits = filter_and_paginate_search_results(@search)
 
     @facets = []
-
     facets.each do |facet|
       links = @search.facet(facet).rows.inject([]) do |arr, row|
         remove = (params[facet] == row.value.to_s)
@@ -77,18 +85,16 @@ class SearchController < ApplicationController
 
   private
 
+  # Private method for filtering and paginating search results
+  # Working directly with search.hits minimizes the requirement to access
+  # stored file object, and eliminates object instantiation
   def filter_and_paginate_search_results(search)
-   
-    if search.results.present?
-      @flag_lookup = {}
-      filtered_results = []
-      search.hits.each do |hit|
-        filtered_results << hit if hit.result.can_user_view?(current_user)
-      end
-      filtered_results.paginate :page => params[:page], :per_page => per_page
-    else
-      [].paginate
+    filtered_results = []
+    search.hits.each do |hit|
+      filtered_results << hit if StoredFile.cache_lookup(hit.stored(:id), current_user.id)
     end
+
+    filtered_results.paginate :page => params[:page], :per_page => per_page
   end
 
   def per_page

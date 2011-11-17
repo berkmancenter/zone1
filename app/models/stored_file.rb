@@ -45,9 +45,11 @@ class StoredFile < ActiveRecord::Base
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags]) do
-    text :original_filename, :description
-    time :created_at, :trie => true  #trie optimizes the index for ranges
-    integer :batch_id
+    integer :id, :stored => true
+    text :original_filename
+    text :description
+    time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
+    integer :batch_id, :stored => true
     string :collection_list, :stored => true, :multiple => true
     string :author, :stored => true
     string :office
@@ -58,8 +60,13 @@ class StoredFile < ActiveRecord::Base
     string :license_name, :stored => true
     integer :license_id, :stored => true, :references => License
     string :format_name
-    string :title, :stored => true
-    integer :file_size
+    string :title
+    integer :file_size, :stored => true
+    string :display_name, :stored => true
+  end
+
+  def display_name
+    self.title.blank? ? self.original_filename : self.title
   end
 
   def license_name
@@ -119,7 +126,6 @@ class StoredFile < ActiveRecord::Base
 
     params
   end
-
 
   def custom_save(params, user)
     self.accessible = attr_accessible_for(params, user)
@@ -203,8 +209,6 @@ class StoredFile < ActiveRecord::Base
   def can_user_view?(user) 
     return true if self.access_level.name == "open" 
 
-    return false if user.nil?
-
     return true if user.can_do_method?(self, "view_items") 
 
     return true if user.all_rights.include?("view_preserved_flag_content") && 
@@ -282,32 +286,39 @@ class StoredFile < ActiveRecord::Base
     group_map
   end
 
-  def users_can_view
-    # if access level is open, then ALL users
-
-    #otherwise, 
-    # contributor
-    # users with rights where right = "view_items"
-    # users with role where role.rights includes "view_items"
-    # users in groups where right includes "view_items"
-
-    # SELECT FROM right_assignments WHERE right == "view_items"
-    # if $subject is user, add user to pile
-    # if $subject is role or groups, loop through $subjects users and add to pile
-   
-    # if stored file has preserved_flag, then
-    # users with rights where right = "view_preserved_flag_content"
-    # users with role where role.rights includes "view_preserved_flag_content"
-    # users in groups where right includes "view_preserved_flag_content"
-
-    # SELECT FROM right_assignments WHERE right == "view_preserved_flag_content"
-    # if $subject is user, add user to pile
-    # if $subject is role or groups, loop through $subjects users and add to pile
-
-    # Then, cache all this in Redis or wherever
+  def self.cache_lookup(id, user_id)
     # Cache will expire when: 
-    # - this file is updated
+    # - this file is updated or destroyed
     # - anything touching the above rights are updated (groups, users, roles)
+
+    # TODO: Push this caching to another mechanism (e.g. Redis)
+    users = Rails.cache.fetch("stored-file-users-#{id}") do
+      stored_file = StoredFile.find(id)
+
+      # TODO: Find a better way to check access level 
+      return User.all if stored_file.access_level.name == "open"
+
+      users = [stored_file.user.id] + stored_file.users_via_groups.collect { |user| user.id }
+
+      # First, determine which rights we are looking up
+      rights = stored_file.has_preserved_flag? ? ["view_items", "view_preserved_flag_content"] :
+        ["view_items"] 
+
+      # Next, collect the right_assignments corresponding to the selected rights
+      right_assignments = Right.find_all_by_action(rights, :include => :right_assignments).collect { |r| r.right_assignments }.flatten
+
+      right_assignments.each do |ra|
+        if ra.subject.is_a?(User)
+            users << subject.id
+        else
+            users = users + ra.subject.users.collect { |user| user.id }
+        end
+      end     
+
+      users.uniq
+    end
+
+    return users.include?(user_id)
   end
 
   private

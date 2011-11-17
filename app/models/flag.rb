@@ -15,6 +15,10 @@ class Flag < ActiveRecord::Base
     end
   end
 
+  def self.label_map
+    Flag.all.inject({}) { |h, flag| h[flag.id.to_s] = flag.label; h }
+  end
+
   def self.preserved
     Flag.find_all_by_name(PRESERVED)
   end
