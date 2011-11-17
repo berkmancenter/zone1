@@ -49,7 +49,7 @@ class StoredFile < ActiveRecord::Base
   searchable(:include => [:tags, :mime_type, :mime_type_category]) do
     integer :id, :stored => true
     text :original_filename, :description
-    time :created_at, :trie => true  #trie optimizes the index for ranges
+    time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
     integer :batch_id, :stored => true
     string :collection_list, :stored => true, :multiple => true
     string :author, :stored => true
@@ -60,14 +60,11 @@ class StoredFile < ActiveRecord::Base
     text :copyright
     string :license_name, :stored => true
     integer :license_id, :stored => true, :references => License
-    string :format_name
     string :title
     integer :file_size, :stored => true
     string :display_name, :stored => true
     string :mime_type_id
     string :mime_type_category_id
-    string :title, :stored => true
-    integer :file_size
   end
 
   def display_name
