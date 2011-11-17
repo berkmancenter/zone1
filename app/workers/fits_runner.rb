@@ -8,7 +8,9 @@ class FitsRunner
 
       if metadata.class == Hash and metadata.keys.length > 0
         ::Rails.logger.debug "PHUNK: FitsRunner updating metadata attributes with: #{metadata.inspect}"
-        StoredFile.find(file_id).update_attributes(metadata)
+        stored_file = StoredFile.find(file_id)
+        stored_file.accessible = StoredFile::ALLOW_FITS_ATTRIBUTES
+        stored_file.update_attributes(metadata)
         # TODO: Either use update_all or roll your own update that doesn't need the rails environment
         #Avatar.update_all ['migrated_at = ?', Time.now.utc], ['migrated_at > ?', 1.week.ago]
       else

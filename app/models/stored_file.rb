@@ -39,6 +39,8 @@ class StoredFile < ActiveRecord::Base
     :access_level_id]
 
   CREATE_ATTRIBUTES = [:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES
+
+  ALLOW_FITS_ATTRIBUTES = [:format_name, :format_version, :mime_type, :file_size, :md5]
   
   mount_uploader :file, FileUploader, :mount_on => :file
 
