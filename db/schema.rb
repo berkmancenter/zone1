@@ -10,6 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
+
 ActiveRecord::Schema.define(:version => 20111117123521) do
 
   create_table "access_levels", :force => true do |t|
@@ -152,18 +153,21 @@ ActiveRecord::Schema.define(:version => 20111117123521) do
     t.datetime "updated_at"
   end
 
-  create_table "sftp_users", :id => false, :force => true do |t|
-    t.integer  "user_id",       :null => false
-    t.string   "username"
-    t.string   "passwd"
+  create_table "sftp_users", :force => true do |t|
+    t.integer  "user_id",                         :null => false
+    t.string   "username",                        :null => false
+    t.string   "passwd",                          :null => false
     t.integer  "uid"
     t.integer  "sftp_group_id"
     t.string   "homedir"
     t.string   "shell"
-    t.boolean  "active"
+    t.boolean  "active",        :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "sftp_users", ["passwd"], :name => "index_sftp_users_on_passwd"
+  add_index "sftp_users", ["username"], :name => "index_sftp_users_on_username"
 
   create_table "stored_files", :force => true do |t|
     t.integer  "batch_id"

@@ -6,14 +6,14 @@ config/resque.yml
 .bundle
 .sass-cache/
 db/*.sqlite3
-log/*
+log/
 uploads/
 tmp/
 sunspot-solr.pid
 public/coverage
 redis/redis-local.conf
 redis/dump.rdb
-var/run
+var/
 
 httpd/
 pgsql/

@@ -1,0 +1,76 @@
+<style type="text/css">
+#sftp.hidden {
+     display: none; 
+}
+</style>
+
+
+<fieldset>
+   <legend><span id="sftp_toggler">SFTP:</span></legend>
+<div id="sftp" class="hidden">
+
+  <div id="sftp_form_div"> 
+  <form>
+<input type=button id="sftp_tester" value="get SFTP session"><br/>
+    <%= label_tag :username %>: 
+      <%= text_field_tag :username, '', {:id => 'username', :readonly => 'readonly'} %><br/>
+    <%= label_tag :password %>: 
+      <%= text_field_tag :password, '', {:id => 'password', :readonly => 'readonly'} %>
+  </form>
+  </div>
+
+</div>
+</fieldset>
+
+
+<script>
+
+$(function() {
+    var SFTP_INITIALIZED = false;
+
+    // prevent lazy firefox reload from leaving old credentials visible
+    $('#username').val('');
+    $('#password').val('');
+
+    $('#username').focus(function() {this.select();});
+    $('#password').focus(function() {this.select();});
+
+  	$('#sftp_toggler').click(function() {
+        $('#sftp').slideToggle('fast', function() {
+            if (! SFTP_INITIALIZED) {
+                init_sftp();
+                SFTP_INITIALIZED = true;
+            }
+        });
+    });
+
+    $('#sftp_tester').click(function() {
+        init_sftp();
+    });
+
+    var display_sftp_credentials = function(credentials) {
+        $('#username').val(credentials['u']);
+        $('#password').val(credentials['p']);
+    }
+
+    var init_sftp = function() {
+        $.post('/sftp_users', function(data) { 
+            display_sftp_credentials(data);
+        }).error( function(data) {
+            // we have to parse this json manually because it had an error response code
+            var response = $.parseJSON(data.responseText);
+            alert("Error generating temporary SFTP credentials: " + response['msg']);
+        });
+    };
+
+});
+
+/* 
+* The controller needs to record the current state of this upload in a few different ways:
+** we need to queue up a resque job to get all the sftp files
+** we need a way to associate those sftp files with this ajax upload files
+*** We need to get them into the same batch, too.
+*** We need to get them into a new batch if there was only 0 or 1 ajax upload file (and get that ajax upload into this batch)
+*/
+
+</script>

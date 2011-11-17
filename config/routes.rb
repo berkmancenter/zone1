@@ -31,6 +31,7 @@ Zone1::Application.routes.draw do
   match 'upload' => 'stored_files#new', :as => :upload
   match 'search' => 'search#index', :as => :search
 
+  resources :sftp_users
   mount Resque::Server, :at => '/resque'
 
 end
