@@ -25,6 +25,12 @@ puts "Generating default preferences"
 Preference.create([{:name => "Default User Upload Quota", :value => "10485760" }])
 Preference.create([{:name => "Retention Period", :value => "1825" }])
 
+puts "Generating default MimeTypeCategories"
+MimeTypeCategory.create(:name => "Uncategorized")
+
+puts "Gerenating default MimeTypeBlacklist"
+MimeType.create(:name => "DOS/Windows executable", :mime_type => "application/x-dosexec", :blacklist => true, :extension => ".exe")
+
 puts "Creating disposition actions"
 DispositionAction.create([{ :action => "DELETE" },
                           { :action => "REVIEW" },

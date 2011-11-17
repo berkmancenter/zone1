@@ -13,6 +13,8 @@ class StoredFile < ActiveRecord::Base
   has_many :groups_stored_files
   has_many :groups, :through => :groups_stored_files
   has_one :disposition, :dependent => :destroy
+  belongs_to :mime_type
+  has_one :mime_type_category, :through => :mime_type
 
   delegate :name, :to => :user, :prefix => :contributor
 
@@ -40,15 +42,14 @@ class StoredFile < ActiveRecord::Base
 
   CREATE_ATTRIBUTES = [:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES
 
-  ALLOW_FITS_ATTRIBUTES = [:format_name, :format_version, :mime_type, :file_size, :md5]
+  FITS_ATTRIBUTES = [:file_size, :md5, :fits_mime_type]
   
   mount_uploader :file, FileUploader, :mount_on => :file
 
-  searchable(:include => [:tags]) do
+  searchable(:include => [:tags, :mime_type, :mime_type_category]) do
     integer :id, :stored => true
-    text :original_filename
-    text :description
-    time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
+    text :original_filename, :description
+    time :created_at, :trie => true  #trie optimizes the index for ranges
     integer :batch_id, :stored => true
     string :collection_list, :stored => true, :multiple => true
     string :author, :stored => true
@@ -63,10 +64,35 @@ class StoredFile < ActiveRecord::Base
     string :title
     integer :file_size, :stored => true
     string :display_name, :stored => true
+    string :mime_type_id
+    string :mime_type_category_id
+    string :title, :stored => true
+    integer :file_size
   end
 
   def display_name
     self.title.blank? ? self.original_filename : self.title
+  end
+
+  def mime_type_category_id
+     #used for faceted search.  Delegate didn't really play nice with the nils that are happening before Fits::analyze runs
+     self.mime_type.mime_type_category_id if self.mime_type && self.mime_type.mime_type_category
+  end
+
+  def fits_mime_type=(hash)
+    if hash.keys.include?(:format_name) && hash.keys.include?(:mime_type)
+      mime_type = MimeType.find_or_initialize_by_mime_type(hash[:mime_type])
+
+      if mime_type.new_record?
+        mime_type.name = hash[:format_name]
+        mime_type.extension = File.extname(original_filename)
+      end
+
+      self.mime_type = mime_type
+    else
+      logger.warn "Expected :format_name and :mime_type as keys, but got #{hash.inspect}"
+      raise "FITs process not supplying appropriate format data to StoredFile."
+    end
   end
 
   def license_name
@@ -127,7 +153,14 @@ class StoredFile < ActiveRecord::Base
     params
   end
 
+  def file_extension_blacklisted?(filename)
+    MimeType.blacklisted_extensions.include?(File.extname(filename))
+  end
+
   def custom_save(params, user)
+
+    raise "This type of file is not allowed." if file_extension_blacklisted?(params["original_filename"])
+
     self.accessible = attr_accessible_for(params, user)
 
     params = flaggings_server_side_validation(params, user)
@@ -333,9 +366,15 @@ class StoredFile < ActiveRecord::Base
   end
 
   def update_metadata_inline
+    
+    #Allow Fits attributes to be updated
+    self.accessible = FITS_ATTRIBUTES
+    
     metadata = Fits::analyze(self.file.url)
 
     if metadata.class == Hash and metadata.keys.length > 0
+
+
       ::Rails.logger.debug "PHUNK: updating metadata attributes INLINE"
       metadata.each do |name, value|
         # Use send like this instead of update_attributes because update_attributes
@@ -344,6 +383,10 @@ class StoredFile < ActiveRecord::Base
         # object a second time.
         self.send("#{name}=", value)
       end
+
+
+      Sunspot.commit  #index these changes
+
     else
       ::Rails.logger.warn "Warning: stored_file.update_metadata received zero usable data from FITS for id/file #{self.id} - ${self.file.url}"
     end

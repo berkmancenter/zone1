@@ -37,18 +37,21 @@ class SearchController < ApplicationController
     # TODO: See label_flag_ids
     License.name_map[value.to_s]
   end
-  def label_format_name(value)
-    "label"
+  def label_mime_type_id(value)
+    MimeType.find(value).name
+  end
+  def label_mime_type_category_id(value)
+    MimeTypeCategory.find(value).name
   end
   
   def index
     unless params[:commit] == "clear"
-      #must setup both instance and local variables
+      #must setup both instance and local variables, so @search.build can access
       @created_at_start_date = created_at_start_date = build_date_from_string_safe(params[:created_at_start_date]) #for filter partial
       @created_at_end_date = created_at_end_date = build_date_from_string_safe(params[:created_at_end_date]) #for inside @search.build block
     end
    
-    facets = [:batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name] #:copyright
+    facets = [:batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id] #:copyright
     @search = Sunspot.new_search(StoredFile)
     @search.build do
       facets.each do |facet|
@@ -61,7 +64,7 @@ class SearchController < ApplicationController
       fulltext params[:search] do
         query_phrase_slop 1 
       end
-      facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :format_name #:copyright
+      facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id  #:copyright
       with(:created_at, created_at_start_date.beginning_of_day..created_at_end_date.end_of_day) if created_at_start_date && created_at_end_date
       order_by sort_column, sort_direction 
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111116212631) do
+ActiveRecord::Schema.define(:version => 20111117123521) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -86,6 +86,24 @@ ActiveRecord::Schema.define(:version => 20111116212631) do
     t.datetime "updated_at"
   end
 
+  create_table "mime_type_categories", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "mime_types", :force => true do |t|
+    t.string   "name"
+    t.string   "extension"
+    t.string   "mime_type"
+    t.integer  "mime_type_category_id"
+    t.boolean  "blacklist"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "mime_types", ["mime_type"], :name => "index_mime_types_on_mime_type"
+
   create_table "preferences", :force => true do |t|
     t.string   "name"
     t.string   "value"
@@ -155,9 +173,7 @@ ActiveRecord::Schema.define(:version => 20111116212631) do
     t.string   "office"
     t.integer  "access_level_id",                      :null => false
     t.integer  "content_type_id"
-    t.string   "format_name"
     t.string   "format_version"
-    t.string   "mime_type"
     t.string   "md5"
     t.integer  "file_size"
     t.text     "description"
@@ -171,11 +187,7 @@ ActiveRecord::Schema.define(:version => 20111116212631) do
     t.boolean  "allow_notes",       :default => false
     t.boolean  "delete_flag"
     t.boolean  "allow_tags"
-  end
-
-  create_table "stored_files_flags", :id => false, :force => true do |t|
-    t.integer "stored_file_id"
-    t.integer "flag_id"
+    t.integer  "mime_type_id"
   end
 
   create_table "taggings", :force => true do |t|
