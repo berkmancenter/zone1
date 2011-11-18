@@ -28,7 +28,6 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
 
-  after_create :decrease_available_user_quota
   after_destroy :increase_available_user_quota
 
   validates_presence_of :user_id
@@ -282,12 +281,18 @@ class StoredFile < ActiveRecord::Base
     @tag_list ||= self.anonymous_tag_list(:tags)
   end
 
-  def decrease_available_user_quota
-    user.decrease_available_quota!(file_size)
+  def file_size=(bytes)
+    #when fits updates file_size, update quota
+    write_attribute :file_size, bytes
+    decrease_available_user_quota bytes
   end
 
-  def increase_available_user_quota
-    user.increase_available_quota!(file_size)
+  def decrease_available_user_quota(amount_in_bytes=file_size)
+    user.decrease_available_quota!(amount_in_bytes)
+  end
+
+  def increase_available_user_quota(amount_in_bytes=file_size)
+    user.increase_available_quota!(amount_in_bytes)
   end
 
   def has_preserved_flag?

@@ -22,6 +22,8 @@ class User < ActiveRecord::Base
 
   validates_presence_of :name
 
+  attr_accessible :quota_used, :quota_max
+
   validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
   validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true }
 
