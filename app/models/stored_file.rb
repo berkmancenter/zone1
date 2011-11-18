@@ -17,6 +17,7 @@ class StoredFile < ActiveRecord::Base
   has_one :mime_type_category, :through => :mime_type
 
   delegate :name, :to => :user, :prefix => :contributor
+  delegate :name, :to => :license, :prefix => :license, :allow_nil => true
 
   accepts_nested_attributes_for :comments
   accepts_nested_attributes_for :flaggings, :allow_destroy => true
@@ -67,12 +68,12 @@ class StoredFile < ActiveRecord::Base
   end
 
   def display_name
-    #TODO title.presense || original_filename
-    self.title.blank? ? self.original_filename : self.title
+    self.title.presence || self.original_filename
   end
 
   def mime_type_category_id
-     #used for faceted search.  Delegate didn't really play nice with the nils that are happening before Fits::analyze runs
+     #used for faceted search.
+     # Delegate didn't really play nice with the nils that are happening before Fits::analyze runs
      self.mime_type.mime_type_category_id if self.mime_type && self.mime_type.mime_type_category
   end
 
@@ -90,11 +91,6 @@ class StoredFile < ActiveRecord::Base
       logger.warn "Expected :format_name and :mime_type as keys, but got #{hash.inspect}"
       raise "FITs process not supplying appropriate format data to StoredFile."
     end
-  end
-
-  #TODO: delegate :name, :to => :license, :prefix => true, :allow_nil => true
-  def license_name
-    self.license ? self.license.name : ''
   end
 
   # This determines the intersection of all editable fields in 
