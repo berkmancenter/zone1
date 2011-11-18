@@ -136,11 +136,31 @@ class StoredFile < ActiveRecord::Base
   end
 
   #TODO move into BulkEdit model
+  def self.matching_groups_from(stored_files)
+    groups = stored_files.first.groups
+
+    stored_files.each do |stored_file|
+      groups = groups & stored_file.groups
+    end
+
+    groups
+  end
+
+  #TODO move into BulkEdit model
   def build_bulk_flaggings_for(stored_files, user)
     matching_flags = StoredFile.matching_flags_from(stored_files)
     matching_flags.each do |flag|
       self.flaggings.build(:flag_id => flag.id, :checked => true)     # must explicitly set checked here.  It is the only way
                                                                       # the form will know that this flagging is set 
+    end
+  end
+
+  #TODO move into BulkEdit model
+  def build_bulk_groups_for(stored_files, user)
+    matching_groups = StoredFile.matching_groups_from(stored_files)
+    matching_groups.each do |group|
+      self.groups_stored_files.build(:group_id => group.id, :checked => true) #must explicitly set changed here
+                                                                              #so form will know to check the group 
     end
   end
 
@@ -159,6 +179,27 @@ class StoredFile < ActiveRecord::Base
     set_flag_ids.include?(flag.id)
   end
 
+  def find_groups_stored_files_id_by_group_id(group_id)
+    
+    id_array = self.groups_stored_files.inject([]) do |array, group|
+      array << group.id if group.group_id.to_s == group_id
+      array
+    end
+
+    if id_array.length > 1
+      logger.debug "self.groups_stored_files.inspect=" + self.groups_stored_files.inspect
+      logger.debug "id_array = " + id_array.inspect
+      raise "Should find one groups_stored_files.id"
+
+    elsif id_array.length == 1
+      return id_array.to_s
+
+    elsif id_array.length == 0
+      #it's ok if we find nothing, this means this flag was never set for the stored file
+      return nil
+    end
+  end
+  
   def find_flagging_id_by_flag_id(flag_id)
     
     id_array = self.flaggings.inject([]) do |array, flagging|
