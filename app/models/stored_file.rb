@@ -244,20 +244,6 @@ class StoredFile < ActiveRecord::Base
     self.groups.collect { |b| b.users }.flatten.uniq
   end
 
-  def can_user_view?(user) 
-    return true if self.access_level.name == "open" 
-
-    return true if user.can_do_method?(self, "view_items") 
-
-    return true if user.all_rights.include?("view_preserved_flag_content") && 
-      self.has_preserved_flag?
- 
-    return true if self.users_via_groups.include?(user) && 
-      self.access_level.name == "partially_open"
-
-    false
-  end
-
   # User can destroy if a) they have global right to delete items or
   # b) they are the contributor and flag is not preserved or university record
   def can_user_destroy?(user)

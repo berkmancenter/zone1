@@ -12,8 +12,7 @@ class CommentsController < ApplicationController
   end
 
   def allow_create?
-    stored_file = StoredFile.find(params[:stored_file_id])
-    stored_file.can_user_view?(current_user)
+    StoredFile.cached_viewable_users(params[:stored_file_id]).include?(current_user.id)
   end
 
   def destroy
