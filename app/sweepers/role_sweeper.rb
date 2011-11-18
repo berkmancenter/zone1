@@ -15,7 +15,6 @@ class RoleSweeper < ActionController::Caching::Sweeper
 
   private
   def destroy_viewable_users_cache
-    Rails.cache.delete("roles-viewable-users-view_items")
-    Rails.cache.delete("roles-viewable-users-view_preserved_flag_content")
+    Rails.cache.delete_matched(%r{roles-viewable-users-*})
   end
 end

@@ -9,7 +9,6 @@ class Flag < ActiveRecord::Base
   SELECTED = ["SELECTED_FOR_PRESERVATION", "UNIVERSITY_RECORD"]
 
   def self.all
-    # TODO: Add cache expiration
     Rails.cache.fetch("flags") do
       Flag.find(:all)
     end

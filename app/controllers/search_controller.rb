@@ -17,8 +17,7 @@ class SearchController < ApplicationController
   end
   def label_user_id(value)
     # TODO: This is hitting the database. can_optimize? yes
-    user = User.find_by_id(value)
-    user.present? ? user.name : "Unknown user"
+    User.name_map[value] || "Unknown user"
   end
   def label_tag_list(value)
     value
@@ -84,6 +83,7 @@ class SearchController < ApplicationController
       end
       @facets.push({ :label => facet.to_s, :links => links })
     end
+
   end
 
   private

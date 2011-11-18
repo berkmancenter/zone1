@@ -36,7 +36,7 @@ class User < ActiveRecord::Base
   end
 
   def default_quota_max
-    default = Preference.find_by_name("Default User Upload Quota")
+    default = Preference.find_by_name_cached("Default User Upload Quota")
     default.present? ? default.value.to_i : 0
   end
 
@@ -148,6 +148,13 @@ class User < ActiveRecord::Base
     end
   end
 
+  def is_admin?
+    users = Group.cached_viewable_users("view_admin")
+    users += Role.cached_viewable_users("view_admin")
+    users += User.cached_viewable_users("view_admin")
+    users.include?(self.id)
+  end
+
   # Note: This is a class method because we want to handle
   # when current_user is nil, without reproducing logic
   def self.can_view_cached?(stored_file_id, current_user)
@@ -158,5 +165,15 @@ class User < ActiveRecord::Base
       users += User.cached_viewable_users("view_items")
     end
     users.uniq.include?(current_user.id) 
+  end
+
+  def self.all
+    Rails.cache.fetch("users") do
+      User.find(:all)
+    end
+  end
+
+  def self.name_map
+    User.all.inject({}) { |h, user| h[user.id.to_s] = user.name; h }
   end
 end

@@ -15,7 +15,6 @@ class GroupSweeper < ActionController::Caching::Sweeper
 
   private
   def destroy_viewable_users_cache
-    Rails.cache.delete("groups-viewable-users-view_items")
-    Rails.cache.delete("groups-viewable-users-view_preserved_flag_content")
+    Rails.cache.delete_matched(%r{groups-viewable-users-*})
   end
 end

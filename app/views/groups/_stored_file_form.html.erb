@@ -2,7 +2,7 @@
 <%= f.label "Groups" %>
 <% @stored_file.group_map(current_user).each do |group_map| -%>
 <%= f.fields_for :groups_stored_files, group_map[:groups_stored_files_entry] do |groups_stored_files_form| -%>
-<%= render "groups_stored_files/form", :f => groups_stored_files_form %>
+<%= render "groups_stored_files/form", :f => groups_stored_files_form, :group => group_map[:group] %>
 <% end -%>
 <% end -%>
 <% else -%>

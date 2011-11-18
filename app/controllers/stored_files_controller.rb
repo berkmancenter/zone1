@@ -1,7 +1,7 @@
 class StoredFilesController < ApplicationController
   protect_from_forgery
   include ApplicationHelper
-  cache_sweeper :stored_file_sweeper
+  cache_sweeper :stored_file_sweeper, :only => [:update, :destroy]
 
   access_control do
     allow logged_in, :to => [:create, :new]
@@ -21,7 +21,7 @@ class StoredFilesController < ApplicationController
 
   # Note: View/edit are on same form now, so this is really "can the user view or edit"
   def allow_show?
-    StoredFile.find(params[:id]).can_user_view?(current_user)
+    StoredFile.cached_viewable_users(params[:id]).include?(current_user.id)
   end
 
   # TODO: Update this later to handle stored file params
@@ -37,7 +37,7 @@ class StoredFilesController < ApplicationController
 
   def edit
     @licenses = License.all
-    @stored_file = StoredFile.find(params[:id], :include => :comments)
+    @stored_file = StoredFile.find(params[:id], :include => [:comments, :access_level, :groups, :flags])
 
     @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
 

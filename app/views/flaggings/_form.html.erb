@@ -1,25 +1,25 @@
 <div class="flagging">
-    <% if stored_file.flags.include?(f.object.flag) %>
-      <% if current_user.can_unflag?(f.object.flag) %>
+    <% if stored_file.flags.include?(flag) -%>
+      <% if current_user.can_unflag?(flag) %>
       <%= f.hidden_field :_destroy, :value => 1 %>       
       <%= check_box_tag f.object_name + "[_destroy]", 0, true %>
       <% else -%>
       <%= check_box_tag "disabled_flagging_#{f.object.id}", 1, true, :disabled => true %>
       <% end -%>
 
-      <%= content_tag :span, f.object.flag.label %>
+      <%= content_tag :span, flag.label %>
 
-    <% elsif current_user.can_flag?(f.object.flag) %>
-      <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", f.object.flag_id) if bulk_edit? %>
+    <% else -%>
+      <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", flag.id) if bulk_edit? %>
 
       <% #Assume user doesn't want flag.  This must appear BEFORE the CHECKBOX %>
       <%= f.hidden_field :_destroy, :value => 1 %>       
 
       <% #Allow user to opt-in to the flag.  This must appear AFTER the _destroy field  %>
-      <%= check_box_tag f.object_name + "[_destroy]", 0 %> <%= f.label :flag_id, f.object.flag.label %><br/>
+      <%= check_box_tag f.object_name + "[_destroy]", 0 %> <%= f.label :flag_id, flag.label %><br/>
       
       <%= f.text_area :note, :rows => 2, :cols => 20 %><br/>
-    <% end %>
+    <% end -%>
 
     <%= f.hidden_field :flag_id %>
     <%= f.hidden_field :user_id, :value => current_user.id %>

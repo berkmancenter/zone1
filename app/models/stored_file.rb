@@ -286,30 +286,32 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
+  # Note: passing flag in hash is not necessary, but is an optimization
   def flag_map(user)
     flag_map = []
 
     Flag.all.each do |flag|
       flagging = self.flaggings.detect { |f| f.flag_id == flag.id }
       if flagging
-        flag_map << { :flagging => flagging }
+        flag_map << { :flagging => flagging, :flag => flag }
       elsif user.can_flag?(flag)
-        flag_map << { :flagging => self.flaggings.build(:flag_id => flag.id) }
+        flag_map << { :flagging => self.flaggings.build(:flag_id => flag.id), :flag => flag }
       end
     end
 
     flag_map
   end
 
+  # Note: passing group in hash is not necessary, but is an optimization
   def group_map(user)
     group_map = []
 
     user.owned_groups.each do |group|
       groups_stored_files_entry = self.groups_stored_files.detect { |g| g.group_id == group.id }
       if groups_stored_files_entry
-        group_map << { :groups_stored_files_entry => groups_stored_files_entry }
+        group_map << { :groups_stored_files_entry => groups_stored_files_entry, :group => group }
       else 
-        group_map << { :groups_stored_files_entry => self.groups_stored_files.build(:group_id => group.id) }
+        group_map << { :groups_stored_files_entry => self.groups_stored_files.build(:group_id => group.id), :group => group }
       end
     end
  
@@ -318,7 +320,7 @@ class StoredFile < ActiveRecord::Base
 
   def self.cached_viewable_users(id)
     Rails.cache.fetch("stored-file-#{id}-viewable-users") do
-      stored_file = StoredFile.find(id)
+      stored_file = StoredFile.find(id, :include => :user)
 
       return User.all.collect { |user| user.id } if stored_file.access_level.name == "open"
 

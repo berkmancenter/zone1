@@ -3,6 +3,7 @@
     <td>
       <%= editable_field(f, @attr_accessible, :collection_list, {}, :text_field) %>
 
+      <%#= tag_list hitting the database %>
       <%= editable_field(f, @attr_accessible, :tag_list, {}, :text_field) %>
       <%= editable_field(f, @attr_accessible, :allow_tags, {}, :check_box) %>
 
@@ -25,6 +26,7 @@
 		  <%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
 		</td>
 		<td>
+          <%#= user.owned_groups hitting the database %>
 		  <%= render "groups/stored_file_form", :attrs => @attr_accessible, :f => f %>
 		</td>
 	</tr>

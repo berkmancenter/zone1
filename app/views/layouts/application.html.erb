@@ -14,7 +14,7 @@
 (<%= render "users/quota_summary", :user => current_user %>) |
 <%= link_to 'Upload File(s)', upload_path %> |
 <%= link_to 'Groups', groups_path %> |
-<% if current_user.can_do_global_method?("view_admin") %>
+<% if current_user.is_admin? %>
 <%= link_to 'Admin', "/admin" %> |
 <% end -%>
 <%= link_to 'Sign Out', destroy_user_session_path, :method => :delete %> 

@@ -1,6 +1,7 @@
 class Admin::BaseController < ApplicationController
   layout "admin"
   include ApplicationHelper
+  cache_sweeper :preference_sweeper, :only => :update
 
   access_control do
     allow logged_in, :to => [:index, :edit, :show, :destroy, :update, :create], :if => :can_view_admin?
