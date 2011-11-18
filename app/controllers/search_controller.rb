@@ -6,7 +6,7 @@ class SearchController < ApplicationController
   def label_batch_id(value)
     value
   end
-  def label_collection_list(value)
+  def label_indexed_collection_list(value)
     value
   end
   def label_author(value)
@@ -19,7 +19,7 @@ class SearchController < ApplicationController
     # TODO: This is hitting the database. can_optimize? yes
     User.name_map[value] || "Unknown user"
   end
-  def label_tag_list(value)
+  def label_indexed_tag_list(value)
     value
   end
   def label_flag_ids(value)
@@ -50,7 +50,7 @@ class SearchController < ApplicationController
       @created_at_end_date = created_at_end_date = build_date_from_string_safe(params[:created_at_end_date]) #for inside @search.build block
     end
    
-    facets = [:batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id] #:copyright
+    facets = [:batch_id, :indexed_collection_list, :author, :office, :user_id, :indexed_tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id] #:copyright
     @search = Sunspot.new_search(StoredFile)
     @search.build do
       facets.each do |facet|
@@ -63,7 +63,7 @@ class SearchController < ApplicationController
       fulltext params[:search] do
         query_phrase_slop 1 
       end
-      facet :batch_id, :collection_list, :author, :office, :user_id, :tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id  #:copyright
+      facet :batch_id, :indexed_collection_list, :author, :office, :user_id, :indexed_tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id  #:copyright
       with(:created_at, created_at_start_date.beginning_of_day..created_at_end_date.end_of_day) if created_at_start_date && created_at_end_date
       order_by sort_column, sort_direction 
     end

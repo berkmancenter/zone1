@@ -51,11 +51,11 @@ class StoredFile < ActiveRecord::Base
     text :original_filename, :description
     time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
     integer :batch_id, :stored => true
-    string :collection_list, :stored => true, :multiple => true
+    string :indexed_collection_list, :stored => true, :multiple => true
     string :author, :stored => true
     string :office
     integer :user_id, :references => User
-    string :tag_list, :stored => true, :multiple => true
+    string :indexed_tag_list, :stored => true, :multiple => true
     integer :flag_ids, :stored => true, :multiple => true, :references => Flag 
     text :copyright
     string :license_name, :stored => true
@@ -203,9 +203,17 @@ class StoredFile < ActiveRecord::Base
     valid_attr.uniq
   end
 
+  def indexed_collection_list
+    self.owner_tags_on(nil, :collections)
+  end
+
   def collection_list
     #so form value does not have to be manually set
     @collection_list ||= self.anonymous_tag_list(:collections)
+  end
+  
+  def indexed_tag_list
+    self.owner_tags_on(nil, :tags)
   end
 
   def tag_list
