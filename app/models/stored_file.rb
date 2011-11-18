@@ -220,11 +220,10 @@ class StoredFile < ActiveRecord::Base
 
     params = flaggings_server_side_validation(params, user)
 
-    # TODO: Figure out best way to do comment manipulation here to 
-    # empty comments_attribute if content is empty.
-    add_user_id_to_comments(params, user)
+    prepare_comment_params(params, user)
 
     if update_attributes(params)
+
       if params.has_key?(:tag_list)
         update_tags(params[:tag_list], :tags, user)
         params.delete(:tag_list)
@@ -398,39 +397,12 @@ class StoredFile < ActiveRecord::Base
 
   private
 
-  def add_user_id_to_comments(params, user)
+  def prepare_comment_params(params, user)
     if params[:comments_attributes]
+      params[:comments_attributes].delete_if { |key, value| value[:content].empty? }
       params[:comments_attributes].values.each do |comment_hash|
         comment_hash.merge!("user_id" => user.id)
       end
     end
   end
-
-  def update_metadata_inline
-    
-    #Allow Fits attributes to be updated
-    self.accessible = FITS_ATTRIBUTES
-    
-    metadata = Fits::analyze(self.file.url)
-
-    if metadata.class == Hash and metadata.keys.length > 0
-
-
-      ::Rails.logger.debug "PHUNK: updating metadata attributes INLINE"
-      metadata.each do |name, value|
-        # Use send like this instead of update_attributes because update_attributes
-        # would require we first call reload in this method (so the before_save
-        # conditional works), AND it will make ActiveRecord call save() on this 
-        # object a second time.
-        self.send("#{name}=", value)
-      end
-
-
-      Sunspot.commit  #index these changes
-
-    else
-      ::Rails.logger.warn "Warning: stored_file.update_metadata received zero usable data from FITS for id/file #{self.id} - ${self.file.url}"
-    end
-  end
-
 end
