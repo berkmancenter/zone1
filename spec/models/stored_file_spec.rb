@@ -17,16 +17,47 @@ describe StoredFile do
   it { should accept_nested_attributes_for :comments }
   it { should accept_nested_attributes_for :groups_stored_files }
 
-  it { should allow_mass_assignment_of :groups_stored_files_attributes }
-  it { should allow_mass_assignment_of :flaggings_attributes }
-  it { should allow_mass_assignment_of :comments_attributes }
-
   # Examples of double / stub
   #stored_file = double("stored_file")
   #stored_file.stub(:flags).and_return([flag])
   #flag = Factory(:flag)
   #Flag.stub!(:preserved).and_return([flag])
   #FlagClass = doubleflag.stub(:name).and_return(Flag.PRESERVED_NAMES.first) # set name to PRESERVED
+
+  describe "#display_name" do
+    let(:stored_file) { Factory(:stored_file, :title => "Test Name") }
+    let(:stored_file2) { Factory(:stored_file, :original_filename => "foobar") }
+
+    context "when stored file has title" do
+      it "should return title" do
+        stored_file.display_name.should == stored_file.title
+      end
+    end
+
+    context "when stored file has no title" do
+      it "should return original_filename" do
+        stored_file2.display_name.should == stored_file2.original_filename
+      end
+    end
+  end
+
+  describe "#license_name" do
+    let(:license) { Factory(:license) }
+    let(:stored_file) { Factory(:stored_file, :license_id => license.id) }
+    let(:stored_file2) { Factory(:stored_file) }
+
+    context "when stored file has license" do
+      it "should return license name" do
+        stored_file.license_name.should == license.name
+      end
+    end
+
+    context "when stored file has no license" do
+      it "should return original_filename" do
+        stored_file2.license_name.should == ''
+      end
+    end
+  end
 
   describe "#has_preserved_flag?" do
     let(:stored_file) { Factory(:stored_file) }
@@ -150,4 +181,45 @@ describe StoredFile do
       end
     end
   end
+
+  describe "#can_user_destroy?" do
+    let(:user1) { Factory(:user, :email => "test1@email.com") }
+    let(:stored_file1) { Factory(:stored_file, :user_id => user1.id) }
+    let(:user2) { Factory(:user, :email => "test2@email.com") }
+    let(:stored_file2) { Factory(:stored_file, :user_id => user2.id) }
+    let(:stored_file3) { Factory(:stored_file, :user_id => user2.id) }
+    let(:right) { Factory(:right, :action => "delete_items") }
+    let(:user3) { Factory(:user, :email => "test3@email.com") }
+    
+    context "when user has global delete_right and does not own stored file" do
+      before(:each) do
+        user1.rights << right 
+      end
+      it "should allow delete on stored file" do
+        stored_file1.can_user_destroy?(user1).should == true
+      end 
+    end 
+    context "when user owns stored file and is contributor and stored file has preserved, record flag" do
+      before(:each) do
+        flag = Flag.find_by_name("PRESERVED")
+        Flagging.create(:flag_id => flag.id, :user_id => user2.id, :stored_file_id => stored_file2.id)
+      end
+      it "should allow delete on stored file" do
+        stored_file2.can_user_destroy?(user2).should == true
+      end 
+    end 
+    context "when user owns stored file and is contributor stored file does not have preserved, record flag" do
+      it "should allow delete on stored file" do
+        stored_file3.can_user_destroy?(user2).should == true 
+      end 
+    end
+    context "when user doesn't own stored file" do
+      it "should not allow delete on stored file" do
+        stored_file3.can_user_destroy?(user3).should == false 
+      end
+    end 
+  end
+
+  #describe "#flag_map" do
+  #end
 end

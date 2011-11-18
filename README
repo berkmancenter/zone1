@@ -1,6 +1,6 @@
 == Data Setup
 
-rake db:drop; rake db:create; rake db:migrate; rake db:seed; rake sunspot:reindex
+rake db:reset; rake sunspot:reindex
 
 == ERD Generator
 
@@ -18,19 +18,6 @@ railroad -M | neato -Tpng > app/assets/images/models.png
 - pagination: will_paginate
 - file metadata: fits
 - background jobs: resque + redis
-
-== Performance Considerations
-
-- upload page: no caching
-- batch management: no caching
-- group management: no caching
-- view / edit single file: page caching, with AJAX request followup for determining editability, sweepers to clear after edits
-- facet view: fragment or Rails low level caching, methods TBD
-- search view: cached, but with complex consideration of access levels
-  - one cached section which contains public files
-  - one section cached differently which contains partially open files 
-  - how to iterate through search view to view accessible files
-  - perhaps performance on Solr search will be better than h2o in the first place since objects aren't as large
 
 == TESTING
 
