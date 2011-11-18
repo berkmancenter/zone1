@@ -9,11 +9,17 @@ class BulkEditsController < ApplicationController
       @attr_accessible = StoredFile.bulk_editable_attributes(@stored_files, current_user)
  
       matching_attributes = StoredFile.matching_attributes_from(@stored_files)
-      @stored_file = StoredFile.new(matching_attributes)
+      
+      @stored_file = StoredFile.new
+      @stored_file.accessible = @attr_accessible  #must define accessible before setting attributes
+      @stored_file.attributes = matching_attributes
+      @stored_file.build_bulk_flaggings_for(@stored_files, current_user)
 
       @licenses = License.all
+    
     elsif params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length == 1
       redirect_to edit_stored_file_path(params[:stored_file_ids].first)
+    
     else
       redirect_to search_path
     end
@@ -28,20 +34,18 @@ class BulkEditsController < ApplicationController
     else
       stored_files = StoredFile.find(params[:stored_file_ids])
 
-      eligible_params = {}
-      params[:attr_for_bulk_edit].each do |attr|
-        eligible_params.merge!({ attr => params[:stored_file][attr] }) if params[:stored_file].has_key?(attr)
-      end
 
       stored_files.each do |stored_file|
-        stored_file.custom_save(eligible_params, current_user)
+
+         #TODO only append flagging and groups params per stored_file, get rest of params once, not in loop
+         eligible_params = eligible_params_for(stored_file)
+
+         stored_file.custom_save(eligible_params, current_user)
+      
       end
       
-      flag_ids = params[:attr_for_bulk_edit].select{ |attr| attr.is_a?(Hash) && attr.has_key?("flag_ids") }
-      
-      update_flaggings(stored_files, flag_ids) if flag_ids
-    
-      redirect_to search_path
+      #redirect_to search_path
+      redirect_to :action => "new", :stored_file_ids => params[:stored_file_ids]
     end
 
     rescue Exception => e
@@ -56,15 +60,43 @@ class BulkEditsController < ApplicationController
     end
   end
 
-  def update_flaggings(stored_files, flag_ids)
-    if params[:stored_file].has_key?("flaggings_attributes") 
-      stored_files.each do |stored_file|
-        stored_file.flaggings.each do |flaggings|
-          
-          #TODO determine how flaggings are to be handled in bulk edit
+  def eligible_params_for(stored_file)
+    eligible_params = {}
 
-        end                   
+    params[:attr_for_bulk_edit].each do |attr|
+      eligible_params.merge!({ attr => params[:stored_file][attr] }) if params[:stored_file].has_key?(attr)
+
+      if attr.is_a?(Hash) && attr.has_key?("flag_ids") && params[:stored_file].has_key?("flaggings_attributes")
+      
+        eligible_params.merge!(eligible_flagging_attributes(stored_file, attr[:flag_ids], params[:stored_file][:flaggings_attributes]))
+      
       end
     end
+
+    eligible_params
   end
+
+  def eligible_flagging_attributes(stored_file, flag_ids, flagging_attributes)
+    eligible_flaggings = {}
+
+    flagging_attributes.each do |key, flagging|
+      if flag_ids.include?(flagging[:flag_id]) #we've found an eligible flagging
+
+        if flagging[:_destroy] == "1" 
+          #If the flagging needs to be destroyed, we must find the flagging.id for the stored_file and include it in the params       
+          flagging_id = stored_file.find_flagging_id_by_flag_id(flagging[:flag_id]) 
+
+          flagging[:id] = flagging_id if flagging_id.present?  #flagging_id wont be found when stored file doesn't have the flag set
+        end
+
+
+        eligible_flaggings.merge!({key => flagging})
+
+      end
+    end
+
+    {"flaggings_attributes" => eligible_flaggings}
+  end
+
+
 end

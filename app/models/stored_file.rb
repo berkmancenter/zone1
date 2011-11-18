@@ -68,6 +68,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def display_name
+    #TODO title.presense || original_filename
     self.title.blank? ? self.original_filename : self.title
   end
 
@@ -92,6 +93,7 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
+  #TODO: delegate :name, :to => :license, :prefix => true, :allow_nil => true
   def license_name
     self.license ? self.license.name : ''
   end
@@ -107,6 +109,7 @@ class StoredFile < ActiveRecord::Base
     attrs
   end
 
+  #TODO move into BulkEdit model
   def self.matching_attributes_from(stored_files)
     matching = {}
     attributes_to_match = StoredFile.new.attribute_names + ["tag_list", "collection_list"]
@@ -126,6 +129,62 @@ class StoredFile < ActiveRecord::Base
     matching
   end
 
+  #TODO move into BulkEdit model
+  def self.matching_flags_from(stored_files)
+    flags = stored_files.first.flags
+
+    stored_files.each do |stored_file|
+      flags = flags & stored_file.flags
+    end
+
+    flags    
+  end
+
+  #TODO move into BulkEdit model
+  def build_bulk_flaggings_for(stored_files, user)
+    matching_flags = StoredFile.matching_flags_from(stored_files)
+    matching_flags.each do |flag|
+      self.flaggings.build(:flag_id => flag.id, :checked => true)     # must explicitly set checked here.  It is the only way
+                                                                      # the form will know that this flagging is set 
+    end
+  end
+
+  def flag_set?(flag)
+    #must use flaggings here instead of flags, because of bulk edit
+
+    #in bulk edit, flags are not defined, because we're creating a new stored file
+
+    #flaggings are defined for the new bulk_edit stored file
+   
+    set_flag_ids = self.flaggings.inject([]) do |array, flagging|
+      array << flagging.flag_id if flagging.checked?
+      array
+    end
+
+    set_flag_ids.include?(flag.id)
+  end
+
+  def find_flagging_id_by_flag_id(flag_id)
+    
+    id_array = self.flaggings.inject([]) do |array, flagging|
+      array << flagging.id if flagging.flag_id.to_s == flag_id
+      array
+    end
+
+    if id_array.length > 1
+      logger.debug "self.flaggings.inspect=" + self.flaggings.inspect
+      logger.debug "flagging_attributes.inspect = " + flagging_attributes.inspect
+      logger.debug "id_array = " + id_array.inspect
+      raise "Should find one flagging.id"
+
+    elsif id_array.length == 1
+      return id_array.to_s
+
+    elsif id_array.length == 0
+      #it's ok if we find nothing, this means this flag was never set for the stored file
+      return nil
+    end
+  end
 
   def flaggings_server_side_validation(params, user)
     # This isn't quite as simple as a global attribute to be updated
@@ -196,6 +255,8 @@ class StoredFile < ActiveRecord::Base
       access_level = AccessLevel.find(params[:access_level_id])
       valid_attr << :access_level_id if user.can_set_access_level?(self, access_level)
     end
+
+
 
     valid_attr << :tag_list if allow_tags
     logger.debug "ATTR_ACCESSIBLE_FOR"

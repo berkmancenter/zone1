@@ -1,10 +1,14 @@
 <div class="flagging">
-    <% if stored_file.flags.include?(flag) -%>
+    <% if stored_file.flag_set?(flag) %>
+      
       <% if current_user.can_unflag?(flag) %>
-      <%= f.hidden_field :_destroy, :value => 1 %>       
-      <%= check_box_tag f.object_name + "[_destroy]", 0, true %>
+
+        <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", f.object.flag_id) if bulk_edit? %>
+        <%= f.hidden_field :_destroy, :value => 1 %>       
+        <%= check_box_tag f.object_name + "[_destroy]", 0, true %>
+      
       <% else -%>
-      <%= check_box_tag "disabled_flagging_#{f.object.id}", 1, true, :disabled => true %>
+        <%= check_box_tag "disabled_flagging_#{f.object.id}", 1, true, :disabled => true %>
       <% end -%>
 
       <%= content_tag :span, flag.label %>
@@ -22,5 +26,7 @@
     <% end -%>
 
     <%= f.hidden_field :flag_id %>
+
+    <% #TODO set flaggings user_id in custom_save %>
     <%= f.hidden_field :user_id, :value => current_user.id %>
 </div> 
