@@ -119,6 +119,7 @@ class StoredFilesController < ApplicationController
  
 
   def create
+    #TODO: standardize error handling JSON with the way sftp_users_controller.rb does it
     begin
       if current_user.nil?
         render :json => {:success => false, :message => "It doesn't look like you're logged in."}
@@ -144,6 +145,19 @@ class StoredFilesController < ApplicationController
       else
         raise "StoredFile not created. see logs!"
       end
+
+      #TODO: only do this iff there is a web upload in this POST
+      ::Rails.logger.debug "PHUNK========== About to enqueue FitsRunner"
+      Resque.enqueue(FitsRunner, new_file.id)
+
+      if needs_remote_file_import
+        # make sure the remote file import job gets enqueued only once for this temp_batch_id
+        session[:remote_import_temp_batch_ids] ||= {}
+        session[:remote_import_temp_batch_ids][params[:temp_batch_id]] = true        
+        Resque.enqueue(RemoteFileImporter, params[:sftp_username], new_file.to_json)
+      end
+      render :json => {:success => true}
+      return
     rescue Exception => e
       log_exception(e)
       render :json => {:success => false, :message => e.to_s}
@@ -164,7 +178,15 @@ class StoredFilesController < ApplicationController
 
   private
 
-  def update_batch(temp_batch_id, stored_file)
+  def needs_remote_file_import
+    #TODO: formatting fix for this junk show
+    params[:sftp_username].present? &&
+      !(session[:remote_import_temp_batch_ids] &&
+        session[:remote_import_temp_batch_ids][params[:temp_batch_id]]) &&
+      SftpUser.find_by_username(params[:sftp_username]).uploaded_files?
+  end
+
+  def update_batch(temp_batch_id, new_file)
     file_ids = session[:upload_batches][temp_batch_id][:file_ids]
 
     if file_ids.length == 0

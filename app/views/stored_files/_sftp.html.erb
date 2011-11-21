@@ -6,19 +6,15 @@
 
 
 <fieldset>
-   <legend><span id="sftp_toggler">SFTP:</span></legend>
+  <legend><span id="sftp_toggler">SFTP:</span></legend>
 <div id="sftp" class="hidden">
-
   <div id="sftp_form_div"> 
-  <form>
-<input type=button id="sftp_tester" value="get SFTP session"><br/>
-    <%= label_tag :username %>: 
-      <%= text_field_tag :username, '', {:id => 'username', :readonly => 'readonly'} %><br/>
-    <%= label_tag :password %>: 
-      <%= text_field_tag :password, '', {:id => 'password', :readonly => 'readonly'} %>
-  </form>
+    <input type=button id="sftp_tester" value="get SFTP session"><br/>
+    <%= label_tag :sftp_username %>: 
+      <%= text_field_tag :sftp_username, '', {:id => 'sftp_username', :readonly => 'readonly'} %><br/>
+    <%= label_tag :sftp_password %>: 
+      <%= text_field_tag :sftp_password, '', {:id => 'sftp_password', :readonly => 'readonly'} %>
   </div>
-
 </div>
 </fieldset>
 
@@ -27,13 +23,15 @@
 
 $(function() {
     var SFTP_INITIALIZED = false;
+    var username_id = '#sftp_username';
+    var password_id = '#sftp_password';
 
     // prevent lazy firefox reload from leaving old credentials visible
-    $('#username').val('');
-    $('#password').val('');
+    $(username_id).val('');
+    $(password_id).val('');
 
-    $('#username').focus(function() {this.select();});
-    $('#password').focus(function() {this.select();});
+    $(username_id).focus(function() {this.select();});
+    $(password_id).focus(function() {this.select();});
 
   	$('#sftp_toggler').click(function() {
         $('#sftp').slideToggle('fast', function() {
@@ -49,8 +47,8 @@ $(function() {
     });
 
     var display_sftp_credentials = function(credentials) {
-        $('#username').val(credentials['u']);
-        $('#password').val(credentials['p']);
+        $(username_id).val(credentials['u']);
+        $(password_id).val(credentials['p']);
     }
 
     var init_sftp = function() {

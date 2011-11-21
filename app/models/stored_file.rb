@@ -29,6 +29,7 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
 
+  after_create :decrease_available_user_quota #TODO: RemoteFileImporter wants to update this ONCE for an entire batch.
   after_destroy :increase_available_user_quota
 
   validates_presence_of :user_id
@@ -42,7 +43,15 @@ class StoredFile < ActiveRecord::Base
 
   CREATE_ATTRIBUTES = [:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES
 
-  FITS_ATTRIBUTES = [:file_size, :md5, :fits_mime_type]
+  attr_accessible :file, :license_id, :collection_name,
+    :author, :title, :copyright, :description, :access_level_id,
+    :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
+    :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
+    :comments_attributes, :flaggings_attributes, :disposition_attributes,
+    :allow_tags, :collection_list, :disposition, :group_ids, 
+    :fits_mime_type, :format_name, :format_version, :file_size, :md5
+
+  FITS_ATTRIBUTES = [:file_size, :md5, :format_version, :fits_mime_type]
   
   mount_uploader :file, FileUploader, :mount_on => :file
 
@@ -66,6 +75,7 @@ class StoredFile < ActiveRecord::Base
     string :mime_type_id
     string :mime_type_category_id
   end
+  #TODO integer types for :mime_type* post-rebase
 
   def display_name
     self.title.presence || self.original_filename
@@ -412,6 +422,51 @@ class StoredFile < ActiveRecord::Base
     end
  
     group_map
+  end
+
+  def self.testit(file_url='/tmp/upload1.jpg')
+    sf = StoredFile.new(:user_id => 2, :access_level_id => 2)
+    sf.file = File.open(file_url)
+    sf.set_fits_attributes
+    sf
+  end
+
+  def fits_mime_type=(foo)
+    #pre-rebase placeholder
+  end
+
+  def extname(file_url)
+    #TODO: for use with fits_mime_type=, post-rebase
+    File.extname(file_url).downcase
+  end
+
+  def update_fits_attributes
+    # Convenience method similar to standard "update_attributes", for FITS metadata,
+    # including the expected save() call that set_fits_attributes does NOT do
+    return (set_fits_attributes && save) || false
+  end
+
+  def set_fits_attributes(file_url=nil)
+    # Note: Does NOT save changes to database
+    # Returns: Boolean based on whether or not metadata from FITS was used for update
+    file_url ||= self.file.url
+    begin
+      metadata = Fits::analyze(file_url)
+      if metadata.class == Hash and metadata.keys.length > 0
+        FITS_ATTRIBUTES.each do |name|
+          self.send("#{name}=", metadata[name])
+        end
+        #TODO: Does Sunspot.commit need a save! first in order to work?
+        #Sunspot.commit  #index these changes
+        return true
+      else
+        ::Rails.logger.warn "Un-usable FITS metadata was: #{metadata.inspect}"
+        return false
+      end
+    rescue Exception => e
+      ::Rails.logger.warn "Warning: set_fits_attributes caught exception: #{e}"
+    end
+    return false
   end
 
   def self.cached_viewable_users(id)
