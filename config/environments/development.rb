@@ -26,5 +26,9 @@ Zone1::Application.configure do
   config.assets.compress = false
 
   # Expands the lines which load the assets
-  config.assets.debug = true 
+  config.assets.debug = true
+
+  #DEVONLY -phunk
+  ActiveSupport::Deprecation.silenced = true
+  
 end

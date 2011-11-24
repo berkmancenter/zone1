@@ -12,12 +12,18 @@ class SftpUser < ActiveRecord::Base
   HOMEDIR_ROOT = '/home/sftp/uploads'
 
   def uploaded_files
+    # if homedir exists, but we don't have full access to it (possibly due to
+    # a filesystem permissions problem in a parent directory, complain about it
+    if test(?d, self.homedir) && !( test(?r,self.homedir) && test(?x, self.homedir) )
+      ::Rails.logger.warn "Warning: homedir exists but is not accessible (+rx) to this user"
+    end
     Dir[self.homedir + "/**/*"].reject {|fn| File.directory?(fn) }
   end
 
   def uploaded_files?
     self.uploaded_files.size > 0
   end
+
 
   private
 
@@ -47,9 +53,6 @@ class SftpUser < ActiveRecord::Base
   end
 
   def generate_homedir
-    if [self.user_id, self.username].any? {|a| a.nil?}
-      raise Exception.new("Cannot generate_homedir without both user_id and username")
-    end
     HOMEDIR_ROOT + '/' + self.user_id.to_s + '/' + self.username
   end
 

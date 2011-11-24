@@ -2,14 +2,10 @@
 <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/base/jquery-ui.css" type="text/css" />
 <link rel="stylesheet" href="/javascripts/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css" type="text/css" />
 <script type="text/javascript" src="/javascripts/plupload/plupload.js"></script>
+<script type="text/javascript" src="/javascripts/plupload/jquery.ui.plupload/jquery.ui.plupload.js"></script>
 <script type="text/javascript" src="/javascripts/plupload/plupload.html5.js"></script>
 <script type="text/javascript" src="/javascripts/plupload/plupload.html4.js"></script>
-<script type="text/javascript" src="/javascripts/plupload/jquery.ui.plupload/jquery.ui.plupload.js"></script>
 <script type="text/javascript" src="/javascripts/upload_helper.js"></script>
-<!-- REDUNDANT:
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
--->
 <style type="text/css">
   .plupload_header {display: none;}
 </style>
@@ -20,11 +16,16 @@
 
 	<%= form_for @stored_file, :url => "/stored_files", :html => {:id => :upload_data} do |f| %>
 		<%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
+		<%= hidden_field_tag 'max_web_upload_file_size', @max_web_upload_file_size %>
+
 		<%= render "form", :f => f %>
+
+        <div id="uploader">
+	    	<p>Failed to initialize the upload tool. Not to point fingers, but
+               perhaps you are using a very old browser that is unsupported?</p>
+	    </div>
+
+        <%= render :partial => 'sftp' %>
 	<% end %>
-  <hr />
-    <div id="uploader">
-		<p>Failed to initialize the upload tool. Not to point fingers, but perhaps you are using a very old browser that is unsupported?</p>
-	</div>
 
 </fieldset>

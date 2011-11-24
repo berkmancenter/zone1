@@ -5,6 +5,7 @@ class RemoteFileImporter
     ::Rails.logger.debug "PHUNK: RemoteFileImporter firing for username #{username}"
     sftp_user = SftpUser.find_by_username(username)
     seed_file = JSON.parse(stored_file_string)
+    seed_file[:skip_quota] = true
     bytes_used = 0
 
     #TODO: error handling for each file
@@ -18,8 +19,9 @@ class RemoteFileImporter
       bytes_used += stored_file.file.size
     end
 
-    #sftp_user.user.decrease_available_quota(bytes_used)
+    sftp_user.user.decrease_available_quota!(bytes_used)
     ::Rails.logger.debug "PHUNK: Would sftp_user.destroy here"
+    #sftp_user.destroy
   end
   
 end

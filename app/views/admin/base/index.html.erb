@@ -1,11 +1,9 @@
 Welcome to the admin dashboard.
 
 <%= form_tag "/admin/update" do %>
-<% @preferences.each do |preference| -%>
-<label><%= preference.name %></label>
-<%= text_field :preference, preference.id, { :value => preference.value } %><br />
+  <% @preferences.each do |preference| -%>
+    <label><%= preference.name %></label>
+    <%= text_field :preference, preference.id, { :value => preference.value } %><br />
+  <% end -%>
+  <%= submit_tag "Update" %>
 <% end -%>
-<%= submit_tag "Update" %>
-<% end -%>
-
-Also? max http uploads

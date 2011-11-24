@@ -28,9 +28,11 @@ class StoredFile < ActiveRecord::Base
 
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
-
-  after_create :decrease_available_user_quota #TODO: RemoteFileImporter wants to update this ONCE for an entire batch.
+  
+  attr_accessor :skip_quota
+  after_create :decrease_available_user_quota, :unless => :skip_quota
   after_destroy :increase_available_user_quota
+<<<<<<< HEAD
 
   validates_presence_of :user_id
 
@@ -42,6 +44,9 @@ class StoredFile < ActiveRecord::Base
     :access_level_id]
 
   CREATE_ATTRIBUTES = [:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES
+=======
+  before_save :update_file_size
+>>>>>>> SFTP WIP #3
 
   attr_accessible :file, :license_id, :collection_name,
     :author, :title, :copyright, :description, :access_level_id,
@@ -49,7 +54,7 @@ class StoredFile < ActiveRecord::Base
     :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
     :comments_attributes, :flaggings_attributes, :disposition_attributes,
     :allow_tags, :collection_list, :disposition, :group_ids, 
-    :fits_mime_type, :format_name, :format_version, :file_size, :md5
+    :fits_mime_type, :format_name, :format_version, :file_size, :md5, :skip_quota
 
   FITS_ATTRIBUTES = [:file_size, :md5, :format_version, :fits_mime_type]
   
@@ -77,6 +82,7 @@ class StoredFile < ActiveRecord::Base
   end
   #TODO integer types for :mime_type* post-rebase
 
+<<<<<<< HEAD
   def display_name
     self.title.presence || self.original_filename
   end
@@ -154,6 +160,15 @@ class StoredFile < ActiveRecord::Base
     end
 
     groups
+=======
+  def initialize(params={})
+    super
+    @skip_quota = params[:skip_quota]
+  end
+
+  def decrease_available_user_quota
+    user.decrease_available_quota!(file_size)
+>>>>>>> SFTP WIP #3
   end
 
   #TODO move into BulkEdit model
@@ -448,7 +463,7 @@ class StoredFile < ActiveRecord::Base
 
   def set_fits_attributes(file_url=nil)
     # Note: Does NOT save changes to database
-    # Returns: Boolean based on whether or not metadata from FITS was used for update
+    # Returns: Boolean based on whether or not FITS returned usable metadata
     file_url ||= self.file.url
     begin
       metadata = Fits::analyze(file_url)
@@ -456,8 +471,8 @@ class StoredFile < ActiveRecord::Base
         FITS_ATTRIBUTES.each do |name|
           self.send("#{name}=", metadata[name])
         end
-        #TODO: Does Sunspot.commit need a save! first in order to work?
-        #Sunspot.commit  #index these changes
+
+        Sunspot.commit  #index these changes
         return true
       else
         ::Rails.logger.warn "Un-usable FITS metadata was: #{metadata.inspect}"
@@ -488,6 +503,12 @@ class StoredFile < ActiveRecord::Base
   end
 
   private
+
+  def update_file_size
+    if file.present? && file_changed?
+      self.file_size = file.file.size rescue ''
+    end
+  end
 
   def prepare_comment_params(params, user)
     if params[:comments_attributes]

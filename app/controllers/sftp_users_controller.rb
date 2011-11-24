@@ -9,10 +9,11 @@ class SftpUsersController < ApplicationController
       user = SftpUser.new(:user_id => current_user.id)
       user.save!
       render :json => { :u => user.username, :p => user.raw_password }
+      #render :json => { :u => 'user62A85668', :p => '39fbfbdc550a635d' }
       return
     rescue Exception => e
       log_exception e
-      render :status => :error, :json => { :msg => e.to_s }
+      render :status => :error, :json => { :message => e.to_s }
       return
     end
   end
