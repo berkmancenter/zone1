@@ -44,7 +44,7 @@ describe StoredFile do
   describe "#license_name" do
     let(:license) { Factory(:license) }
     let(:stored_file) { Factory(:stored_file, :license_id => license.id) }
-    let(:stored_file2) { Factory(:stored_file) }
+    let(:stored_file2) { Factory(:stored_file, :original_filename => "filename") }
 
     context "when stored file has license" do
       it "should return license name" do
@@ -54,19 +54,18 @@ describe StoredFile do
 
     context "when stored file has no license" do
       it "should return original_filename" do
-        stored_file2.license_name.should == ''
+        stored_file2.license_name.should == "filename"
       end
     end
   end
 
   describe "#has_preserved_flag?" do
     let(:stored_file) { Factory(:stored_file) }
-    let(:user) { Factory(:user) }
 
     context "when stored file has a preserved flag" do
       before(:each) do
-        flag = Flag.preserved.first
-        flagging = Factory(:flagging, :flag_id => flag.id, :user_id => user.id, :stored_file_id => stored_file.id)
+        flag = Factory(:preserved_flag)
+        flagging = Factory(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
       end
       it "should return true" do
         stored_file.has_preserved_flag?.should == true
@@ -74,8 +73,8 @@ describe StoredFile do
     end
     context "when stored file does not have a preserved flag" do
       before(:each) do
-        flag = (Flag.all - Flag.preserved).first
-        flagging = Factory(:flagging, :flag_id => flag.id, :user_id => user.id, :stored_file_id => stored_file.id)
+        flag = Factory(:flag)
+        flagging = Factory(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
       end
       it "should return false" do
         stored_file.has_preserved_flag?.should == false
@@ -85,12 +84,11 @@ describe StoredFile do
 
   describe "#has_preserved_or_record_flag?" do
     let(:stored_file) { Factory(:stored_file) }
-    let(:user) { Factory(:user) }
 
     context "when stored file has a selected flag" do
       before(:each) do
-        flag = Flag.selected.first
-        flagging = Factory(:flagging, :flag_id => flag.id, :user_id => user.id, :stored_file_id => stored_file.id)
+        flag = Factory(:selected_flag)
+        flagging = Factory(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
       end
       it "should return true" do
         stored_file.has_preserved_or_record_flag?.should == true
@@ -98,8 +96,8 @@ describe StoredFile do
     end
     context "when stored file does not have a selected flag" do
       before(:each) do
-        flag = (Flag.all - Flag.selected).first
-        flagging = Factory(:flagging, :flag_id => flag.id, :user_id => user.id, :stored_file_id => stored_file.id)
+        flag = Factory(:flag)
+        flagging = Factory(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
       end
       it "should return false" do
         stored_file.has_preserved_or_record_flag?.should == false
@@ -201,7 +199,7 @@ describe StoredFile do
     end 
     context "when user owns stored file and is contributor and stored file has preserved, record flag" do
       before(:each) do
-        flag = Flag.find_by_name("PRESERVED")
+        flag = Factory(:preserved_flag)
         Flagging.create(:flag_id => flag.id, :user_id => user2.id, :stored_file_id => stored_file2.id)
       end
       it "should allow delete on stored file" do

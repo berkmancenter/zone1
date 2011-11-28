@@ -1,13 +1,13 @@
 FactoryGirl.define do
   factory :user do
     name 'John'
-    email 'jdoe@gmail.com'
+    sequence(:email) {|n| "jdoe_#{n}@gmail.com" }
     password 'abcdefg'
     password_confirmation 'abcdefg'
   end
 
   factory :access_level do
-    name 'test_access_level'
+    sequence(:name) { |n| "access level #{n}" }
     label 'test_label'
   end
 
@@ -18,6 +18,12 @@ FactoryGirl.define do
   factory :flag do
     name 'test_flag'
     label 'test_label'
+    factory :preserved_flag do
+      name "NOMINATED_FOR_PRESERVATION"
+    end
+    factory :selected_flag do
+      name "SELECTED_FOR_PRESERVATION"
+    end
   end
 
   factory :group do
@@ -43,14 +49,14 @@ FactoryGirl.define do
 
   factory :stored_file do
     original_filename 'test_stored_file'
-    user_id '1'
-    access_level_id '1'
-    content_type_id '1'
+    user
+    access_level
+    content_type
   end
 
   factory :flagging do
-    flag_id '1'
-    stored_file_id '1'
-    user_id '1'
+    flag
+    stored_file
+    user
   end
 end
