@@ -15,6 +15,10 @@ class MimeType < ActiveRecord::Base
     end
   end
 
+  def self.file_extension_blacklisted?(filename)
+    MimeType.blacklisted_extensions.include?(File.extname(filename)) if filename.present?
+  end
+  
   private
   def set_default_category
     self.mime_type_category = MimeTypeCategory.find_or_create_by_name("Uncategorized")

@@ -218,6 +218,37 @@ describe StoredFile do
     end 
   end
 
+  describe "#custom_save" do
+   
+    before :all do
+     @user = Factory(:user)
+    end
+
+    let(:stored_file) do
+      sf=StoredFile.new
+      sf.user = @user
+      sf.access_level = Factory(:access_level)
+      sf
+    end
+
+    context "when the uploaded file's extension is blacklisted and this is a new record" do
+      it "should raise an error" do
+        Factory(:mime_type, :blacklist => true, :extension => ".exe")
+        assert_raise Exception do
+          stored_file.custom_save({"original_filename" => "virus.exe"}, @user)
+        end
+      end
+    end
+
+    it "set's accessible using attr_accessible_for" do
+      params = {}
+      stored_file.should_receive(:attr_accessible_for).with(params, @user).and_return([:test_list])
+      stored_file.should_receive("accessible=").with([:test_list])
+      stored_file.custom_save(params, @user)
+
+    end
+  end
+
   #describe "#flag_map" do
   #end
 end

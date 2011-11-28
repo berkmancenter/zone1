@@ -34,7 +34,7 @@ class StoredFile < ActiveRecord::Base
   after_create :decrease_available_user_quota, :unless => :skip_quota
   after_destroy :increase_available_user_quota
 
-  validates_presence_of :user_id
+  validates_presence_of :user_id, :access_level_id
 
   GLOBAL_ATTRIBUTES = [:flaggings_attributes, :comments_attributes]
 
@@ -208,16 +208,11 @@ class StoredFile < ActiveRecord::Base
     params
   end
 
-  def file_extension_blacklisted?(filename)
-    return false if filename.nil?
-    MimeType.blacklisted_extensions.include?(extname(filename))
-  end
-
   def custom_save(params, user)
 
-    if new_record? && file_extension_blacklisted?(params["original_filename"])
+    if new_record? && MimeType.file_extension_blacklisted?(params["original_filename"])
       #untested: raise "This type of file (.#{extname( params["original_filename"] )}) is not allowed."
-      raise "This type of file is not allowed."
+      raise Exception.new("This type of file is not allowed.") 
     end
 
     self.accessible = attr_accessible_for(params, user)
