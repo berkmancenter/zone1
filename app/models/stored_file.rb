@@ -214,10 +214,8 @@ class StoredFile < ActiveRecord::Base
 
   def custom_save(params, user)
 
-    if new_record? && MimeType.file_extension_blacklisted?(params["original_filename"])
-      #untested: raise "This type of file (.#{extname( params["original_filename"] )}) is not allowed."
-      raise Exception.new("This type of file is not allowed.") 
-    end
+    #TODO untested: raise "This type of file (.#{extname( params["original_filename"] )}) is not allowed."
+    raise Exception.new("This type of file is not allowed.") if new_record? && MimeType.file_extension_blacklisted?(params["original_filename"])
 
     self.accessible = attr_accessible_for(params, user)
 

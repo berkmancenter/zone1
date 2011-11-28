@@ -388,4 +388,16 @@ describe StoredFile do
       end
     end
   end
+=======
+      params = {}
+      stored_file.should_receive(:attr_accessible_for).with(params, @user).and_return([:test_list])
+      stored_file.should_receive("accessible=").with([:test_list])
+      stored_file.custom_save(params, @user)
+
+    end
+  end
+
+  #describe "#flag_map" do
+  #end
+>>>>>>> Unit testing and refactoring of StoredFile
 end
