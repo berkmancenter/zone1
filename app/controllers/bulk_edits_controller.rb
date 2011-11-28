@@ -6,9 +6,9 @@ class BulkEditsController < ApplicationController
     if params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length > 1
       @stored_files = StoredFile.find(params[:stored_file_ids])
 
-      @attr_accessible = StoredFile.bulk_editable_attributes(@stored_files, current_user)
+      @attr_accessible = BulkEdit.bulk_editable_attributes(@stored_files, current_user)
  
-      matching_attributes = StoredFile.matching_attributes_from(@stored_files)
+      matching_attributes = BulkEdit.matching_attributes_from(@stored_files)
       
       @stored_file = StoredFile.new
       @stored_file.accessible = @attr_accessible  #must define accessible before setting attributes

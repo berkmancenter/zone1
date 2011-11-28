@@ -104,86 +104,6 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
-  # This determines the intersection of all editable fields in 
-  # all selected files in bulk edit. The bulk editable fields
-  # are the only fields shown as editable on the bulk edit display.
-  def self.bulk_editable_attributes(stored_files, user)
-    attrs = stored_files.first.attr_accessible_for({}, user)
-    stored_files.each do |stored_file|
-      attrs = attrs & stored_file.attr_accessible_for({}, user)
-    end
-    attrs
-  end
-
-  #TODO move into BulkEdit model
-  def self.matching_attributes_from(stored_files)
-    matching = {}
-    attributes_to_match = StoredFile.new.attribute_names + ["tag_list", "collection_list"]
-
-    stored_files.each do |stored_file|
-      attributes_to_match.each do |attribute|
-        value = stored_file.__send__(attribute)  #must use send in order to call tag_list, collection_list methods
-
-        if matching[attribute].nil?
-          matching[attribute] = value
-        elsif matching[attribute] != value #on any mis-match
-          matching[attribute] = ""
-        end
-      end
-    end
-    
-    matching
-  end
-
-  #TODO move into BulkEdit model
-  def self.matching_flags_from(stored_files)
-    flags = stored_files.first.flags
-
-    stored_files.each do |stored_file|
-      flags = flags & stored_file.flags
-    end
-
-    flags    
-  end
-
-  #TODO move into BulkEdit model
-  def self.matching_groups_from(stored_files)
-    groups = stored_files.first.groups
-
-    stored_files.each do |stored_file|
-      groups = groups & stored_file.groups
-    end
-
-    groups
-  end
-  
-  def initialize(params={})
-    super
-    @skip_quota = params[:skip_quota]
-  end
-
-  def decrease_available_user_quota
-    user.decrease_available_quota!(file_size)
-  end
-
-  #TODO move into BulkEdit model
-  def build_bulk_flaggings_for(stored_files, user)
-    matching_flags = StoredFile.matching_flags_from(stored_files)
-    matching_flags.each do |flag|
-      self.flaggings.build(:flag_id => flag.id, :checked => true)     # must explicitly set checked here.  It is the only way
-                                                                      # the form will know that this flagging is set 
-    end
-  end
-
-  #TODO move into BulkEdit model
-  def build_bulk_groups_for(stored_files, user)
-    matching_groups = StoredFile.matching_groups_from(stored_files)
-    matching_groups.each do |group|
-      self.groups_stored_files.build(:group_id => group.id, :checked => true) #must explicitly set changed here
-                                                                              #so form will know to check the group 
-    end
-  end
-
   def flag_set?(flag)
     #must use flaggings here instead of flags, because of bulk edit
 
@@ -197,6 +117,29 @@ class StoredFile < ActiveRecord::Base
     end
 
     set_flag_ids.include?(flag.id)
+  end
+  
+  def initialize(params={})
+    super
+    @skip_quota = params[:skip_quota]
+  end
+
+  def decrease_available_user_quota
+    user.decrease_available_quota!(file_size)
+  end
+
+  def build_bulk_flaggings_for(stored_files, user)
+    matching_flags = BulkEdit.matching_flags_from(stored_files)
+    matching_flags.each do |flag|
+      self.flaggings.build(:flag_id => flag.id, :checked => true)     # must explicitly set checked here.  It is the only way
+    end                                                               # the form will know that this flagging is set 
+  end
+
+  def build_bulk_groups_for(stored_files, user)
+    matching_groups = BulkEdit.matching_groups_from(stored_files)
+    matching_groups.each do |group|
+      self.groups_stored_files.build(:group_id => group.id, :checked => true) #must explicitly set changed here
+    end                                                                       #so form will know to check the group 
   end
 
   def find_groups_stored_files_id_by_group_id(group_id)
