@@ -188,6 +188,9 @@ class StoredFile < ActiveRecord::Base
   def flaggings_server_side_validation(params, user)
     # This isn't quite as simple as a global attribute to be updated
     # So, we are checking if the user has add and remove rights
+    #
+    # this directly modifies the params, so nothing needs to bet set
+    # or returned after executed
 
     if params.has_key?(:flaggings_attributes)
       Flag.all.each do |flag|
@@ -204,8 +207,6 @@ class StoredFile < ActiveRecord::Base
         end
       end
     end
-
-    params
   end
 
   def custom_save(params, user)
@@ -217,7 +218,7 @@ class StoredFile < ActiveRecord::Base
 
     self.accessible = attr_accessible_for(params, user)
 
-    params = flaggings_server_side_validation(params, user)
+    flaggings_server_side_validation(params, user)
 
     prepare_comment_params(params, user)
 

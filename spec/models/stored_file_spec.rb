@@ -221,7 +221,7 @@ describe StoredFile do
   describe "#custom_save" do
    
     before :all do
-     @user = Factory(:user)
+     @user = Factory(:user)  #only initialize the user once, instead of each time
     end
 
     let(:stored_file) do
@@ -230,6 +230,8 @@ describe StoredFile do
       sf.access_level = Factory(:access_level)
       sf
     end
+
+    let(:params) { {} }
 
     context "when the uploaded file's extension is blacklisted and this is a new record" do
       it "should raise an error" do
@@ -241,12 +243,73 @@ describe StoredFile do
     end
 
     it "set's accessible using attr_accessible_for" do
-      params = {}
       stored_file.should_receive(:attr_accessible_for).with(params, @user).and_return([:test_list])
       stored_file.should_receive("accessible=").with([:test_list])
       stored_file.custom_save(params, @user)
-
     end
+
+    it "should call flaggings_server_side_validation" do
+      stored_file.should_receive(:flaggings_server_side_validation).with(params, @user)
+      stored_file.custom_save(params, @user)
+    end
+
+    it "should call prepare_comment_params" do
+      stored_file.should_receive(:prepare_comment_params).with(params, @user)
+      stored_file.custom_save(params, @user)
+    end
+
+
+    context "when update_attributes returns true" do
+
+      before :each do
+        stored_file.should_receive(:update_attributes).with(params).and_return(true)
+      end
+
+      after :each do
+        stored_file.custom_save(params, @user)
+      end
+
+      context "when tag_list is present in params" do
+
+        before :all do
+          @tag_list = "tag1,tag2,tag3"
+          params.merge!({:tag_list => @tag_list})
+        end
+
+        it "should update tags" do
+          stored_file.should_receive(:update_tags).with(@tag_list, :tags, @user)
+        end 
+
+        it "should remove tag_list from params" do
+          params.has_key?(:tag_list).should_not == true
+        end
+      end
+
+      context "when collection_list is present in params" do
+        before :all do
+          @collection_list = "collection1,collection2"
+          params.merge! :collection_list => @collection_list
+        end
+        it "should update tags" do
+          stored_file.should_receive(:update_tags).with(@collection_list, :collections, @user)
+        end
+        it "should remove collection_list from params" do
+          params.has_key?(:collection_list).should_not == true
+        end
+      end 
+    end
+
+
+
+    context "when update_attributes returns false" do
+      it "should raise an exception" do
+        stored_file.should_receive(:update_attributes).with(params).and_return(false)
+        assert_raise Exception do
+          stored_file.custom_save(params, @user)
+        end
+      end
+    end
+
   end
 
   #describe "#flag_map" do
