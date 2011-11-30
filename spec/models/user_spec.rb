@@ -4,7 +4,7 @@ describe User do
   it { should have_and_belong_to_many :groups }
   it { should have_and_belong_to_many :roles }
   it { should have_and_belong_to_many :owned_groups }
-  it { should have_one :sftp_user }
+  it { should have_many :sftp_users }
   it { should have_many :batches }
   it { should have_many :comments }
   it { should have_many :stored_files }
@@ -147,34 +147,6 @@ describe User do
     it "should return percentage as a float" do
       user.percent_quota_available.should == 100
       user.percent_quota_available.is_a?(Float).should == true
-    end
-  end
-
-  describe "#quota_available?(amount)" do
-    let(:user) { Factory(:user, :quota_used => 0, :quota_max => 100) }
-    context "when quota is available" do
-      it "should return true" do
-        user.quota_available?(10).should == true
-      end
-    end
-    context "when quota is not available" do
-      it "should return false" do
-        user.quota_available?(1000).should == false
-      end
-    end
-  end
-
-  describe "#will_quota_be_zeroed?(amount)" do
-    let(:user) { Factory(:user, :quota_used => 100) }
-    context "when it will be zeroed" do
-      it "should return true" do
-        user.will_quota_be_zeroed?(1000).should == true
-      end
-    end
-    context "when it will not be zeored" do
-      it "should return false" do
-        user.will_quota_be_zeroed?(1).should == false
-      end
     end
   end
 
@@ -329,16 +301,14 @@ describe User do
     end
 
     context "user update" do
-      before(:each) do
+      it "cache should not exist" do
         users = User.cached_viewable_users("some_right")
-        user1.name = "Super-Steph"
-        user1.save
+        Rails.cache.exist?("users-viewable-users-some_right").should == true
       end
       it "cache should not exist" do
+        users = User.cached_viewable_users("some_right")
+        user1.update_attribute(:name, "Stephie")
         Rails.cache.exist?("users-viewable-users-some_right").should == false
-      end
-      it "should verify cache destroy method is called" do
-        User.should_receive(:destroy_viewable_users_cache)
       end
     end
   end
