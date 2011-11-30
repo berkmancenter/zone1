@@ -12,6 +12,11 @@ class Group < ActiveRecord::Base
 
   attr_accessible :name, :assignable_rights, :right_ids
 
+  # Caching related callbacks
+  after_update { Group.destroy_viewable_users_cache }
+  after_create { Group.destroy_viewable_users_cache }
+  after_destroy { Group.destroy_viewable_users_cache }
+
   def allowed_rights
     self.assignable_rights ? self.rights : []
   end
@@ -42,7 +47,12 @@ class Group < ActiveRecord::Base
   end
 
   private
+
   def validates_user(user)
     true #raise ActiveRecord::Rollback if self.users.include? user
+  end
+
+  def self.destroy_viewable_users_cache
+    Rails.cache.delete_matched(%r{groups-viewable-users-*})
   end
 end

@@ -36,6 +36,9 @@ class StoredFile < ActiveRecord::Base
 
   validates_presence_of :user_id, :access_level_id
 
+  after_update { |record| Rails.cache.delete("stored-file-#{record.id}-viewable-users") }
+  before_destroy { |record| Rails.cache.delete("stored-file-#{record.id}-viewable-users") }
+
   GLOBAL_ATTRIBUTES = [:flaggings_attributes, :comments_attributes]
 
   ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office,
@@ -415,9 +418,7 @@ class StoredFile < ActiveRecord::Base
       users = [stored_file.user.id] + stored_file.users_via_groups.collect { |user| user.id }
 
       if stored_file.has_preserved_flag?
-        users += Group.cached_viewable_users("view_preserved_flag_content")
-        users += Role.cached_viewable_users("view_preserved_flag_content")
-        users += User.cached_viewable_users("view_preserved_flag_content")
+        users += User.users_with_right("view_preserved_flag_content")
       end
 
       users

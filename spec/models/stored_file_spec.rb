@@ -44,7 +44,7 @@ describe StoredFile do
   describe "#license_name" do
     let(:license) { Factory(:license) }
     let(:stored_file) { Factory(:stored_file, :license_id => license.id) }
-    let(:stored_file2) { Factory(:stored_file, :original_filename => "filename") }
+    let(:stored_file2) { Factory(:stored_file) }
 
     context "when stored file has license" do
       it "should return license name" do
@@ -53,8 +53,8 @@ describe StoredFile do
     end
 
     context "when stored file has no license" do
-      it "should return original_filename" do
-        stored_file2.license_name.should == "filename"
+      it "should return nil" do
+        stored_file2.license_name.should == nil
       end
     end
   end
@@ -111,8 +111,8 @@ describe StoredFile do
     let(:new_tags) { ["test1", "test2"] }
     let(:new_tags2) { ["test3", "test4"] }
     let(:new_tags3) { ["test2", "test3"] }
-    let(:user) { Factory(:user, :email => "test1@email.com") }
-    let(:user2) { Factory(:user, :email => "test2@email.com") }
+    let(:user) { Factory(:user) }
+    let(:user2) { Factory(:user) }
 
     context "when new tags are introduced" do
       before(:each) do
@@ -164,9 +164,9 @@ describe StoredFile do
 
   describe "#users_via_groups" do
     let(:stored_file) { Factory(:stored_file) }
-    let(:user) { Factory(:user, :email => "test1@email.com") }
-    let(:user2) { Factory(:user, :email => "test2@email.com") }
-    let(:user3) { Factory(:user, :email => "test3@email.com") }
+    let(:user) { Factory(:user) }
+    let(:user2) { Factory(:user) }
+    let(:user3) { Factory(:user) }
     let(:group) { Factory(:group) }
 
     context "when stored file has group and group has users" do
@@ -181,13 +181,13 @@ describe StoredFile do
   end
 
   describe "#can_user_destroy?" do
-    let(:user1) { Factory(:user, :email => "test1@email.com") }
+    let(:user1) { Factory(:user) }
     let(:stored_file1) { Factory(:stored_file, :user_id => user1.id) }
-    let(:user2) { Factory(:user, :email => "test2@email.com") }
+    let(:user2) { Factory(:user) }
     let(:stored_file2) { Factory(:stored_file, :user_id => user2.id) }
     let(:stored_file3) { Factory(:stored_file, :user_id => user2.id) }
     let(:right) { Factory(:right, :action => "delete_items") }
-    let(:user3) { Factory(:user, :email => "test3@email.com") }
+    let(:user3) { Factory(:user) }
     
     context "when user has global delete_right and does not own stored file" do
       before(:each) do
@@ -312,6 +312,80 @@ describe StoredFile do
 
   end
 
-  #describe "#flag_map" do
-  #end
+  describe ".cached_viewable_users" do
+    let(:user1) { Factory(:user) }
+    let(:user2) { Factory(:user) }
+    let(:user3) { Factory(:user) }
+    let(:group) { Factory(:group) }
+    let(:role) { Factory(:role) }
+    let(:stored_file) { Factory(:stored_file, :user_id => user2.id) }
+    let(:flag) { Factory(:preserved_flag) }
+
+    context "stored file that is open" do
+      before :each do
+        stored_file.access_level.update_attribute(:name, "open")
+        user1.inspect
+      end
+      it "should be accessible to non-owner" do
+        StoredFile.cached_viewable_users(stored_file.id).include?(user1.id).should == true    
+      end
+    end
+
+    context "stored file that is partially open" do
+      before :each do
+        stored_file.access_level.update_attribute(:name, "partially_open")
+        user1.inspect
+      end
+      it "should be accessible to owner" do
+        StoredFile.cached_viewable_users(stored_file.id).include?(user1.id).should == false
+      end
+      it "should not be accessible to non-owner" do
+        StoredFile.cached_viewable_users(stored_file.id).include?(user2.id).should == true    
+      end
+    end
+
+    context "stored file that is partially open" do
+      before :each do
+        stored_file.access_level.update_attribute(:name, "partially_open")
+        group.users << user3
+        stored_file.groups << group
+        user1.inspect
+      end
+      it "should be accessible to member of group assigned to stored file" do
+        StoredFile.cached_viewable_users(stored_file.id).include?(user3.id).should == true
+      end
+    end
+
+    context "stored file that is dark with preserved flag" do
+      before :each do
+        stored_file.access_level.update_attribute(:name, "dark")
+        role.users << user3
+        role.rights << Factory(:right, :action => "view_preserved_flag_content")
+        Flagging.create(:flag_id => flag.id, :user_id => user2.id, :stored_file_id => stored_file.id)
+      end
+      it "should be accessible to user with view_preserved_flag_content right" do
+        StoredFile.cached_viewable_users(stored_file.id).include?(user3.id).should == true
+      end
+      it "should not be accessible to non-member of group assigned to stored file" do
+        StoredFile.cached_viewable_users(stored_file.id).include?(user1.id).should == false
+      end
+    end
+
+    context "cache on this method" do
+      it "should exist after called" do
+        result = StoredFile.cached_viewable_users(stored_file.id).include?(user1.id)
+        Rails.cache.exist?("stored-file-#{stored_file.id}-viewable-users").should == true
+      end
+      it "should expire after stored file is updated" do
+        result = StoredFile.cached_viewable_users(stored_file.id).include?(user1.id)
+        stored_file.update_attribute(:original_filename, "original.txt")
+        Rails.cache.exist?("stored-file-#{stored_file.id}-viewable-users").should == false
+      end
+      it "should expire after stored file is destroyed" do
+        result = StoredFile.cached_viewable_users(stored_file.id).include?(user1.id)
+        stored_file.destroy
+        Rails.cache.exist?("stored-file-#{stored_file.id}-viewable-users").should == false
+      end
+    end
+  end
 end

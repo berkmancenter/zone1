@@ -6,6 +6,12 @@ class User < ActiveRecord::Base
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_users
   acts_as_tagger
 
+  # Caching related callbacks
+  after_update { User.destroy_viewable_users_cache }
+  after_create { User.destroy_viewable_users_cache }
+  after_destroy { User.destroy_viewable_users_cache }
+
+  # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
     :quota_used, :quota_max, :role_ids, :right_ids
 
@@ -123,6 +129,13 @@ class User < ActiveRecord::Base
     self.can_do_method?(stored_file, "toggle_#{access_level.name}") 
   end
 
+  def self.users_with_right(right)
+    users = Group.cached_viewable_users(right)
+    users += Role.cached_viewable_users(right)
+    users += User.cached_viewable_users(right)
+    users
+  end
+
   def self.cached_viewable_users(right)
     Rails.cache.fetch("users-viewable-users-#{right}") do
       User.find_by_sql("SELECT u.id
@@ -135,10 +148,7 @@ class User < ActiveRecord::Base
   end
 
   def is_admin?
-    users = Group.cached_viewable_users("view_admin")
-    users += Role.cached_viewable_users("view_admin")
-    users += User.cached_viewable_users("view_admin")
-    users.include?(self.id)
+    User.users_with_right("view_admin").include?(self.id)
   end
 
   # Note: This is a class method because we want to handle
@@ -146,9 +156,7 @@ class User < ActiveRecord::Base
   def self.can_view_cached?(stored_file_id, current_user)
     users = StoredFile.cached_viewable_users(stored_file_id)
     if !current_user.nil?
-      users += Group.cached_viewable_users("view_items")
-      users += Role.cached_viewable_users("view_items")
-      users += User.cached_viewable_users("view_items")
+      users += User.users_with_right("view_items")
     end
     users.uniq.include?(current_user.id) 
   end
@@ -161,5 +169,14 @@ class User < ActiveRecord::Base
 
   def self.name_map
     User.all.inject({}) { |h, user| h[user.id.to_s] = user.name; h }
+  end
+
+  # Note: When a user is added to a group, role, or assigned a right,
+  # all of these caches need to be invalidated.
+  def self.destroy_viewable_users_cache
+    Rails.cache.delete("users")
+    Rails.cache.delete_matched(%r{users-viewable-users-*})
+    Rails.cache.delete_matched(%r{roles-viewable-users-*})
+    Rails.cache.delete_matched(%r{groups-viewable-users-*})
   end
 end

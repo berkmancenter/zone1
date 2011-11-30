@@ -8,6 +8,11 @@ class Role < ActiveRecord::Base
   
   attr_accessible :name, :right_ids
 
+  # Caching related callbacks
+  after_update { Group.destroy_viewable_users_cache }
+  after_create { Group.destroy_viewable_users_cache }
+  after_destroy { Group.destroy_viewable_users_cache }
+
   def self.cached_viewable_users(right)
     Rails.cache.fetch("roles-viewable-users-#{right}") do
       User.find_by_sql("SELECT u.id
@@ -18,5 +23,11 @@ class Role < ActiveRecord::Base
         WHERE ra.subject_type = 'Role'
         AND r.action = '#{right}'").collect { |user| user.id }
     end
+  end
+
+  private
+
+  def self.destroy_viewable_users_cache
+    Rails.cache.delete_matched(%r{roles-viewable-users-*})
   end
 end

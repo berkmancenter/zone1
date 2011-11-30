@@ -8,6 +8,11 @@ class Flag < ActiveRecord::Base
   # TODO: Maybe come up with a better name for this
   SELECTED = ["SELECTED_FOR_PRESERVATION", "UNIVERSITY_RECORD"]
 
+  # Caching related callbacks
+  after_update { Flag.destroy_cache }
+  after_create { Flag.destroy_cache }
+  after_destroy { Flag.destroy_cache }
+
   def self.all
     Rails.cache.fetch("flags") do
       Flag.find(:all)
@@ -32,5 +37,11 @@ class Flag < ActiveRecord::Base
 
   def selected?
     SELECTED.include?(self.name)
+  end
+
+  private
+
+  def self.destroy_cache
+    Rails.cache.delete("flags")
   end
 end

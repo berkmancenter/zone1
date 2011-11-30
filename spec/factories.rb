@@ -27,7 +27,7 @@ FactoryGirl.define do
   end
 
   factory :group do
-    name 'test_group'
+    sequence(:name) {|n| "Group ##{n}" }
   end
 
   factory :license do
@@ -35,7 +35,7 @@ FactoryGirl.define do
   end
 
   factory :role do
-    name 'test_role'
+    sequence(:name) {|n| "Role ##{n}" }
   end
 
   factory :right do

@@ -1,6 +1,4 @@
 class GroupsController < ApplicationController
-  cache_sweeper :group_sweeper
-
   access_control do
     allow logged_in, :to => [:index, :new, :create]
 
