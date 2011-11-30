@@ -1,21 +1,20 @@
 class RemoteFileImporter
   @queue = :remote_file_importer_queue
 
-  def self.perform(username, stored_file_string)
-    ::Rails.logger.debug "PHUNK: RemoteFileImporter firing for username #{username}"
-    sftp_user = SftpUser.find_by_username(username)
-    seed_file = JSON.parse(stored_file_string)
-    seed_file[:skip_quota] = true
+  def self.perform(sftp_username, file_params)
+    ::Rails.logger.debug "PHUNK: RemoteFileImporter firing for sftp_username #{sftp_username}"
+    file_params[:skip_quota] = true
+    # consider requiring user_id match as well
+    sftp_user = SftpUser.find_by_username(sftp_username, :include => :user)
     bytes_used = 0
 
     #TODO: error handling for each file
     sftp_user.uploaded_files.each do |file_path|
-      stored_file = StoredFile.new seed_file
-      stored_file.file = File.open(file_path)
-      stored_file.original_filename = File.basename(file_path)
+      file_params[:file] = File.open(file_path)
+      file_params[:original_filename] = File.basename(file_path)
+      stored_file = StoredFile.new
       stored_file.set_fits_attributes(file_path)
-      stored_file.save!
-      #TODO: what to do with a file that doesn't import correctly?
+      stored_file.custom_save(file_params, sftp_user.user)
       bytes_used += stored_file.file.size
     end
 

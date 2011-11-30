@@ -29,10 +29,10 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
   
+  before_save :update_file_size
   attr_accessor :skip_quota
   after_create :decrease_available_user_quota, :unless => :skip_quota
   after_destroy :increase_available_user_quota
-<<<<<<< HEAD
 
   validates_presence_of :user_id
 
@@ -44,9 +44,6 @@ class StoredFile < ActiveRecord::Base
     :access_level_id]
 
   CREATE_ATTRIBUTES = [:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES
-=======
-  before_save :update_file_size
->>>>>>> SFTP WIP #3
 
   attr_accessible :file, :license_id, :collection_name,
     :author, :title, :copyright, :description, :access_level_id,
@@ -77,20 +74,18 @@ class StoredFile < ActiveRecord::Base
     string :title
     integer :file_size, :stored => true
     string :display_name, :stored => true
-    string :mime_type_id
-    string :mime_type_category_id
+    integer :mime_type_id
+    integer :mime_type_category_id
   end
-  #TODO integer types for :mime_type* post-rebase
 
-<<<<<<< HEAD
   def display_name
     self.title.presence || self.original_filename
   end
 
   def mime_type_category_id
-     #used for faceted search.
-     # Delegate didn't really play nice with the nils that are happening before Fits::analyze runs
-     self.mime_type.mime_type_category_id if self.mime_type && self.mime_type.mime_type_category
+    #used for faceted search.
+    # Delegate didn't really play nice with the nils that are happening before Fits::analyze runs
+    self.mime_type.mime_type_category_id if self.mime_type && self.mime_type.mime_type_category
   end
 
   def fits_mime_type=(hash)
@@ -99,7 +94,7 @@ class StoredFile < ActiveRecord::Base
 
       if mime_type.new_record?
         mime_type.name = hash[:format_name]
-        mime_type.extension = File.extname(original_filename)
+        mime_type.extension = extname(original_filename)
       end
 
       self.mime_type = mime_type
@@ -160,7 +155,8 @@ class StoredFile < ActiveRecord::Base
     end
 
     groups
-=======
+  end
+  
   def initialize(params={})
     super
     @skip_quota = params[:skip_quota]
@@ -168,7 +164,6 @@ class StoredFile < ActiveRecord::Base
 
   def decrease_available_user_quota
     user.decrease_available_quota!(file_size)
->>>>>>> SFTP WIP #3
   end
 
   #TODO move into BulkEdit model
@@ -271,12 +266,16 @@ class StoredFile < ActiveRecord::Base
   end
 
   def file_extension_blacklisted?(filename)
-    MimeType.blacklisted_extensions.include?(File.extname(filename))
+    return false if filename.nil?
+    MimeType.blacklisted_extensions.include?(extname(filename))
   end
 
   def custom_save(params, user)
 
-    raise "This type of file is not allowed." if new_record? && file_extension_blacklisted?(params["original_filename"])
+    if new_record? && file_extension_blacklisted?(params["original_filename"])
+      #untested: raise "This type of file (.#{extname( params["original_filename"] )}) is not allowed."
+      raise "This type of file is not allowed."
+    end
 
     self.accessible = attr_accessible_for(params, user)
 
@@ -340,12 +339,6 @@ class StoredFile < ActiveRecord::Base
   def tag_list
     #so form value does not have to be manually set
     @tag_list ||= self.anonymous_tag_list(:tags)
-  end
-
-  def file_size=(bytes)
-    #when fits updates file_size, update quota
-    write_attribute :file_size, bytes
-    decrease_available_user_quota bytes
   end
 
   def decrease_available_user_quota(amount_in_bytes=file_size)
@@ -439,19 +432,8 @@ class StoredFile < ActiveRecord::Base
     group_map
   end
 
-  def self.testit(file_url='/tmp/upload1.jpg')
-    sf = StoredFile.new(:user_id => 2, :access_level_id => 2)
-    sf.file = File.open(file_url)
-    sf.set_fits_attributes
-    sf
-  end
-
-  def fits_mime_type=(foo)
-    #pre-rebase placeholder
-  end
-
   def extname(file_url)
-    #TODO: for use with fits_mime_type=, post-rebase
+    return nil if file_url.nil?
     File.extname(file_url).downcase
   end
 
@@ -469,7 +451,7 @@ class StoredFile < ActiveRecord::Base
       metadata = Fits::analyze(file_url)
       if metadata.class == Hash and metadata.keys.length > 0
         FITS_ATTRIBUTES.each do |name|
-          self.send("#{name}=", metadata[name])
+          self.send("#{name}=", metadata[name]) if metadata[name].present?
         end
 
         Sunspot.commit  #index these changes
@@ -488,6 +470,7 @@ class StoredFile < ActiveRecord::Base
     Rails.cache.fetch("stored-file-#{id}-viewable-users") do
       stored_file = StoredFile.find(id, :include => :user)
 
+      #TODO: Does this instantiate a user instance for each user returned by the .all?
       return User.all.collect { |user| user.id } if stored_file.access_level.name == "open"
 
       users = [stored_file.user.id] + stored_file.users_via_groups.collect { |user| user.id }
@@ -505,8 +488,8 @@ class StoredFile < ActiveRecord::Base
   private
 
   def update_file_size
-    if file.present? && file_changed?
-      self.file_size = file.file.size rescue ''
+    if self.file_size.nil? && file.present? && file_changed?
+      self.file_size = file.file.size rescue 'update_file_size failed'
     end
   end
 
@@ -518,4 +501,5 @@ class StoredFile < ActiveRecord::Base
       end
     end
   end
+
 end

@@ -6,7 +6,6 @@ class User < ActiveRecord::Base
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_users
   acts_as_tagger
 
-  # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
     :quota_used, :quota_max, :role_ids, :right_ids
 
@@ -22,10 +21,8 @@ class User < ActiveRecord::Base
 
   validates_presence_of :name
 
-  attr_accessible :quota_used, :quota_max
-
   validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
-  validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true }
+  validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
 
   def quota_used
      #must use self.quota_used in order to call instance method instead of directly accessing database value
@@ -51,17 +48,12 @@ class User < ActiveRecord::Base
   end
 
   def decrease_available_quota!(amount)
-    update_attribute(:quota_used, self.quota_used + amount.to_i) 
+    return increment(:quota_used, amount.to_i)
   end
 
   def increase_available_quota!(amount)
-    if will_quota_be_zeroed?(amount)
-      update_attribute(:quota_used, 0)
-
-    else
-      update_attribute(:quota_used, self.quota_used - amount.to_i)
-
-    end
+    new_quota_used = (self.quota_used - amount.to_i <= 0) ? 0 : self.quota_used - amount.to_i
+    update_attribute(:quota_used, new_quota_used)
   end
 
   def quota_exceeded?
@@ -70,14 +62,6 @@ class User < ActiveRecord::Base
 
   def percent_quota_available
     (self.quota_used.to_f / self.quota_max.to_f)*100
-  end
-
-  def quota_available?(amount)
-    self.quota_used + amount.to_i <= self.quota_max
-  end
-
-  def will_quota_be_zeroed?(amount)
-    self.quota_used - amount.to_i <= 0
   end
 
   def role_rights

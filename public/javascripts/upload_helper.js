@@ -147,7 +147,7 @@ $(function() {
             post_data,
             function(data) {
                 //alert('Successfully queued 42 files for import');
-                console.log('sftpPOST done');
+                //console.log('sftpPOST done');
             }
         ).error( function(data) {
             var response = $.parseJSON(data.responseText);
