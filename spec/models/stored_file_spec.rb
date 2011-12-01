@@ -512,6 +512,55 @@ describe StoredFile do
     end    
   end
 
+  describe "#fits_mime_type=(hash)" do
+    before do
+      @stored_file = Factory(:stored_file, :original_filename => "test.jpg")
+    end
+    
+    context "when hash doesn't have format_name" do
+      it "should raise an error" do
+        assert_raise RuntimeError do
+          @stored_file.fits_mime_type={}
+        end
+      end
+    end
+
+    context "when hash doesn't have mime_type" do
+      it "should raise an error" do
+        assert_raise RuntimeError do
+          @stored_file.fits_mime_type={}
+        end
+      end
+    end
+
+    context "when hash has format_name and mime_type" do
+
+      let(:new_mime_type) { MimeType.new(:mime_type => "image/jpeg") }
+      let(:params) { {:format_name => "JPEG", :mime_type => "image/jpeg"} }
+     
+      before do
+        MimeType.should_receive(:find_or_initialize_by_mime_type).with("image/jpeg").and_return(new_mime_type)
+      end
+
+      after do
+        @stored_file.fits_mime_type=params
+      end
+      
+      context "when it creates a new mime type" do
+        it "should set the name to format_name" do
+          new_mime_type.should_receive("name=").with("JPEG")
+        end
+        it "should set the extension" do
+          new_mime_type.should_receive("extension=").with(".jpg")
+        end
+      end
+      
+      it "should set the mimetype" do
+        @stored_file.should_receive("mime_type=").with(new_mime_type)
+      end
+    end
+  end
+
   #describe "#flag_map" do
   #end
 end
