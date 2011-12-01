@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.1.1'
+gem 'rails', '3.1.3'
 gem 'pg', :require => 'pg'
 
 # Bundle edge Rails instead:
@@ -47,4 +47,6 @@ group :test, :development do
   gem 'remarkable', "~> 4.0.0.alpha4"
   gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
   gem 'rcov'
+  gem 'rails_best_practices'
+  gem 'ripper' #required by rails_best_practices, run sudo yum install bison first
 end

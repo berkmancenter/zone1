@@ -24,3 +24,8 @@ railroad -M | neato -Tpng > app/assets/images/models.png
  - config/database.yml must have test database defined
  - unit testing with RSpec (rake spec)
  - code coverage reports with RCov (rake rcov:rspec, then see http://<your_camp>/coverage/index.html)
+
+== RAILS BEST PRACTICES OUTPUT
+  - bundle exec rails_best_practices -f html .
+  - mv rails_best_practices.html public/rbp.html
+  - see http://<your_camp>/rbp.html
