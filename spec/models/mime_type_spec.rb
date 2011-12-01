@@ -29,4 +29,24 @@ describe MimeType do
       MimeType.blacklisted_extensions.should == [".exe"]
     end
   end
+
+  describe ".file_extension_blacklisted?(filename)" do
+    context "when the extension is blacklisted" do
+      before do
+        MimeType.should_receive(:blacklisted_extensions).and_return([".exe"])
+      end
+      it "should return true " do
+        assert MimeType.file_extension_blacklisted?("virus.exe")
+      end
+    end
+
+    context "when the extension is not blacklisted" do
+      before do
+        MimeType.should_receive(:blacklisted_extensions).and_return([])
+      end
+      it "should call backlisted_extensions" do
+        assert !MimeType.file_extension_blacklisted?("virus.exe")
+      end
+    end
+  end
 end
