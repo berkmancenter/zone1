@@ -8,6 +8,14 @@ class MimeType < ActiveRecord::Base
 
   after_initialize :set_default_category
 
+  after_update { MimeType.destroy_blacklisted_extensions_cache }
+  after_create { MimeType.destroy_blacklisted_extensions_cache }
+  after_destroy { MimeType.destroy_blacklisted_extensions_cache }
+
+  def self.destroy_blacklisted_extensions_cache
+    Rails.cache.delete("file_extension_blacklist") 
+  end 
+
   def self.blacklisted_extensions
     # TODO: Add cache expiration / sweepers
     Rails.cache.fetch("file_extension_blacklist") do
