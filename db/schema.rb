@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(:version => 20111117123521) do
     t.integer "owner_id"
   end
 
-  create_table "groups_stored_files", :id => false, :force => true do |t|
+  create_table "groups_stored_files", :force => true do |t|
     t.integer "group_id"
     t.integer "stored_file_id"
   end
