@@ -12,7 +12,7 @@ FactoryGirl.define do
   end
 
   factory :content_type do
-    name 'test_content_type'
+    sequence(:name) { |n| "test_content_type #{n}" }
   end
 
   factory :flag do
@@ -31,7 +31,7 @@ FactoryGirl.define do
   end
 
   factory :license do
-    name 'test_license'
+    sequence(:name) { |n| "test_license_#{n}" }
   end
 
   factory :role do

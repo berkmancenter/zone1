@@ -23,6 +23,50 @@ describe User do
 
   it { should validate_presence_of :name }
 
+  describe "#can_flag?(flag)" do
+    let(:user) { Factory(:user) }
+    let(:flag) { Factory(:flag) }
+    it "should check global_method" do
+      user.should_receive("can_do_global_method?").with("add_#{flag.name.downcase}")
+      user.can_flag?(flag)
+    end
+  end
+
+  describe "#can_unflag?(flag)" do
+    let(:user) { Factory(:user) }
+    let(:flag) { Factory(:flag) }
+    it "should check global_method" do
+      user.should_receive("can_do_global_method?").with("remove_#{flag.name.downcase}")
+      user.can_unflag?(flag)
+    end
+  end
+
+  describe "#can_do_global_method?(method)" do
+    let(:user) { Factory(:user) }
+    context "when user can do method" do
+    it "should return true" do
+      user.should_receive(:all_rights).and_return([:test_method])
+      assert user.can_do_global_method?(:test_method)
+    end
+    end
+    context "when user can't do method" do
+      it "should return false" do
+        user.should_receive(:all_rights).and_return([])
+        assert !user.can_do_global_method?(:test_method)
+      end
+    end
+  end
+
+  describe "#can_set_access_level?(stored_file, access_level)" do
+    let(:user) { Factory(:user) }
+    let(:stored_file) { Factory(:stored_file) }
+    let(:access_level) { Factory(:access_level) }
+    it "should check can_do_method?" do
+      user.should_receive("can_do_method?").with(stored_file, "toggle_#{access_level.name}")
+      user.can_set_access_level?(stored_file, access_level)
+    end
+  end
+
   describe "#quota_used" do
     let(:user) { Factory(:user) }
     context "when not defined" do

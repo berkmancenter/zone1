@@ -39,24 +39,16 @@ class StoredFile < ActiveRecord::Base
   after_update { |record| Rails.cache.delete("stored-file-#{record.id}-viewable-users") }
   before_destroy { |record| Rails.cache.delete("stored-file-#{record.id}-viewable-users") }
 
-  GLOBAL_ATTRIBUTES = [:flaggings_attributes, :comments_attributes]
+  ALWAYS_ACCESSIBLE_ATTRIBUTES = [:flaggings_attributes, :comments_attributes].freeze
 
   ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office,
     :description, :title, :copyright, :allow_tags, :allow_notes,
     :license_id, :publication_type_list, :groups_stored_files_attributes,
-    :access_level_id]
+    :access_level_id].freeze
 
-  CREATE_ATTRIBUTES = [:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES
+  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES).freeze
 
-  attr_accessible :file, :license_id, :collection_name,
-    :author, :title, :copyright, :description, :access_level_id,
-    :user_id, :content_type_id, :original_filename, :flag_ids, :batch_id,
-    :allow_notes, :delete_flag, :office, :tag_list, :publication_type_list,
-    :comments_attributes, :flaggings_attributes, :disposition_attributes,
-    :allow_tags, :collection_list, :disposition, :group_ids, 
-    :fits_mime_type, :format_name, :format_version, :file_size, :md5, :skip_quota
-
-  FITS_ATTRIBUTES = [:file_size, :md5, :format_version, :fits_mime_type]
+  FITS_ATTRIBUTES = [:file_size, :md5, :fits_mime_type].freeze
   
   mount_uploader :file, FileUploader, :mount_on => :file
 
@@ -242,24 +234,30 @@ class StoredFile < ActiveRecord::Base
   # Server side validation updatable attributes
   def attr_accessible_for(params, user)
 
-    valid_attr = GLOBAL_ATTRIBUTES
+    valid_attr = ALWAYS_ACCESSIBLE_ATTRIBUTES.dup
+
+    logger.debug "ALWAYS ACCESSIBLE"
+    logger.debug valid_attr.inspect
 
     if self.new_record?
+      logger.debug "INSIDE CREATE ATTRIUBTES"
       valid_attr = valid_attr + CREATE_ATTRIBUTES
+    logger.debug valid_attr.inspect
     elsif user.can_do_method?(self, "edit_items")
+      logger.debug "ISNIDE ALLOW MANAGE ATTRIBUTES"
       valid_attr = valid_attr + ALLOW_MANAGE_ATTRIBUTES
+    logger.debug valid_attr.inspect
     end
 
     if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
-      access_level = AccessLevel.find(params[:access_level_id])
-      valid_attr << :access_level_id if user.can_set_access_level?(self, access_level)
+      desired_access_level = AccessLevel.find(params[:access_level_id])
+      valid_attr << :access_level_id if user.can_set_access_level?(self, desired_access_level)
     end
-
-
-
-    valid_attr << :tag_list if allow_tags
+    valid_attr << :tag_list if self.allow_tags == true
+    
     logger.debug "ATTR_ACCESSIBLE_FOR"
     logger.debug valid_attr.uniq.inspect
+    
     valid_attr.uniq
   end
 

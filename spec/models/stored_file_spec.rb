@@ -388,12 +388,94 @@ describe StoredFile do
       end
     end
   end
-=======
-      params = {}
-      stored_file.should_receive(:attr_accessible_for).with(params, @user).and_return([:test_list])
-      stored_file.should_receive("accessible=").with([:test_list])
-      stored_file.custom_save(params, @user)
+  
+  describe "#attr_accessible_for(params,user)" do
+   
+    before :each do
+      @stored_file = Factory(:stored_file)
+      @params = {}
+      @user = Factory(:user)
+    end
+   
+    it "should include ALWAYS_ACCESSIBLE_ATTRIBUTES" do
+      (@stored_file.attr_accessible_for(@params, @user) & StoredFile::ALWAYS_ACCESSIBLE_ATTRIBUTES).should == StoredFile::ALWAYS_ACCESSIBLE_ATTRIBUTES
+    end
+    
+    context "when a new record" do
+      it "should include CREATE_ATTRIBUTES" do
+        @stored_file = StoredFile.new
+        (@stored_file.attr_accessible_for(@params, @user) & StoredFile::CREATE_ATTRIBUTES).should == StoredFile::CREATE_ATTRIBUTES
+      end
+    end
 
+
+    context "when an existing record" do
+      it "should NOT include CREATE_ATTRIBUTES" do
+        (@stored_file.attr_accessible_for(@params, @user) & StoredFile::CREATE_ATTRIBUTES).should == []
+      end
+    
+    
+      context "user can do method 'edit_items'" do
+        it "should include ALLOW_MANAGE_ATTRIBUTES" do
+          @user.should_receive("can_do_method?").with(@stored_file, "edit_items").and_return(true)
+          (@stored_file.attr_accessible_for(@params, @user) & StoredFile::ALLOW_MANAGE_ATTRIBUTES).should == StoredFile::ALLOW_MANAGE_ATTRIBUTES
+        end
+      end
+
+
+      context "user can not do method 'edit_items'" do
+        it "should NOT include aLLOW_MANAGE_ATTRIBUTES" do
+          @user.should_receive("can_do_method?").with(@stored_file, "edit_items").and_return(false)
+          (@stored_file.attr_accessible_for(@params, @user) & StoredFile::ALLOW_MANAGE_ATTRIBUTES).should == []
+        end
+      end
+
+      context "when new access_level_id is set" do
+        before :each do
+          @access_level = Factory(:access_level)
+          @params = {:access_level_id => @access_level.id }
+        end
+        
+        context "when user cannot set the access_level" do
+          it "should include access_level_id in the attribute list" do
+            @user.should_receive("can_set_access_level?").with(@stored_file, @access_level).and_return(false)
+            @stored_file.attr_accessible_for(@params, @user).include?(:access_level_id).should == false
+          end
+        end 
+        
+        context "when user can set the access_level" do
+          it "should include access_level_id in the attribute list" do
+            @user.should_receive("can_set_access_level?").with(@stored_file, @access_level).and_return(true)
+            @stored_file.attr_accessible_for(@params, @user).include?(:access_level_id).should == true
+          end
+        end 
+      end
+
+      context "when access_level_id is same as what's already defined" do
+        it "should not set the access level again" do
+          @stored_file.access_level = @access_level
+          @stored_file.attr_accessible_for(@params, @user).include?(:access_level_id).should == false
+        end
+      end
+
+      context "when allow_tags=true" do
+        before :each do
+          @stored_file.should_receive(:allow_tags).and_return(true)
+        end
+        it "should include :tag_list in attribute list" do
+          assert @stored_file.attr_accessible_for(@params, @user).include?(:tag_list)
+        end
+      end
+
+      context "when allow_tags=false" do
+        before :each do
+          @stored_file.should_receive(:allow_tags).and_return(false)
+        end
+        it "should not include :tag_list in attribute list" do
+          assert !@stored_file.attr_accessible_for(@params, @user).include?(:tag_list)
+        end
+      end
+>>>>>>> Completed attr_accessible_for unit tests.  Fixed bug in factories.
     end
   end
 
