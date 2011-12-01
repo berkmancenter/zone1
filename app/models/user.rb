@@ -76,7 +76,7 @@ class User < ActiveRecord::Base
   end
 
   def group_rights
-    self.groups.collect { |r| r.allowed_rights }.flatten.uniq.collect { |r| r.action }
+    self.groups.collect { |g| g.allowed_rights }.flatten.uniq.collect { |r| r.action }
   end
 
   def all_rights
@@ -84,7 +84,7 @@ class User < ActiveRecord::Base
     # A users rights includese all rights assigned through
     # groups, roles, and directly to rights, through the 
     # polymorphic right_assignments table
-    rights = [self.groups.collect { |r| r.allowed_rights } + self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
+    rights = [self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
     logger.debug rights
     logger.debug rights
     logger.debug rights
