@@ -478,6 +478,40 @@ describe StoredFile do
     end
   end
 
+  describe "#mime_type_category_id" do
+    context "when a mime type is present and a mime type category is present" do
+      before do
+        @mime_type_category = Factory(:mime_type_category)
+        @mime_type = Factory(:mime_type, :mime_type_category => @mime_type_category)
+        @stored_file = Factory(:stored_file, :mime_type => @mime_type)
+      end
+      it "should return the mime type category id" do
+        @stored_file.mime_type_category_id.should == @mime_type_category.id
+      end
+    end
+
+    context "when no mime type is assigned" do
+      before do
+        @stored_file = Factory(:stored_file)
+        @stored_file.mime_type = nil
+      end
+      it "should return nil" do
+        assert_nil @stored_file.mime_type_category_id
+      end
+    end
+
+    context "when a mime type is present without a mime type category" do
+      before do
+        @mime_type = Factory(:mime_type)
+        @mime_type.mime_type_category = nil
+        @stored_file = Factory(:stored_file, :mime_type => @mime_type)
+      end
+      it "should return nil" do
+        assert_nil @stored_file.mime_type_category_id
+      end
+    end    
+  end
+
   #describe "#flag_map" do
   #end
 end
