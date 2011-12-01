@@ -479,5 +479,26 @@ describe User do
       end
     end
 =end
+
+  describe "#group_rights" do
+    let(:user1) { Factory(:user) }
+    let(:group1) { Factory(:group) }
+    let(:group2) { Factory(:group) }
+    let(:right1) { Factory(:right) }
+    let(:right2) { Factory(:right) }
+    let(:right_actions) { [right1.action, right2.action] }
+
+    before(:each) do
+      group1.users << user1
+      group2.users << user1
+      group1.rights << right1
+      group2.rights << right2
+    end
+
+    context "user with two groups" do
+      it "should aggregate group rights for user" do
+        user1.group_rights.should == right_actions
+      end
+    end
   end
 end
