@@ -480,10 +480,12 @@ describe User do
     end
 =end
 
+  end
+
   describe "#group_rights" do
     let(:user1) { Factory(:user) }
-    let(:group1) { Factory(:group) }
-    let(:group2) { Factory(:group) }
+    let(:group1) { Factory(:group, :assignable_rights => true) }
+    let(:group2) { Factory(:group, :assignable_rights => true) }
     let(:right1) { Factory(:right) }
     let(:right2) { Factory(:right) }
     let(:right_actions) { [right1.action, right2.action] }
@@ -499,6 +501,51 @@ describe User do
       it "should aggregate group rights for user" do
         user1.group_rights.should == right_actions
       end
+    end
+  end
+
+  describe "#all_groups" do
+    before do
+      @user = Factory(:user)
+    end
+    context "when user can edit_groups" do
+      before do
+        @user.should_receive(:all_rights).and_return(["edit_groups"])
+      end
+      it "should return All Groups" do
+        Group.should_receive(:all)
+        @user.all_groups
+      end
+    end
+
+    context "when user can't edit_Groups" do
+      before do
+        @user.should_receive(:all_rights).and_return([])
+      end
+      it "should return owned and member groups, without dups" do
+        @user.should_receive(:owned_groups).and_return(["owned_group","dup_group"])
+        @user.should_receive(:groups).and_return(["member_group","dup_group"])
+        @user.all_groups.should == %w(owned_group dup_group member_group)
+      end
+    end
+  end
+
+  describe ".all" do
+    it "should use users cache" do
+      assert !Rails.cache.exist?("users")
+      User.all
+      assert Rails.cache.exist?("users")
+    end
+  end
+
+  describe ".name_map" do
+    before do
+      @u1=Factory(:user, :name => "1")
+      @u2=Factory(:user, :name => "2")
+      @u3=Factory(:user, :name => "3")
+    end
+    it "should return a map of user.id.to_s => user.name" do
+      User.name_map.should == {@u1.id.to_s=>@u1.name, @u2.id.to_s=>@u2.name, @u3.id.to_s=>@u3.name}
     end
   end
 end
