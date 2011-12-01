@@ -50,12 +50,16 @@ class SearchController < ApplicationController
       @created_at_end_date = created_at_end_date = build_date_from_string_safe(params[:created_at_end_date]) #for inside @search.build block
     end
    
-    facets = [:batch_id, :indexed_collection_list, :author, :office, :user_id, :indexed_tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id] #:copyright
+    facets = [:batch_id, :indexed_collection_list, :author, :office, :user_id, :indexed_tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id]
     @search = Sunspot.new_search(StoredFile)
     @search.build do
       facets.each do |facet|
         if params.has_key?(facet)
-          with facet, CGI.unescape(params[facet])
+          if params[facet].is_a?(Array)
+            params[facet].each { |t| with facet, t }
+          else
+            with facet, CGI.unescape(params[facet])
+          end
         end
       end
 
@@ -70,20 +74,53 @@ class SearchController < ApplicationController
     @search.execute!
     @hits = filter_and_paginate_search_results(@search)
 
-    @facets = []
+    @removeable_facets = {}
     facets.each do |facet|
-      links = @search.facet(facet).rows.inject([]) do |arr, row|
-        remove = (params[facet] == row.value.to_s)
-        arr.push({
-          :label => self.send("label_#{facet.to_s}", row.value),
-          :remove => remove,
-          :url => remove ? url_for(params.clone.remove!(facet)) : url_for(params.clone.merge({ facet => row.value }))
-        })
-        arr
-      end
-      @facets.push({ :label => facet.to_s, :links => links })
+      if params.has_key?(facet)
+        @removeable_facets[facet] ||= []
+        if params[facet].is_a?(Array)
+          params[facet].each do |v|
+            t = params.clone
+            t[facet] = t[facet].select{ |b| b != v }
+            @removeable_facets[facet] << {
+              :label => self.send("label_#{facet.to_s}", v),
+              :url => url_for(t)
+            }
+           end
+         else
+          @removeable_facets[facet] << {
+            :label => self.send("label_#{facet.to_s}", params[facet]),
+            :url => url_for(params.clone.remove!(facet))
+          }
+        end  
+      end 
     end
 
+    @facets = {}
+    [:flag_ids, :mime_type_category_id, :license_id].each do |facet|
+      links = @search.facet(facet).rows.inject([]) do |arr, row|
+        if StoredFile::FACETS_WITH_MULTIPLE.include?(facet)
+          if !params[facet] || !params[facet].include?(row.value.to_s)
+            t = params.clone
+            t[facet] ||= []
+            t[facet] << row.value
+            arr.push({
+              :label => self.send("label_#{facet.to_s}", row.value),
+              :url => url_for(t)
+            })
+          end
+        else
+          if params[facet] != row.value.to_s
+            arr.push({
+              :label => self.send("label_#{facet.to_s}", row.value),
+              :url => url_for(params.clone.merge({ facet => row.value }))
+            })
+          end
+        end
+        arr
+      end
+      @facets[facet] = links if links.size > 0
+    end
   end
 
   private
@@ -102,7 +139,7 @@ class SearchController < ApplicationController
   end
 
   def per_page
-    session[:per_page] = params[:per_page] || session[:per_page] || "30"
+    session[:per_page] = params[:per_page] || session[:per_page] || "10"
   end
 
   def sort_column

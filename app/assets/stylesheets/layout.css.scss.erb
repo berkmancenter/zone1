@@ -1,0 +1,163 @@
+body {
+  font-family: Verdana, Arial, Helvetica, Sans-Serif;
+  background-color: #fff;
+  color: #333;
+  font-size: 11px;
+  line-height: 18px; 
+  width: 1018px;
+  margin: 0px auto; }
+
+section, hgroup { display: block; }
+img { border: none; }
+a { text-decoration: none; }
+a:hover { text-decoration: none; }
+.clear { clear: both; }
+
+/* Header */
+header { 
+  display: block;
+  margin-top: 10px;
+  nav {
+    display: block; 
+    float: right; 
+    text-transform: uppercase;
+  }
+  #logo { 
+    float: left;
+    margin-top: 5px; 
+  }
+}
+
+/* Search Filter */
+#filter {
+  float: left; 
+  width: 344px;
+  text-transform: uppercase;
+  font-size: 10px;
+  #panel {
+    background: #d7d7d7;
+    padding: 4px;
+    margin-right: 8px;
+    input[type=text] { 
+      background: #eaeaea;
+      border: 1px solid #a0a0a0;
+      padding: 5px;
+    } 
+    h3 {
+      background: #b4b4b4;
+      text-transform: uppercase;
+      padding: 6px 15px;
+      margin: 0px;
+      font-size: 11px;
+    }
+	#current_search {
+      padding: 3px 20px; 
+      #current_facets { 
+	 	padding: 5px;	
+        border: 1px solid #b4b4b4;
+        span { font-weight: bold; }
+      }
+    }
+    #search_keyword {
+      padding: 3px 20px;
+      input[type=text] {
+        padding: 5px 5px 4px 5px;
+      }
+      input { float: left;
+        display: inline-block;
+        margin: 0px;
+      }
+    }
+    #accordion {
+      clear: both;
+      padding: 20px 20px 3px 20px;
+      .ui-state-active, .ui-state-defualt {
+        a, a:visited { color: #3a6697; }
+      }
+      .ui-icon { display: none; }
+      .ui-accordion-header {
+        color: #3a6697;
+        border: none;
+        border-top: 1px solid #b9b9b9;
+        background: transparent url(<%= asset_path "accordion.png" %>) right 0px no-repeat;
+        padding: 5px 0px 0px 0px;
+      }
+      .ui-state-active {
+        background-position: right -17px;
+      }
+      .ui-widget-content { 
+        background: none;
+      }
+    }
+  }
+  #expand {
+    background: transparent url(<%= asset_path "expand.png" %>) no-repeat;
+    text-align: right;
+    height: 29px; 
+    a {
+      display: inline-block;
+      padding: 9px 60px 0px 0px;
+      font-weight: bold;
+      color: #000;
+    }
+  }
+}
+
+/* Old */
+/*
+.error,
+.response { font-weight: bold; color: red; display: block; }
+.clear { clear: both; }
+
+p, ol, ul, td {
+  font-size: 13px;
+  line-height: 18px; }
+
+pre {
+  background-color: #eee;
+  padding: 10px;
+  font-size: 11px; }
+
+a {
+  color: #000;
+  &:visited {
+    color: #666; }
+  &:hover {
+    color: #fff;
+    background-color: #000; } }
+
+div {
+  &.field, &.actions {
+    margin-bottom: 10px; } }
+
+#notice {
+  color: green; }
+
+.field_with_errors {
+  padding: 2px;
+  background-color: red;
+  display: table; }
+
+#error_explanation {
+  width: 450px;
+  border: 2px solid red;
+  padding: 7px;
+  padding-bottom: 0;
+  margin-bottom: 20px;
+  background-color: #f0f0f0;
+  h2 {
+    text-align: left;
+    font-weight: bold;
+    padding: 5px 5px 5px 15px;
+    font-size: 12px;
+    margin: -7px;
+    margin-bottom: 0px;
+    background-color: #c00;
+    color: #fff; }
+  ul li {
+    font-size: 12px;
+    list-style: square; } }
+
+.ui-dialog { background: #FFF; border: 1px solid #999; padding: 20px; }
+input, textarea { border: 1px solid #999; }
+*/

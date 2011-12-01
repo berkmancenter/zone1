@@ -142,10 +142,7 @@ user_brianb.roles << [role_admin, role_user]
 user_user.roles << [role_user]
 
 puts "Generating licenses"
-License.create([{ :name => 'CC BY' },
-        { :name => 'CC BY-SA' },
-        { :name => 'CC BY-ND' },
-        { :name => 'CC BY-NC' },
-        { :name => 'CC BY-NC-SA' },
-        { :name => 'CC BY-NC-ND' }])
+License.create([{ :name => 'All Rights Reserved' },
+        { :name => 'Public Domain' },
+        { :name => 'CC BY' }])
 

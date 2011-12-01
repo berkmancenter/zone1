@@ -52,6 +52,8 @@ class StoredFile < ActiveRecord::Base
   
   mount_uploader :file, FileUploader, :mount_on => :file
 
+  FACETS_WITH_MULTIPLE = [:indexed_collection_list, :indexed_tag_list, :flag_ids].freeze
+
   searchable(:include => [:tags, :mime_type, :mime_type_category]) do
     integer :id, :stored => true
     text :original_filename, :description

@@ -7,37 +7,29 @@
 	<%= csrf_meta_tags %>
 	<%= yield :head %>
 </head>
+
 <body>
 
+<header>
+<a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>
+<nav>
 <% if current_user -%>
-<%= current_user.name %> 
-(<%= render "users/quota_summary", :user => current_user %>) |
 <%= link_to 'Upload File(s)', upload_path %> |
-<%= link_to 'Groups', groups_path %> |
-<% if current_user.is_admin? %>
-<%= link_to 'Admin', "/admin" %> |
-<% end -%>
-<%= link_to 'Sign Out', destroy_user_session_path, :method => :delete %> 
+<%= current_user.name %> | 
+<%= link_to 'LOGOUT', destroy_user_session_path, :method => :delete %> 
 <% else -%>
-<%= link_to 'Sign In', new_user_session_path %>
+<%= link_to 'LOG IN', new_user_session_path %>
 <% end -%>
-<br/>
-<%= form_tag search_path, :method => :get do %>
-	<p>
-		<%= text_field_tag :search, params[:search] %>
-		<%= submit_tag "Search", :name => nil %>
-	</p>
-<% end %>
+</nav>
+<div class="clear"></div>
+</header>
 
-<div id="error" style="color:red; font-weight: bold; margin: 10px 0px; font-size: 18px;">
+<div id="error">
 <%= flash[:error] %>
 <%= flash[:notice] %>
 </div>
 
 <%= yield %>
-
-<footer>
-</footer>
 
 </body>
 </html>

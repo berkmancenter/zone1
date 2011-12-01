@@ -1,75 +1,94 @@
-<table width="100%" cellpadding="0" cellspacing="0">
-	<tr>
-		<td id="facets" valign="top">
-  			<%= render 'filter' %>
-		</td>
-		<td id="results" valign="top" class="list" width="750">
-			<p class="response"></p>
-			<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
-                          <%= submit_tag "Download Selected Files", :id => "download-submit" %>
-			<% end -%>
-			<%= form_tag(bulk_edit_stored_file_index_path, :method => "POST", :id => "bulk-edit") do %>
-                          <%= submit_tag "Bulk Edit", :id => "bulk-edit-submit" %>
-			<% end -%>
-                        
-			<h3>Results</h3>
-			<a href="#" id="list">List</a> | <a href="#" id="thumb">Thumb</a>
-			<p><%=pluralize(@search.total, 'result') %> found.</p>
-            <p>
-              Sort by: 
-              <%= sortable "created_at", "Date" %>,
-              <%= sortable "title" %>, 
-              <%= sortable "file_size", "Size" %>, 
-              <%= sortable "author" %>, 
-              <%= sortable "batch_id", "Batch ID" %>
-              (<%= sort_column %>, <%= sort_direction %>)
-            </p>
-            <p>
-              <%= form_tag search_path, :method => "POST" do %>
-                Items per page: <%= text_field_tag "per_page", per_page, :size => 2 %>
-                <%=submit_tag "Refresh" %>
-              <% end %>
-            </p>
-			<div class="menu">
-				<span class="filename">Filename</span>
-				<span class="size">Size</span>
-				<span class="date">Date</span>
-				<span class="tags">Tags</span>
-				<span class="flags">Flags</span>
-				<span class="author">Author</span>
-				<span class="license">Copyright</span>
-				<span class="batch">Batch</span>
-			</div>
-			
-			<% @hits.each do |hit| %> 
-				<div class="file" data-id="<%= hit.stored(:id) %>">
-					<span class="icon">
-						<%= image_tag "image.png" %>
-					</span>
-					<span class="filename">	
-						<input class="downloadable" type="checkbox" name="stored_file[<%= hit.stored(:id) %>]" value="1" />
-						<%= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)) %>
-					</span>
-					<span class="size"><%= hit.stored(:file_size) %> Bytes</span>
-					<span class="date"><%= hit.stored(:created_at).strftime("%m-%d-%Y") %></span>
-					<span class="tags"><%= hit.stored(:tag_list) %></span>
-					<span class="flags">
-						<% Flag.all.each do |flag| %>
-						<input type="checkbox" disabled="true" data-method="toggle_<%= flag.name.downcase %>" title="<%= flag.label %>" <%= raw 'checked="checked"' if !hit.stored(:flag_ids).nil? && hit.stored(:flag_ids).include?(flag.id) %> />
-						<% end -%>	
-					</span>
-					<span class="author"><%= hit.stored(:author) %></span>
-					<span class="license"><%= hit.stored(:license_name) %></span>
-					<span class="batch"><%= hit.stored(:batch_id) %></span>
-					<span><%= link_to "QE", edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %></span>
+<section id="filter">
+<%= render 'filter' %>
+</section>
+
+<section id="results" class="list">
+	<hgroup class="results_options">
+		<ul>
+			<li>
+				<a id="show_set_options" href="#">SELECTED</a>
+				<div id="set_options">
+					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
+						<%= submit_tag "Download", :id => "download-submit" %>
+					<% end -%>
+					<%= form_tag(bulk_edit_stored_file_index_path, :method => "POST", :id => "bulk-edit") do %>
+						<%= submit_tag "Bulk Edit", :id => "bulk-edit-submit" %>
+					<% end -%>
 				</div>
-			<% end %>
-		</td>
-</table>
+			</li>
+			<li>
+				<a id="show_display_options" href="#">DISPLAY OPTIONS</a>
+				<div id="display_options">
+					<p>
+						Sort by: 
+						<%= sortable "created_at", "Date" %>,
+						<%= sortable "title" %>, 
+						<%= sortable "file_size", "Size" %>, 
+						<%= sortable "author" %>, 
+						<%= sortable "batch_id", "Batch ID" %>
+						(<%= sort_column %>, <%= sort_direction %>)
+					</p>
+					<a href="#" id="list">List</a> | <a href="#" id="thumb">Thumb</a>
+					<%= form_tag search_path, :method => "POST" do %>
+					Items per page: <%= text_field_tag "per_page", per_page, :size => 2 %>
+					<%=submit_tag "Refresh" %>
+					<% end %>
+				</div>
+			</li>
+		</ul>
+		<div class="paginate">
+			<%= will_paginate @hits %>
+		</div>
+		<div class="clear"></div>
+	</hgroup>
 
-<div style="margin-top:2em;">
-	<%= will_paginate @hits %>
-</div>
+	<div class="menu">
+		<span class="filename">Filename</span>
+		<span class="size">Size</span>
+		<span class="date">Date</span>
+		<span class="tags">Tags</span>
+		<span class="flags">Flags</span>
+		<span class="author">Author</span>
+		<span class="license">Copyright</span>
+		<span class="batch">Batch</span>
+	</div>
+	
+	<% @hits.each do |hit| %> 
+		<div class="file <%= cycle("even", "odd") %>" data-id="<%= hit.stored(:id) %>">
+			<span class="icon">
+				<%= image_tag "image.png" %>
+			</span>
+			<span class="filename">	
+				<span class="finput">
+				<input class="downloadable" type="checkbox" name="stored_file[<%= hit.stored(:id) %>]" value="1" />
+				</span>
+				<%= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)) %>
+				<% if false -%>
+					<span><%= link_to "QE", edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %></span>
+				<% end -%>
+			</span>
+			<span class="size"><%= hit.stored(:file_size)/1000 %> KB</span>
+			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
+			<span class="tags"><%= hit.stored(:tag_list) %></span>
+			<span class="flags">
+				<% Flag.all.each do |flag| %>
+				<input type="checkbox" disabled="true" data-method="toggle_<%= flag.name.downcase %>" title="<%= flag.label %>" <%= raw 'checked="checked"' if !hit.stored(:flag_ids).nil? && hit.stored(:flag_ids).include?(flag.id) %> />
+				<% end -%>	
+			</span>
+			<span class="author"><%= hit.stored(:author) %></span>
+			<span class="license"><%= hit.stored(:license_name) %></span>
+			<span class="batch"><%= hit.stored(:batch_id) %></span>
+		</div>
+	<% end %>
+	<hgroup class="results_options">
+		<div class="paginate">
+			<%= will_paginate @hits %>
+		</div>
+		<div class="clear"></div>
+	</hgroup>
+</section>
+<div class="clear"></div>
 
+<p class="response"></p>
 
 <div id="quick_edit_panel"></div>
