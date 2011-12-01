@@ -142,7 +142,7 @@ describe User do
   describe "#decrease_available_quota!(amount)" do
     let(:user) { Factory(:user, :quota_used => 1000) }
     it "should increase quota_used by the amount" do
-      user.should_receive(:update_attribute).with(:quota_used, 2000)
+      user.should_receive(:increment).with(:quota_used, 1000)
       user.decrease_available_quota!(1000)
     end
   end

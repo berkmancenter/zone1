@@ -31,8 +31,8 @@ class StoredFile < ActiveRecord::Base
   
   before_save :update_file_size
   attr_accessor :skip_quota
-  after_create :decrease_available_user_quota, :unless => :skip_quota
-  after_destroy :increase_available_user_quota
+  after_create :decrease_available_user_quota!, :unless => :skip_quota
+  after_destroy :increase_available_user_quota!
 
   validates_presence_of :user_id, :access_level_id
 
@@ -119,7 +119,7 @@ class StoredFile < ActiveRecord::Base
     @skip_quota = params[:skip_quota]
   end
 
-  def decrease_available_user_quota
+  def decrease_available_user_quota!
     user.decrease_available_quota!(file_size)
   end
 
@@ -283,7 +283,7 @@ class StoredFile < ActiveRecord::Base
     user.decrease_available_quota!(amount_in_bytes)
   end
 
-  def increase_available_user_quota(amount_in_bytes=file_size)
+  def increase_available_user_quota!(amount_in_bytes=file_size)
     user.increase_available_quota!(amount_in_bytes)
   end
 

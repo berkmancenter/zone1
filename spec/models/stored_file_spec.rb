@@ -475,11 +475,9 @@ describe StoredFile do
           assert !@stored_file.attr_accessible_for(@params, @user).include?(:tag_list)
         end
       end
->>>>>>> Completed attr_accessible_for unit tests.  Fixed bug in factories.
     end
   end
 
   #describe "#flag_map" do
   #end
->>>>>>> Unit testing and refactoring of StoredFile
 end
