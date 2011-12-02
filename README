@@ -1,6 +1,6 @@
 == Data Setup
 
-rake db:reset; rake sunspot:reindex
+rake db:rebuild
 
 == ERD Generator
 
@@ -8,7 +8,17 @@ railroad -M | neato -Tpng > app/assets/images/models.png
 
 == Notes on Stack, Dependencies
 
-- nginx + passenger
+- apache/nginx + passenger
+** if using apache
+*** must install mod_xsendfile, see https://tn123.org/mod_xsendfile/
+*** must configure Rails enviornment to include  
+    # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for apache
+
+** if using nginx
+*** no additional configuration of websever is required
+*** must configure Rails enviornment to include 
+    # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for nginx
+
 - authentication: devise
 - authorization: acl9
 - ajax-upload tool: plupload
