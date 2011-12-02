@@ -29,8 +29,8 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
   
-  before_save :update_file_size
   attr_accessor :skip_quota
+  before_save :update_file_size
   after_create :decrease_available_user_quota!, :unless => :skip_quota
   after_destroy :increase_available_user_quota!
 
@@ -91,7 +91,7 @@ class StoredFile < ActiveRecord::Base
 
       if mime_type.new_record?
         mime_type.name = hash[:format_name]
-        mime_type.extension = extname(original_filename)
+        mime_type.extension = hash[:file_extension]
       end
 
       self.mime_type = mime_type
@@ -128,15 +128,17 @@ class StoredFile < ActiveRecord::Base
   def build_bulk_flaggings_for(stored_files, user)
     matching_flags = BulkEdit.matching_flags_from(stored_files)
     matching_flags.each do |flag|
-      self.flaggings.build(:flag_id => flag.id, :checked => true)     # must explicitly set checked here.  It is the only way
-    end                                                               # the form will know that this flagging is set 
+      # must explicitly set checked here. It is the only way the form will know that this flagging is set 
+      self.flaggings.build(:flag_id => flag.id, :checked => true)
+    end
   end
 
   def build_bulk_groups_for(stored_files, user)
     matching_groups = BulkEdit.matching_groups_from(stored_files)
     matching_groups.each do |group|
-      self.groups_stored_files.build(:group_id => group.id, :checked => true) #must explicitly set changed here
-    end                                                                       #so form will know to check the group 
+      #must explicitly set changed here so form will know to check the group 
+      self.groups_stored_files.build(:group_id => group.id, :checked => true) 
+    end
   end
 
   def find_groups_stored_files_id_by_group_id(group_id)
@@ -208,8 +210,9 @@ class StoredFile < ActiveRecord::Base
 
   def custom_save(params, user)
 
-    #TODO untested: raise "This type of file (.#{extname( params["original_filename"] )}) is not allowed."
-    raise Exception.new("This type of file is not allowed.") if new_record? && MimeType.file_extension_blacklisted?(params["original_filename"])
+    if new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
+      raise Exception.new( MimeType.blacklisted_message(params[:original_filename]) )
+    end
 
     self.accessible = attr_accessible_for(params, user)
 
@@ -370,11 +373,6 @@ class StoredFile < ActiveRecord::Base
     end
  
     group_map
-  end
-
-  def extname(file_url)
-    return nil if file_url.nil?
-    File.extname(file_url).downcase
   end
 
   def update_fits_attributes

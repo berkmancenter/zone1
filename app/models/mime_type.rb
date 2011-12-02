@@ -6,6 +6,7 @@ class MimeType < ActiveRecord::Base
 
   attr_accessible :name, :mime_type, :extension, :blacklist
 
+  before_create :downcase_extension
   after_initialize :set_default_category
 
   after_update { MimeType.destroy_blacklisted_extensions_cache }
@@ -24,11 +25,21 @@ class MimeType < ActiveRecord::Base
   end
 
   def self.file_extension_blacklisted?(filename)
-    MimeType.blacklisted_extensions.include?(File.extname(filename)) if filename.present?
+    filename.present? && MimeType.blacklisted_extensions.include?(File.extname(filename).downcase)
   end
   
+
+  def self.blacklisted_message(filename)
+    "This type of file (" + File.extname(filename) + ") is not allowed."
+  end
+
   private
+
   def set_default_category
     self.mime_type_category = MimeTypeCategory.find_or_create_by_name("Uncategorized")
+  end
+
+  def downcase_extension
+    self.extension.downcase! if !self.extension.nil?
   end
 end

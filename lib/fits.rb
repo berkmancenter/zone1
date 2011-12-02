@@ -14,9 +14,14 @@ module Fits
 
     format_node = xml.xpath('//fits/identification/identity[@format != ""]')
 
+    file_extension = File.extname(file_url).downcase
     format_name = format_node.attr('format').value if format_node and format_node.attr('format')
     mime_type = format_node.attr('mimetype').value if format_node and format_node.attr('mimetype')
-    fits_data[:fits_mime_type] = { :format_name => format_name, :mime_type => mime_type }
+    fits_data[:fits_mime_type] = {
+      :format_name => format_name,
+      :mime_type => mime_type,
+      :file_extension => file_extension
+    }
 
     format_version = xml.xpath('//fits/identification/identity/version')
     fits_data[:format_version] = format_version.first.content if format_version and format_version.first

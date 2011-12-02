@@ -127,23 +127,30 @@ class StoredFilesController < ApplicationController
       return
     end
 
-    begin
-      is_web_upload = params.has_key?(:name) && params.has_key?(:file)
-      is_sftp_only = params[:sftp_only] == '1'
+    is_web_upload = params.has_key?(:name) && params.has_key?(:file)
+    is_sftp_only = params[:sftp_only] == '1'
 
-      stored_file = StoredFile.new
+    stored_file = StoredFile.new
 
-      # Note: This is done because the custom_save handles accepted attributes
-      params[:stored_file].merge!({ :user_id => current_user.id,
-        :original_filename => params.delete(:name),
-        :file => params.delete(:file)
-      })
+    # Note: This is done because the custom_save handles accepted attributes
+    params[:stored_file].merge!({ :user_id => current_user.id,
+      :original_filename => params.delete(:name),
+      :file => params.delete(:file)
+    })
 
-      if !is_sftp_only
+    exceptions = []
+    if !is_sftp_only
+      begin
+        # custom_save gets its own exception handling because we might still
+        # need to enqueue a RemoteFileImporter job after custom_save barfs
         stored_file.custom_save(params[:stored_file], current_user)
         Resque.enqueue(FitsRunner, stored_file.id)
-      end
+      rescue Exception => e
+        exceptions << e
+      end          
+    end
 
+    begin
       sftp_user = SftpUser.find_by_username(params[:sftp_username]) if params[:sftp_username].present?
       force_batch = is_sftp_only || (is_web_upload && needs_remote_file_import?(sftp_user))
 
@@ -158,17 +165,25 @@ class StoredFilesController < ApplicationController
         session[:remote_import_temp_batch_ids][params[:temp_batch_id]] = true
         file_params = params[:stored_file].dup
         #Resque will barf trying to JSON serialize any binary entries in file_params
-        file_params.delete :file  
+        file_params.delete :file
+        # TODO: some kind of confirmation that this job was enqueued for X number of files
         Resque.enqueue(RemoteFileImporter, params[:sftp_username], file_params)
       end
-
-      render :json => {:success => true}
-      return
     rescue Exception => e
-      log_exception e
-      render :json => {:success => false, :message => e.to_s}
-      return
+      exceptions << e
     end
+
+    if exceptions.empty?
+      render :json => {:success => true}
+    else
+      errors = []
+      exceptions.each do |e|
+        log_exception e
+        errors << e.to_s
+      end
+      render :json => {:success => false, :message => errors.join(', ')}
+    end
+
   end
 
   def download_set
