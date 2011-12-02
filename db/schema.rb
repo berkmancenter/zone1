@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.integer "owner_id"
   end
 
-  create_table "groups_stored_files", :force => true do |t|
+  create_table "groups_stored_files", :id => false, :force => true do |t|
     t.integer "group_id"
     t.integer "stored_file_id"
   end
@@ -192,6 +192,11 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.boolean  "allow_tags"
     t.integer  "mime_type_id"
     t.date     "original_date"
+  end
+
+  create_table "stored_files_flags", :id => false, :force => true do |t|
+    t.integer "stored_file_id"
+    t.integer "flag_id"
   end
 
   create_table "taggings", :force => true do |t|

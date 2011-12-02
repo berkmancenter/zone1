@@ -55,25 +55,38 @@ class StoredFile < ActiveRecord::Base
   FACETS_WITH_MULTIPLE = [:indexed_collection_list, :indexed_tag_list, :flag_ids].freeze
 
   searchable(:include => [:tags, :mime_type, :mime_type_category]) do
-    integer :id, :stored => true
+    # Note: Both text and string fields needed.
+    # Solr searches text in fulltext queries, but string is also needed
+    # for with in search
+    text :author
+    text :office
+    text :title
+    text :copyright
     text :original_filename, :description
-    time :original_date, :stored => true, :trie => true #trie optimizes the index for ranges
-    time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
-    integer :batch_id, :stored => true
-    string :indexed_collection_list, :stored => true, :multiple => true
+    text :contributor_name
+    text :license_name, :stored => true
+    text :display_name, :stored => true
+
     string :author, :stored => true
     string :office
-    integer :user_id, :references => User
-    string :indexed_tag_list, :stored => true, :multiple => true
-    integer :flag_ids, :stored => true, :multiple => true, :references => Flag 
-    text :copyright
-    string :license_name, :stored => true
-    integer :license_id, :stored => true, :references => License
     string :title
+    string :copyright 
+    string :contributor_name
+
+    string :indexed_tag_list, :stored => true, :multiple => true
+    string :indexed_collection_list, :stored => true, :multiple => true
+
+    integer :id, :stored => true
+    integer :batch_id, :stored => true
+    integer :user_id, :references => User
+    integer :flag_ids, :stored => true, :multiple => true, :references => Flag 
+    integer :license_id, :stored => true, :references => License
     integer :file_size, :stored => true
-    string :display_name, :stored => true
     integer :mime_type_id
     integer :mime_type_category_id
+
+    time :original_date, :stored => true, :trie => true #trie optimizes the index for ranges
+    time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
   end
 
   def display_name

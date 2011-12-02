@@ -1,4 +1,5 @@
 $(function() {
+	//Accordion Functionality
 	$('#accordion').accordion({
 		collapsible: true,
 		changestart: function(event, ui) {
@@ -19,33 +20,34 @@ $(function() {
 		}
 	});
 
+	//UI
 	$('#show_display_options').click(function() {
 		$('#display_options').toggle();
 	});
 	$('#show_set_options').click(function() {
 		$('#set_options').toggle();
 	});
-	
-	$("#created_at_start_date, #created_at_end_date").datepicker();
 
+	//Calendar Datepicker	
+	$("#dates input[type=text]").datepicker();
+
+	//Toggle between list and thumb
 	$('#list,#thumb').click(function() {
 		if($('#results').hasClass($(this).attr('id'))) {
 			return false;
 		}
-		$('#quick_edit_panel').hide();
 		$('#results').toggleClass('list').toggleClass('thumb');
 		$('#display_options').hide();
 		return false;
 	});
 
+	//Set options
 	$('.downloadable').attr('checked', false);
 	$('.downloadable').click(function() {
 		if($('.downloadable:checked').size() > 1) {
-			$('#download-submit').show();
-						$('#bulk-edit-submit').show();
+			$('#bulk-edit-submit,#download-submit').show();
 		} else {
-			$('#download-submit').hide();
-						$('#bulk-edit-submit').hide();
+			$('#bulk-edit-submit,#download-submit').hide();
 		}
 	});
 
@@ -55,39 +57,6 @@ $(function() {
 	$('#bulk-edit').submit(function() {
 		Zone1.clone_downloadable_checkboxes_to($(this));
 	});
-
-	$('#people form').submit(function() {
-/*
-		if($('#people input[type=radio]:checked').length) {
-			$('#people form input').attr('name', $('#people input[type=radio]:checked'));
-		} else {
-			$('#people form input').attr('name', 'author');
-		} */
-		return true;
-	});
-
-	$('#close_quick_edit').live("click", function() {
-		$('.file').css('background', '#FFF');
-		$('#quick_edit_panel').hide();
-		//return false;
-	});
-
-/*
-	$('.file').click(function() {
-	  //Reset state
-	  $("#quick_edit_panel").hide();
-	  $('.file').css('background', '#FFF');
-
-	  //Select file and highlight
-	  var current_file = $(this);
-	  current_file.css('background', '#d3d3d3');
-
-	  //Position quick pannel, the ajax call will show it
-  	  var p = current_file.position();
-	  var left_shift = ($('#results').hasClass('thumb') ? 120 : 500);
-	  $('#quick_edit_panel').css({ top: p.top, left: p.left + left_shift });
-	});
-*/
 });
 
 if(!window.Zone1) {

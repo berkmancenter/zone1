@@ -3,24 +3,11 @@ class SearchController < ApplicationController
   helper_method :sort_column, :sort_direction, :per_page
   include ApplicationHelper
 
-  def label_batch_id(value)
-    value
-  end
-  def label_indexed_collection_list(value)
-    value
-  end
   def label_author(value)
     value == '' ? 'empty string' : value
   end
   def label_office(value)
     value == '' ? 'empty string' : value
-  end
-  def label_user_id(value)
-    # TODO: This is hitting the database. can_optimize? yes
-    User.name_map[value] || "Unknown user"
-  end
-  def label_indexed_tag_list(value)
-    value
   end
   def label_flag_ids(value)
     # Original code:
@@ -44,16 +31,32 @@ class SearchController < ApplicationController
   end
   
   def index
-    unless params[:commit] == "clear"
-      #must setup both instance and local variables, so @search.build can access
-      @created_at_start_date = created_at_start_date = build_date_from_string_safe(params[:created_at_start_date]) #for filter partial
-      @created_at_end_date = created_at_end_date = build_date_from_string_safe(params[:created_at_end_date]) #for inside @search.build block
+    params.each do |k, v|
+      if !v.presence
+        params.delete(k)
+      end
     end
+
+    params.delete(:search) if params[:search] == [""]
+    # splits keywords into multiple facets if not quoted
+    if params.has_key?(:search) && !params[:search].last.match('"') && params[:search].last.match(' ')
+      last = params[:search].pop
+      params[:search] += last.split(' ')
+    end
+
+    #must setup both instance and local variables, so @search.build can access
+    @start_date = start_date = build_date_from_string_safe(params[:start_date])
+    @end_date = end_date = build_date_from_string_safe(params[:end_date])
    
-    facets = [:batch_id, :indexed_collection_list, :author, :office, :user_id, :indexed_tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id]
     @search = Sunspot.new_search(StoredFile)
     @search.build do
-      facets.each do |facet|
+      if params.has_key?(:search)
+        fulltext params[:search] do
+          query_phrase_slop 1 
+        end
+      end
+
+      [:flag_ids, :mime_type_category_id, :license_id, :indexed_collection_list, :batch_id].each do |facet|
         if params.has_key?(facet)
           if params[facet].is_a?(Array)
             params[facet].each { |t| with facet, t }
@@ -63,50 +66,40 @@ class SearchController < ApplicationController
         end
       end
 
-      # TODO: Figure out what this is for (Steph)
-      fulltext params[:search] do
-        query_phrase_slop 1 
+      facet :flag_ids, :mime_type_category_id, :license_id
+
+      if params[:people].presence
+        params[:people_type] ||= "author"
+        with(params[:people_type].to_sym, params[:people])
       end
-      facet :batch_id, :indexed_collection_list, :author, :office, :user_id, :indexed_tag_list, :flag_ids, :license_id, :mime_type_id, :mime_type_category_id  #:copyright
-      with(:created_at, created_at_start_date.beginning_of_day..created_at_end_date.end_of_day) if created_at_start_date && created_at_end_date
+
+      if start_date && end_date
+        params[:date_type] ||= "created_at"
+        with(params[:date_type].to_sym, start_date.beginning_of_day..end_date.end_of_day) 
+      end
+
       order_by sort_column, sort_direction 
     end
+
     @search.execute!
     @hits = filter_and_paginate_search_results(@search)
 
-    @removeable_facets = {}
-    facets.each do |facet|
-      if params.has_key?(facet)
-        @removeable_facets[facet] ||= []
-        if params[facet].is_a?(Array)
-          params[facet].each do |v|
-            t = params.clone
-            t[facet] = t[facet].select{ |b| b != v }
-            @removeable_facets[facet] << {
-              :label => self.send("label_#{facet.to_s}", v),
-              :url => url_for(t)
-            }
-           end
-         else
-          @removeable_facets[facet] << {
-            :label => self.send("label_#{facet.to_s}", params[facet]),
-            :url => url_for(params.clone.remove!(facet))
-          }
-        end  
-      end 
-    end
+    build_removeable_facets(params)
 
+    build_searchable_facets(params)
+  end
+
+  def build_searchable_facets(params)
     @facets = {}
+
     [:flag_ids, :mime_type_category_id, :license_id].each do |facet|
       links = @search.facet(facet).rows.inject([]) do |arr, row|
         if StoredFile::FACETS_WITH_MULTIPLE.include?(facet)
           if !params[facet] || !params[facet].include?(row.value.to_s)
-            t = params.clone
-            t[facet] ||= []
-            t[facet] << row.value
+            params[facet] ||= []
             arr.push({
               :label => self.send("label_#{facet.to_s}", row.value),
-              :url => url_for(t)
+              :url => url_for(params.clone.merge({ facet => params[facet] + [row.value] }))
             })
           end
         else
@@ -120,6 +113,55 @@ class SearchController < ApplicationController
         arr
       end
       @facets[facet] = links if links.size > 0
+    end
+  end
+
+  def build_removeable_facets(params)
+    @removeable_facets = {}
+    @hidden_facets = {}
+
+    removed_facets = ["search", "tag", "start_date", "end_date", "people",
+      "flag_ids", "license_id", "mime_type_category_id", "indexed_collection_list",
+      "batch_id"]
+
+    params.each do |facet, value|
+      if value.presence && removed_facets.include?(facet)
+        @hidden_facets.merge!({ facet => value })
+        @removeable_facets[facet] ||= []
+        if value.is_a?(Array)
+          params[facet].each do |v|
+            t = params.clone
+            t[facet] = t[facet].select{ |b| b != v }
+            @removeable_facets[facet] << {
+              :label => self.respond_to?("label_#{facet.to_s}", v) ? self.send("label_#{facet.to_s}", v) : v,
+              :url => url_for(t)
+            }
+           end
+       else
+        @removeable_facets[facet] << {
+          :label => self.respond_to?("label_#{facet.to_s}", value) ? self.send("label_#{facet.to_s}", value) : value,
+          :url => url_for(params.clone.remove!(facet))
+        }
+        end
+      end
+    end
+
+    label_map = {
+      "search" => "Keyword",
+      "indexed_tag_list" => "Tag",
+      "license_id" => "License",
+      "indexed_collection_list" => "Collection Name",
+      "flag_ids" => "Flags",
+      "batch_id" => "Batch",
+      "start_date" => "#{params[:date_type]} Start Date",
+      "end_date" => "#{params[:date_type]} End Date",
+      "people" => "#{params[:people_type]}"
+    }
+    @removeable_facets.each do |k, v|
+      if(label_map[k])
+        @removeable_facets[label_map[k]] = v
+        @removeable_facets.delete(k)
+      end
     end
   end
 

@@ -16,79 +16,83 @@
 	</div>
 	<% end -%>
 
+	<%= form_tag search_path, :method => :get, :id => 'search_form' do %>
+	<% @hidden_facets.each do |k, v| %>
+    	<% if v.is_a?(Array) %>
+    		<% v.each do |b| %>
+   			<%= hidden_field_tag "#{k}[]", b %>
+    		<% end -%>
+    	<% else -%>
+    		<%= hidden_field_tag k, v %>
+    	<% end -%>
+	<% end -%>
 	<div id="search_keyword">
 		Search by Keyword <a href="#">(SEARCH TIPS)</a>
-		<%= form_tag search_path, :method => :get do %>
-			<%= text_field_tag :search, params[:search] %>
+			<%= text_field_tag "search[]", '' %>
 			<%= image_submit_tag "search.png" %>
-		<% end %>
 	</div>
 
-	<% if @facets -%>
 	<div id="accordion">
 		<h3><a href="#">Date</a></h3>
-		<div>
-			Date Uploaded <input name="date_type" type="radio" value="ingest_date" />
-			Original Document Date <input name="people_type" type="radio" value="original_date" />
-			<%= form_tag search_path, :method => "POST" do %>
-				<table width="100%" cellpadding="0" cellspacing="0">
-					<tr>
-						<td>
-							From
- 							<%= text_field_tag "created_at_start_date", safe_strftime(@created_at_start_date) %>
-						</td>
-						<td>
-							To
-	    					<%= text_field_tag "created_at_end_date", safe_strftime(@created_at_end_date) %>
-						</td>
-					</tr>
-				</table>
-				<%= submit_tag "submit" %>
-	  		<% end %>
+		<div id="dates">
+			Date Uploaded
+			<%= radio_button_tag "date_type", "created_at", (!params.has_key?(:date_type) || params[:date_type] == "created_at") %>
+			Original Document Date
+			<%= radio_button_tag "date_type", "original_date", params[:date_type] == "original_date" %>
+			<table width="100%" cellpadding="0" cellspacing="0">
+				<tr>
+					<td>
+						From
+ 						<%= text_field_tag "start_date", safe_strftime(@start_date) %>
+					</td>
+					<td>
+						To
+	    				<%= text_field_tag "end_date", safe_strftime(@end_date) %>
+					</td>
+				</tr>
+			</table>
 		</div>
 		<h3><a href="#">People</a></h3>
 		<div id="people">
 			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr>
 					<td>
-						Creator <input name="people_type" type="radio" value="author" />
-						Contributor <input name="people_type" type="radio" value="user_id" />
+						Creator
+						<%= radio_button_tag "people_type", "author", (!params.has_key?(:people_type) || params[:people_type] == "author") %>
+						Contributor
+						<%= radio_button_tag "people_type", "contributor_name", params[:people_type] == "contributor_name" %>
 					</td>
 					<td>
-						<%= form_tag search_path, :method => "POST" do %>
  						<%= text_field_tag "people" %>
-						<% end -%>
 					</td>
 				</tr>
 			</table>
 		</div>
 		<h3><a href="#">File Attributes</a></h3>
 		<div>
-			<table width="100%" cellpadding="0" cellspacing="0">
+			<table width="100%" cellpadding="5" cellspacing="0">
 				<tr>
-					<td>
+					<td width="170">
 						Collection name
-						<%= form_tag search_path, :method => "POST" do %>
  						<%= text_field_tag "indexed_collection_list" %>
-						<% end -%>
 					</td>
-					<td>
+					<td width="100">
 						Batch Number
-						<%= form_tag search_path, :method => "POST" do %>
  						<%= text_field_tag "batch_id" %>
-						<% end -%>
 					</td>
 				</tr>
 				<tr>
 					<td>
 						<% if @facets[:flag_ids] %>
         				<% @facets[:flag_ids].each do |flag| %>
-              			<%= link_to flag[:label], flag[:url] %><br />
+              			<span class="flag">
+							<%= link_to flag[:label], flag[:url] %>
+						</span>
            				<% end -%>
            				<% end -%>
 					</td>
 					<% if @facets[:mime_type_category_id] %>
-					<td>
+					<td valign="top">
 						Files Type
         				<% @facets[:mime_type_category_id].each do |mc| %>
               			<%= link_to mc[:label], mc[:url] %><br />
