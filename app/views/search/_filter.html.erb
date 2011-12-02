@@ -17,6 +17,7 @@
 	<% end -%>
 
 	<%= form_tag search_path, :method => :get, :id => 'search_form' do %>
+	<% if @hidden_facets -%>
 	<% @hidden_facets.each do |k, v| %>
     	<% if v.is_a?(Array) %>
     		<% v.each do |b| %>
@@ -25,6 +26,7 @@
     	<% else -%>
     		<%= hidden_field_tag k, v %>
     	<% end -%>
+	<% end -%>
 	<% end -%>
 	<div id="search_keyword">
 		Search by Keyword <a href="#">(SEARCH TIPS)</a>
@@ -83,7 +85,7 @@
 				</tr>
 				<tr>
 					<td>
-						<% if @facets[:flag_ids] %>
+						<% if @facets && @facets[:flag_ids] %>
         				<% @facets[:flag_ids].each do |flag| %>
               			<span class="flag">
 							<%= link_to flag[:label], flag[:url] %>
@@ -91,7 +93,7 @@
            				<% end -%>
            				<% end -%>
 					</td>
-					<% if @facets[:mime_type_category_id] %>
+					<% if @facets && @facets[:mime_type_category_id] %>
 					<td valign="top">
 						Files Type
         				<% @facets[:mime_type_category_id].each do |mc| %>
@@ -102,7 +104,7 @@
 				</tr>
 			</table>
 		</div>
-		<% if @facets[:license_id] %>
+		<% if @facets && @facets[:license_id] %>
 		<h3><a href="#">Copyright</a></h3>
 		<div>
         	<% @facets[:license_id].each do |license| %>
@@ -115,8 +117,6 @@
 	<div class="clear"></div>
 </div>
 
-<% if @facets -%>
 <div id="expand">
 <a href="#">Expand All</a>
 </div>
-<% end -%>
