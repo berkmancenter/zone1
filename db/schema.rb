@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111117123521) do
+ActiveRecord::Schema.define(:version => 20111202121251) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -191,6 +191,7 @@ ActiveRecord::Schema.define(:version => 20111117123521) do
     t.boolean  "delete_flag"
     t.boolean  "allow_tags"
     t.integer  "mime_type_id"
+    t.date     "original_date"
   end
 
   create_table "taggings", :force => true do |t|

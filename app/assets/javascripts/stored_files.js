@@ -1,4 +1,7 @@
 $(document).ready(function() {
+
+	$("#stored_file_original_date").datepicker();
+
 	$('#new-comment').submit(function() {
 		$(this).ajaxSubmit({
 			dataType: "JSON",
@@ -16,7 +19,8 @@ $(document).ready(function() {
 		});
 		return false;
 	});
-	$('.delete-comment').click(function() {
+	
+  $('.delete-comment').click(function() {
 		$.ajax({
 			cache: false,
 			url: $(this).attr('href'),

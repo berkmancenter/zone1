@@ -46,7 +46,7 @@ class StoredFile < ActiveRecord::Base
     :license_id, :publication_type_list, :groups_stored_files_attributes,
     :access_level_id].freeze
 
-  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES).freeze
+  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file, :original_date] + ALLOW_MANAGE_ATTRIBUTES).freeze
 
   FITS_ATTRIBUTES = [:file_size, :md5, :fits_mime_type].freeze
   
@@ -57,6 +57,7 @@ class StoredFile < ActiveRecord::Base
   searchable(:include => [:tags, :mime_type, :mime_type_category]) do
     integer :id, :stored => true
     text :original_filename, :description
+    time :original_date, :stored => true, :trie => true #trie optimizes the index for ranges
     time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
     integer :batch_id, :stored => true
     string :indexed_collection_list, :stored => true, :multiple => true

@@ -10,6 +10,8 @@
       <%= editable_field(f, @attr_accessible, :description, { :rows => 3}, :text_area) %>
     </td>
     <td>
+      <%= editable_field(f, @attr_accessible, :original_date, {}, :text_field) %>
+
       <%= editable_field(f, @attr_accessible, :author, {}, :text_field) %>
 
       <%= editable_field(f, @attr_accessible, :office, {}, :text_field) %>
