@@ -31,4 +31,6 @@ Zone1::Application.configure do
   #DEVONLY -phunk
   ActiveSupport::Deprecation.silenced = true
   
+  config.action_dispatch.x_sendfile_header = "X-Sendfile" # for apache
+  # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for nginx
 end
