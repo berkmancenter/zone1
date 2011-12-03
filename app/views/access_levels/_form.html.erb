@@ -1,13 +1,13 @@
 <% if attrs.include?(:access_level_id) %>
 <%= bulk_edit :access_level_id %>
 <%= f.label "Access Level" %>
+
 <div class="access-level">
   <% AccessLevel.all.each do |access_level| %>
 
     <% if current_user.can_set_access_level?(@stored_file, access_level) %>
-    <input name="stored_file[access_level_id]" type="radio" <%= raw 'checked="checked"' if @stored_file.access_level == access_level %> data-method="toggle_<%= access_level.name %>" value="<%= access_level.id %>" />
-    <%= access_level.label %><br />
-
+      <%= f.label :access_level_id, access_level.label %>
+      <%= f.radio_button :access_level_id, access_level.id, :class => "access_level_radio" %><br/>
     <% end %>
   <% end %>
 </div>

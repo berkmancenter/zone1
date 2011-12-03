@@ -270,7 +270,7 @@ class StoredFile < ActiveRecord::Base
 
     if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
       desired_access_level = AccessLevel.find(params[:access_level_id])
-      valid_attr << :access_level_id if user.can_set_access_level?(self, desired_access_level)
+      valid_attr << :access_level_id if desired_access_level && user.can_set_access_level?(self, desired_access_level)
     end
     valid_attr << :tag_list if self.allow_tags == true
     

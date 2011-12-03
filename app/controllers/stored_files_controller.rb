@@ -121,8 +121,8 @@ class StoredFilesController < ApplicationController
     # accessible attributes are defined by attr_accessible_for, 
     # and access_level_id and user_id are not global attributes
     # TODO: Possibly clean up later, but low priority
-    @stored_file.user_id = current_user.id
-    @stored_file.access_level = AccessLevel.find_by_name("partially_open")
+    @stored_file.user = current_user
+    @stored_file.access_level = AccessLevel.default
     @max_web_upload_file_size = Preference.find_by_name('Max Web Upload Filesize').try(:value)
     @max_web_upload_file_size ||= '100mb' #arbitrary default. (standard 'mb', 'kb', 'b' units required)
 
