@@ -27,6 +27,7 @@ gem 'will_paginate', '3.0.2'
 # gem 'rmagick'
 gem 'nokogiri'
 gem 'carrierwave'
+gem 'rmagick' #needed for thumbnail generation
 gem 'rubyzip'
 gem 'resque', :require => "resque/server"
 

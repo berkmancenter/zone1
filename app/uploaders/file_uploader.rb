@@ -1,6 +1,30 @@
 class FileUploader < CarrierWave::Uploader::Base
+  include CarrierWave::RMagick
+
+  attr_accessor :fits_complete
 
   storage :file
+
+  version :thumb, :if => :fits_complete? do
+    process :resize_to_limit => [100,100]
+  end
+
+  def fits_complete?
+    @fits_complete ||= false
+  end
+
+  
+  #copied from http://guides.rubyonrails.org/security.html#file-uploads
+  def self.sanitize_filename(filename)
+      filename.strip.tap do |name|
+        # NOTE: File.basename doesn't work right with Windows paths on Unix
+        # get only the filename, not the whole path
+        name.sub! /\A.*(\\|\/)/, ''
+        # Finally, replace all non alphanumeric, underscore
+        # or periods with underscore
+        name.gsub! /[^\w\.\-]/, '_'
+      end
+  end
 
   # Where uploaded files are saved
   def store_dir
@@ -28,5 +52,4 @@ class FileUploader < CarrierWave::Uploader::Base
     var = :"@#{mounted_as}_secure_token"
     model.instance_variable_get(var) or model.instance_variable_set(var, SecureRandom.hex(16))
   end
-
 end

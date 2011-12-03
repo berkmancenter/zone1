@@ -98,6 +98,11 @@
 				<span class="name">
 					<%= link_to hit.stored(:display_name), edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %>
 				</span>
+				<%= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)) %>
+				<% if true #false -%>
+          <span><%= link_to "QE", edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %></span>
+          <span><%= link_to "Preview", stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_preview_link" %></span>
+				<% end -%>
 			</span>
 			<span class="size"><%= number_to_human_size(hit.stored(:file_size)) %></span>
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
@@ -121,3 +126,9 @@
 	</hgroup>
 </section>
 <div class="clear"></div>
+
+<p class="response"></p>
+
+<div id="quick_edit_panel"></div>
+<div id="quick_preview_panel"></div>
+

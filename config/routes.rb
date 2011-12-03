@@ -13,6 +13,7 @@ Zone1::Application.routes.draw do
       delete :bulk_destroy
     end
     member do
+      get :thumbnail
       post :toggle_method
       get :download
     end

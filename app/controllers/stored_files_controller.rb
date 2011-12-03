@@ -9,6 +9,8 @@ class StoredFilesController < ApplicationController
 
     allow all, :to => [:edit, :download, :show], :if => :allow_show?
 
+    allow logged_in, :to => [:thumbnail, :show, :update, :edit, :download], :if => :allow_show?
+
     allow logged_in, :to => [:update], :if => :allow_show?
 
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
@@ -31,7 +33,23 @@ class StoredFilesController < ApplicationController
 
   def download
     @stored_file = StoredFile.find(params[:id])
-    send_file @stored_file.file.file.file, :filename => @stored_file.original_filename
+    #:filename => @stored_file.original_filename
+    send_file @stored_file.file_url, :x_sendfile => true
+  end
+
+  def thumbnail
+    @stored_file = StoredFile.find(params[:id])
+
+    #Because our files are not stored in a pbulic directory
+    #we must use send_file to pass data to the browser
+    send_file @stored_file.file_url(:thumb), :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
+  end
+
+  def show
+    @stored_file = StoredFile.find(params[:id])
+    respond_to do |format|
+      format.js
+    end
   end
 
   def edit
@@ -172,7 +190,7 @@ class StoredFilesController < ApplicationController
 
     # Note: This is done because the custom_save handles accepted attributes
     params[:stored_file].merge!({ :user_id => current_user.id,
-      :original_filename => params.delete(:name),
+      :original_filename => FileUploader.sanitize_filename(params.delete(:name)),
       :file => params.delete(:file)
     })
 
@@ -231,7 +249,9 @@ class StoredFilesController < ApplicationController
 
     set = DownloadSet.new(selected_files)
     
-    send_file set.path
+    send_file set.path, :x_sendfile => true
+
+    File.delete(set.path) if File.file?(set.path)
   end
 
 

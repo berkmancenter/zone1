@@ -39,4 +39,10 @@ module StoredFilesHelper
       "No"
     end
   end
+
+  def preview(stored_file)
+    if stored_file.file_url(:thumb)
+      return image_tag(thumbnail_stored_file_path(stored_file), :class => "thumbnail", :alt => "Thumbnail")
+    end
+  end
 end

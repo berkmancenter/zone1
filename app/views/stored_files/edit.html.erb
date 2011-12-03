@@ -23,7 +23,6 @@
 		<%= f.label :ingest_date %>: <%= @stored_file.created_at.strftime("%m-%d-%Y") %><br />
 	
 		<%= render "form", :f => f %>
-
 		<% if current_user.present? -%>
 		<div class="submit_buttons">	
 		<%= f.submit "UPDATE" %>

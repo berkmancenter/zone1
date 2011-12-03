@@ -411,6 +411,20 @@ class StoredFile < ActiveRecord::Base
     group_map
   end
 
+  def process_images
+    if self.is_image? && self.manipulation_supported_by_rmagick?
+      stored_file.file.recreate_versions!
+    end
+  end
+
+  def is_image?
+    true
+  end
+
+  def manipulation_supported_by_rmagick?
+    true
+  end
+
   def update_fits_attributes
     # Convenience method similar to standard "update_attributes", for FITS metadata,
     # including the expected save() call that set_fits_attributes does NOT do

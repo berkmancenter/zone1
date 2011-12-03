@@ -80,8 +80,10 @@ class User < ActiveRecord::Base
     # A users rights includese all rights assigned through
     # groups, roles, and directly to rights, through the 
     # polymorphic right_assignments table
+    #TODO: Fix crazy long lines
     rights = [Role.user_rights + self.rights + self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights }]
     rights = rights.flatten.uniq.collect { |r| r.action }
+    rights = [self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
     rights.presence || []
   end
 
