@@ -39,7 +39,9 @@ $(function() {
 		$('#results').toggleClass('list').toggleClass('grid');
 		$('.displayed').removeClass('displayed');
 		$('#display_options').hide();
-		return false;
+		$("#display_options input[type='radio']").attr("checked", false);
+    $(this).attr("checked", true);
+    return true;
 	});
 
 	//Set options
