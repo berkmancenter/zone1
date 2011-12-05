@@ -11,5 +11,6 @@ class CreateMimeTypes < ActiveRecord::Migration
     end
 
     add_index :mime_types, :mime_type
+    add_index :mime_types, :mime_type_category_id
   end
 end

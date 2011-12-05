@@ -5,7 +5,9 @@ class CreateFlaggings < ActiveRecord::Migration
       t.references :stored_file, :nil => false
       t.references :user, :nil => false
       t.text :note
-      #t.timestamps
     end
+    add_index :flaggings, :flag_id
+    add_index :flaggings, :stored_file_id
+    add_index :flaggings, :user_id
   end
 end

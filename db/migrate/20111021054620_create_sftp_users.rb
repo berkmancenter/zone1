@@ -1,21 +1,19 @@
 class CreateSftpUsers < ActiveRecord::Migration
-  def up
+  def change
     create_table :sftp_users, :id => false do |t|
-      t.integer :user_id, :null => false
+      t.references :user, :null => false
       t.string :username
       t.string :passwd
       t.integer :uid
-      t.integer :sftp_group_id
+      t.references :sftp_group
       t.string :homedir
       t.string :shell
-	  t.boolean :active
+  	  t.boolean :active
 
       t.timestamps
     end
-	execute "ALTER TABLE sftp_users ADD PRIMARY KEY (user_id)"
-  end
-
-  def down
-	drop_table :sftp_users
+    add_index :sftp_users, :sftp_group_id
+    add_index :sftp_users, :user_id
+  	execute "ALTER TABLE sftp_users ADD PRIMARY KEY (user_id)"
   end
 end

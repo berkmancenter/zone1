@@ -18,6 +18,7 @@ class ActsAsTaggableOnMigration < ActiveRecord::Migration
     end
 
     add_index :taggings, :tag_id
+    add_index :taggings, [:tagger_id, :tagger_type]
     add_index :taggings, [:taggable_id, :taggable_type, :context]
   end
 

@@ -7,5 +7,7 @@ class CreateDispositions < ActiveRecord::Migration
       t.text :note
       t.datetime :action_date
     end
+    add_index :dispositions, :disposition_action_id
+    add_index :dispositions, :stored_file_id
   end
 end

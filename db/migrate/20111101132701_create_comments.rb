@@ -6,5 +6,7 @@ class CreateComments < ActiveRecord::Migration
       t.references :stored_file, :nil => false
       t.timestamps
     end
+    add_index :comments, :user_id
+    add_index :comments, :stored_file_id
   end
 end

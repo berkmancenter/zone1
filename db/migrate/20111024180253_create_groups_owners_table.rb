@@ -4,5 +4,7 @@ class CreateGroupsOwnersTable < ActiveRecord::Migration
       t.references :group
       t.references :owner
     end
+    add_index :groups_owners, :group_id
+    add_index :groups_owners, :owner_id
   end
 end

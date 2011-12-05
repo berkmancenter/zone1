@@ -1,7 +1,7 @@
 class CreateStoredFiles < ActiveRecord::Migration
   def change
     create_table :stored_files do |t|
-      t.references :batch_id
+      t.references :batch
       t.references :user, :null => false
       t.string :title
       t.string :original_file_name, :null => false
@@ -21,5 +21,9 @@ class CreateStoredFiles < ActiveRecord::Migration
       t.text :license_terms
       t.timestamps
     end
+    add_index :stored_files, :batch_id
+    add_index :stored_files, :user_id
+    add_index :stored_files, :access_level_id
+    add_index :stored_files, :content_type_id
   end
 end
