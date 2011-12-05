@@ -15,7 +15,7 @@
     margin: 0px;
     list-style-type: none;
     li {
-      background-image: url(<%= image_path "button_gradient.png?body=1" %>);
+      background-image: url(<%= image_path "button_gradient.png" %>);
       border-right: 1px solid #efefef;
       float: left; 
       > a {
@@ -24,14 +24,14 @@
         display: inline-block; 
         padding: 6px 15px 6px 12px;
         margin-right: 12px; 
-        background: transparent url(<%= image_path "white_down_arrow.png?body=1" %>) right 11px no-repeat;
+        background: transparent url(<%= image_path "white_down_arrow.png" %>) right 11px no-repeat;
       }
     }
     li.displayed { 
       background-position: 0px -30px; 
       > a {
         color: #000;
-        background: transparent url(<%= image_path "dark_down_arrow.png?body=1" %>) right 11px no-repeat;
+        background: transparent url(<%= image_path "dark_down_arrow.png" %>) right 11px no-repeat;
       }
     }
   }
@@ -73,7 +73,7 @@
       display: inline-block;
 	  width: 39px; 
       height: 28px;
-      background-image: url(<%= image_path "listgrid.png?body=1" %>);
+      background-image: url(<%= image_path "listgrid.png" %>);
     }
     #grid { margin-left: 25px; }
     #grid_view {
@@ -91,7 +91,7 @@
     .previous_page {
       background-repeat: none;
       display: inline-block;
-      background-image: url(<%= image_path "left.png?body=1" %>);
+      background-image: url(<%= image_path "left.png" %>);
       text-indent: -10000px;
       height: 19px;
       width: 19px;
@@ -99,7 +99,7 @@
     .next_page {
       background-repeat: none;
       display: inline-block;
-      background-image: url(<%= image_path "right.png?body=1" %>);
+      background-image: url(<%= image_path "right.png" %>);
       text-indent: -10000px;
       height: 19px;
       width: 19px;
@@ -115,15 +115,15 @@
       display: inline-block;
       font-weight: bold;
       a {
-        background: transparent url(<%= image_path "dark_right_arrow.png?body=1" %>) right 1px no-repeat;
+        background: transparent url(<%= image_path "dark_right_arrow.png" %>) right 1px no-repeat;
         padding-right: 12px;
       }
       a.asc {
-        background: transparent url(<%= image_path "dark_down_arrow.png?body=1" %>) right 4px no-repeat;
+        background: transparent url(<%= image_path "dark_down_arrow.png" %>) right 4px no-repeat;
         padding-right: 15px;
       }
       a.desc {
-        background: transparent url(<%= image_path "dark_up_arrow.png?body=1" %>) right 4px no-repeat;
+        background: transparent url(<%= image_path "dark_up_arrow.png" %>) right 4px no-repeat;
         padding-right: 15px;
       }
     }
@@ -152,7 +152,7 @@
     display: inline-block;
 	width: 39px; 
 	height: 28px;
-    background-image: url(<%= image_path "listgrid.png?body=1" %>);
+    background-image: url(<%= image_path "listgrid.png" %>);
   }
   #grid { margin-left: 25px; }
   #grid_view {
@@ -175,6 +175,7 @@
     .filename { 
       width: 85px;
       input { position: relative; top: 2px; }
+      a { color: #000; }
     }
     .size { width: 70px; }
     .date { width: 80px; }
@@ -220,24 +221,65 @@
     }
   }
 }
-
-/* Old */
-/*
-#bulk-edit, #download-set {
-  input { display: none; }
-}
-*/
-/*
 #quick_edit_panel { 
   display: none;
   position: absolute;
-  background: #FFF; 
-  border: 1px solid #999; 
-  padding: 20px;
-  #meta_data {
-    span { 
-      display: block;
+  background: #ccc; 
+  padding: 4px;
+  top: 0px; 
+  width: 420px;
+  h3 {
+    font-weight: normal;
+    margin: 5px 2px;
+    a {
+      float: right;
+      margin-right: 10px;
+      background-image: url(<%= image_path "quick_edit_links.png?body=1" %>);
+      text-indent: -10000px;
+      width: 25px;
+      height: 18px;
+    } 
+    a#globe-single {
+      background-position: -34px 0px;
+    }
+    a#download-single {
+      background-position: -67px 0px;
+      width: 19px;
     }
   }
+  table { 
+    padding: 10px 25px;
+    background: #FFF;
+    p {
+      line-height: 1.2em;
+      margin: 0px; 
+      label { font-weight: bold; }
+    }
+  }
+  .flagging {
+    br { display: none; }
+    textarea {
+      display: none; 
+    }
+  }
+  #close_quick_edit {
+    display: block;
+    position: absolute;
+	right: 0px;
+    bottom: 0px;
+    width: 124px;
+    line-height: 24px;
+    color: #000;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    background-image: url(<%= image_path "quick_edit.png?body=1" %>);
+    span {
+      width: 6px;
+      height: 10px;
+      display: inline-block;
+      margin-left: 4px;
+      background: transparent url(<%= image_path "dark_right_arrow.png" %>) 0px 1px no-repeat;
+    }
+  } 
 }
-*/

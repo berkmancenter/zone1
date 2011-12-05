@@ -85,6 +85,10 @@ $(function() {
     confirm_delete = confirm("Are you sure you want to delete " + count + " items?");
     return confirm_delete;
 	});
+
+	$('#close_quick_edit').live("click", function() {
+		$('#quick_edit_panel').hide();
+	});
 });
 
 if(!window.Zone1) {

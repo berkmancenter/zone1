@@ -5,11 +5,13 @@ body {
   font-size: 11px;
   line-height: 18px; 
   width: 1018px;
-  margin: 0px auto; }
+  margin: 0px auto; 
+  position: relative;
+}
 
 section, hgroup { display: block; }
 img { border: none; }
-a { text-decoration: none; }
+a { text-decoration: none; outline: none; }
 a:hover { text-decoration: none; }
 .clear { clear: both; }
 
@@ -101,7 +103,7 @@ header {
         table {
           padding-top: 15px;
           input {
-            background: #eaeaea url(<%= image_path "mini_calendar.png?body=1" %>) right 50% no-repeat;
+            background: #eaeaea url(<%= image_path "mini_calendar.png" %>) right 50% no-repeat;
             width: 120px;
             padding-right: 2px;
           }

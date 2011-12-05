@@ -17,3 +17,4 @@ var/
 
 httpd/
 pgsql/
+public/assets/

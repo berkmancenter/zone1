@@ -1,16 +1,69 @@
-<a href="#" id="close_quick_edit">x</a>
+<h3>
+	<%= @stored_file.original_filename %>
+	<%= link_to 'Download', download_stored_file_path(@stored_file.id), :id => 'download-single' %>
+	<%= link_to 'Globe', edit_stored_file_path(@stored_file.id), :id => 'globe-single' %>
+	<%= link_to 'Edit', edit_stored_file_path(@stored_file.id), :id => 'edit-single' %>
+</h3>
+
+<table width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<td colspan="2" align="center">
+			IMAGE
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<p>
+				<label>Created:</label>
+				<span><%= @stored_file.original_date.strftime("%m/%d/%Y") %></span>
+			</p>
+			<p>
+				<label>Uploaded:</label>
+				<span><%= @stored_file.created_at.strftime("%m/%d/%Y") %></span>
+			</p>
+			<p>
+				<label>Collection:</label>
+				<span><%= @stored_file.anonymous_tag_list(:collections) %></span>
+			</p>
+			<p>
+				<label>Office:</label>
+				<span><%= @stored_file.office %></span>
+			</p>
+			<p>
+				<label>Creator:</label>
+				<span><%= @stored_file.author %></span>
+			</p>
+			<p>
+				<label>Contributor:</label>
+				<span><%= @stored_file.contributor_name %></span>
+			</p>
+		</td>
+		<td>
+			<p>
+				<label>Tags</label>
+				<span><%= @stored_file.anonymous_tag_list(:tags) %></span>
+			</p>
+			<p>
+				<label>Attributes:</label>
+				<span>TODO: Mime type, flags</span>
+			</p>
+			<p>
+				<label>Copyright:</label>
+				<span><%= @stored_file.copyright %></span>
+			</p>
+			<p>
+				<label>License:</label>
+				<span><%= @stored_file.license_name %></span>
+			</p>
+		</td>
+	<tr>
+</table>
 
 <% if current_user -%>
-  <h3><%= @stored_file.original_filename %></h3>
-
   <%= form_for @stored_file, :remote => true, :html => { :id => "edit_stored_file" } do |f| %>
-    <%= editable_field(f, @attr_accessible, :tag_list, {}, "text_field") %>
-    <%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
     <%= render "flags/form", :f => f %>
-
     <%= submit_tag %>	
   <% end %>
 <% end -%>
 
-<%= link_to 'Delete', stored_file_path(@stored_file), {:confirm => "Are you sure?", :method => :delete} %>
-<%= link_to 'View/Edit', edit_stored_file_path(@stored_file) %>
+<a href="#" id="close_quick_edit">Quick Edit<span></span></a>
