@@ -1,14 +1,5 @@
 <% content_for :head do -%>
-<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/themes/base/jquery-ui.css" type="text/css" />
-<link rel="stylesheet" href="/javascripts/plupload/jquery.ui.plupload/css/jquery.ui.plupload.css" type="text/css" />
-<script type="text/javascript" src="/javascripts/plupload/plupload.js"></script>
-<script type="text/javascript" src="/javascripts/plupload/jquery.ui.plupload/jquery.ui.plupload.js"></script>
-<script type="text/javascript" src="/javascripts/plupload/plupload.html5.js"></script>
-<script type="text/javascript" src="/javascripts/plupload/plupload.html4.js"></script>
-<script type="text/javascript" src="/javascripts/upload_helper.js"></script>
-<style type="text/css">
-  .plupload_header {display: none;}
-</style>
+  <%= stylesheet_link_tag "jquery.ui.plupload.css" %>
 <% end -%>
 
 <fieldset>
