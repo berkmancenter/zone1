@@ -11,28 +11,69 @@
 					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
 						<%= submit_tag "Download", :id => "download-submit" %>
 					<% end -%>
+					<%= form_tag('#', :method => "POST", :id => "") do %>
+						<%= submit_tag "Open Links in Tabs", :id => "" %>
+					<% end -%>
+					<hr />
 					<%= form_tag(bulk_edit_stored_file_index_path, :method => "POST", :id => "bulk-edit") do %>
-						<%= submit_tag "Bulk Edit", :id => "bulk-edit-submit" %>
+						<%= submit_tag "Full Edit", :id => "bulk-edit-submit" %>
+					<% end -%>
+					<%= form_tag('#', :method => "POST", :id => "") do %>
+						<%= submit_tag "Add Tags", :id => "" %>
+					<% end -%>
+					<%= form_tag('#', :method => "POST", :id => "") do %>
+						<%= submit_tag "Add Attributes", :id => "" %>
+					<% end -%>
+					<%= form_tag('#', :method => "POST", :id => "") do %>
+						<%= submit_tag "Edit Permissions", :id => "" %>
+					<% end -%>
+					<hr />
+					<%= form_tag('#', :method => "POST", :id => "bulk-delete") do %>
+						<%= submit_tag "Delete", :id => "bulk-delete-submit" %>
 					<% end -%>
 				</div>
 			</li>
 			<li>
 				<a id="show_display_options" href="#">DISPLAY OPTIONS</a>
 				<div id="display_options">
-					<p>
-						Sort by: 
-						<%= sortable "created_at", "Date" %>,
-						<%= sortable "title" %>, 
-						<%= sortable "file_size", "Size" %>, 
-						<%= sortable "author" %>, 
-						<%= sortable "batch_id", "Batch ID" %>
-						(<%= sort_column %>, <%= sort_direction %>)
+					<input type="radio" name="list_grid" id="list" />
+					<div id="list_view"></div>
+					<input type="radio" name="list_grid" id="grid" />
+					<div id="grid_view"></div>
+					<hr />
+                    <p>
+						<input type="checkbox">
+						<label>Field</label>
 					</p>
-					<a href="#" id="list">List</a> | <a href="#" id="thumb">Thumb</a>
-					<%= form_tag search_path, :method => "POST" do %>
-					Items per page: <%= text_field_tag "per_page", per_page, :size => 2 %>
-					<%=submit_tag "Refresh" %>
-					<% end %>
+                    <p>
+						<input type="checkbox">
+						<label>Field</label>
+					</p>
+                    <p>
+						<input type="checkbox">
+						<label>Field</label>
+					</p>
+                    <p>
+						<input type="checkbox">
+						<label>Field</label>
+					</p>
+                    <p>
+						<input type="checkbox">
+						<label>Field</label>
+					</p>
+                    <p>
+						<input type="checkbox">
+						<label>Field</label>
+					</p>
+                    <p>
+						<input type="checkbox">
+						<label>Field</label>
+					</p>
+                    <p>
+						<input type="checkbox">
+						<label>Field</label>
+					</p>
+					<div class="clear"></div>
 				</div>
 			</li>
 		</ul>
@@ -52,7 +93,8 @@
 		<span class="license">Copyright</span>
 		<span class="batch">Batch</span>
 	</div>
-	
+
+    <div id="files">	
 	<% @hits.each do |hit| %> 
 		<div class="file <%= cycle("even", "odd") %>" data-id="<%= hit.stored(:id) %>">
 			<span class="icon">
@@ -80,6 +122,7 @@
 			<span class="batch"><%= hit.stored(:batch_id) %></span>
 		</div>
 	<% end %>
+    </div>
 	<hgroup class="results_options">
 		<div class="paginate">
 			<%= will_paginate @hits %>

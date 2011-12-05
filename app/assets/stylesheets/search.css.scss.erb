@@ -15,26 +15,70 @@
     margin: 0px;
     list-style-type: none;
     li {
-      background-image: url(<%= asset_path "button_gradient.png" %>);
+      background-image: url(<%= image_path "button_gradient.png?body=1" %>);
+      border-right: 1px solid #efefef;
       float: left; 
       > a {
+        font-weight: bold;
         font-size: 11px;
-        border-right: 1px solid #efefef;
         display: inline-block; 
-        padding: 6px 15px 6px 6px; 
+        padding: 6px 15px 6px 12px;
+        margin-right: 12px; 
+        background: transparent url(<%= image_path "white_down_arrow.png?body=1" %>) right 11px no-repeat;
+      }
+    }
+    li.displayed { 
+      background-position: 0px -30px; 
+      > a {
+        color: #000;
+        background: transparent url(<%= image_path "dark_down_arrow.png?body=1" %>) right 11px no-repeat;
       }
     }
   }
-  #set_options {
+  #set_options, #display_options {
     display: none;
     position: absolute;
-    background: #cc0001;
+    background: #999;
     z-index: 100;
+    padding: 13px;
+    text-transform: uppercase;
+    hr {
+      clear: both;
+      border-color: #b5b5b5; 
+      border-top: none;
+    }
+  }
+  #set_options {
+    input {
+      border: none;
+      color: #FFF;
+      background: none;
+      text-transform: uppercase;
+      font-size: 10px;
+      font-weight: bold;
+    }
   }
   #display_options {
-    display: none;
-    position: absolute;
-    background: #cc0001;
+    width: 250px;
+    p {
+      margin: 0px; 
+      float: left;
+      width: 49%;
+      input {
+        position: relative; 
+        top: 1px;
+      }
+    }
+    #list_view, #grid_view {
+      display: inline-block;
+	  width: 39px; 
+      height: 28px;
+      background-image: url(<%= image_path "listgrid.png?body=1" %>);
+    }
+    #grid { margin-left: 25px; }
+    #grid_view {
+      background-position: -39px 0px;
+    }
   }
   .paginate {
     margin: 6px 3px 6px 0px;
@@ -47,7 +91,7 @@
     .previous_page {
       background-repeat: none;
       display: inline-block;
-      background-image: url(<%= asset_path "left.png" %>);
+      background-image: url(<%= image_path "left.png?body=1" %>);
       text-indent: -10000px;
       height: 19px;
       width: 19px;
@@ -55,7 +99,7 @@
     .next_page {
       background-repeat: none;
       display: inline-block;
-      background-image: url(<%= asset_path "right.png" %>);
+      background-image: url(<%= image_path "right.png?body=1" %>);
       text-indent: -10000px;
       height: 19px;
       width: 19px;
@@ -81,10 +125,22 @@
     .batch { width: 60px; }
   }
 }
+ 
+#display_options { 
+  #list_view, #grid_view {
+    display: inline-block;
+	width: 39px; 
+	height: 28px;
+    background-image: url(<%= image_path "listgrid.png?body=1" %>);
+  }
+  #grid { margin-left: 25px; }
+  #grid_view {
+    background-position: -39px 0px;
+  }
+}
 
 .list {
   .even { background: #fafafa; }
-  #list { text-decoration: none; }
   .file { 
     float: none;
     width: 100%;
@@ -106,8 +162,7 @@
     .icon { display: none; }
   }
 }
-.thumb {
-  #thumb { text-decoration: none; }
+.grid {
   .menu { display: none; }
   .file {
     float: left;
@@ -138,11 +193,12 @@
   }
 }
 
+/* Old */
+/*
 #bulk-edit, #download-set {
   input { display: none; }
 }
-
-/* Old */
+*/
 /*
 #quick_edit_panel { 
   display: none;

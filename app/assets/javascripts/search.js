@@ -21,27 +21,29 @@ $(function() {
 	});
 
 	//UI
-	$('#show_display_options').click(function() {
-		$('#display_options').toggle();
-	});
-	$('#show_set_options').click(function() {
-		$('#set_options').toggle();
+	$.each(['display_options', 'set_options'], function(i, v) {
+		$('#show_' + v).click(function() {
+			$(this).parent().toggleClass('displayed');
+			$('#' + v).toggle();
+		});
 	});
 
 	//Calendar Datepicker	
 	$("#dates input[type=text]").datepicker();
 
 	//Toggle between list and thumb
-	$('#list,#thumb').click(function() {
+	$('#list,#grid').click(function() {
 		if($('#results').hasClass($(this).attr('id'))) {
 			return false;
 		}
-		$('#results').toggleClass('list').toggleClass('thumb');
+		$('#results').toggleClass('list').toggleClass('grid');
+		$('.displayed').removeClass('displayed');
 		$('#display_options').hide();
 		return false;
 	});
 
 	//Set options
+/*
 	$('.downloadable').attr('checked', false);
 	$('.downloadable').click(function() {
 		if($('.downloadable:checked').size() > 1) {
@@ -50,6 +52,7 @@ $(function() {
 			$('#bulk-edit-submit,#download-submit').hide();
 		}
 	});
+*/
 
 	$('#download-set').submit(function() {
 		Zone1.clone_downloadable_checkboxes_to($(this));
