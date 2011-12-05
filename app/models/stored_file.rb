@@ -84,6 +84,7 @@ class StoredFile < ActiveRecord::Base
     integer :file_size, :stored => true
     integer :mime_type_id
     integer :mime_type_category_id
+    integer :access_level_id, :stored => true, :references => AccessLevel
 
     time :original_date, :stored => true, :trie => true #trie optimizes the index for ranges
     time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges

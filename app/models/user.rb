@@ -160,10 +160,8 @@ class User < ActiveRecord::Base
   # when current_user is nil, without reproducing logic
   def self.can_view_cached?(stored_file_id, current_user)
     users = StoredFile.cached_viewable_users(stored_file_id)
-    if !current_user.nil?
-      users += User.users_with_right("view_items")
-    end
-    users.uniq.include?(current_user.id) 
+    users += User.users_with_right("view_items")
+    current_user ? users.uniq.include?(current_user.id) : false
   end
 
   def self.all

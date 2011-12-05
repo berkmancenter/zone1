@@ -174,8 +174,13 @@ class SearchController < ApplicationController
   def filter_and_paginate_search_results(search)
     filtered_results = []
 
+    open = AccessLevel.open
     search.hits.each do |hit|
-      filtered_results << hit if User.can_view_cached?(hit.stored(:id), current_user)
+      if current_user
+        filtered_results << hit if User.can_view_cached?(hit.stored(:id), current_user)
+      else
+        filtered_results << hit if hit.stored(:access_level_id) == open.id
+      end
     end
 
     filtered_results.paginate :page => params[:page], :per_page => per_page

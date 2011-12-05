@@ -106,9 +106,7 @@
 				</span>
 				<%= hit.stored(:display_name) %>
 				<%#= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)) %>
-				<% if false -%>
-					<span><%= link_to "QE", edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %></span>
-				<% end -%>
+				<span><%= link_to "QE", edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %></span>
 			</span>
 			<span class="size"><%= hit.stored(:file_size)/1000 %> KB</span>
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
