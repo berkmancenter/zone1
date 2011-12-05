@@ -412,7 +412,9 @@ class StoredFile < ActiveRecord::Base
   end
 
   def process_images
-    if self.is_image? && self.manipulation_supported_by_rmagick?
+    Rails.logger.debug "!!!!!!!!!!process images - FITS COMPLETE? #{stored_file.fits_complete?}"
+    if is_image? && manipulation_supported_by_rmagick?
+      Rails.logger.debug "!!!!!!!!recreate versions"
       stored_file.file.recreate_versions!
     end
   end
@@ -423,6 +425,10 @@ class StoredFile < ActiveRecord::Base
 
   def manipulation_supported_by_rmagick?
     true
+  end
+
+  def fits_complete?
+    md5.present?
   end
 
   def update_fits_attributes

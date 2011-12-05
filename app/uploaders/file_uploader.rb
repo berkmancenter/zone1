@@ -6,11 +6,17 @@ class FileUploader < CarrierWave::Uploader::Base
   storage :file
 
   version :thumb, :if => :fits_complete? do
-    process :resize_to_limit => [100,100]
+    process :generate_thumbnail => [100,100]
   end
 
-  def fits_complete?
-    @fits_complete ||= false
+  def fits_complete?(file)
+    Rails.logger.debug "!!!!!!!!!!!fits_complete UPLOADER = #{model.fits_complete?}"
+    model.fits_complete?
+  end
+
+  def generate_thumbnail(height_limit, width_limit)
+    Rails.logger.debug "!!!!!!!inside generate thumbnail"
+    resize_to_limit(height_limit, width_limit)
   end
 
   

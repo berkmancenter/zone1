@@ -199,9 +199,9 @@ class StoredFilesController < ApplicationController
       begin
         # custom_save gets its own exception handling because we might still
         # need to enqueue a RemoteFileImporter job after custom_save barfs
-        if stored_file.custom_save(params[:stored_file], current_user)
-          Resque.enqueue(FitsRunner, stored_file.id)
-        end
+        Rails.logger.debug "custom saving!"
+        stored_file.custom_save(params[:stored_file], current_user)
+        Resque.enqueue(FitsRunner, stored_file.id)
       rescue Exception => e
         exceptions << e
       end          
