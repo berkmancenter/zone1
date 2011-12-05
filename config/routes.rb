@@ -10,6 +10,7 @@ Zone1::Application.routes.draw do
     collection do
       post :download_set
       post :bulk_edit
+      delete :bulk_destroy
     end
     member do
       post :toggle_method

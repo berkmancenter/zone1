@@ -5,11 +5,11 @@ class StoredFilesController < ApplicationController
   access_control do
     allow logged_in, :to => [:create, :new]
 
-    allow logged_in, :to => :bulk_edit
+    allow logged_in, :to => [:bulk_edit, :bulk_destroy]  #permissions checked per stored file
 
     allow logged_in, :to => [:update, :edit, :download], :if => :allow_show?
 
-    allow logged_in, :to => :destroy, :if => :allow_destroy?
+    allow logged_in, :to => [:destroy], :if => :allow_destroy?
 
     allow logged_in, :to => :download_set, :if => :download_set?
   end
@@ -68,6 +68,17 @@ class StoredFilesController < ApplicationController
         end
       end
     end
+  end
+
+  def bulk_destroy
+    stored_file_ids = params[:stored_file].keys 
+    if stored_file_ids.is_a?(Array) && stored_file_ids.length > 0
+      stored_files = StoredFile.find(stored_file_ids)
+      stored_files.each do |stored_file|
+        stored_file.destroy if stored_file.can_user_destroy?(current_user)
+      end      
+    end
+    redirect_to search_path
   end
 
   def bulk_edit

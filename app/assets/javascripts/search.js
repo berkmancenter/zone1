@@ -56,9 +56,18 @@ $(function() {
 
 	$('#download-set').submit(function() {
 		Zone1.clone_downloadable_checkboxes_to($(this));
+    return true; //submit form
 	});
 	$('#bulk-edit').submit(function() {
 		Zone1.clone_downloadable_checkboxes_to($(this));
+    return true; //submit form
+	});
+	$('#bulk-delete').submit(function() {
+		Zone1.clone_downloadable_checkboxes_to($(this));
+    var count = $(this).children("input:checked").length;
+    var confirm_delete;
+    confirm_delete = confirm("Are you sure you want to delete " + count + " items?");
+    return confirm_delete;
 	});
 });
 
@@ -70,5 +79,5 @@ if(!window.Zone1) {
 Zone1.clone_downloadable_checkboxes_to = function(destination) {
   destination.children("input:checked").remove();
   destination.append($('.downloadable:checked').clone());
-  return true;
+  destination.children("input:checked").hide();
 };

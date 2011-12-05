@@ -28,7 +28,7 @@
 						<%= submit_tag "Edit Permissions", :id => "" %>
 					<% end -%>
 					<hr />
-					<%= form_tag('#', :method => "POST", :id => "bulk-delete") do %>
+					<%= form_tag(bulk_destroy_stored_file_index_path, :method => "DELETE", :id => "bulk-delete") do %>
 						<%= submit_tag "Delete", :id => "bulk-delete-submit" %>
 					<% end -%>
 				</div>
