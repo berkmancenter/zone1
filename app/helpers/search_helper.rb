@@ -1,5 +1,11 @@
 module SearchHelper
 
+  def toggle_field_box(column_class, label=column_class.titleize)
+    output = check_box_tag("toggle_#{column_class}_fields", 1, true, :class => "toggle_column", "data-column-class" => column_class)
+    output << label_tag("toggle_#{column_class}_fields", label)
+    output
+  end
+
   def sortable(column, title=nil)
     title ||= column.titleize
     css_class = column == sort_column ? "current #{sort_direction}" : nil

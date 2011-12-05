@@ -41,38 +41,30 @@
 					<input type="radio" name="list_grid" id="grid" />
 					<div id="grid_view"></div>
 					<hr />
-                    <p>
-						<input type="checkbox">
-						<label>Field</label>
+          <p>
+            <%= toggle_field_box "filename", "Name" %>
 					</p>
-                    <p>
-						<input type="checkbox">
-						<label>Field</label>
+          <p>
+            <%= toggle_field_box "size" %>
 					</p>
-                    <p>
-						<input type="checkbox">
-						<label>Field</label>
-					</p>
-                    <p>
-						<input type="checkbox">
-						<label>Field</label>
-					</p>
-                    <p>
-						<input type="checkbox">
-						<label>Field</label>
-					</p>
-                    <p>
-						<input type="checkbox">
-						<label>Field</label>
-					</p>
-                    <p>
-						<input type="checkbox">
-						<label>Field</label>
-					</p>
-                    <p>
-						<input type="checkbox">
-						<label>Field</label>
-					</p>
+          <p>
+            <%= toggle_field_box "date" %>
+          </p>
+          <p>
+            <%= toggle_field_box "tags" %>
+          </p>
+          <p>
+            <%= toggle_field_box "flags" %>
+          </p>
+          <p>
+            <%= toggle_field_box "author" %>
+          </p>
+          <p>
+            <%= toggle_field_box "license", "Copyright" %>
+          </p>
+          <p>
+            <%= toggle_field_box "batch" %>
+          </p>
 					<div class="clear"></div>
 				</div>
 			</li>

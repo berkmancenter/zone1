@@ -55,7 +55,14 @@ $(function() {
 		}
 	});
 */
-
+  $("input[type='checkbox'].toggle_column").click(function() {
+    var selector = "span." + $(this).data("column-class");
+    if($(this).attr("checked")=="checked") {
+      $(selector).show();
+    } else {
+      $(selector).hide();
+    }
+  });
   $('#open-tabs').submit(function() {
     $('.downloadable:checked').each(function(index) {
       window.open('/stored_files/'+$(this).data('stored-file-id') + '/edit');
