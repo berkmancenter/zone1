@@ -37,11 +37,12 @@ class SearchController < ApplicationController
       end
     end
 
-    params.delete(:search) if params[:search] == [""]
     # splits keywords into multiple facets if not quoted
-    if params.has_key?(:search) && !params[:search].last.match('"') && params[:search].last.match(' ')
+    if params.has_key?(:search)
       last = params[:search].pop
-      params[:search] += last.split(' ')
+      if !last.match('"')
+        params[:search] += last.split(' ')
+      end
     end
 
     #must setup both instance and local variables, so @search.build can access

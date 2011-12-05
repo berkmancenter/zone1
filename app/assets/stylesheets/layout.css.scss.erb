@@ -38,10 +38,11 @@ header {
     background: #d7d7d7;
     padding: 4px;
     margin-right: 8px;
+    color: #323232;
     input[type=text] { 
       background: #eaeaea;
       border: 1px solid #a0a0a0;
-      padding: 5px;
+      padding: 6px;
     } 
     h3 {
       background: #b4b4b4;
@@ -51,15 +52,17 @@ header {
       font-size: 11px;
     }
 	#current_search {
-      padding: 3px 20px; 
+      padding: 3px 25px;
+      color: #838383;
       #current_facets { 
-	 	padding: 5px;	
+        color: #323232;
+	 	padding: 4px;	
         border: 1px solid #b4b4b4;
         span { font-weight: bold; }
       }
     }
     #search_keyword {
-      padding: 3px 20px;
+      padding: 3px 25px;
       input[type=text] {
         padding: 5px 5px 4px 5px;
       }
@@ -70,7 +73,7 @@ header {
     }
     #accordion {
       clear: both;
-      padding: 20px 20px 3px 20px;
+      padding: 15px 25px 3px 25px;
       .ui-state-active, .ui-state-defualt {
         a, a:visited { color: #3a6697; }
       }
@@ -79,8 +82,11 @@ header {
         color: #3a6697;
         border: none;
         border-top: 1px solid #b9b9b9;
-        background: transparent url(<%= asset_path "accordion.png" %>) right 0px no-repeat;
+        background: transparent url(<%= image_path "accordion.png" %>) right 0px no-repeat;
         padding: 5px 0px 0px 0px;
+      }
+      .ui-accordion-content {
+        padding-bottom: 15px;
       }
       .ui-state-active {
         background-position: right -17px;
@@ -89,12 +95,36 @@ header {
         background: none;
       }
       #batch_id { width: 90px; }
-      #indexed_collection_list { width: 170px; }
+      #indexed_collection_list { width: 140px; }
       .flag { display: block; }
+      #dates {
+        table {
+          padding-top: 15px;
+          input {
+            background: #eaeaea url(<%= image_path "mini_calendar.png?body=1" %>) right 50% no-repeat;
+            width: 120px;
+            padding-right: 2px;
+          }
+        }
+        input[type=radio] {
+          position: relative;
+          top: 2px; 
+          margin: 0px;
+        }
+        #date_type_created_at { margin-right: 10px; }
+      }
+      #people {
+        input[type=radio] {
+          position: relative;
+          top: 2px; 
+          margin: 0px;
+        }
+      }
+      #flag_filter, #category_filter { padding-top: 10px; }
     }
   }
   #expand {
-    background: transparent url(<%= asset_path "expand.png" %>) no-repeat;
+    background: transparent url(<%= image_path "expand.png" %>) no-repeat;
     text-align: right;
     height: 29px; 
     a {

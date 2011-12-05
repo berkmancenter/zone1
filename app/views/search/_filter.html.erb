@@ -72,7 +72,7 @@
 		</div>
 		<h3><a href="#">File Attributes</a></h3>
 		<div>
-			<table width="100%" cellpadding="5" cellspacing="0">
+			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr>
 					<td width="170">
 						Collection name
@@ -84,7 +84,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td>
+					<td id="flag_filter">
 						<% if @facets && @facets[:flag_ids] %>
         				<% @facets[:flag_ids].each do |flag| %>
               			<span class="flag">
@@ -94,7 +94,7 @@
            				<% end -%>
 					</td>
 					<% if @facets && @facets[:mime_type_category_id] %>
-					<td valign="top">
+					<td valign="top" id="category_filter">
 						Files Type
         				<% @facets[:mime_type_category_id].each do |mc| %>
               			<%= link_to mc[:label], mc[:url] %><br />
