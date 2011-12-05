@@ -84,12 +84,12 @@
 	</hgroup>
 
 	<div class="menu">
-		<span class="filename">Filename</span>
+		<span class="filename"><span><%= sortable "title", "Name" %></span></span>
 		<span class="size">Size</span>
-		<span class="date">Date</span>
+		<span class="date"><span><%= sortable "created_at", "Date" %></span></span>
 		<span class="tags">Tags</span>
 		<span class="flags">Flags</span>
-		<span class="author">Author</span>
+		<span class="author"><span><%= sortable "author" %></span></span>
 		<span class="license">Copyright</span>
 		<span class="batch">Batch</span>
 	</div>
@@ -104,7 +104,8 @@
 				<span class="finput">
 				<input class="downloadable" type="checkbox" name="stored_file[<%= hit.stored(:id) %>]" value="1" />
 				</span>
-				<%= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)) %>
+				<%= hit.stored(:display_name) %>
+				<%#= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)) %>
 				<% if false -%>
 					<span><%= link_to "QE", edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %></span>
 				<% end -%>
@@ -113,9 +114,8 @@
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
 			<span class="tags"><%= hit.stored(:tag_list) %></span>
 			<span class="flags">
-				<% Flag.all.each do |flag| %>
-				<input type="checkbox" disabled="true" data-method="toggle_<%= flag.name.downcase %>" title="<%= flag.label %>" <%= raw 'checked="checked"' if !hit.stored(:flag_ids).nil? && hit.stored(:flag_ids).include?(flag.id) %> />
-				<% end -%>	
+				<%= preserved_flag_display(hit) %>
+				<%= university_flag_display(hit) %>
 			</span>
 			<span class="author"><%= hit.stored(:author) %></span>
 			<span class="license"><%= hit.stored(:license_name) %></span>

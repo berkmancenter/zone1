@@ -110,17 +110,38 @@
   }
   }
   .menu {
-  span {
+  > span {
       margin: 5px 2px;
       display: inline-block;
       font-weight: bold;
+      a {
+        background: transparent url(<%= image_path "dark_right_arrow.png?body=1" %>) right 1px no-repeat;
+        padding-right: 12px;
+      }
+      a.asc {
+        background: transparent url(<%= image_path "dark_down_arrow.png?body=1" %>) right 4px no-repeat;
+        padding-right: 15px;
+      }
+      a.desc {
+        background: transparent url(<%= image_path "dark_up_arrow.png?body=1" %>) right 4px no-repeat;
+        padding-right: 15px;
+      }
     }
-    .filename { width: 85px; text-indent: 20px; }
+    .filename {
+      a { color: #000; }
+      width: 85px; text-indent: 20px; 
+    }
     .size { width: 70px; }
-    .date { width: 80px; }
-    .tags { width: 85px; }
-    .flags { width: 100px; }
-    .author { width: 60px; }
+    .date {
+      a { color: #000; }
+      width: 80px; 
+    }
+    .tags { width: 100px; }
+    .flags { width: 75px; }
+    .author {
+      a { color: #000; }
+      width: 60px;
+    }
     .license { width: 65px; }
     .batch { width: 60px; }
   }
@@ -139,6 +160,12 @@
   }
 }
 
+.file span.highlighted { 
+  background-color: #c36969; color: #FFF;
+  padding: 3px;
+  line-height: 1.0em;
+}
+
 .list {
   .even { background: #fafafa; }
   .file { 
@@ -151,10 +178,11 @@
     }
     .size { width: 70px; }
     .date { width: 80px; }
-    .tags { width: 85px; }
+    .tags { width: 100px; }
     .flags { 
-      width: 100px; 
-      input { margin: 2px; }
+      width: 75px; 
+      input { margin: 2px; 
+      }
     }
     .author { width: 60px; }
     .license { width: 65px; }
