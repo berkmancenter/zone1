@@ -11,7 +11,7 @@
 					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
 						<%= submit_tag "Download", :id => "download-submit" %>
 					<% end -%>
-					<%= form_tag('#', :method => "POST", :id => "") do %>
+					<%= form_tag('#', :method => "POST", :id => "open-tabs") do %>
 						<%= submit_tag "Open Links in Tabs", :id => "" %>
 					<% end -%>
 					<hr />
@@ -102,7 +102,7 @@
 			</span>
 			<span class="filename">	
 				<span class="finput">
-				<input class="downloadable" type="checkbox" name="stored_file[<%= hit.stored(:id) %>]" value="1" />
+          <input class="downloadable" type="checkbox" name="stored_file[<%= hit.stored(:id) %>]" value="1" data-stored-file-id="<%= hit.stored(:id) %>" />
 				</span>
 				<%= hit.stored(:display_name) %>
 				<%#= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)) %>

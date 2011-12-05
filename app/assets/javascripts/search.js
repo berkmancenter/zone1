@@ -56,6 +56,13 @@ $(function() {
 	});
 */
 
+  $('#open-tabs').submit(function() {
+    $('.downloadable:checked').each(function(index) {
+      window.open('/stored_files/'+$(this).data('stored-file-id') + '/edit');
+    });
+    return false;
+  });
+
 	$('#download-set').submit(function() {
 		Zone1.clone_downloadable_checkboxes_to($(this));
     return true; //submit form
