@@ -74,6 +74,7 @@ header {
       }
     }
     #accordion {
+      width: 282px;
       clear: both;
       padding: 15px 25px 3px 25px;
       .ui-state-active, .ui-state-defualt {
@@ -86,9 +87,11 @@ header {
         border-top: 1px solid #b9b9b9;
         background: transparent url(<%= image_path "accordion.png" %>) right 0px no-repeat;
         padding: 5px 0px 0px 0px;
+        a { padding: 0px 0px 3px 0px; }
       }
       .ui-accordion-content {
-        padding-bottom: 15px;
+        padding: 0px 0px 15px 0px;
+        border: none; 
       }
       .ui-state-active {
         background-position: right -17px;
