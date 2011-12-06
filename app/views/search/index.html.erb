@@ -11,6 +11,7 @@
 					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
 						<%= submit_tag "Download", :id => "download-submit" %>
 					<% end -%>
+					<hr />
 					<%= form_tag(bulk_edit_stored_file_index_path, :method => "POST", :id => "bulk-edit") do %>
 						<%= submit_tag "Full Edit", :id => "bulk-edit-submit" %>
 					<% end -%>
@@ -60,6 +61,9 @@
 			<li>
 				<a id="show_sort_options" href="#">SORT BY</a>
 				<div id="sort_options">
+					<%= sortable "title", "Name" %>
+					<%= sortable "created_at", "Date" %>
+					<%= sortable "author" %>
 				</div>
 			</li>
 		</ul>
@@ -68,17 +72,6 @@
 		</div>
 		<div class="clear"></div>
 	</hgroup>
-
-	<div class="menu">
-		<span class="filename"><span><%= sortable "title", "Name" %></span></span>
-		<span class="size">Size</span>
-		<span class="date"><span><%= sortable "created_at", "Date" %></span></span>
-		<span class="tags">Tags</span>
-		<span class="flags">Flags</span>
-		<span class="author"><span><%= sortable "author" %></span></span>
-		<span class="license">Copyright</span>
-		<span class="batch">Batch</span>
-	</div>
 
 		<div id="files">	
 	<% @hits.each do |hit| %> 

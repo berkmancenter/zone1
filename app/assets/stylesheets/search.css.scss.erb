@@ -5,144 +5,123 @@
     clear: both;
     background-color: #cc0001;
     color: #FFF;
-  a {
+    a {
       color: #FFF;
     }
-  ul {
-    padding: 0px;
-    margin: 0px;
-    list-style-type: none;
-    li {
-      background-image: url(<%= image_path "button_gradient.png" %>);
-      border-right: 1px solid #efefef;
-      float: left; 
-      > a {
-        font-weight: bold;
-        font-size: 11px;
-        display: inline-block; 
-        padding: 6px 15px 6px 12px;
-        margin-right: 12px; 
-        background: transparent url(<%= image_path "white_down_arrow.png" %>) right 11px no-repeat;
+    ul {
+      padding: 0px;
+      margin: 0px;
+      list-style-type: none;
+      li {
+        background-image: url(<%= image_path "button_gradient.png" %>);
+        border-right: 1px solid #efefef;
+        float: left; 
+        > a {
+          font-weight: bold;
+          font-size: 11px;
+          display: inline-block; 
+          padding: 6px 15px 6px 12px;
+          margin-right: 12px; 
+          background: transparent url(<%= image_path "white_down_arrow.png" %>) right 11px no-repeat;
+        }
+      }
+      li.displayed { 
+        background-position: 0px -30px; 
+        > a {
+          color: #000;
+          background: transparent url(<%= image_path "dark_down_arrow.png" %>) right 11px no-repeat;
+        }
       }
     }
-    li.displayed { 
-      background-position: 0px -30px; 
-      > a {
-        color: #000;
-        background: transparent url(<%= image_path "dark_down_arrow.png" %>) right 11px no-repeat;
-      }
-    }
-  }
-  #set_options, #display_options {
-    display: none;
-    position: absolute;
-    background: #999;
-    z-index: 100;
-    padding: 13px;
-    text-transform: uppercase;
-    hr {
-      clear: both;
-      border-color: #b5b5b5; 
-      border-top: none;
-    }
-  }
-  #set_options {
-    input {
-      border: none;
-      color: #FFF;
-      background: none;
+    #set_options, #display_options, #sort_options {
+      display: none;
+      position: absolute;
+      background: #999;
+      z-index: 100;
+      padding: 13px;
       text-transform: uppercase;
-      font-size: 10px;
-      font-weight: bold;
+      hr {
+        clear: both;
+        border-color: #b5b5b5; 
+        border-top: none;
+      }
     }
-  }
-  #display_options {
-    width: 250px;
-    p {
-      margin: 0px; 
-      float: left;
-      width: 49%;
+    #set_options {
       input {
-        position: relative; 
-        top: 1px;
+        border: none;
+        color: #FFF;
+        background: none;
+        text-transform: uppercase;
+        font-size: 10px;
+        font-weight: bold;
+      }
+      #download-submit {
+        background: url(<%= image_path "quick_edit_links.png?body=1" %>) -68px -5px no-repeat;
+        text-indent: 20px;
+        height: 20px; 
+      }
+      #bulk-edit-submit {
+        background: url(<%= image_path "quick_edit_links.png?body=1" %>) 0px -5px no-repeat;
+        text-indent: 20px;
+        height: 20px; 
+      }
+      #bulk-delete-submit {
+        background: url(<%= image_path "quick_edit_links.png?body=1" %>) -68px -5px no-repeat;
+        text-indent: 20px;
+        height: 20px; 
       }
     }
-    .greyed { opacity: 0.5; }
-    #list_view, #grid_view {
-      display: inline-block;
-	  width: 39px; 
-      height: 28px;
-      background-image: url(<%= image_path "listgrid.png" %>);
-    }
-    #grid { margin-left: 25px; }
-    #grid_view {
-      background-position: -39px 0px;
-    }
-  }
-  .paginate {
-    margin: 6px 3px 6px 0px;
-    float: right;
-    span,a,em {
-      margin: 0px 3px;  
-      font-weight: bold;
-      font-style: normal;
-    }
-    .previous_page {
-      background-repeat: none;
-      display: inline-block;
-      background-image: url(<%= image_path "left.png" %>);
-      text-indent: -10000px;
-      height: 19px;
-      width: 19px;
-    }
-    .next_page {
-      background-repeat: none;
-      display: inline-block;
-      background-image: url(<%= image_path "right.png" %>);
-      text-indent: -10000px;
-      height: 19px;
-      width: 19px;
-    }
-    .disabled, em.current {
-      opacity: 0.5;
-    } 
-  }
-  }
-  .menu {
-  > span {
-      margin: 5px 2px;
-      display: inline-block;
-      font-weight: bold;
-      a {
-        background: transparent url(<%= image_path "dark_right_arrow.png" %>) right 1px no-repeat;
-        padding-right: 12px;
+    #display_options {
+      width: 250px;
+      p {
+        margin: 0px; 
+        float: left;
+        width: 49%;
+        input {
+          position: relative; 
+          top: 1px;
+        }
       }
-      a.asc {
-        background: transparent url(<%= image_path "dark_down_arrow.png" %>) right 4px no-repeat;
-        padding-right: 15px;
+      .greyed { opacity: 0.5; }
+      #list_view, #grid_view {
+        display: inline-block;
+        width: 39px; 
+        height: 28px;
+        background-image: url(<%= image_path "listgrid.png" %>);
       }
-      a.desc {
-        background: transparent url(<%= image_path "dark_up_arrow.png" %>) right 4px no-repeat;
-        padding-right: 15px;
+      #grid { margin-left: 25px; }
+      #grid_view {
+        background-position: -39px 0px;
       }
     }
-    .filename {
-      a { color: #000; }
-      width: 85px; text-indent: 20px; 
+    .paginate {
+      margin: 6px 3px 6px 0px;
+      float: right;
+      span,a,em {
+        margin: 0px 3px;  
+        font-weight: bold;
+        font-style: normal;
+      }
+      .previous_page {
+        background-repeat: none;
+        display: inline-block;
+        background-image: url(<%= image_path "left.png" %>);
+        text-indent: -10000px;
+        height: 19px;
+        width: 19px;
+      }
+      .next_page {
+        background-repeat: none;
+        display: inline-block;
+        background-image: url(<%= image_path "right.png" %>);
+        text-indent: -10000px;
+        height: 19px;
+        width: 19px;
+      }
+      .disabled, em.current {
+        opacity: 0.5;
+      } 
     }
-    .size { width: 70px; }
-    .date {
-      a { color: #000; }
-      width: 80px; 
-    }
-    .tags { width: 100px; }
-    .flags { width: 75px; }
-    .author {
-      a { color: #000; }
-      width: 60px;
-    }
-    .license { width: 65px; }
-    .batch { width: 60px; }
   }
 }
  
@@ -194,7 +173,6 @@
   }
 }
 .grid {
-  .menu { display: none; }
   .file {
     float: left;
     width: 150px;
@@ -219,11 +197,10 @@
         display: block;
         background: #cecece;
         width: 150px;
-        height: 24px;
-        input { padding: 2px; position: relative; top: 1px; }
+        height: 30px;
+        input { padding: 2px; position: relative; top: 4px; }
         a {
           border-right: 1px solid #b8b8b8;
-          padding: 2px;
         }
         .download-single {
           border-left: 1px solid #b8b8b8;
@@ -240,17 +217,26 @@
 #quick_edit_panel { 
   display: none;
   position: absolute;
-  background: #ccc; 
+  background: #FFFFFF;
+  border: 2px solid #BCBCBC; 
   padding: 0px;
   top: 0px; 
   width: 420px;
   h3 {
+    background: #BCBCBC;
     font-weight: normal;
-    margin: 5px;
+    padding: 0px;
+    margin: 0px;
+    padding: 4px 4px 4px 20px;
+    line-height: 25px;
     a {
       float: right;
-      margin-right: 10px;
+      margin: 0px 5px 5px; 
+      border-left: 1px solid #e4e4e4;
     } 
+    .download-single {
+      border-right: 1px solid #e4e4e4;
+    }
   }
   table.info { 
     padding: 10px 23px;
@@ -291,7 +277,11 @@
       background: transparent url(<%= image_path "dark_right_arrow.png" %>) 0px 1px no-repeat;
     }
   } 
-  .submit_buttons { margin-top: 10px; }
+  .submit_buttons {
+    margin-top: 5px;
+    padding-top: 5px;
+    border-top: 1px solid #ccc;
+  }
   #stored_file_tag_list {
     width: 200px;
     border: 1px solid #000;
@@ -304,14 +294,18 @@
 }
 	
 .download-single, .show-single, .edit-single {
-  background: url(<%= image_path "quick_edit_links.png?body=1" %>) 2px 0px no-repeat;
+  background: url(<%= image_path "quick_edit_links.png?body=1" %>) 0px 0px no-repeat;
   text-indent: -10000px;
   width: 20px;
-  height: 18px;
+  height: 20px;
+  padding: 2px;
+  margin-bottom: 2px;
+  display: inline-block;
 }
 .show-single {
-  background-position: -32px 0px;
+  background-position: -31px 0px;
 }
 .download-single {
-  background-position: -65px 0px;
+  background-position: -68px 0px;
+  width: 25px;
 }

@@ -21,7 +21,7 @@ $(function() {
 	});
 
 	//UI
-	$.each(['display_options', 'set_options'], function(i, v) {
+	$.each(['display_options', 'set_options', 'sort_options'], function(i, v) {
 		$('#show_' + v).click(function() {
 			$(this).parent().toggleClass('displayed');
 			$('#' + v).toggle();
