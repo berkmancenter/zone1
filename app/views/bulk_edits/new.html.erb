@@ -1,12 +1,24 @@
-<%= form_for @stored_file, :url => "/bulk_edits", :method => "POST" do |f| %>
+<section id="filter">
+<%= render 'search/filter' %>
+</section>
 
-  <p>Note: Only fields that can be updated in all files are shown as editable below.</p>
-
-  <% @stored_files.each do |stored_file| %>
-    <%= hidden_field_tag "stored_file_ids[]", stored_file.id %>
-  <% end %>
-
-  <%= render "stored_files/form", :f => f %>  
-  
-  <%= f.submit "Update #{@stored_files.count} files" %> 
-<% end %>
+<div class="right" id="stored_file">
+	<h3>EDIT</h3>
+	<%= form_for @stored_file, :url => "/bulk_edits", :method => "POST" do |f| %>
+		<h5><%= pluralize @stored_files.size, 'File' %> Selected</h5>
+		<%- flash.each do |key, msg| -%>
+		<div id="form_error">
+		<%= flash[key] %>
+		</div>
+		<% end -%>
+		<% if @matching_attributes.include?("user_id") && !@matching_attributes["user_id"].nil? -%>
+		<%= f.label :contributor %>: <%= User.find(@matching_attributes["user_id"]).name %><br />
+		<% end -%>
+		<%= f.label "Batch:" %> <%= @stored_file.batch_id.to_s %><br />
+  		<% @stored_files.each do |stored_file| %>
+    		<%= hidden_field_tag "stored_file_ids[]", stored_file.id %>
+  		<% end %>
+  		<%= render "stored_files/form", :f => f %>  
+  		<%= f.submit "Update #{@stored_files.count} files" %> 
+	<% end %>
+</div>

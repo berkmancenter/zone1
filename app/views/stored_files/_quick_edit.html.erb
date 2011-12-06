@@ -63,7 +63,9 @@
 <% if current_user -%>
 	<%= form_for @stored_file, :remote => true, :html => { :id => "edit_flags" } do |f| %>
 		<%= render "flags/form", :f => f %>
-		<%= submit_tag "UPDATE" %>	
+		<div class="submit_buttons">
+			<%= submit_tag "UPDATE" %>	
+		</div>
 	<% end %>
 
 	<a href="#" id="quick_edit">Quick Edit<span></span></a>
@@ -76,8 +78,8 @@
 			</td>
 		</tr>
 		<tr>
-			<td>
-				<%= editable_field(f, @attr_accessible, :tag_list, {}, "text_field") %>
+			<td style="padding-right:30px;">
+				<%= editable_field(f, @attr_accessible, :tag_list, {}, "text_field", "Tags") %>
 			</td>
 			<td>
 				<%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
@@ -85,8 +87,10 @@
 		</tr>
 		<tr>
 			<td colspan="2" align="center">
-				<%= submit_tag "UPDATE" %>	
-				<%= link_to "DELETE", '#', :class => 'delete' %>	
+				<div class="submit_buttons">
+					<%= submit_tag "UPDATE" %>	
+					<%= link_to "DELETE", '#', :class => 'delete' %>	
+				</div>
 			</td>
 		</tr>
 	</table>

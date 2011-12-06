@@ -8,11 +8,11 @@ class BulkEditsController < ApplicationController
 
       @attr_accessible = BulkEdit.bulk_editable_attributes(@stored_files, current_user)
  
-      matching_attributes = BulkEdit.matching_attributes_from(@stored_files)
+      @matching_attributes = BulkEdit.matching_attributes_from(@stored_files)
       
       @stored_file = StoredFile.new
       @stored_file.accessible = @attr_accessible  #must define accessible before setting attributes
-      @stored_file.attributes = matching_attributes
+      @stored_file.attributes = @matching_attributes
       @stored_file.build_bulk_flaggings_for(@stored_files, current_user)
       @stored_file.build_bulk_groups_for(@stored_files, current_user)
 
@@ -45,7 +45,7 @@ class BulkEditsController < ApplicationController
       
       end
       
-      #redirect_to search_path
+      flash[:notice] = "Files updated."
       redirect_to :action => "new", :stored_file_ids => params[:stored_file_ids]
     end
 

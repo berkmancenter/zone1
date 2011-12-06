@@ -244,8 +244,6 @@
   padding: 0px;
   top: 0px; 
   width: 420px;
-  input[type=submit] {
-  }
   h3 {
     font-weight: normal;
     margin: 5px;
@@ -263,19 +261,6 @@
       margin: 0px; 
       label { font-weight: bold; }
     }
-  }
-  input[type=submit] {
-    background: url(<%= image_path "submit_button.png?body=1" %>) repeat-x;
-    border: 1px solid #24568b;
-    color: #FFF;
-    font-size: 10px;
-  }
-  a.delete {
-    display: inline-block; 
-    background: url(<%= image_path "submit_button.png?body=1" %>) repeat-x;
-    border: 1px solid #24568b;
-    color: #FFF;
-    font-size: 10px;
   }
   #edit_flags {
     padding: 10px 25px;
@@ -306,6 +291,16 @@
       background: transparent url(<%= image_path "dark_right_arrow.png" %>) 0px 1px no-repeat;
     }
   } 
+  .submit_buttons { margin-top: 10px; }
+  #stored_file_tag_list {
+    width: 200px;
+    border: 1px solid #000;
+    display: block;
+  }
+  select {
+    background: #FFF;
+    border: 1px solid #000;
+  }
 }
 	
 .download-single, .show-single, .edit-single {
