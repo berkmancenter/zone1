@@ -231,6 +231,7 @@ class StoredFile < ActiveRecord::Base
 
     if new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
       raise Exception.new( MimeType.blacklisted_message(params[:original_filename]) )
+      return false
     end
 
     self.accessible = attr_accessible_for(params, user)
@@ -249,8 +250,12 @@ class StoredFile < ActiveRecord::Base
         update_tags(params[:collection_list], :collections, user)
         params.delete(:collection_list)
       end
+
+      return true
+
     else
       raise Exception.new(self.errors.full_messages.join(', '))
+      return false
     end
   end
 
