@@ -37,11 +37,17 @@ $(function() {
 			return false;
 		}
 		$('#results').toggleClass('list').toggleClass('grid');
-		$('.list_options').toggle();
+		$('.list_options').toggleClass('greyed');
+		if($('.list_options').hasClass('greyed')) {
+			$('.list_options input').attr('disabled', true);
+		} else {
+			$('.list_options input').removeAttr('disabled');
+		}
 		$("#display_options input[type='radio']").attr("checked", false);
 		$(this).attr("checked", true);
 		return true;
 	});
+	$('#list').attr('checked', true);
 
 	//Set options
 /*
@@ -87,6 +93,9 @@ $(function() {
 
 	$('#close_quick_edit').live("click", function() {
 		$('#quick_edit_panel').hide();
+	});
+	$('#quick_edit').live("click", function() {
+		$('#quick_edit_form').slideToggle();
 	});
 });
 

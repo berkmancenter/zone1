@@ -18,6 +18,7 @@ class StoredFile < ActiveRecord::Base
 
   delegate :name, :to => :user, :prefix => :contributor
   delegate :name, :to => :license, :prefix => :license, :allow_nil => true
+  delegate :name, :to => :access_level, :prefix => :access_level, :allow_nil => true
 
   accepts_nested_attributes_for :comments
   accepts_nested_attributes_for :flaggings, :allow_destroy => true
@@ -42,7 +43,7 @@ class StoredFile < ActiveRecord::Base
   ALWAYS_ACCESSIBLE_ATTRIBUTES = [:flaggings_attributes, :comments_attributes].freeze
 
   ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office,
-    :description, :title, :copyright, :allow_tags, :allow_notes,
+    :description, :title, :copyright_holder, :allow_tags, :allow_notes,
     :license_id, :publication_type_list, :groups_stored_files_attributes,
     :access_level_id].freeze
 
@@ -61,7 +62,7 @@ class StoredFile < ActiveRecord::Base
     text :author
     text :office
     text :title
-    text :copyright
+    text :copyright_holder
     text :original_filename, :description
     text :contributor_name
     text :license_name, :stored => true
@@ -70,8 +71,8 @@ class StoredFile < ActiveRecord::Base
     string :author, :stored => true
     string :office
     string :title
-    string :copyright 
-    string :contributor_name
+    string :copyright_holder 
+    string :contributor_name, :stored => true
 
     string :indexed_tag_list, :stored => true, :multiple => true
     string :indexed_collection_list, :stored => true, :multiple => true

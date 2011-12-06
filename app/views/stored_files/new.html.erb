@@ -1,22 +1,28 @@
-<% content_for :head do -%>
-  <%= stylesheet_link_tag "jquery.ui.plupload.css" %>
-<% end -%>
+<section id="filter">
+<%= render 'search/filter' %>
+</section>
 
-<fieldset>
-   <legend>File Upload Data:</legend>
-
-	<%= form_for @stored_file, :url => "/stored_files", :html => {:id => :upload_data} do |f| %>
-		<%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
-		<%= hidden_field_tag 'max_web_upload_file_size', @max_web_upload_file_size %>
-
-		<%= render "form", :f => f %>
-
-        <div id="uploader">
-	    	<p>Failed to initialize the upload tool. Not to point fingers, but
-               perhaps you are using a very old browser that is unsupported?</p>
-	    </div>
-
-        <%= render :partial => 'sftp' %>
-	<% end %>
-
-</fieldset>
+<div class="right" id="stored_files">
+	<% content_for :head do -%>
+	  <%= stylesheet_link_tag "jquery.ui.plupload.css" %>
+	<% end -%>
+	
+	<fieldset>
+	   <legend>File Upload Data:</legend>
+	
+		<%= form_for @stored_file, :url => "/stored_files", :html => {:id => :upload_data} do |f| %>
+			<%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
+			<%= hidden_field_tag 'max_web_upload_file_size', @max_web_upload_file_size %>
+	
+			<%= render "form", :f => f %>
+	
+	        <div id="uploader">
+		    	<p>Failed to initialize the upload tool. Not to point fingers, but
+	               perhaps you are using a very old browser that is unsupported?</p>
+		    </div>
+	
+	        <%= render :partial => 'sftp' %>
+		<% end %>
+	
+	</fieldset>
+</div>

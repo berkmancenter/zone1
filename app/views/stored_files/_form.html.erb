@@ -25,7 +25,7 @@
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td>
-		  <%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
+		  <%= render "access_levels/form", :attrs => @attr_accessible, :f => f, :dropdown => false %>
 		</td>
 		<td>
           <%#= user.owned_groups hitting the database %>
@@ -35,7 +35,7 @@
 </table>
 <hr />
 
-<%= editable_field(f, @attr_accessible, :copyright, {}, :text_field) %>
+<%= editable_field(f, @attr_accessible, :copyright_holder, {}, :text_field) %>
 
 <%= render "licenses/form", :attrs => @attr_accessible, :f => f %>
     

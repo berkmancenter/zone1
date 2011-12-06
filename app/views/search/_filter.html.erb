@@ -63,6 +63,8 @@
 						<%= radio_button_tag "people_type", "author", (!params.has_key?(:people_type) || params[:people_type] == "author") %>
 						Contributor
 						<%= radio_button_tag "people_type", "contributor_name", params[:people_type] == "contributor_name" %>
+						Copyright Holder
+						<%= radio_button_tag "people_type", "copyright_holder", params[:people_type] == "copyright_holder" %>
 					</td>
 					<td>
  						<%= text_field_tag "people" %>
@@ -104,14 +106,16 @@
 				</tr>
 			</table>
 		</div>
-		<% if @facets && @facets[:license_id] %>
 		<h3><a href="#">Copyright</a></h3>
 		<div>
+			Copyright Holder
+ 			<%= text_field_tag "copyright_holder" %>
+			<% if @facets && @facets[:license_id] %>
         	<% @facets[:license_id].each do |license| %>
               <%= link_to license[:label], license[:url] %><br />
             <% end -%>
+			<% end -%>
 		</div>
-		<% end -%>
 	</div>
 	<% end -%>
 	<div class="clear"></div>

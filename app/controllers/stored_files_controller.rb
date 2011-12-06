@@ -7,7 +7,7 @@ class StoredFilesController < ApplicationController
 
     allow logged_in, :to => [:bulk_edit, :bulk_destroy]  #permissions checked per stored file
 
-    allow logged_in, :to => [:update, :edit, :download], :if => :allow_show?
+    allow logged_in, :to => [:update, :edit, :download, :show], :if => :allow_show?
 
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
 
@@ -45,6 +45,16 @@ class StoredFilesController < ApplicationController
       format.js
     end
   end
+
+  def show
+    @licenses = License.all
+    @stored_file = StoredFile.find(params[:id], :include => [:comments, :access_level, :groups, :flags])
+
+    @attr_accessible = []
+
+    render 'edit'
+  end
+
 
   def destroy
     begin

@@ -1,8 +1,6 @@
 #results {
-  width: 662px;
   background: #efefef;
   padding: 4px; 
-  float: right;
   .results_options {
     clear: both;
     background-color: #cc0001;
@@ -69,6 +67,7 @@
         top: 1px;
       }
     }
+    .greyed { opacity: 0.5; }
     #list_view, #grid_view {
       display: inline-block;
 	  width: 39px; 
@@ -165,6 +164,8 @@
   padding: 3px;
   line-height: 1.0em;
 }
+.file span.selected { color: #c36969; }
+
 
 .list {
   .even { background: #fafafa; }
@@ -176,6 +177,7 @@
       width: 85px;
       input { position: relative; top: 2px; }
       a { color: #000; }
+      .finput a { display: none; }
     }
     .size { width: 70px; }
     .date { width: 80px; }
@@ -188,7 +190,7 @@
     .author { width: 60px; }
     .license { width: 65px; }
     .batch { width: 60px; }
-    .icon { display: none; }
+    .icon, .contributor { display: none; }
   }
 }
 .grid {
@@ -204,18 +206,32 @@
       padding: 5px;
       text-align: center; 
     }
+    .contributor { display: block; padding-left: 5px; line-height: 1.0em; }
     .filename { 
       text-align: center; 
+      .name {
+        text-align: center;
+        padding-left: 5px;
+        a { margin-top: 3px; }
+      }
       .finput { 
         text-align: left;
         display: block;
         background: #cecece;
         width: 150px;
-        height: 18px;
-        input { padding: 2px; position: relative; top: -2px; }
+        height: 24px;
+        input { padding: 2px; position: relative; top: 1px; }
+        a {
+          border-right: 1px solid #b8b8b8;
+          padding: 2px;
+        }
+        .download-single {
+          border-left: 1px solid #b8b8b8;
+        }
       }
       a {
-        display: block;
+        color: #000;
+        display: inline-block;
         font-weight: bold;
       }
     }
@@ -225,30 +241,22 @@
   display: none;
   position: absolute;
   background: #ccc; 
-  padding: 4px;
+  padding: 0px;
   top: 0px; 
   width: 420px;
+  input[type=submit] {
+  }
   h3 {
     font-weight: normal;
-    margin: 5px 2px;
+    margin: 5px;
     a {
       float: right;
       margin-right: 10px;
-      background-image: url(<%= image_path "quick_edit_links.png?body=1" %>);
-      text-indent: -10000px;
-      width: 25px;
-      height: 18px;
     } 
-    a#globe-single {
-      background-position: -34px 0px;
-    }
-    a#download-single {
-      background-position: -67px 0px;
-      width: 19px;
-    }
   }
-  table { 
-    padding: 10px 25px;
+  table.info { 
+    padding: 10px 23px;
+    margin: 2px;
     background: #FFF;
     p {
       line-height: 1.2em;
@@ -256,17 +264,34 @@
       label { font-weight: bold; }
     }
   }
-  .flagging {
-    br { display: none; }
-    textarea {
-      display: none; 
-    }
+  input[type=submit] {
+    background: url(<%= image_path "submit_button.png?body=1" %>) repeat-x;
+    border: 1px solid #24568b;
+    color: #FFF;
+    font-size: 10px;
   }
-  #close_quick_edit {
+  a.delete {
+    display: inline-block; 
+    background: url(<%= image_path "submit_button.png?body=1" %>) repeat-x;
+    border: 1px solid #24568b;
+    color: #FFF;
+    font-size: 10px;
+  }
+  #edit_flags {
+    padding: 10px 25px;
+    > label { display: none; } 
+  }
+  #quick_edit_form {
+    font-weight: bold;
+    background: #989898;
+	clear: both;
+    padding: 10px 25px;
+  	text_field { border: 1px solid #000; }
+    display: none;
+  }
+  #quick_edit {
     display: block;
-    position: absolute;
-	right: 0px;
-    bottom: 0px;
+   	float: right;
     width: 124px;
     line-height: 24px;
     color: #000;
@@ -282,4 +307,17 @@
       background: transparent url(<%= image_path "dark_right_arrow.png" %>) 0px 1px no-repeat;
     }
   } 
+}
+	
+.download-single, .show-single, .edit-single {
+  background: url(<%= image_path "quick_edit_links.png?body=1" %>) 2px 0px no-repeat;
+  text-indent: -10000px;
+  width: 20px;
+  height: 18px;
+}
+.show-single {
+  background-position: -32px 0px;
+}
+.download-single {
+  background-position: -65px 0px;
 }

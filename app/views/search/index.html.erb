@@ -2,7 +2,7 @@
 <%= render 'filter' %>
 </section>
 
-<section id="results" class="list">
+<section id="results" class="list right">
 	<hgroup class="results_options">
 		<ul>
 			<li>
@@ -11,21 +11,8 @@
 					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
 						<%= submit_tag "Download", :id => "download-submit" %>
 					<% end -%>
-					<%= form_tag('#', :method => "POST", :id => "open-tabs") do %>
-						<%= submit_tag "Open Links in Tabs", :id => "" %>
-					<% end -%>
-					<hr />
 					<%= form_tag(bulk_edit_stored_file_index_path, :method => "POST", :id => "bulk-edit") do %>
 						<%= submit_tag "Full Edit", :id => "bulk-edit-submit" %>
-					<% end -%>
-					<%= form_tag('#', :method => "POST", :id => "") do %>
-						<%= submit_tag "Add Tags", :id => "" %>
-					<% end -%>
-					<%= form_tag('#', :method => "POST", :id => "") do %>
-						<%= submit_tag "Add Attributes", :id => "" %>
-					<% end -%>
-					<%= form_tag('#', :method => "POST", :id => "") do %>
-						<%= submit_tag "Edit Permissions", :id => "" %>
 					<% end -%>
 					<hr />
 					<%= form_tag(bulk_destroy_stored_file_index_path, :method => "DELETE", :id => "bulk-delete") do %>
@@ -70,6 +57,11 @@
 					</div>
 				</div>
 			</li>
+			<li>
+				<a id="show_sort_options" href="#">SORT BY</a>
+				<div id="sort_options">
+				</div>
+			</li>
 		</ul>
 		<div class="paginate">
 			<%= will_paginate @hits %>
@@ -97,8 +89,13 @@
 			<span class="filename">	
 				<span class="finput">
 					<input class="downloadable" type="checkbox" name="stored_file[<%= hit.stored(:id) %>]" value="1" data-stored-file-id="<%= hit.stored(:id) %>" />
+					<%= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)), :class => 'download-single' %>
+					<%= link_to hit.stored(:display_name), stored_file_path(hit.stored(:id)), :class => 'show-single' %>
+					<%= link_to hit.stored(:display_name), edit_stored_file_path(hit.stored(:id)), :class => 'edit-single' %>
 				</span>
-				<%= link_to hit.stored(:display_name), edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %>
+				<span class="name">
+					<%= link_to hit.stored(:display_name), edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %>
+				</span>
 			</span>
 			<span class="size"><%= hit.stored(:file_size)/1000 %> KB</span>
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
@@ -108,6 +105,7 @@
 				<%= university_flag_display(hit) %>
 			</span>
 			<span class="author"><%= hit.stored(:author) %></span>
+			<span class="contributor"><%= hit.stored(:contributor_name) %></span>
 			<span class="license"><%= hit.stored(:license_name) %></span>
 			<span class="batch"><%= hit.stored(:batch_id) %></span>
 		</div>

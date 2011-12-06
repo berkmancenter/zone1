@@ -16,7 +16,7 @@ class CreateStoredFiles < ActiveRecord::Migration
       t.string :md5
       t.integer :file_size
       t.text :description
-      t.text :copyright
+      t.text :copyright_holder
       t.datetime :ingest_date
       t.text :license_terms
       t.timestamps

@@ -1,20 +1,27 @@
-<%= form_for @stored_file, :html => { :id => "edit_stored_file" } do |f| %>
-	<%= f.label :original_filename %>: <%= @stored_file.original_filename %><br />
-	<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
-	<%= f.label :file_size %>: <%= @stored_file.file_size %><br />
-	URL: Not implemented yet, 
-    URL <%= @stored_file.file.file.file %><br />
-	<% if @stored_file.batch_id -%>
-	<%= f.label "Batch" %>: <%= @stored_file.batch_id %><br />
-	<% end -%>
-	<%= f.label :ingest_date %>: <%= @stored_file.created_at.strftime("%m-%d-%Y") %><br />
-	<%= @record %><br />
-
-	<%= render "form", :f => f %>
-
-	<%= f.submit "Update" %>
-	<%= link_to "Download", download_stored_file_path(@stored_file) %>
-	<% if @stored_file.can_user_destroy?(current_user) -%>
-	<%= link_to "Delete", stored_file_path(@stored_file), :method => :delete %> 
-    <% end -%>
-<% end %>
+<section id="filter">
+<%= render 'search/filter' %>
+</section>
+	
+<div class="right" id="stored_file">	
+	<h3>Edit</h3>
+	<%= form_for @stored_file, :html => { :id => "edit_stored_file" } do |f| %>
+		<%= f.label :original_filename %>: <%= @stored_file.original_filename %><br />
+		<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
+		<%= f.label :file_size %>: <%= @stored_file.file_size %><br />
+		URL: Not implemented yet, 
+	    URL <%= @stored_file.file.file.file %><br />
+		<% if @stored_file.batch_id -%>
+		<%= f.label "Batch" %>: <%= @stored_file.batch_id %><br />
+		<% end -%>
+		<%= f.label :ingest_date %>: <%= @stored_file.created_at.strftime("%m-%d-%Y") %><br />
+		<%= @record %><br />
+	
+		<%= render "form", :f => f %>
+	
+		<%= f.submit "Update" %>
+		<%= link_to "Download", download_stored_file_path(@stored_file) %>
+		<% if @stored_file.can_user_destroy?(current_user) -%>
+		<%= link_to "Delete", stored_file_path(@stored_file), :method => :delete %> 
+	    <% end -%>
+	<% end %>
+</div>

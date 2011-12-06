@@ -180,7 +180,7 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.string   "md5"
     t.integer  "file_size"
     t.text     "description"
-    t.text     "copyright"
+    t.text     "copyright_holder"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "file"

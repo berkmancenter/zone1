@@ -1,11 +1,12 @@
 <h3>
 	<%= @stored_file.original_filename %>
-	<%= link_to 'Download', download_stored_file_path(@stored_file.id), :id => 'download-single' %>
-	<%= link_to 'Globe', edit_stored_file_path(@stored_file.id), :id => 'globe-single' %>
-	<%= link_to 'Edit', edit_stored_file_path(@stored_file.id), :id => 'edit-single' %>
+	<a href="#" id="close_quick_edit">X</a>
+	<%= link_to 'Download', download_stored_file_path(@stored_file.id), :class => 'download-single' %>
+	<%= link_to 'Globe', edit_stored_file_path(@stored_file.id), :class => 'show-single' %>
+	<%= link_to 'Edit', edit_stored_file_path(@stored_file.id), :class => 'edit-single' %>
 </h3>
 
-<table width="100%" cellpadding="0" cellspacing="0">
+<table width="416" cellpadding="0" cellspacing="0" class="info">
 	<tr>
 		<td colspan="2" align="center">
 			IMAGE
@@ -15,7 +16,7 @@
 		<td>
 			<p>
 				<label>Created:</label>
-				<span><%= @stored_file.original_date.strftime("%m/%d/%Y") %></span>
+				<span><%= @stored_file.original_date ? @stored_file.original_date.strftime("%m/%d/%Y") : '' %></span>
 			</p>
 			<p>
 				<label>Uploaded:</label>
@@ -49,7 +50,7 @@
 			</p>
 			<p>
 				<label>Copyright:</label>
-				<span><%= @stored_file.copyright %></span>
+				<span><%= @stored_file.copyright_holder %></span>
 			</p>
 			<p>
 				<label>License:</label>
@@ -60,10 +61,34 @@
 </table>
 
 <% if current_user -%>
-  <%= form_for @stored_file, :remote => true, :html => { :id => "edit_stored_file" } do |f| %>
-    <%= render "flags/form", :f => f %>
-    <%= submit_tag %>	
-  <% end %>
-<% end -%>
+	<%= form_for @stored_file, :remote => true, :html => { :id => "edit_flags" } do |f| %>
+		<%= render "flags/form", :f => f %>
+		<%= submit_tag "UPDATE" %>	
+	<% end %>
 
-<a href="#" id="close_quick_edit">Quick Edit<span></span></a>
+	<a href="#" id="quick_edit">Quick Edit<span></span></a>
+
+	<%= form_for @stored_file, :remote => true, :html => { :id => "quick_edit_form" } do |f| %>
+	<table width="100%" cellpadding="0" cellspacing="0">
+		<tr>
+			<td colspan="2">
+				<%= @stored_file.original_filename %>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<%= editable_field(f, @attr_accessible, :tag_list, {}, "text_field") %>
+			</td>
+			<td>
+				<%= render "access_levels/form", :attrs => @attr_accessible, :f => f, :dropdown => true %>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<%= submit_tag "UPDATE" %>	
+				<%= link_to "DELETE", '#', :class => 'delete' %>	
+			</td>
+		</tr>
+	</table>
+	<% end %>
+<% end -%>
