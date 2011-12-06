@@ -83,11 +83,11 @@ MimeType.create(:name => "MPA", :extension => ".mpa", :mime_type_name => "MPEG 1
 MimeType.create(:name => "MP3", :extension => ".mp3", :mime_type_name => "MPEG 1/2 Audio Layer 3", :mime_type => "audio/mpeg", :mime_type_category_id => audio.id)
 MimeType.create(:name => "WMA", :extension => ".wma", :mime_type_name => "WMA", :mime_type => "audio/x-ms-wma", :mime_type_category_id => audio.id)
 
-MimeType.create(:name => "CSV", :mime_type_name => "Comma seperated values", :mime_type => "text/plain", :extension => ".csv", :mime_type_category_id => text)
-MimeType.create(:name => "XML", :extension => ".xml", :mime_type_name => "Extensible Markup Language", :mime_type => "text/xml", :mime_type_category_id => text)
-MimeType.create(:name => "Plain text", :mime_type_name => "Plain text", :mime_type => "text/plain", :extension => ".txt", :mime_type_category_id => text)
-MimeType.create(:name => "RTF", :mime_type_name => "Rich text format", :mime_type => "text/plain", :extension => ".rtf", :mime_type_category_id => text)
-MimeType.create(:name => "HTML", :mime_type_name => "Hypertext Markup Language", :mime_type => "text/html", :extension => ".html", :mime_type_category_id => text)
+MimeType.create(:name => "CSV", :mime_type_name => "Comma seperated values", :mime_type => "text/plain", :extension => ".csv", :mime_type_category_id => text.id)
+MimeType.create(:name => "XML", :extension => ".xml", :mime_type_name => "Extensible Markup Language", :mime_type => "text/xml", :mime_type_category_id => text.id)
+MimeType.create(:name => "Plain text", :mime_type_name => "Plain text", :mime_type => "text/plain", :extension => ".txt", :mime_type_category_id => text.id)
+MimeType.create(:name => "RTF", :mime_type_name => "Rich text format", :mime_type => "text/plain", :extension => ".rtf", :mime_type_category_id => text.id)
+MimeType.create(:name => "HTML", :mime_type_name => "Hypertext Markup Language", :mime_type => "text/html", :extension => ".html", :mime_type_category_id => text.id)
 
 MimeType.create(:name => "PDF", :mime_type_name => "Portable Document Format", :mime_type => "application/pdf", :extension => ".pdf", :mime_type_category_id => document.id)
 MimeType.create(:name => "Microsoft Word 2007 and later", :mime_type_name => "OpenDocument Text", :mime_type => "application/vnd.oasis.opendocument.text", :extension => ".docx", :mime_type_category_id => document.id)
