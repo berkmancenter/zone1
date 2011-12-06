@@ -1,0 +1,63 @@
+.readonly { background: #d3d3d3; }
+ .plupload_header { display: none; }
+
+#stored_file { 
+  background: #EFEFEF; 
+  padding: 2px; 
+  margin-bottom: 50px; 
+  fieldset {
+    border: none; 
+    padding: 0px;
+  }
+  h3 {
+    margin: 0px;
+    line-height: 30px;
+    text-indent: 15px;
+    background: #000 url(<%= image_path "header_gradient.png?body=1" %>) repeat-x;
+    color: #FFF;
+    font-size: 10px;
+  }
+  form { padding: 15px; }
+  label { font-weight: bold; }
+  h5 { font-size: 15px; margin: 0px 0px 10px 0px; }
+  #form_error {
+    text-transform: uppercase;
+    background-color: #c36969;
+    color: #FFF;
+    font-weight: bold; 
+    font-size: 14px; 
+    padding: 5px; 
+    margin-bottom: 10px;
+  }
+  input[type=text], textarea, select {
+    display: block;
+    background: #EFEFEF;
+    border: 1px solid #000;
+    width: 280px; 
+    padding: 3px; 
+    margin-bottom: 10px;
+  }
+  select { width: 160px; }
+  hr {
+    clear: both;
+    border-color: #b5b5b5; 
+    border-top: none;
+  }  
+  .submit_buttons {
+    text-align: center;
+    input[type=submit], a.delete {
+      background: url(<%= image_path "submit_button.png?body=1" %>) repeat-x;
+      border: 1px solid #24568b;
+      color: #FFF;
+      font-size: 11px;
+      line-height: 23px;
+      padding: 0px 5px;
+      font-weight: bold;  
+    }
+    a.delete {
+      margin-left: 15px;
+      display: inline-block; 
+    }
+  }
+}
+

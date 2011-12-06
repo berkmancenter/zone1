@@ -39,6 +39,7 @@ class StoredFilesController < ApplicationController
     @stored_file = StoredFile.find(params[:id], :include => [:comments, :access_level, :groups, :flags])
 
     @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
+    @title = 'EDIT'
 
     respond_to do |format|
       format.html
@@ -51,6 +52,7 @@ class StoredFilesController < ApplicationController
     @stored_file = StoredFile.find(params[:id], :include => [:comments, :access_level, :groups, :flags])
 
     @attr_accessible = []
+    @title = 'DETAIL'
 
     render 'edit'
   end
@@ -105,7 +107,7 @@ class StoredFilesController < ApplicationController
         format.js
         format.json { render :json => { :success => true } }
         format.html do
-          flash[:error] = "success"
+          flash[:notice] = "File has been updated."
           redirect_to edit_stored_file_path(@stored_file)
         end
       end

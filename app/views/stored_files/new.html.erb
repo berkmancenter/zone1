@@ -2,17 +2,19 @@
 <%= render 'search/filter' %>
 </section>
 
-<div class="right" id="stored_files">
+<div class="right" id="stored_file">
 	<% content_for :head do -%>
 	  <%= stylesheet_link_tag "jquery.ui.plupload.css" %>
 	<% end -%>
 	
 	<fieldset>
-	   <legend>File Upload Data:</legend>
+	   <h3>Upload</h3>
 	
 		<%= form_for @stored_file, :url => "/stored_files", :html => {:id => :upload_data} do |f| %>
 			<%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
 			<%= hidden_field_tag 'max_web_upload_file_size', @max_web_upload_file_size %>
+
+			<p>Some upload details here.</p>
 	
 			<%= render "form", :f => f %>
 	

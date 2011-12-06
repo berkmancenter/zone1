@@ -45,7 +45,7 @@ class StoredFile < ActiveRecord::Base
   ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office,
     :description, :title, :copyright_holder, :allow_tags, :allow_notes,
     :license_id, :publication_type_list, :groups_stored_files_attributes,
-    :access_level_id].freeze
+    :access_level_id, :original_date].freeze
 
   CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file, :original_date] + ALLOW_MANAGE_ATTRIBUTES).freeze
 
@@ -237,7 +237,6 @@ class StoredFile < ActiveRecord::Base
     prepare_comment_params(params, user)
 
     if update_attributes(params)
-
       if params.has_key?(:tag_list)
         update_tags(params[:tag_list], :tags, user)
         params.delete(:tag_list)
@@ -261,13 +260,9 @@ class StoredFile < ActiveRecord::Base
     logger.debug valid_attr.inspect
 
     if self.new_record?
-      logger.debug "INSIDE CREATE ATTRIUBTES"
       valid_attr = valid_attr + CREATE_ATTRIBUTES
-    logger.debug valid_attr.inspect
     elsif user.can_do_method?(self, "edit_items")
-      logger.debug "ISNIDE ALLOW MANAGE ATTRIBUTES"
       valid_attr = valid_attr + ALLOW_MANAGE_ATTRIBUTES
-    logger.debug valid_attr.inspect
     end
 
     if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
@@ -310,7 +305,7 @@ class StoredFile < ActiveRecord::Base
 
   def has_preserved_flag?
     # TODO: Possibly Add caching here
-    (self.flags & Flag.preserved).any?
+    (self.flags & Flag.preservation).any?
   end
 
   def has_preserved_or_record_flag?

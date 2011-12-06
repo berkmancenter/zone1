@@ -1,6 +1,6 @@
 <% if attrs.include?(:access_level_id) %>
-<% if dropdown -%>
-Permissions
+<%= bulk_edit :access_level_id %>
+<%= f.label "Permissions:" %>
 <select name="access_level_id">
 <% AccessLevel.all.each do |access_level| %>
   <% if current_user.can_set_access_level?(@stored_file, access_level) %>
@@ -11,20 +11,7 @@ Permissions
 <% end %>
 </select>
 <% else -%>
-<%= bulk_edit :access_level_id %>
-<%= f.label "Access Level" %>
-
-<div class="access-level">
-  <% AccessLevel.all.each do |access_level| %>
-    <% if current_user.can_set_access_level?(@stored_file, access_level) %>
-      <%= f.label :access_level_id, access_level.label %>
-      <%= f.radio_button :access_level_id, access_level.id, :class => "access_level_radio" %><br/>
-    <% end %>
-  <% end %>
-</div>
-<% end -%>
-<% else -%>
-<%= f.label "Access Level" %>
-<%= @stored_file.access_level_name %>
+<%= f.label "Permissions:" %>
+<%= @stored_file.access_level_name.humanize %>
 <% end -%>
 <br />

@@ -21,8 +21,7 @@
 
       <% #Allow user to opt-in to the flag.  This must appear AFTER the _destroy field  %>
       <%= check_box_tag f.object_name + "[_destroy]", 0 %> <%= f.label :flag_id, flag.label %><br/>
-      
-      <%= f.text_area :note, :rows => 2, :cols => 20 %><br/>
+      <%= f.text_area :note, :rows => 2, :cols => 20 %>
     <% end -%>
 
     <%= f.hidden_field :flag_id %>

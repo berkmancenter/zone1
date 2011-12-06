@@ -85,10 +85,6 @@ class User < ActiveRecord::Base
     # groups, roles, and directly to rights, through the 
     # polymorphic right_assignments table
     rights = [self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
-    logger.debug rights
-    logger.debug rights
-    logger.debug rights
-    logger.debug rights
     rights.presence || []
   end
 

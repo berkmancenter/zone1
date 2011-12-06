@@ -6,6 +6,6 @@
 <% end -%>
 <% end -%>
 <% else -%>
-<%= f.label "Groups" %>
-You do not have access to edit
+<%= f.label "to" %>
+<%= @stored_file.groups.collect { |g| g.name }.join(', ') %>
 <% end -%>

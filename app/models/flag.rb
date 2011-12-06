@@ -13,6 +13,22 @@ class Flag < ActiveRecord::Base
   after_create { Flag.destroy_cache }
   after_destroy { Flag.destroy_cache }
 
+  def self.preserved
+    Flag.find_by_name("PRESERVED")
+  end
+  def self.nominated_preservation
+    Flag.find_by_name("NOMINATED_FOR_PRESERVATION")
+  end
+  def self.selected_preservation
+    Flag.find_by_name("SELECTED_FOR_PRESERVATION")
+  end
+  def self.univ_record
+    Flag.find_by_name("UNIVERSITY_RECORD")
+  end
+  def self.may_be_univ_record
+    Flag.find_by_name("MAY_BE_UNIVERSITY_RECORD")
+  end
+
   def self.all
     Rails.cache.fetch("flags") do
       Flag.find(:all)
@@ -23,7 +39,7 @@ class Flag < ActiveRecord::Base
     Flag.all.inject({}) { |h, flag| h[flag.id.to_s] = flag.label; h }
   end
 
-  def self.preserved
+  def self.preservation
     Flag.find_all_by_name(PRESERVED)
   end
 

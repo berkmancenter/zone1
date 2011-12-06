@@ -1,44 +1,55 @@
-<table width="100%" cellpadding="0" cellspacing="0">
-  <tr>
-    <td>
-      <%= editable_field(f, @attr_accessible, :collection_list, {}, :text_field) %>
-
-      <%#= tag_list hitting the database %>
-      <%= editable_field(f, @attr_accessible, :tag_list, {}, :text_field) %>
-      <%= editable_field(f, @attr_accessible, :allow_tags, {}, :check_box) %>
-
-      <%= editable_field(f, @attr_accessible, :description, { :rows => 3}, :text_area) %>
-    </td>
-    <td>
-      <%= editable_field(f, @attr_accessible, :original_date, {}, :text_field) %>
-
-      <%= editable_field(f, @attr_accessible, :author, {}, :text_field) %>
-
-      <%= editable_field(f, @attr_accessible, :office, {}, :text_field) %>
-
-      <%= editable_field(f, @attr_accessible, :title, {}, :text_field) %>
-  </td>
-</tr>
-</table>
-<%= editable_field(f, @attr_accessible, :allow_notes, {}, :check_box) %>
+<hr />
 
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
-		<td>
-		  <%= render "access_levels/form", :attrs => @attr_accessible, :f => f, :dropdown => false %>
+		<td width="340px" valign="top">
+			<%#= tag_list hitting the database %>
+			<%= editable_field(f, @attr_accessible, :tag_list, {}, :text_field, "Tags") %>
+
+			<%= editable_field(f, @attr_accessible, :title, {}, :text_field) %>
+
+			<%= editable_field(f, @attr_accessible, :description, { :rows => 3}, :text_area) %>
+
+			<% if edit? -%>
+			<%= editable_field(f, @attr_accessible, :allow_tags, {}, :check_box, "Allow users to add tags") %><br />
+			<%= editable_field(f, @attr_accessible, :allow_notes, {}, :check_box, "Allow users to add comments") %>
+			<% end -%>
 		</td>
-		<td>
-          <%#= user.owned_groups hitting the database %>
-		  <%= render "groups/stored_file_form", :attrs => @attr_accessible, :f => f %>
+		<td valign="top">
+			<%= editable_field(f, @attr_accessible, :author, {}, :text_field, "Creator") %>
+
+			<%= editable_field(f, @attr_accessible, :collection_list, {}, :text_field, "Collection") %>
+
+			<%= editable_field(f, @attr_accessible, :original_date, {}, :text_field) %>
+
+			<%= editable_field(f, @attr_accessible, :office, {}, :text_field) %>
 		</td>
 	</tr>
 </table>
+
+<hr />
+
+<table width="100%" cellpadding="0" cellspacing="0">
+	<tr>
+		<td valign="top" width="35%">
+			<%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
+		</td>
+		<td align="left">
+			<%#= user.owned_groups hitting the database %>
+			<%= render "groups/stored_file_form", :attrs => @attr_accessible, :f => f %>
+		</td>
+	</tr>
+</table>
+
 <hr />
 
 <%= editable_field(f, @attr_accessible, :copyright_holder, {}, :text_field) %>
-
 <%= render "licenses/form", :attrs => @attr_accessible, :f => f %>
-    
-<%= render "flags/form", :f => f %>
+
 <hr />
+
+<%= render "flags/form", :f => f %>
+
+<hr />
+
 <%= render("comments/form", :stored_file => @stored_file, :attrs => @attr_accessible, :f => f) unless bulk_edit? %>
