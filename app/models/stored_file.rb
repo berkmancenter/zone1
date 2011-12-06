@@ -103,11 +103,14 @@ class StoredFile < ActiveRecord::Base
 
   def fits_mime_type=(hash)
     if hash.keys.include?(:format_name) && hash.keys.include?(:mime_type)
-      mime_type = MimeType.find_or_initialize_by_mime_type(hash[:mime_type])
+
+      mime_type = MimeType.find_or_initialize_by_extension(hash[:file_extension].downcase)
 
       if mime_type.new_record?
-        mime_type.name = hash[:format_name]
-        mime_type.extension = hash[:file_extension]
+        mime_type.name = hash[:file_extension].gsub(".", "").upcase
+        mime_type.mime_type_category_id = MimeTypeCategory.find_or_create_by_name(hash[:mime_type].split("/").first.capitalize).try(:id)
+        mime_type.mime_type_name = hash[:format_name]
+        mime_type.mime_type = hash[:mime_type]
       end
 
       self.mime_type = mime_type

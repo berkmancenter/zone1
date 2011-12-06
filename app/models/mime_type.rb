@@ -4,10 +4,10 @@ class MimeType < ActiveRecord::Base
 
   validates_presence_of :name, :mime_type, :extension
 
-  attr_accessible :name, :mime_type, :extension, :blacklist
+  attr_accessible :name, :mime_type, :extension, :blacklist, :mime_type_category_id
 
   before_create :downcase_extension
-  after_initialize :set_default_category
+  before_create :set_default_category
 
   after_update { MimeType.destroy_blacklisted_extensions_cache }
   after_create { MimeType.destroy_blacklisted_extensions_cache }
@@ -36,7 +36,7 @@ class MimeType < ActiveRecord::Base
   private
 
   def set_default_category
-    self.mime_type_category = MimeTypeCategory.find_or_create_by_name("Uncategorized")
+    self.mime_type_category = MimeTypeCategory.find_or_create_by_name("Uncategorized") unless self.mime_type_category.present?
   end
 
   def downcase_extension
