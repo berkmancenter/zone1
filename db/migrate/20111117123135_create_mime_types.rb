@@ -3,6 +3,7 @@ class CreateMimeTypes < ActiveRecord::Migration
     create_table :mime_types do |t|
       t.string :name
       t.string :extension
+      t.string :mime_type_name
       t.string :mime_type
       t.references :mime_type_category
       t.boolean :blacklist

@@ -21,6 +21,8 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.integer "user_id", :null => false
   end
 
+  add_index "batches", ["user_id"], :name => "index_batches_on_user_id"
+
   create_table "comments", :force => true do |t|
     t.text     "content"
     t.integer  "user_id"
@@ -28,6 +30,9 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "comments", ["stored_file_id"], :name => "index_comments_on_stored_file_id"
+  add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 
   create_table "content_types", :force => true do |t|
     t.string "name", :null => false
@@ -45,12 +50,19 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.datetime "action_date"
   end
 
+  add_index "dispositions", ["disposition_action_id"], :name => "index_dispositions_on_disposition_action_id"
+  add_index "dispositions", ["stored_file_id"], :name => "index_dispositions_on_stored_file_id"
+
   create_table "flaggings", :force => true do |t|
     t.integer "flag_id"
     t.integer "stored_file_id"
     t.integer "user_id"
     t.text    "note"
   end
+
+  add_index "flaggings", ["flag_id"], :name => "index_flaggings_on_flag_id"
+  add_index "flaggings", ["stored_file_id"], :name => "index_flaggings_on_stored_file_id"
+  add_index "flaggings", ["user_id"], :name => "index_flaggings_on_user_id"
 
   create_table "flags", :force => true do |t|
     t.string "name",  :null => false
@@ -69,15 +81,24 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.integer "owner_id"
   end
 
-  create_table "groups_stored_files", :id => false, :force => true do |t|
+  add_index "groups_owners", ["group_id"], :name => "index_groups_owners_on_group_id"
+  add_index "groups_owners", ["owner_id"], :name => "index_groups_owners_on_owner_id"
+
+  create_table "groups_stored_files", :force => true do |t|
     t.integer "group_id"
     t.integer "stored_file_id"
   end
+
+  add_index "groups_stored_files", ["group_id"], :name => "index_groups_stored_files_on_group_id"
+  add_index "groups_stored_files", ["stored_file_id"], :name => "index_groups_stored_files_on_stored_file_id"
 
   create_table "groups_users", :id => false, :force => true do |t|
     t.integer "user_id"
     t.integer "group_id"
   end
+
+  add_index "groups_users", ["group_id"], :name => "index_groups_users_on_group_id"
+  add_index "groups_users", ["user_id"], :name => "index_groups_users_on_user_id"
 
   create_table "licenses", :force => true do |t|
     t.integer  "stored_file_id"
@@ -85,6 +106,8 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "licenses", ["stored_file_id"], :name => "index_licenses_on_stored_file_id"
 
   create_table "mime_type_categories", :force => true do |t|
     t.string   "name"
@@ -95,6 +118,7 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
   create_table "mime_types", :force => true do |t|
     t.string   "name"
     t.string   "extension"
+    t.string   "mime_type_name"
     t.string   "mime_type"
     t.integer  "mime_type_category_id"
     t.boolean  "blacklist"
@@ -103,6 +127,7 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
   end
 
   add_index "mime_types", ["mime_type"], :name => "index_mime_types_on_mime_type"
+  add_index "mime_types", ["mime_type_category_id"], :name => "index_mime_types_on_mime_type_category_id"
 
   create_table "preferences", :force => true do |t|
     t.string   "name"
@@ -117,6 +142,9 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.string  "subject_type"
   end
 
+  add_index "right_assignments", ["right_id"], :name => "index_right_assignments_on_right_id"
+  add_index "right_assignments", ["subject_id", "subject_type"], :name => "index_right_assignments_on_subject_id_and_subject_type"
+
   create_table "rights", :force => true do |t|
     t.string "action"
     t.string "description"
@@ -124,11 +152,13 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
 
   create_table "roles", :force => true do |t|
     t.string   "name",              :limit => 40
-    t.string   "authorizable_type", :limit => 40
     t.integer  "authorizable_id"
+    t.string   "authorizable_type"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "roles", ["authorizable_id", "authorizable_type"], :name => "index_roles_on_authorizable_id_and_authorizable_type"
 
   create_table "roles_groups", :id => false, :force => true do |t|
     t.integer  "group_id"
@@ -137,12 +167,18 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.datetime "updated_at"
   end
 
+  add_index "roles_groups", ["group_id"], :name => "index_roles_groups_on_group_id"
+  add_index "roles_groups", ["role_id"], :name => "index_roles_groups_on_role_id"
+
   create_table "roles_users", :id => false, :force => true do |t|
     t.integer  "user_id"
     t.integer  "role_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
+  add_index "roles_users", ["user_id"], :name => "index_roles_users_on_user_id"
 
   create_table "sftp_groups", :id => false, :force => true do |t|
     t.integer  "id",         :null => false
@@ -166,6 +202,8 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
   end
 
   add_index "sftp_users", ["passwd"], :name => "index_sftp_users_on_passwd"
+  add_index "sftp_users", ["sftp_group_id"], :name => "index_sftp_users_on_sftp_group_id"
+  add_index "sftp_users", ["user_id"], :name => "index_sftp_users_on_user_id"
   add_index "sftp_users", ["username"], :name => "index_sftp_users_on_username"
 
   create_table "stored_files", :force => true do |t|
@@ -194,10 +232,12 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.date     "original_date"
   end
 
-  create_table "stored_files_flags", :id => false, :force => true do |t|
-    t.integer "stored_file_id"
-    t.integer "flag_id"
-  end
+  add_index "stored_files", ["access_level_id"], :name => "index_stored_files_on_access_level_id"
+  add_index "stored_files", ["batch_id"], :name => "index_stored_files_on_batch_id"
+  add_index "stored_files", ["content_type_id"], :name => "index_stored_files_on_content_type_id"
+  add_index "stored_files", ["license_id"], :name => "index_stored_files_on_license_id"
+  add_index "stored_files", ["mime_type_id"], :name => "index_stored_files_on_mime_type_id"
+  add_index "stored_files", ["user_id"], :name => "index_stored_files_on_user_id"
 
   create_table "taggings", :force => true do |t|
     t.integer  "tag_id"
@@ -211,6 +251,7 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
 
   add_index "taggings", ["tag_id"], :name => "index_taggings_on_tag_id"
   add_index "taggings", ["taggable_id", "taggable_type", "context"], :name => "index_taggings_on_taggable_id_and_taggable_type_and_context"
+  add_index "taggings", ["tagger_id", "tagger_type"], :name => "index_taggings_on_tagger_id_and_tagger_type"
 
   create_table "tags", :force => true do |t|
     t.string "name"

@@ -26,11 +26,79 @@ Preference.create([{:name => "Default User Upload Quota", :value => "10485760" }
 Preference.create([{:name => "Retention Period", :value => "1825" }])
 Preference.create([{:name => "Max Web Upload Filesize", :value => "500kb" }])
 
+
 puts "Generating default MimeTypeCategories"
-MimeTypeCategory.create(:name => "Uncategorized")
+#http://www.iana.org/assignments/media-types/index.html
+%w(Application Audio Image Text Video Document).each do |category_name|
+  MimeTypeCategory.create(:name => category_name)
+end
+(application, audio, image, text, video, document) = MimeTypeCategory.all
+
+
 
 puts "Gerenating default MimeTypeBlacklist"
-MimeType.create(:name => "DOS/Windows executable", :mime_type => "application/x-dosexec", :blacklist => true, :extension => ".exe")
+MimeType.create(:name => "DOS/Windows executable", :mime_type => "application/x-dosexec", :blacklist => true, :extension => ".exe", :mime_type_category => application)
+MimeType.create(:name => "Mac OS X Application", :mime_type => "application/", :blacklist => true, :extension => ".app", :mime_type_category => application)
+MimeType.create(:name => "DOS Batch File", :mime_type => "application/", :blacklist => true, :extension => ".bat", :mime_type_category => application)
+MimeType.create(:name => "CGI", :mime_type_name => "Hypertext Markup Language", :mime_type => "text/html", :blacklist => true, :extension => ".cgi", :mime_type_category => application)
+MimeType.create(:name => "DOS executable", :mime_type => "application/x-dosexec", :blacklist => true, :extension => ".com", :mime_type_category => application)
+MimeType.create(:name => "Visual Basic script", :mime_type => "application/vb", :blacklist => true, :extension => ".vb", :mime_type_category => application)
+
+
+puts "Generating default MimeTypes"
+MimeType.create(:name => "JPEG", :mime_type_name => "Exchangeable Image File Format", :mime_type => "image/jpeg", :extension => ".jpg", :mime_type_category => image)
+MimeType.create(:name => "PNG", :mime_type_name => "Portable Network Graphics", :mime_type => "image/png", :extension => ".png", :mime_type_category => image)
+MimeType.create(:name => "GIF", :mime_type_name => "Graphics Interchange Format", :mime_type => "image/gif", :extension => ".gif", :mime_type_category => image)
+MimeType.create(:name => "TIF", :mime_type_name => "Tagged Image File Format", :mime_type => "image/tiff", :extension => ".tif", :mime_type_category => image)
+MimeType.create(:name => "SVG", :mime_type_name => "Scalable Vector Graphics", :mime_type => "image/svg+xml", :extension => ".svg", :mime_type_category => image)
+MimeType.create(:name => "BMP", :mime_type_name => "Windows Bitmap", :mime_type => "image/bmp", :extension => ".bmp", :mime_type_category => image)
+MimeType.create(:name => "PSD", :mime_type_name => "PSD EXIF", :mime_type => "image/vnd.adobe.photoshop", :extension => ".psd", :mime_type_category => image)
+
+MimeType.create(:name => "IVF", :mime_type_name => "AVI", :mime_type => "video/avi", :extension => ".ivf", :mime_type_category => video)
+MimeType.create(:name => "MPG", :mime_type_name => "MPEG", :mime_type => "video/mpeg", :mime_type_category => video)
+MimeType.create(:name => "MPEG", :mime_type_name => "MPEG", :mime_type => "video/mpeg", :mime_type_category => video)
+MimeType.create(:name => "M1V", :mime_type_name => "MPEG", :mime_type => "video/mpeg", :mime_type_category => video)
+MimeType.create(:name => "MPE", :extension => ".mpe", :mime_type_name => "MPEG", :mime_type => "video/mpeg", :mime_type_category => video)
+MimeType.create(:name => "WMV", :extension => ".wmv", :mime_type_name => "WMV", :mime_type => "video/x-ms-wmv", :mime_type_category => video)
+MimeType.create(:name => "FLV", :extension => ".flv", :mime_type_name => "Flash Video", :mime_type => "video/x-flv", :mime_type_category => video)
+MimeType.create(:name => "AVI", :extension => ".avi", :mime_type_name => "AVI", :mime_type => "video/avi", :mime_type_category => video)
+MimeType.create(:name => "M4V", :extension => ".m4v", :mime_type_name => "ISO Media, MPEG v4 system, version 2", :mime_type => "video/mp4", :mime_type_category => video)
+MimeType.create(:name => "M4V", :extension => ".3g2", :mime_type_name => "ISO Media, MPEG v4 system, version 2", :mime_type => "video/mp4", :mime_type_category => video)
+MimeType.create(:name => "M4V", :extension => ".3gp", :mime_type_name => "ISO Media, MPEG v4 system, version 2", :mime_type => "video/mp4", :mime_type_category => video)
+MimeType.create(:name => "M4V", :extension => ".mp4", :mime_type_name => "ISO Media, MPEG v4 system, version 2", :mime_type => "video/mp4", :mime_type_category => video)
+MimeType.create(:name => "MOV", :extension => ".mov", :mime_type_name => "ISO Media, MPEG v4 system, version 2", :mime_type => "video/mp4", :mime_type_category => video)
+MimeType.create(:name => "M2V", :extension => ".m2v", :mime_type_name => "MPEG", :mime_type => "video/mpeg", :mime_type_category => video)
+
+MimeType.create(:name => "M4A", :mime_type_name => "MPEG-4 Audio", :mime_type => "audio/mp4", :extension => ".m4a", :mime_type_category => audio)
+MimeType.create(:name => "WAV", :mime_type_name => "Waveform Audio", :mime_type => "audio/x-wave", :extension => ".wav", :mime_type_category => audio)
+MimeType.create(:name => "SND", :mime_type_name => "NeXt Sound File", :mime_type => "application/octet-stream", :extension => ".snd", :mime_type_category => audio)
+MimeType.create(:name => "AU", :mime_type_name => "Unix Sound File", :mime_type => "audio/basic", :extension => ".au", :mime_type_category => audio)
+MimeType.create(:name => "AIFC", :mime_type_name => "Audio Interchange File Format", :mime_type => "audio/x-aiff", :mime_type_category => audio)
+MimeType.create(:name => "AIF", :mime_type_name => "Audio Interchange File Format", :mime_type => "audio/x-aiff", :mime_type_category => audio)
+MimeType.create(:name => "AIFF", :mime_type_name => "Audio Interchange File Format", :mime_type => "audio/x-aiff", :mime_type_category => audio)
+MimeType.create(:name => "RMI", :mime_type_name => "RIFF", :mime_type => "application/octet-stream", :extension => ".rmi", :mime_type_category => audio)
+MimeType.create(:name => "MID", :mime_type_name => "MIDI Audio", :mime_type => "audio/midi", :extension => ".mid", :mime_type_category => audio)
+MimeType.create(:name => "MIDI", :mime_type_name => "Midi", :mime_type => "audio/unkown", :extension => ".midi", :mime_type_category => audio)
+MimeType.create(:name => "MPA", :mime_type_name => "MPEG 1/2 Audio Layer 3", :mime_type => "audio/mpeg", :mime_type_category => audio)
+MimeType.create(:name => "MP3", :mime_type_name => "MPEG 1/2 Audio Layer 3", :mime_Type => "audio/mpeg", :mime_type_category => audio)
+MimeType.create(:name => "WMA", :extension => ".wma", :mime_type_name => "WMA", :mime_type => "audio/x-ms-wma", :mime_type_category => audio)
+
+MimeType.create(:name => "CSV", :mime_type_name => "Comma seperated values", :mime_type => "text/plain", :extension => ".csv", :mime_type_category => text)
+MimeType.create(:name => "XML", :extension => ".xml", :mime_type_name => "Extensible Markup Language", :mime_type => "text/xml", :mime_type_category => text)
+MimeType.create(:name => "Plain text", :mime_type_name => "Plain text", :mime_type => "text/plain", :extension => ".txt", :mime_type_category => text)
+MimeType.create(:name => "RTF", :mime_type_name => "Rich text format", :mime_type => "text/plain", :extension => ".txt", :mime_type_category => text)
+MimeType.create(:name => "HTML", :mime_type_name => "Hypertext Markup Language", :mime_type => "text/html", :extension => ".html", :mime_type_category => text)
+
+MimeType.create(:name => "PDF", :mime_type_name => "Portable Document Format", :mime_type => "application/pdf", :extension => ".pdf", :mime_type_category => document)
+MimeType.create(:name => "Microsoft Word 2007 and later", :mime_type_name => "OpenDocument Text", :mime_type => "application/vnd.oasis.opendocument.text", :extension => ".docx", :mime_type_category => document)
+MimeType.create(:name => "Microsoft Excel 2007 and later", :mime_type_name => "OpenDocument Text", :mime_type => "application/vnd.oasis.opendocument.text", :extension => ".xlsx", :mime_type_category => document)
+MimeType.create(:name => "Microsoft Word 2003 and earlier", :mime_type_name => "DOC", :mime_type => "application/msword", :extension => ".doc", :mime_type_category => document)
+MimeType.create(:name => "Microsoft Excel 2003 and earlier", :mime_type_name => "XLS", :mime_type => "application/vnd.ms-excel", :extension => ".xls", :mime_type_category => document)
+MimeType.create(:name => "Microsoft Powerpoint 2003 and earlier", :mime_type_name => "PPT", :mime_type => "application/vnd.ms-powerpoint", :extension => ".ppt", :mime_type_category => document)
+MimeType.create(:name => "Micosoft Powerpoint 2007 and later", :mime_type_name => "OpenDocument Text", :mime_type => "vnd.oasis.opendocument.text", :extension => ".pptx", :mime_type_category => document)
+
+MimeType.create(:name => "RAR", :mime_type_name => "RAR Format", :mime_type => "application/x-rar-compressed", :extension => ".rar", :mime_type_category => application)
+MimeType.create(:name => "ZIP", :mime_type => "application/zip", :extension => ".zip", :mime_type_category => application)
 
 puts "Creating disposition actions"
 DispositionAction.create([{ :action => "DELETE" },
@@ -145,4 +213,3 @@ puts "Generating licenses"
 License.create([{ :name => 'All Rights Reserved' },
         { :name => 'Public Domain' },
         { :name => 'CC BY' }])
-
