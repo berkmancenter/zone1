@@ -9,15 +9,15 @@
 				<a id="show_set_options" href="#">SELECTED</a>
 				<div id="set_options">
 					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
-						<%= submit_tag "Download", :id => "download-submit" %>
+						<a href="#" id="download-submit">Download</a>
 					<% end -%>
 					<hr />
 					<%= form_tag(bulk_edit_stored_file_index_path, :method => "POST", :id => "bulk-edit") do %>
-						<%= submit_tag "Full Edit", :id => "bulk-edit-submit" %>
+						<a href="#" id="bulk-edit-submit">Full Edit</a>
 					<% end -%>
 					<hr />
 					<%= form_tag(bulk_destroy_stored_file_index_path, :method => "DELETE", :id => "bulk-delete") do %>
-						<%= submit_tag "Delete", :id => "bulk-delete-submit" %>
+						<a href="#" id="bulk-delete-submit">Delete</a>
 					<% end -%>
 				</div>
 			</li>

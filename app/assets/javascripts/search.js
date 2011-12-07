@@ -8,7 +8,7 @@ $(function() {
 			ui.newContent.slideDown();
 		}
 	});
-		$('#expand a').click(function() {
+	$('#expand a').click(function() {
 		if($(this).hasClass('expanded')) {
 			$('#accordion .ui-accordion-content').slideUp();
 			$('#accordion h3').removeClass('ui-state-active').removeClass('ui-state-focus');
@@ -49,17 +49,6 @@ $(function() {
 	});
 	$('#list').attr('checked', true);
 
-	//Set options
-/*
-	$('.downloadable').attr('checked', false);
-	$('.downloadable').click(function() {
-		if($('.downloadable:checked').size() > 1) {
-			$('#bulk-edit-submit,#download-submit').show();
-		} else {
-			$('#bulk-edit-submit,#download-submit').hide();
-		}
-	});
-*/
 	$("input[type='checkbox'].toggle_column").click(function() {
 		var selector = "span." + $(this).data("column-class");
 		if($(this).attr("checked")=="checked") {
@@ -68,27 +57,22 @@ $(function() {
 			$(selector).hide();
 		}
 	});
-	$('#open-tabs').submit(function() {
-		$('.downloadable:checked').each(function(index) {
-			window.open('/stored_files/'+$(this).data('stored-file-id') + '/edit');
-		});
+
+	$('#download-submit, #bulk-edit-submit').click(function() {
+		Zone1.clone_downloadable_checkboxes_to($(this).parent());
+		$(this).parent().submit();
 		return false;
 	});
 
-	$('#download-set').submit(function() {
-		Zone1.clone_downloadable_checkboxes_to($(this));
-		return true; //submit form
-	});
-	$('#bulk-edit').submit(function() {
-		Zone1.clone_downloadable_checkboxes_to($(this));
-		return true; //submit form
-	});
-	$('#bulk-delete').submit(function() {
+	$('#bulk-delete-submit').click(function() {
 		Zone1.clone_downloadable_checkboxes_to($(this));
 		var count = $(this).children("input:checked").length;
 		var confirm_delete;
 		confirm_delete = confirm("Are you sure you want to delete " + count + " items?");
-		return confirm_delete;
+		if(confirm_delete) {
+			$(this).parent().submit();
+		} 
+		return false;
 	});
 
 	$('#close_quick_edit').live("click", function() {
