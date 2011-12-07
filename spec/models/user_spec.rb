@@ -326,8 +326,6 @@ describe User do
     let(:user2) { Factory(:user) }
     let(:user3) { Factory(:user) }
     let(:right) { Factory(:right, :action => "some_right") }
-    let(:user_ids) { [user1.id, user2.id] }
-    let(:all_user_ids) { [user1.id, user2.id, user3.id] }
 
     before(:each) do
       user1.rights << right
@@ -340,7 +338,8 @@ describe User do
         Rails.cache.exist?("users-viewable-users-some_right").should == true 
       end
       it "cache should include correct users" do
-        Rails.cache.fetch("users-viewable-users-some_right").should == user_ids
+        assert Rails.cache.fetch("users-viewable-users-some_right").include? user1.id
+        assert Rails.cache.fetch("users-viewable-users-some_right").include? user2.id
       end
     end
 

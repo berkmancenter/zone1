@@ -12,13 +12,47 @@ describe MimeType do
   it { should allow_mass_assignment_of(:mime_type) }
   it { should allow_mass_assignment_of(:extension) }
   it { should allow_mass_assignment_of(:blacklist) }
+  it { should allow_mass_assignment_of(:mime_type_category_id) }
 
-  describe "after initialize" do
+  describe "before_create" do
+
+    describe "downcase_extension" do
+      let(:mime_type) { Factory(:mime_type, :extension => ".JPG") }
+      it "should downcase the extension" do
+        mime_type.extension.should == ".jpg"
+      end
+    end
+
     describe "set default category" do
       it "sets the MimeTypeCategorty to 'Uncategorized'" do
         subject { Factory(:mime_type) }
         subject.mime_type_category.should == MimeTypeCategory.find_by_name("Uncategorized")
       end
+    end
+  end
+
+  describe "destroy_blacklisted_extensions_cache" do
+    let(:mime_type) { Factory(:mime_type) }
+
+    before do
+      MimeType.blacklisted_extensions
+      assert Rails.cache.exist?("file_extension_blacklist")
+    end
+
+    after do
+      assert !Rails.cache.exist?("file_extension_blacklist")
+    end
+
+    it "should be destroyed after_update" do
+      mime_type.update_attribute(:name, "asdf")
+    end
+
+    it "should be destroyed after_create" do
+      Factory(:mime_type)
+    end
+
+    it "should be destroyed after_destroyed" do
+      mime_type.destroy
     end
   end
 

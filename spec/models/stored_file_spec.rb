@@ -237,7 +237,7 @@ describe StoredFile do
       it "should raise an error" do
         Factory(:mime_type, :blacklist => true, :extension => ".exe")
         assert_raise Exception do
-          stored_file.custom_save({"original_filename" => "virus.exe"}, @user)
+          stored_file.custom_save({:original_filename => "virus.exe"}, @user)
         end
       end
     end
@@ -536,10 +536,11 @@ describe StoredFile do
     context "when hash has format_name and mime_type" do
 
       let(:new_mime_type) { MimeType.new(:mime_type => "image/jpeg") }
-      let(:params) { {:format_name => "JPEG", :mime_type => "image/jpeg"} }
+      let(:mime_type_category) { Factory(:mime_type_category) }
+      let(:params) { {:file_extension => ".jpg", :format_name => "JPEG", :mime_type => "image/jpeg"} }
      
       before do
-        MimeType.should_receive(:find_or_initialize_by_mime_type).with("image/jpeg").and_return(new_mime_type)
+        MimeType.should_receive(:find_or_initialize_by_extension).with(".jpg").and_return(new_mime_type)
       end
 
       after do
@@ -548,10 +549,20 @@ describe StoredFile do
       
       context "when it creates a new mime type" do
         it "should set the name to format_name" do
-          new_mime_type.should_receive("name=").with("JPEG")
+          new_mime_type.should_receive("name=").with("JPG")
         end
-        it "should set the extension" do
-          new_mime_type.should_receive("extension=").with(".jpg")
+        
+        it "should set the mime type category" do
+          MimeTypeCategory.should_receive(:find_or_create_by_name).with("Image").and_return(mime_type_category)
+          new_mime_type.should_receive("mime_type_category_id=").with(mime_type_category.id)
+        end
+
+        it "should set the mime_type_name" do
+          new_mime_type.should_receive("mime_type_name=").with("JPEG")
+        end
+
+        it "should set the mime_type" do
+          new_mime_type.should_receive("mime_type=").with("image/jpeg")
         end
       end
       

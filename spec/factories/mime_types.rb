@@ -2,9 +2,9 @@
 
 FactoryGirl.define do
   factory :mime_type do
-    name "MyString"
-    mime_type "MyString"
-    extension "MyString"
+    name "TestName"
+    mime_type "test/mime_type"
+    extension ".test"
     mime_type_category
   end
 end
