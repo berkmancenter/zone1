@@ -1,4 +1,7 @@
-$("#quick_edit_panel").html("<%=j render "quick_edit"%>").dialog({
+$('<div>').attr('id', 'quick_edit_panel').html("<%=j render "quick_edit"%>").dialog({
 	title: "<%=j render "quick_edit_title" %>",
-	width: 420
+	width: 420,
+	close: function() {
+		$(this).remove();
+	}
 });

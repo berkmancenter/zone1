@@ -90,9 +90,6 @@ $(function() {
 	$('.quick_edit_link').click(function() {
 		$('#response').slideUp();
 	});
-	$('#close_quick_edit').live("click", function() {
-		$('#quick_edit_panel').hide();
-	});
 	$('#quick_edit').live("click", function() {
 		$('#quick_edit_form').slideToggle();
 	});
