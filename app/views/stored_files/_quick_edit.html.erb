@@ -78,10 +78,13 @@
 			<td colspan="2" align="center">
 				<div class="submit_buttons">
 					<%= submit_tag "UPDATE" %>	
-					<%= link_to "DELETE", '#', :class => 'delete' %>	
+					<%#= link_to "DELETE", stored_file_path(@stored_file), :method => :delete, :class => "delete", :remote => true %> 
+					<%= link_to "DELETE", '#', :class => "delete" %>
 				</div>
 			</td>
 		</tr>
 	</table>
 	<% end %>
+	<%= form_for @stored_file, :remote => true, :method => :delete, :html => { :id => "quick_edit_delete" } do |f| %>
+    <% end -%>
 <% end -%>

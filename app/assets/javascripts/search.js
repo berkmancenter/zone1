@@ -84,6 +84,25 @@ $(function() {
 	$('#quick_edit').live("click", function() {
 		$('#quick_edit_form').slideToggle();
 	});
+	$('#quick_edit_form .delete').live("click", function() {
+		$('#fail_response').slideUp();
+		$('<p>').html("Are you sure you want to delete this file?").dialog({
+			buttons: [
+				{
+					text: "Yes",
+					click: function() { 
+						$('#quick_edit_delete').submit();
+						$(this).dialog('close');
+					}	
+				},
+				{
+					text: "No",
+					click: function() { $(this).dialog('close'); }	
+				}
+			]
+		});
+		return false;
+	});
 });
 
 if(!window.Zone1) {

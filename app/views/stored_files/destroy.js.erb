@@ -1,0 +1,5 @@
+$('#quick_edit_panel').hide();
+$('#response').html("File deleted!").slideDown();
+$('#file<%= params[:id] %>').slideUp(function() {
+	$(this).remove();
+});

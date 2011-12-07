@@ -62,7 +62,7 @@ class StoredFilesController < ApplicationController
     begin
       StoredFile.find(params[:id]).destroy
       respond_to do |format|
-        format.json { render :json => { :success => true } }
+        format.js
         format.html do
           flash[:notice] = "deleted"
           redirect_to root_path
@@ -71,7 +71,10 @@ class StoredFilesController < ApplicationController
     rescue Exception => e
       log_exception e
       respond_to do |format|
-        format.json { render :json => { :success => false, :message => e.to_s } }
+        format.js do
+          @message = e.to_s
+          render 'destroy_fail'
+        end
         format.html do
           flash[:error] = "Problem deleting file: #{e}"
           ::Rails.logger.warn "Warning: stored_files_controller.delete got exception: #{e}"
