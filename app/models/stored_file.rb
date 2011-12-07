@@ -102,7 +102,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def fits_mime_type=(hash)
-    if hash.keys.include?(:format_name) && hash.keys.include?(:mime_type)
+    if [:format_name, :mime_type, :file_extension].all? { |k| hash.keys.include?(k) }
 
       mime_type = MimeType.find_or_initialize_by_extension(hash[:file_extension].downcase)
 
