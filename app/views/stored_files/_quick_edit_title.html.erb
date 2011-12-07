@@ -1,0 +1,4 @@
+<%= @stored_file.original_filename %>
+<%= link_to 'Download', download_stored_file_path(@stored_file.id), :class => 'download-single' %>
+<%= link_to 'Show', stored_file_path(@stored_file.id), :class => 'show-single' %>
+<%= link_to 'Edit', edit_stored_file_path(@stored_file.id), :class => 'edit-single' %>

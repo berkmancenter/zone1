@@ -212,15 +212,20 @@
     }
   }
 }
-#quick_edit_panel { 
-  display: none;
-  position: absolute;
-  background: #FFFFFF;
+.ui-dialog {
+  border-radius: 0px;
   border: 2px solid #BCBCBC; 
+  display: none;
   padding: 0px;
   top: 0px; 
-  width: 420px;
-  h3 {
+  .ui-dialog-content {
+    padding: 0px;
+  }
+  .ui-dialog-titlebar {
+    .ui-dialog-title {
+      width: 374px;
+    }
+    border-radius: 0px;
     background: #BCBCBC;
     font-weight: normal;
     padding: 0px;
@@ -229,12 +234,13 @@
     line-height: 25px;
     a {
       float: right;
-      margin: 0px 5px 5px; 
       border-left: 1px solid #e4e4e4;
-    } 
-    .download-single {
-      border-right: 1px solid #e4e4e4;
+      margin: 0px 5px;
     }
+	.ui-dialog-titlebar-close {
+      margin: 0px;
+      top: 10px;
+    } 
   }
   table.info { 
     padding: 10px 23px;
