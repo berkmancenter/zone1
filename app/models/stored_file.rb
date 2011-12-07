@@ -311,6 +311,10 @@ class StoredFile < ActiveRecord::Base
     user.increase_available_quota!(amount_in_bytes)
   end
 
+  def flag_ids
+    self.flags.collect { |f| f.id }
+  end
+
   def has_preserved_flag?
     # TODO: Possibly Add caching here
     (self.flags & Flag.preservation).any?

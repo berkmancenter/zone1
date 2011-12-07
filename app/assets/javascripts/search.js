@@ -75,6 +75,9 @@ $(function() {
 		return false;
 	});
 
+	$('.quick_edit_link').click(function() {
+		$('#response').slideUp();
+	});
 	$('#close_quick_edit').live("click", function() {
 		$('#quick_edit_panel').hide();
 	});

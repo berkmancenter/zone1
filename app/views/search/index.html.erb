@@ -3,6 +3,7 @@
 </section>
 
 <section id="results" class="list right">
+	<p id="response"></p>
 	<hgroup class="results_options">
 		<ul>
 			<li>
@@ -75,7 +76,7 @@
 
 		<div id="files">	
 	<% @hits.each do |hit| %> 
-		<div class="file <%= cycle("even", "odd") %>" data-id="<%= hit.stored(:id) %>">
+		<div class="file <%= cycle("even", "odd") %>" data-id="<%= hit.stored(:id) %>" id="file<%= hit.stored(:id) %>">
 			<span class="icon">
 				<%= image_tag "image.png" %>
 			</span>
@@ -94,8 +95,8 @@
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
 			<span class="tags"><%= hit.stored(:indexed_tag_list).nil? ? '' : hit.stored(:indexed_tag_list).join(', ') %></span>
 			<span class="flags">
-				<%= preserved_flag_display(hit) %>
-				<%= university_flag_display(hit) %>
+				<%= preserved_flag_display(hit.stored(:flag_ids)) %>
+				<%= university_flag_display(hit.stored(:flag_ids)) %>
 			</span>
 			<span class="author"><%= hit.stored(:author) %></span>
 			<span class="contributor"><%= hit.stored(:contributor_name) %></span>
@@ -112,7 +113,5 @@
 	</hgroup>
 </section>
 <div class="clear"></div>
-
-<p class="response"></p>
 
 <div id="quick_edit_panel"></div>

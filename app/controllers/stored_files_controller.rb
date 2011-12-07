@@ -105,7 +105,6 @@ class StoredFilesController < ApplicationController
    
       respond_to do |format|
         format.js
-        format.json { render :json => { :success => true } }
         format.html do
           flash[:notice] = "File has been updated."
           redirect_to edit_stored_file_path(@stored_file)
@@ -114,7 +113,10 @@ class StoredFilesController < ApplicationController
     rescue Exception => e
       log_exception e
       respond_to do |format|
-        format.json { render :json => { :success => false, :message => e.to_s } }
+        format.js do
+          @message = e.to_s
+          render "update_fail"
+        end
         format.html do
           flash[:error] = "File update failed: #{e}"
           redirect_to edit_stored_file_path(@stored_file)
