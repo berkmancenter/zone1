@@ -45,6 +45,14 @@ class SearchController < ApplicationController
       end
     end
 
+    # filtering on tag list param
+    if params.has_key?(:indexed_tag_list)
+      last = params[:indexed_tag_list].pop
+      if !last.blank?
+        params[:indexed_tag_list] << last
+      end
+    end
+
     #must setup both instance and local variables, so @search.build can access
     @start_date = start_date = build_date_from_string_safe(params[:start_date])
     @end_date = end_date = build_date_from_string_safe(params[:end_date])
