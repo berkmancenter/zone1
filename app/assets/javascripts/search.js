@@ -65,13 +65,25 @@ $(function() {
 	});
 
 	$('#bulk-delete-submit').click(function() {
-		Zone1.clone_downloadable_checkboxes_to($(this));
-		var count = $(this).children("input:checked").length;
-		var confirm_delete;
-		confirm_delete = confirm("Are you sure you want to delete " + count + " items?");
-		if(confirm_delete) {
-			$(this).parent().submit();
-		} 
+		var bulk_delete = $('#bulk-delete');
+		Zone1.clone_downloadable_checkboxes_to(bulk_delete);
+		var count = $(bulk_delete).children("input:checked").length;
+		$('<p>').html("You may not have permission to delete all files. Are you sure you want to delete the " + count + " items?").dialog({
+			buttons: [
+				{
+					text: "Yes",
+					click: function() { 
+						$(this).dialog('close');
+						$(bulk_delete).submit();
+						return true;
+					}	
+				},
+				{
+					text: "No",
+					click: function() { $(this).dialog('close'); }	
+				}
+			]
+		});
 		return false;
 	});
 

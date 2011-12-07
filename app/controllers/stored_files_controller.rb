@@ -87,12 +87,18 @@ class StoredFilesController < ApplicationController
 
   def bulk_destroy
     stored_file_ids = params[:stored_file].keys 
+    destroyed = 0
     if stored_file_ids.is_a?(Array) && stored_file_ids.length > 0
       stored_files = StoredFile.find(stored_file_ids)
       stored_files.each do |stored_file|
-        stored_file.destroy if stored_file.can_user_destroy?(current_user)
+        if stored_file.can_user_destroy?(current_user)
+          if stored_file.destroy
+            destroyed += 1
+          end
+        end
       end      
     end
+    flash[:notice] = "#{destroyed} Files deleted."
     redirect_to search_path
   end
 
