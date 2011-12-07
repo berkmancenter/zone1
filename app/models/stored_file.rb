@@ -76,6 +76,7 @@ class StoredFile < ActiveRecord::Base
 
     string :indexed_tag_list, :stored => true, :multiple => true
     string :indexed_collection_list, :stored => true, :multiple => true
+    string :mime_hierarchy  # Used for mime hierarchy reference on search
 
     integer :id, :stored => true
     integer :batch_id, :stored => true
@@ -89,6 +90,10 @@ class StoredFile < ActiveRecord::Base
 
     time :original_date, :stored => true, :trie => true #trie optimizes the index for ranges
     time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
+  end
+
+  def mime_hierarchy
+    "#{self.mime_type_category_id}-#{self.mime_type_id}"
   end
 
   def display_name

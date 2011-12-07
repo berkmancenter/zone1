@@ -49,6 +49,12 @@ $(function() {
 	});
 	$('#list').attr('checked', true);
 
+  
+	$("#mime_type").live('change', function() {
+		var selected_option = $(this).children("option:selected");
+		$('#mime_type').attr('name', selected_option.data("class"));
+	});
+
 	$("input[type='checkbox'].toggle_column").click(function() {
 		var selector = "span." + $(this).data("column-class");
 		if($(this).attr("checked")=="checked") {

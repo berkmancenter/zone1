@@ -95,15 +95,20 @@
            				<% end -%>
            				<% end -%>
 					</td>
-					<% if @facets && @facets[:mime_type_category_id] %>
-					<td valign="top" id="category_filter">
-						Files Type
-        				<% @facets[:mime_type_category_id].each do |mc| %>
-              			<%= link_to mc[:label], mc[:url] %><br />
-            			<% end -%>
-					</td>
-            		<% end -%>
-				</tr>
+          			<td valign="top">
+			            <% if @facets && @facets[:mime_hierarchy] %>
+            			File Type
+            			<select id="mime_type">
+							<option></option>
+        					<% @facets[:mime_hierarchy].each do |opt| %>
+                			<%= content_tag :option, raw(opt[:label]),
+                                :value => opt[:id],
+                                "data-class" => opt[:class] %>
+            				<% end -%>
+            			</select>
+						<% end -%>
+          			</td>
+        		</tr>
 			</table>
 		</div>
 		<h3><a href="#">Copyright</a></h3>

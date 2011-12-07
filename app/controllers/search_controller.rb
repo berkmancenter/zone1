@@ -57,7 +57,7 @@ class SearchController < ApplicationController
         end
       end
 
-      [:flag_ids, :mime_type_category_id, :license_id, :indexed_collection_list, :batch_id].each do |facet|
+      [:flag_ids, :mime_type_id, :mime_type_category_id, :license_id, :indexed_collection_list, :batch_id].each do |facet|
         if params.has_key?(facet)
           if params[facet].is_a?(Array)
             params[facet].each { |t| with facet, t }
@@ -67,9 +67,9 @@ class SearchController < ApplicationController
         end
       end
 
-      facet :flag_ids, :mime_type_category_id, :license_id
+      facet :flag_ids, :mime_hierarchy, :license_id
 
-      if params[:people].presence
+      if params[:people].present?
         params[:people_type] ||= "author"
         with(params[:people_type].to_sym, params[:people])
       end
@@ -93,7 +93,7 @@ class SearchController < ApplicationController
   def build_searchable_facets(params)
     @facets = {}
 
-    [:flag_ids, :mime_type_category_id, :license_id].each do |facet|
+    [:flag_ids, :license_id].each do |facet|
       links = @search.facet(facet).rows.inject([]) do |arr, row|
         if StoredFile::FACETS_WITH_MULTIPLE.include?(facet)
           if !params[facet] || !params[facet].include?(row.value.to_s)
@@ -115,6 +115,31 @@ class SearchController < ApplicationController
       end
       @facets[facet] = links if links.size > 0
     end
+
+    if !params.has_key?(:mime_type_id) 
+      @mime_categories = []
+      links = []
+      @search.facet(:mime_hierarchy).rows.each do |row|
+        (mime_type_category_id, mime_type_id) = row.value.split('-')
+
+        next if !(mime_type_category_id.present? && mime_type_id.present?)
+   
+        if !params.has_key?(:mime_type_category_id) && !@mime_categories.include?(mime_type_category_id) 
+          links.push({
+            :label => self.label_mime_type_category_id(mime_type_category_id),
+            :id => mime_type_category_id,
+            :class => "mime_type_category_id"
+          })
+          @mime_categories << mime_type_category_id 
+        end
+        links.push({
+          :label => "&nbsp;&nbsp;#{self.label_mime_type_id(mime_type_id)}",
+          :id => mime_type_id,
+          :class => "mime_type_id"
+        })
+      end
+      @facets[:mime_hierarchy] = links if links.size > 0
+    end
   end
 
   def build_removeable_facets(params)
@@ -122,8 +147,8 @@ class SearchController < ApplicationController
     @hidden_facets = {}
 
     removed_facets = ["search", "tag", "start_date", "end_date", "people",
-      "flag_ids", "license_id", "mime_type_category_id", "indexed_collection_list",
-      "batch_id"]
+      "flag_ids", "license_id", "mime_type_id", "mime_type_category_id",
+      "indexed_collection_list", "batch_id"]
 
     params.each do |facet, value|
       if value.presence && removed_facets.include?(facet)
@@ -156,7 +181,9 @@ class SearchController < ApplicationController
       "batch_id" => "Batch",
       "start_date" => "#{params[:date_type]} Start Date",
       "end_date" => "#{params[:date_type]} End Date",
-      "people" => "#{params[:people_type]}"
+      "people" => "#{params[:people_type]}",
+      "mime_type_category_id" => "File Type Category",
+      "mime_type_id" => "File Type"
     }
     @removeable_facets.each do |k, v|
       if(label_map[k])
