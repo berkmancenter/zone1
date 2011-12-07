@@ -11,7 +11,7 @@ class StoredFilesController < ApplicationController
 
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
 
-    allow logged_in, :to => :download_set, :if => :download_set?
+    allow logged_in, :to => :download_set
   end
 
   def allow_destroy?
@@ -23,15 +23,9 @@ class StoredFilesController < ApplicationController
     StoredFile.cached_viewable_users(params[:id]).include?(current_user.id)
   end
 
-  # TODO: Update this later to handle stored file params
-  def download_set?
-    true
-  end
-
   def download
     @stored_file = StoredFile.find(params[:id])
-    # TODO: Ask Phunk to clean this up / refactor
-    send_file @stored_file.file.file.file
+    send_file @stored_file.file.file.file, :filename => @stored_file.original_filename
   end
 
   def edit
