@@ -57,7 +57,7 @@ class SearchController < ApplicationController
         end
       end
 
-      [:flag_ids, :mime_type_id, :mime_type_category_id, :license_id, :indexed_collection_list, :batch_id].each do |facet|
+      [:flag_ids, :mime_type_id, :mime_type_category_id, :license_id, :indexed_collection_list, :batch_id, :indexed_tag_list].each do |facet|
         if params.has_key?(facet)
           if params[facet].is_a?(Array)
             params[facet].each { |t| with facet, t }
@@ -92,6 +92,18 @@ class SearchController < ApplicationController
 
   def build_searchable_facets(params)
     @facets = {}
+
+    links = StoredFile.tag_list.inject([]) do |arr, tag|
+      if !params[:indexed_tag_list] || !params[:indexed_tag_list].include?(tag.name)
+        params[:indexed_tag_list] ||= []
+        arr.push({
+          :label => tag.name,
+          :url => url_for(params.clone.merge({ :indexed_tag_list => params[:indexed_tag_list] + [tag.name] }))
+        })
+      end
+      arr
+    end
+    @facets[:indexed_tag_list] = links if links.size > 0
 
     [:flag_ids, :license_id].each do |facet|
       links = @search.facet(facet).rows.inject([]) do |arr, row|
@@ -148,7 +160,7 @@ class SearchController < ApplicationController
 
     removed_facets = ["search", "tag", "start_date", "end_date", "people",
       "flag_ids", "license_id", "mime_type_id", "mime_type_category_id",
-      "indexed_collection_list", "batch_id"]
+      "indexed_collection_list", "batch_id", "indexed_tag_list"]
 
     params.each do |facet, value|
       if value.presence && removed_facets.include?(facet)

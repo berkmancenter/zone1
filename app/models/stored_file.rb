@@ -31,14 +31,14 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable_on :publication_types, :collections
   
   attr_accessor :skip_quota
+
   before_save :update_file_size
   after_create :decrease_available_user_quota!, :unless => :skip_quota
   after_destroy :increase_available_user_quota!
+  after_update { |record| StoredFile.destroy_cache(record) }
+  before_destroy { |record| StoredFile.destroy_cache(record) }
 
   validates_presence_of :user_id, :access_level_id
-
-  after_update { |record| Rails.cache.delete("stored-file-#{record.id}-viewable-users") }
-  before_destroy { |record| Rails.cache.delete("stored-file-#{record.id}-viewable-users") }
 
   ALWAYS_ACCESSIBLE_ATTRIBUTES = [:flaggings_attributes, :comments_attributes].freeze
 
@@ -122,6 +122,16 @@ class StoredFile < ActiveRecord::Base
     else
       logger.warn "Expected :format_name and :mime_type as keys, but got #{hash.inspect}"
       raise "FITs process not supplying appropriate format data to StoredFile."
+    end
+  end
+
+  def self.tag_list
+    Rails.cache.fetch("tag-list") do
+      Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
+        JOIN tags t ON ts.tag_id = t.id
+        WHERE taggable_type = 'StoredFile'
+        GROUP BY ts.tag_id, t.name
+        ORDER BY COUNT(*) DESC LIMIT 10")
     end
   end
 
@@ -466,4 +476,8 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
+  def self.destroy_cache(record)
+    Rails.cache.delete("tag-list")
+    Rails.cache.delete("stored-file-#{record.id}-viewable-users")
+  end
 end
