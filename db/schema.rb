@@ -111,6 +111,7 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
 
   create_table "mime_type_categories", :force => true do |t|
     t.string   "name"
+    t.string   "image"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
