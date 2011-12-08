@@ -1,0 +1,10 @@
+<h1>File Type Category</h1>
+
+<%= form_for @mime_type_category, :url => admin_mime_type_category_path(@mime_type_category), :html => { :multipart => true } do |f| %>
+<%= f.label :name %>
+<%= f.text_field :name %><br />
+<%= image_tag(@mime_type_category.image_url) if @mime_type_category.image? %><br />
+<%= f.file_field :image %>
+<%= f.hidden_field :image_cache %><br />
+<%= f.submit "Update" %>
+<% end -%>

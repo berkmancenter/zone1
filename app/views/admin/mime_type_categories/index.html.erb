@@ -1,0 +1,23 @@
+<h1>Create New mime_type_category</h1>
+
+<%= form_for @mime_type_category, :url => admin_mime_type_categories_path do |f| %>
+<%= f.label :name %>
+<%= f.text_field :name %><br />
+<%= f.submit "Update" %>
+<% end -%>
+
+<h1>mime_type_categories</h1>
+
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<th>Name</th>
+<th>Image</th>
+</tr>
+<% @mime_type_categories.each do |mime_type_category| %>
+<tr>
+<td><%= link_to mime_type_category.name, edit_admin_mime_type_category_path(mime_type_category) %></td>
+<td><%= image_tag(mime_type_category.image_url) if mime_type_category.image? %></td>
+<td><%= link_to 'Delete', admin_mime_type_category_path(mime_type_category), :method => "DELETE" %></td>
+</tr>
+<% end -%>
+</table>

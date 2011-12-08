@@ -25,6 +25,8 @@ Zone1::Application.routes.draw do
     resources :flags
     resources :roles
     resources :rights
+    resources :mime_type_categories
+    resources :mime_types
   end
   match '/admin' => 'admin::Base#index'
   match '/admin/update' => 'admin::Base#update'
