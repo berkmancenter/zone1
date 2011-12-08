@@ -54,6 +54,13 @@ $(function() {
 		if($('#people_value').val() != '') {
 			$('#people_value').attr('name', $('#people input[type=radio]:checked').val());
 		}
+		var date_type = $('input[type=radio]:checked').val();
+		if($('#start_date').val() != '') {
+			$('#start_date').attr('name', date_type + '_start_date');
+		}
+		if($('#end_date').val() != '') {
+			$('#end_date').attr('name', date_type + '_end_date');
+		}
 
 		//Hack: To send only fields with values and minimize
 		//crud sent through form

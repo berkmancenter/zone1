@@ -31,9 +31,12 @@ class SearchController < ApplicationController
   end
   
   def index
-    #must setup both instance and local variables, so @search.build can access
-    @start_date = start_date = build_date_from_string_safe(params[:start_date])
-    @end_date = end_date = build_date_from_string_safe(params[:end_date])
+    date_params = {}
+    [:original_date, :created_at].each do |date_type|
+      [:start_date, :end_date].each do |p|
+        date_params["#{date_type}_#{p}"] = build_date_from_string_safe(params["#{date_type}_#{p}"])
+      end
+    end
    
     @search = Sunspot.new_search(StoredFile)
     @search.build do
@@ -57,9 +60,13 @@ class SearchController < ApplicationController
 
       facet :flag_ids, :mime_hierarchy, :license_id
 
-      if start_date && end_date
-        params[:date_type] ||= "created_at"
-        with(params[:date_type].to_sym, start_date.beginning_of_day..end_date.end_of_day) 
+      [:original_date, :created_at].each do |date_type|
+        if date_params["#{date_type}_start_date"]
+          with(date_type).greater_than date_params["#{date_type}_start_date"].beginning_of_day 
+        end
+        if date_params["#{date_type}_end_date"]
+          with(date_type).less_than date_params["#{date_type}_end_date"].end_of_day 
+        end
       end
 
       order_by sort_column, sort_direction 
@@ -141,7 +148,9 @@ class SearchController < ApplicationController
     @removeable_facets = {}
     @hidden_facets = {}
 
-    removed_facets = ["search", "tag", "start_date", "end_date", 
+    removed_facets = ["search", "tag",
+      "created_at_start_date", "created_at_end_date",
+      "original_date_start_date", "original_date_end_date",
       "flag_ids", "license_id", "mime_type_id", "mime_type_category_id",
       "indexed_collection_list", "batch_id", "indexed_tag_list", "author",
       "contributor_name", "copyright_holder"]
@@ -175,8 +184,10 @@ class SearchController < ApplicationController
       "indexed_collection_list" => "Collection Name",
       "flag_ids" => "Flags",
       "batch_id" => "Batch",
-      "start_date" => "#{params[:date_type].to_s.humanize} Start Date",
-      "end_date" => "#{params[:date_type].to_s.humanize} End Date",
+      "created_at_start_date" => "Created After",
+      "created_at_end_date" => "Created Before",
+      "original_date_start_date" => "Original Date After",
+      "original_date_end_date" => "Original Date Before",
       "mime_type_category_id" => "File Type Category",
       "mime_type_id" => "File Type",
       "contributor_name" => "Contributor",
