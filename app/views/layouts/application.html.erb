@@ -15,7 +15,7 @@
 <a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>
 <nav>
 <% if current_user -%>
-<%= link_to 'Upload File(s)', upload_path %> |
+<%= link_to 'Upload Files', upload_path, :id => "upload_link" %> |
 <%= current_user.name %> | 
 <%= link_to 'LOGOUT', destroy_user_session_path, :method => :delete %> 
 <% else -%>
