@@ -1,0 +1,11 @@
+<% if @facets -%>
+	<% if @facets[:flag_ids] -%>
+		<% @facets[:flag_ids].each do |flag| %>
+		<%= link_to flag[:label], flag[:url] %>
+	<% end -%>
+	<% end -%>
+<% else -%>
+	<% Flag.all.each do |flag| %>
+	<%= link_to flag.label, url_for(:controller => "search", :action => "index", "flag_ids[]" => flag.id) %>
+	<% end -%>
+<% end -%>

@@ -1,12 +1,12 @@
 <div id="panel">	
 	<h3>Find Files</h3>
 
-    <% if @removeable_facets && @removeable_facets.size > 0 -%>
+	<% if @removeable_facets && @removeable_facets.size > 0 -%>
 	<div id="current_search">
 		Current Search Criteria <a href="/search">(Clear All)</a>
 		<div id="current_facets">
 		<% @removeable_facets.each do |k, v| -%>
-	  	<span><%= k %></span>:
+		<span><%= k %></span>:
 		<% v.each do |remove_link| -%>
 			<%= remove_link[:label] %> <%= link_to 'X', remove_link[:url] %>
 		<% end -%>
@@ -17,17 +17,19 @@
 	<% end -%>
 
 	<%= form_tag search_path, :method => :get, :id => 'search_form' do %>
-	<% if @hidden_facets -%>
-	<% @hidden_facets.each do |k, v| %>
-    	<% if v.is_a?(Array) %>
-    		<% v.each do |b| %>
-   			<%= hidden_field_tag "#{k}[]", b %>
-    		<% end -%>
-    	<% else -%>
-    		<%= hidden_field_tag k, v %>
-    	<% end -%>
-	<% end -%>
-	<% end -%>
+		<div id="hidden_facets">
+		<% if @hidden_facets -%>
+		<% @hidden_facets.each do |k, v| %>
+		<% if v.is_a?(Array) %>
+			<% v.each do |b| %>
+			<%= hidden_field_tag "#{k}[]", b %>
+			<% end -%>
+		<% else -%>
+			<%= hidden_field_tag k, v %>
+		<% end -%>
+		<% end -%>
+		<% end -%>
+		</div>
 	<div id="search_keyword">
 		Search by Keyword <a href="#">(SEARCH TIPS)</a>
 			<%= text_field_tag "search[]", '' %>
@@ -38,12 +40,7 @@
 		<h3><a href="#">Tags</a></h3>
 		<div id="tags">
  			<%= text_field_tag "indexed_tag_list[]" %><br />
-			<label>Popular Tags</label><br />
-			<% if @facets && @facets[:indexed_tag_list] %>
-        	<% @facets[:indexed_tag_list].each do |tag| %>
-			<%= link_to tag[:label], tag[:url] %><br />
-           	<% end -%>
-           	<% end -%>
+			<%= render "search/tag_filter" -%>
 		</div>
 		<h3><a href="#">Date</a></h3>
 		<div id="dates">
@@ -59,7 +56,7 @@
 					</td>
 					<td>
 						To
-	    				<%= text_field_tag "end_date", safe_strftime(@end_date) %>
+						<%= text_field_tag "end_date", safe_strftime(@end_date) %>
 					</td>
 				</tr>
 			</table>
@@ -70,14 +67,15 @@
 				<tr>
 					<td>
 						Creator
-						<%= radio_button_tag "people_type", "author", (!params.has_key?(:people_type) || params[:people_type] == "author") %>
+						<input type="radio" class="author" 
+						<%= radio_button_tag "people_type", "author", true %>
 						Contributor
-						<%= radio_button_tag "people_type", "contributor_name", params[:people_type] == "contributor_name" %>
+						<%= radio_button_tag "people_type", "contributor_name", false %>
 						Copyright Holder
-						<%= radio_button_tag "people_type", "copyright_holder", params[:people_type] == "copyright_holder" %>
+						<%= radio_button_tag "people_type", "copyright_holder", false %>
 					</td>
 					<td>
- 						<%= text_field_tag "people" %>
+						<input type="text" id="people_value" />
 					</td>
 				</tr>
 			</table>
@@ -88,7 +86,7 @@
 				<tr>
 					<td width="170">
 						Collection name
- 						<%= text_field_tag "indexed_collection_list" %>
+ 						<%= text_field_tag "indexed_collection_list[]" %><br />
 					</td>
 					<td width="100">
 						Batch Number
@@ -96,40 +94,20 @@
 					</td>
 				</tr>
 				<tr>
-					<td id="flag_filter">
-						<% if @facets && @facets[:flag_ids] %>
-        				<% @facets[:flag_ids].each do |flag| %>
-              			<span class="flag">
-							<%= link_to flag[:label], flag[:url] %>
-						</span>
-           				<% end -%>
-           				<% end -%>
+					<td id="flags">
+						<%= render "search/flag_filter" %>
 					</td>
-          			<td valign="top">
-			            <% if @facets && @facets[:mime_hierarchy] %>
-            			File Type
-            			<select id="mime_type">
-							<option></option>
-        					<% @facets[:mime_hierarchy].each do |opt| %>
-                			<%= content_tag :option, raw(opt[:label]),
-                                :value => opt[:id],
-                                "data-class" => opt[:class] %>
-            				<% end -%>
-            			</select>
-						<% end -%>
-          			</td>
-        		</tr>
+					<td valign="top" id="mime">
+						<%= render "search/mime_filter" %>
+					</td>
+				</tr>
 			</table>
 		</div>
 		<h3><a href="#">Copyright</a></h3>
-		<div>
-			Copyright Holder
+		<div id="license">
+			<label>Copyright Holder</label>
  			<%= text_field_tag "copyright_holder" %>
-			<% if @facets && @facets[:license_id] %>
-        	<% @facets[:license_id].each do |license| %>
-              <%= link_to license[:label], license[:url] %><br />
-            <% end -%>
-			<% end -%>
+			<%= render "search/license_filter" %>
 		</div>
 	</div>
 	<% end -%>

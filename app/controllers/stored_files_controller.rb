@@ -92,8 +92,12 @@ class StoredFilesController < ApplicationController
         end
       end      
     end
-    flash[:notice] = "#{destroyed} Files deleted."
-    redirect_to search_path
+    if destroyed == stored_file_ids.size
+      flash[:notice] = "All files deleted."
+    else 
+      flash[:notice] = "#{destroyed} file(s) deleted, you do not have access to delete all #{stored_file_ids.size} files."
+    end
+    redirect_to params[:previous_search]
   end
 
   def bulk_edit

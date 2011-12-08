@@ -49,11 +49,32 @@ $(function() {
 	});
 	$('#list').attr('checked', true);
 
-  
-	$("#mime_type").live('change', function() {
-		var selected_option = $(this).children("option:selected");
-		$('#mime_type').attr('name', selected_option.data("class"));
-	});
+ 
+	$('#search_form').submit(function() {
+		if($('#people_value').val() != '') {
+			$('#people_value').attr('name', $('#people input[type=radio]:checked').val());
+		}
+
+		//Hack: To send only fields with values and minimize
+		//crud sent through form
+		//Also tried data and data.param, but doesn't work as easily
+		//with fields allowing multiple values
+		var new_form = $('#search_form').clone();
+		if($('#search_form #mime_type').val() != '') {
+			var selected_option = $('#search_form #mime_type').children("option:selected");
+			if(selected_option.length) {
+				$(new_form).append($('<input>').attr('name', selected_option.data("class")).val(selected_option.attr("value")));
+			}
+		}
+		$.each(new_form.find('input'), function(i, v) {
+			var field = $(v);
+			if(field.attr('name') == 'utf8' || field.attr('type') == 'radio' || field.val() == '') {
+				field.remove();
+			}
+		});
+		new_form.submit();
+		return false;
+	}); 
 
 	$("input[type='checkbox'].toggle_column").click(function() {
 		var selector = "span." + $(this).data("column-class");
@@ -72,9 +93,11 @@ $(function() {
 
 	$('#bulk-delete-submit').click(function() {
 		var bulk_delete = $('#bulk-delete');
+		$(bulk_delete).children('input').remove();
 		Zone1.clone_downloadable_checkboxes_to(bulk_delete);
 		var count = $(bulk_delete).children("input:checked").length;
-		$('<p>').html("You may not have permission to delete all files. Are you sure you want to delete the " + count + " items?").dialog({
+		$(bulk_delete).append($('<input>').attr('type', 'hidden').attr('name', 'previous_search').val(location.href));
+		$('<p>').html("Are you sure you want to delete the " + count + " items?").dialog({
 			buttons: [
 				{
 					text: "Yes",

@@ -92,6 +92,17 @@
         background-position: -39px 0px;
       }
     }
+    #sort_options {
+      a {
+        display: block;
+        padding-right: 14px; 
+        background: transparent url(<%= image_path "dark_down_arrow.png?body=1" %>) right 5px no-repeat;
+      }
+      .asc {
+        color: red;
+        background: transparent url(<%= image_path "dark_up_arrow.png?body=1" %>) right 5px no-repeat;
+      }
+    }
     .paginate {
       margin: 6px 3px 6px 0px;
       float: right;

@@ -1,0 +1,28 @@
+<% if @facets -%>
+	<% if @facets[:mime_hierarchy] -%>
+		File Type
+		<select id="mime_type">
+		<option></option>
+		<% @facets[:mime_hierarchy].each do |opt| %>
+		<%= content_tag :option, raw(opt[:label]),
+			:value => opt[:id],
+			"data-class" => opt[:class] %>
+		<% end -%>
+		</select>
+	<% end -%>
+<% else -%>
+	File Type
+	<select id="mime_type">
+		<option></option>
+		<% MimeTypeCategory.all.each do |mtc| %>
+			<%= content_tag :option, mtc.name, 
+				:value => mtc.id, 
+				"data-class" => "mime_type_category_id" %>
+			<% mtc.mime_types.each do |mt| %>
+				<%= content_tag :option, raw("&nbsp;&nbsp;"+mt.name),
+					:value => mt.id,
+					"data-class" => "mime_type_id" %>
+			<% end %>
+		<% end -%> 
+	</select>
+<% end -%>

@@ -31,28 +31,6 @@ class SearchController < ApplicationController
   end
   
   def index
-    params.each do |k, v|
-      if !v.presence
-        params.delete(k)
-      end
-    end
-
-    # splits keywords into multiple facets if not quoted
-    if params.has_key?(:search)
-      last = params[:search].pop
-      if !last.match('"')
-        params[:search] += last.split(' ')
-      end
-    end
-
-    # filtering on tag list param
-    if params.has_key?(:indexed_tag_list)
-      last = params[:indexed_tag_list].pop
-      if !last.blank?
-        params[:indexed_tag_list] << last
-      end
-    end
-
     #must setup both instance and local variables, so @search.build can access
     @start_date = start_date = build_date_from_string_safe(params[:start_date])
     @end_date = end_date = build_date_from_string_safe(params[:end_date])
@@ -65,7 +43,9 @@ class SearchController < ApplicationController
         end
       end
 
-      [:flag_ids, :mime_type_id, :mime_type_category_id, :license_id, :indexed_collection_list, :batch_id, :indexed_tag_list].each do |facet|
+      [:flag_ids, :mime_type_id, :mime_type_category_id, :license_id,
+        :indexed_collection_list, :batch_id, :indexed_tag_list, :author,
+        :contributor_name, :copyright_holder].each do |facet|
         if params.has_key?(facet)
           if params[facet].is_a?(Array)
             params[facet].each { |t| with facet, t }
@@ -76,11 +56,6 @@ class SearchController < ApplicationController
       end
 
       facet :flag_ids, :mime_hierarchy, :license_id
-
-      if params[:people].present?
-        params[:people_type] ||= "author"
-        with(params[:people_type].to_sym, params[:people])
-      end
 
       if start_date && end_date
         params[:date_type] ||= "created_at"
@@ -166,9 +141,10 @@ class SearchController < ApplicationController
     @removeable_facets = {}
     @hidden_facets = {}
 
-    removed_facets = ["search", "tag", "start_date", "end_date", "people",
+    removed_facets = ["search", "tag", "start_date", "end_date", 
       "flag_ids", "license_id", "mime_type_id", "mime_type_category_id",
-      "indexed_collection_list", "batch_id", "indexed_tag_list"]
+      "indexed_collection_list", "batch_id", "indexed_tag_list", "author",
+      "contributor_name", "copyright_holder"]
 
     params.each do |facet, value|
       if value.presence && removed_facets.include?(facet)
@@ -199,17 +175,22 @@ class SearchController < ApplicationController
       "indexed_collection_list" => "Collection Name",
       "flag_ids" => "Flags",
       "batch_id" => "Batch",
-      "start_date" => "#{params[:date_type]} Start Date",
-      "end_date" => "#{params[:date_type]} End Date",
-      "people" => "#{params[:people_type]}",
+      "start_date" => "#{params[:date_type].to_s.humanize} Start Date",
+      "end_date" => "#{params[:date_type].to_s.humanize} End Date",
       "mime_type_category_id" => "File Type Category",
-      "mime_type_id" => "File Type"
+      "mime_type_id" => "File Type",
+      "contributor_name" => "Contributor",
+      "copyright_holder" => "Copyright Holder"
     }
     @removeable_facets.each do |k, v|
       if(label_map[k])
         @removeable_facets[label_map[k]] = v
         @removeable_facets.delete(k)
       end
+    end
+
+    if params.has_key?(:date_type)
+      @hidden_facets.merge!({ :date_type => params[:date_type] })
     end
   end
 

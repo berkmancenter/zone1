@@ -14,6 +14,7 @@
 			<%= editable_field(f, @attr_accessible, :allow_tags, {}, :check_box, "Allow users to add tags") %><br />
 			<%= editable_field(f, @attr_accessible, :allow_notes, {}, :check_box, "Allow users to add comments") %>
 			<% end -%>
+			<%= render("comments/form", :stored_file => @stored_file, :attrs => @attr_accessible, :f => f) unless bulk_edit? %>
 		</td>
 		<td valign="top">
 			<%= editable_field(f, @attr_accessible, :author, {}, :text_field, "Creator") %>
@@ -51,5 +52,3 @@
 <%= render "flags/form", :f => f %>
 
 <hr />
-
-<%= render("comments/form", :stored_file => @stored_file, :attrs => @attr_accessible, :f => f) unless bulk_edit? %>

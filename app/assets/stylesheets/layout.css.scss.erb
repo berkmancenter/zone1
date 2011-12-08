@@ -58,12 +58,12 @@ header {
       margin: 0px;
       font-size: 11px;
     }
-	#current_search {
+    #current_search {
       padding: 3px 25px;
       color: #838383;
       #current_facets { 
         color: #323232;
-	 	padding: 4px;	
+        padding: 4px;
         border: 1px solid #b4b4b4;
         span { font-weight: bold; }
       }
@@ -104,9 +104,9 @@ header {
       .ui-widget-content { 
         background: none;
       }
-      #batch_id { width: 90px; }
-      #indexed_collection_list { width: 140px; }
-      .flag { display: block; }
+      #tags {
+        a { display: block; }
+      }
       #dates {
         table {
           padding-top: 15px;
@@ -123,6 +123,12 @@ header {
         }
         #date_type_created_at { margin-right: 10px; }
       }
+      #batch_id { width: 90px; }
+      #indexed_collection_list { width: 140px; }
+      #flags {
+        padding-top: 10px;
+        a { display: block; }
+      }
       #people {
         input[type=radio] {
           position: relative;
@@ -130,7 +136,11 @@ header {
           margin: 0px;
         }
       }
-      #flag_filter, #category_filter { padding-top: 10px; }
+      #category_filter { padding-top: 10px; }
+      #license {
+        label { display: block; }
+        a { display: block; }
+      }
     }
   }
   #expand {
