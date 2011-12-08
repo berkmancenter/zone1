@@ -47,14 +47,19 @@ class SearchController < ApplicationController
       end
 
       [:flag_ids, :mime_type_id, :mime_type_category_id, :license_id,
-        :indexed_collection_list, :batch_id, :indexed_tag_list, :author,
-        :contributor_name, :copyright_holder].each do |facet|
+        :indexed_collection_list, :batch_id, :indexed_tag_list].each do |facet|
         if params.has_key?(facet)
           if params[facet].is_a?(Array)
             params[facet].each { |t| with facet, t }
           else
             with facet, CGI.unescape(params[facet])
           end
+        end
+      end
+
+      [:copyright_holder, :author, :contributor_name].each do |text_facet|
+        unless params[text_facet].blank?
+          fulltext(params[text_facet], :fields => [text_facet])
         end
       end
 
