@@ -1,6 +1,6 @@
 class MimeTypeCategory < ActiveRecord::Base
-  has_many :mime_type_categories
-  has_many :stored_files, :through => :mime_type_categories
+  has_many :mime_types
+  has_many :stored_files, :through => :mime_types
 
   attr_accessible :name, :image
 
@@ -14,7 +14,7 @@ class MimeTypeCategory < ActiveRecord::Base
 
   def self.all
     Rails.cache.fetch("mime_type_categories") do
-      MimeTypeCategory.find(:all)
+      MimeTypeCategory.find(:all, :include => :mime_types)
     end
   end
 
