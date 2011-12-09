@@ -17,6 +17,10 @@ class AccessLevel < ActiveRecord::Base
     AccessLevel.find_by_label("Partially Open")
   end
 
+  def self.dark
+    AccessLevel.find_by_label("Dark")
+  end
+
   def self.destroy_access_levels_cache
     Rails.cache.delete("access-levels") 
   end 

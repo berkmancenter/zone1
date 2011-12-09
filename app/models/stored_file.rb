@@ -245,8 +245,6 @@ class StoredFile < ActiveRecord::Base
   end
 
   def custom_save(params, user)
-
-logger.warn "steph: #{self.inspect}"
     if new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
       raise Exception.new( MimeType.blacklisted_message(params[:original_filename]) )
       return false
@@ -270,7 +268,6 @@ logger.warn "steph: #{self.inspect}"
       end
 
       return true
-
     else
       raise Exception.new(self.errors.full_messages.join(', '))
       return false
@@ -336,8 +333,11 @@ logger.warn "steph: #{self.inspect}"
   end
 
   def users_via_groups
-    # TODO: Add performance improvements here (possibly via low level caching, raw SQL)
-    self.groups.collect { |b| b.users }.flatten.uniq
+    if self.access_level != AccessLevel.dark
+      # TODO: Add performance improvements here (possibly via low level caching, raw SQL)
+      return self.groups.collect { |b| b.users }.flatten.uniq.collect { |u| u.id }
+    end
+    return []
   end
 
   # User can destroy if a) they have global right to delete items or
@@ -448,7 +448,7 @@ logger.warn "steph: #{self.inspect}"
       # This assumes that if the stored file access level is open
       # no global user array is generated.
 
-      users = [stored_file.user.id] + stored_file.users_via_groups.collect { |user| user.id }
+      users = [stored_file.user.id] + stored_file.users_via_groups
 
       if stored_file.has_preserved_flag?
         users += User.users_with_right("view_preserved_flag_content")

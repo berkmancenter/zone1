@@ -8,8 +8,11 @@ class User < ActiveRecord::Base
 
   # Caching related callbacks
   after_update { User.destroy_viewable_users_cache }
-  after_create { User.destroy_viewable_users_cache }
   after_destroy { User.destroy_viewable_users_cache }
+  after_create do |record|
+    record.roles << Role.find_by_name("user")
+    User.destroy_viewable_users_cache 
+  end
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
@@ -144,12 +147,12 @@ class User < ActiveRecord::Base
     end
   end
 
-  # Note: This is a class method because we want to handle
-  # when current_user is nil, without reproducing logic
-  def self.can_view_cached?(stored_file_id, current_user)
+  # Note: This assumes that open files are checked prior
+  # to this call (ie it ignores access level)
+  def can_view_cached?(stored_file_id)
     users = StoredFile.cached_viewable_users(stored_file_id)
     users += User.users_with_right("view_items")
-    current_user ? users.uniq.include?(current_user.id) : false
+    users.uniq.include?(self.id)
   end
 
   def self.all

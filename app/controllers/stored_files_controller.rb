@@ -24,9 +24,10 @@ class StoredFilesController < ApplicationController
   def allow_show?
     if StoredFile.find(params[:id]).access_level_name == "open"
       true
-    else
-      current_user.present? ? User.can_view_cached?(params[:id], current_user) : false
+    elsif current_user.present?
+      current_user.can_view_cached?(params[:id])
     end
+    false
   end
 
   def download

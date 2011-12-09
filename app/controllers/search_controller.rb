@@ -204,10 +204,10 @@ class SearchController < ApplicationController
 
     open = AccessLevel.open
     search.hits.each do |hit|
-      if current_user
-        filtered_results << hit if User.can_view_cached?(hit.stored(:id), current_user)
-      else
-        filtered_results << hit if hit.stored(:access_level_id) == open.id
+      if hit.stored(:access_level_id).to_i == open.id
+        filtered_results << hit 
+      elsif current_user.present? && current_user.can_view_cached?(hit.stored(:id))
+        filtered_results << hit 
       end
     end
 
