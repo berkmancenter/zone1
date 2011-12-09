@@ -80,13 +80,13 @@ class StoredFile < ActiveRecord::Base
 
     integer :id, :stored => true
     integer :batch_id, :stored => true
-    integer :user_id, :references => User
-    integer :flag_ids, :stored => true, :multiple => true, :references => Flag 
-    integer :license_id, :stored => true, :references => License
+    integer :user_id
+    integer :flag_ids, :stored => true, :multiple => true
+    integer :license_id, :stored => true
     integer :file_size, :stored => true
     integer :mime_type_id
     integer :mime_type_category_id
-    integer :access_level_id, :stored => true, :references => AccessLevel
+    integer :access_level_id, :stored => true
 
     time :original_date, :stored => true, :trie => true #trie optimizes the index for ranges
     time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges

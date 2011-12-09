@@ -166,10 +166,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.name_map
-    User.all.inject({}) { |h, user| h[user.id.to_s] = user.name; h }
-  end
-
   # Note: When a user is added to a group, role, or assigned a right,
   # all of these caches need to be invalidated.
   def self.destroy_viewable_users_cache

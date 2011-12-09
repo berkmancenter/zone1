@@ -3,33 +3,6 @@ class SearchController < ApplicationController
   helper_method :sort_column, :sort_direction, :per_page
   include ApplicationHelper
 
-  def label_author(value)
-    value == '' ? 'empty string' : value
-  end
-  def label_office(value)
-    value == '' ? 'empty string' : value
-  end
-  def label_flag_ids(value)
-    # Original code:
-    # Flag.find(value).label
-
-    # TODO: Possibly find a more elegant performance optimization
-    # This is an optimization because Flag.all is cached,
-    # but it's not very elegant IMO. The goal is to minimize lookup
-    # of flags on every search.
-    Flag.label_map[value.to_s]
-  end
-  def label_license_id(value)
-    # TODO: See label_flag_ids
-    License.name_map[value.to_s]
-  end
-  def label_mime_type_id(value)
-    MimeType.find(value).name
-  end
-  def label_mime_type_category_id(value)
-    MimeTypeCategory.find(value).name
-  end
-  
   def index
     date_params = {}
     [:original_date, :created_at].each do |date_type|
@@ -38,8 +11,7 @@ class SearchController < ApplicationController
       end
     end
    
-    @search = Sunspot.new_search(StoredFile)
-    @search.build do
+    @search = Sunspot.search(StoredFile) do
       if params.has_key?(:search)
         fulltext params[:search] do
           query_phrase_slop 1 
@@ -88,6 +60,7 @@ class SearchController < ApplicationController
   def build_searchable_facets(params)
     @facets = {}
 
+    # indexed tag list
     links = StoredFile.tag_list.inject([]) do |arr, tag|
       if !params[:indexed_tag_list] || !params[:indexed_tag_list].include?(tag.name)
         params[:indexed_tag_list] ||= []
@@ -100,29 +73,32 @@ class SearchController < ApplicationController
     end
     @facets[:indexed_tag_list] = links if links.size > 0
 
-    [:flag_ids, :license_id].each do |facet|
-      links = @search.facet(facet).rows.inject([]) do |arr, row|
-        if StoredFile::FACETS_WITH_MULTIPLE.include?(facet)
-          if !params[facet] || !params[facet].include?(row.value.to_s)
-            params[facet] ||= []
-            arr.push({
-              :label => self.send("label_#{facet.to_s}", row.value),
-              :url => url_for(params.clone.merge({ facet => params[facet] + [row.value] }))
-            })
-          end
-        else
-          if params[facet] != row.value.to_s
-            arr.push({
-              :label => self.send("label_#{facet.to_s}", row.value),
-              :url => url_for(params.clone.merge({ facet => row.value }))
-            })
-          end
-        end
-        arr
+    # flags
+    links = @search.facet(:flag_ids).rows.inject([]) do |arr, row|
+      if !params[:flag_ids] || !params[:flag_ids].include?(row.value.to_s)
+        params[:flag_ids] ||= []
+        arr.push({
+          :label => Flag.facet_label(row.value),
+          :url => url_for(params.clone.merge({ :flag_ids => params[:flag_ids] + [row.value] }))
+        })
       end
-      @facets[facet] = links if links.size > 0
+      arr
     end
+    @facets[:flag_ids] = links if links.size > 0
 
+    # licenses
+    links = @search.facet(:license_id).rows.inject([]) do |arr, row|
+      if params[:license_id] != row.value.to_s
+        arr.push({
+          :label => License.facet_label(row.value),
+          :url => url_for(params.clone.merge({ :license_id => row.value }))
+        })
+      end
+      arr
+    end
+    @facets[:license_id] = links if links.size > 0
+
+    # mime type hierarchy
     if !params.has_key?(:mime_type_id) 
       @mime_categories = []
       links = []
@@ -133,14 +109,14 @@ class SearchController < ApplicationController
    
         if !params.has_key?(:mime_type_category_id) && !@mime_categories.include?(mime_type_category_id) 
           links.push({
-            :label => self.label_mime_type_category_id(mime_type_category_id),
+            :label => MimeTypeCategory.facet_label(mime_type_category_id),
             :id => mime_type_category_id,
             :class => "mime_type_category_id"
           })
           @mime_categories << mime_type_category_id 
         end
         links.push({
-          :label => "&nbsp;&nbsp;#{self.label_mime_type_id(mime_type_id)}",
+          :label => "&nbsp;&nbsp;#{MimeType.facet_label(mime_type_id)}",
           :id => mime_type_id,
           :class => "mime_type_id"
         })
@@ -169,15 +145,23 @@ class SearchController < ApplicationController
             t = params.clone
             t[facet] = t[facet].select{ |b| b != v }
             @removeable_facets[facet] << {
-              :label => self.respond_to?("label_#{facet.to_s}", v) ? self.send("label_#{facet.to_s}", v) : v,
+              :label => facet == "flag_ids" ? Flag.facet_label(v) : v,
               :url => url_for(t)
             }
            end
-       else
-        @removeable_facets[facet] << {
-          :label => self.respond_to?("label_#{facet.to_s}", value) ? self.send("label_#{facet.to_s}", value) : value,
-          :url => url_for(params.clone.remove!(facet))
-        }
+        else
+          if ["license_id", "mime_type_id", "mime_type_category_id"].include?(facet)
+            klass = facet.gsub(/_id$/, '').classify.constantize
+            @removeable_facets[facet] << {
+             :label => klass.facet_label(value),
+             :url => url_for(params.clone.remove!(facet))
+            }
+          else 
+            @removeable_facets[facet] << {
+             :label => value,
+             :url => url_for(params.clone.remove!(facet))
+            }
+          end
         end
       end
     end

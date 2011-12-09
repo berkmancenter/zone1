@@ -9,16 +9,21 @@ class MimeType < ActiveRecord::Base
   before_create :downcase_extension
   before_create :set_default_category
 
-  after_update { MimeType.destroy_blacklisted_extensions_cache }
-  after_create { MimeType.destroy_blacklisted_extensions_cache }
-  after_destroy { MimeType.destroy_blacklisted_extensions_cache }
+  after_update { MimeType.destroy_cache }
+  after_create { MimeType.destroy_cache }
+  after_destroy { MimeType.destroy_cache }
 
-  def self.destroy_blacklisted_extensions_cache
-    Rails.cache.delete("file_extension_blacklist") 
-  end 
+  def self.all
+    Rails.cache.fetch("mime_types") do
+      MimeType.find(:all)
+    end
+  end
+
+  def self.facet_label(value)
+    self.all.detect { |l| l.id == value.to_i }.name
+  end
 
   def self.blacklisted_extensions
-    # TODO: Add cache expiration / sweepers
     Rails.cache.fetch("file_extension_blacklist") do
       MimeType.where(:blacklist => true).collect{ |mime_type| mime_type.extension }
     end
@@ -42,4 +47,9 @@ class MimeType < ActiveRecord::Base
   def downcase_extension
     self.extension.downcase! if !self.extension.nil?
   end
+
+  def self.destroy_cache
+    Rails.cache.delete("file_extension_blacklist") 
+    Rails.cache.delete("mime_types")
+  end 
 end

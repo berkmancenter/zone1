@@ -35,8 +35,8 @@ class Flag < ActiveRecord::Base
     end
   end
 
-  def self.label_map
-    Flag.all.inject({}) { |h, flag| h[flag.id.to_s] = flag.label; h }
+  def self.facet_label(value)
+    self.all.detect { |l| l.id == value.to_i }.label
   end
 
   def self.preservation

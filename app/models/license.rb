@@ -9,14 +9,13 @@ class License < ActiveRecord::Base
   after_destroy { License.destroy_cache }
 
   def self.all
-    # TODO: Add cache expiration
     Rails.cache.fetch("licenses") do
       License.find(:all)
     end
   end
 
-  def self.name_map
-    self.all.inject({}) { |h, license| h[license.id.to_s] = license.name; h }
+  def self.facet_label(value)
+    self.all.detect { |l| l.id == value.to_i }.name
   end
 
   private
