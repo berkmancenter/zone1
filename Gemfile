@@ -34,9 +34,6 @@ gem 'execjs'
 gem 'therubyracer'
 gem 'rake', '0.8.7'
 
-# For ERD
-gem 'railroad'
-
 group :test, :development do
   gem 'rspec' 
   gem 'rspec-rails', '~> 2.7.0'
