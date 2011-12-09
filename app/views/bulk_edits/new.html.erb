@@ -11,9 +11,7 @@
 		<%= flash[key] %>
 		</div>
 		<% end -%>
-		<% if @matching_attributes.include?("user_id") && !@matching_attributes["user_id"].nil? -%>
-		<%= f.label :contributor %>: <%= User.find(@matching_attributes["user_id"]).name %><br />
-		<% end -%>
+		<%= f.label :contributor %>: <%= @stored_file.user.present? ? @stored_file.user.name : '' %><br />
 		<%= f.label "Batch:" %> <%= @stored_file.batch_id.to_s %><br />
   		<% @stored_files.each do |stored_file| %>
     		<%= hidden_field_tag "stored_file_ids[]", stored_file.id %>
