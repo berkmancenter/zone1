@@ -12,6 +12,6 @@
 </select>
 <% else -%>
 <%= f.label "Permissions:" %>
-<%= @stored_file.access_level_name.humanize %>
+<%= @stored_file.access_level_name.to_s.humanize %>
 <% end -%>
 <br />

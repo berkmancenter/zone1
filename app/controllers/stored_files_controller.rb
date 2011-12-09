@@ -5,9 +5,11 @@ class StoredFilesController < ApplicationController
   access_control do
     allow logged_in, :to => [:create, :new]
 
-    allow logged_in, :to => [:bulk_edit, :bulk_destroy]  #permissions checked per stored file
+    allow logged_in, :to => [:bulk_edit, :bulk_destroy]
 
-    allow logged_in, :to => [:update, :edit, :download, :show], :if => :allow_show?
+    allow anonymous, :to => [:edit, :download, :show], :if => :allow_show?
+
+    allow logged_in, :to => [:update], :if => :allow_show?
 
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
 
@@ -20,7 +22,11 @@ class StoredFilesController < ApplicationController
 
   # Note: View/edit are on same form now, so this is really "can the user view or edit"
   def allow_show?
-    StoredFile.cached_viewable_users(params[:id]).include?(current_user.id)
+    if StoredFile.find(params[:id]).access_level_name == "open"
+      true
+    else
+      current_user.present? ? User.can_view_cached?(params[:id], current_user) : false
+    end
   end
 
   def download

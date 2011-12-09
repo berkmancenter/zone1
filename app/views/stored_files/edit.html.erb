@@ -24,11 +24,13 @@
 	
 		<%= render "form", :f => f %>
 
+		<% if current_user.present? -%>
 		<div class="submit_buttons">	
 		<%= f.submit "UPDATE" %>
 		<% if @stored_file.can_user_destroy?(current_user) -%>
 		<%= link_to "DELETE", stored_file_path(@stored_file), :method => :delete, :class => "delete" %> 
 	    <% end -%>
 		</div>
+		<% end -%>
 	<% end %>
 </div>

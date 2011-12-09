@@ -53,8 +53,6 @@ class StoredFile < ActiveRecord::Base
   
   mount_uploader :file, FileUploader, :mount_on => :file
 
-  FACETS_WITH_MULTIPLE = [:indexed_collection_list, :indexed_tag_list, :flag_ids].freeze
-
   searchable(:include => [:tags, :mime_type, :mime_type_category]) do
     # Note: Both text and string fields needed.
     # Solr searches text in fulltext queries, but string is also needed
@@ -66,7 +64,9 @@ class StoredFile < ActiveRecord::Base
     text :original_filename, :description
     text :contributor_name
     text :license_name, :stored => true
-    text :display_name, :stored => true
+    text :display_name, :stored => true do
+      self.title.presence || self.original_filename
+    end
 
     string :author, :stored => true
     string :office
@@ -74,9 +74,15 @@ class StoredFile < ActiveRecord::Base
     string :copyright_holder 
     string :contributor_name, :stored => true
 
-    string :indexed_tag_list, :stored => true, :multiple => true
-    string :indexed_collection_list, :stored => true, :multiple => true
-    string :mime_hierarchy  # Used for mime hierarchy reference on search
+    string :indexed_tag_list, :stored => true, :multiple => true 
+    string :indexed_collection_list, :stored => true, :multiple => true do
+      self.owner_tags_on(nil, :collections)
+    end
+    # Used for mime hierarchy reference on search
+    # Performance, to minimize hierarchy lookup
+    string :mime_hierarchy do
+      "#{self.mime_type_category_id}-#{self.mime_type_id}"
+    end
 
     integer :id, :stored => true
     integer :batch_id, :stored => true
@@ -90,14 +96,6 @@ class StoredFile < ActiveRecord::Base
 
     time :original_date, :stored => true, :trie => true #trie optimizes the index for ranges
     time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
-  end
-
-  def mime_hierarchy
-    "#{self.mime_type_category_id}-#{self.mime_type_id}"
-  end
-
-  def display_name
-    self.title.presence || self.original_filename
   end
 
   def mime_type_category_id
@@ -123,6 +121,10 @@ class StoredFile < ActiveRecord::Base
       logger.warn "Expected :format_name and :mime_type as keys, but got #{hash.inspect}"
       raise "FITs process not supplying appropriate format data to StoredFile."
     end
+  end
+
+  def indexed_tag_list
+    self.owner_tags_on(nil, :tags)
   end
 
   def self.tag_list
@@ -244,6 +246,7 @@ class StoredFile < ActiveRecord::Base
 
   def custom_save(params, user)
 
+logger.warn "steph: #{self.inspect}"
     if new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
       raise Exception.new( MimeType.blacklisted_message(params[:original_filename]) )
       return false
@@ -284,7 +287,7 @@ class StoredFile < ActiveRecord::Base
 
     if self.new_record?
       valid_attr = valid_attr + CREATE_ATTRIBUTES
-    elsif user.can_do_method?(self, "edit_items")
+    elsif user.present? && user.can_do_method?(self, "edit_items")
       valid_attr = valid_attr + ALLOW_MANAGE_ATTRIBUTES
     end
 
@@ -300,19 +303,11 @@ class StoredFile < ActiveRecord::Base
     valid_attr.uniq
   end
 
-  def indexed_collection_list
-    self.owner_tags_on(nil, :collections)
-  end
-
   def collection_list
     #so form value does not have to be manually set
     @collection_list ||= self.anonymous_tag_list(:collections)
   end
   
-  def indexed_tag_list
-    self.owner_tags_on(nil, :tags)
-  end
-
   def tag_list
     #so form value does not have to be manually set
     @tag_list ||= self.anonymous_tag_list(:tags)
@@ -348,6 +343,8 @@ class StoredFile < ActiveRecord::Base
   # User can destroy if a) they have global right to delete items or
   # b) they are the contributor and flag is not preserved or university record
   def can_user_destroy?(user)
+    return false if user.nil?
+
     return true if user.can_do_global_method?("delete_items")
 
     return true if self.user_id == user.id && !self.has_preserved_or_record_flag?
@@ -385,12 +382,14 @@ class StoredFile < ActiveRecord::Base
   def flag_map(user)
     flag_map = []
 
-    Flag.all.each do |flag|
-      flagging = self.flaggings.detect { |f| f.flag_id == flag.id }
-      if flagging
-        flag_map << { :flagging => flagging, :flag => flag }
-      elsif user.can_flag?(flag)
-        flag_map << { :flagging => self.flaggings.build(:flag_id => flag.id), :flag => flag }
+    if user.present?
+      Flag.all.each do |flag|
+        flagging = self.flaggings.detect { |f| f.flag_id == flag.id }
+        if flagging
+          flag_map << { :flagging => flagging, :flag => flag }
+        elsif user.can_flag?(flag)
+          flag_map << { :flagging => self.flaggings.build(:flag_id => flag.id), :flag => flag }
+        end
       end
     end
 
@@ -446,8 +445,8 @@ class StoredFile < ActiveRecord::Base
     Rails.cache.fetch("stored-file-#{id}-viewable-users") do
       stored_file = StoredFile.find(id, :include => :user)
 
-      #TODO: Does this instantiate a user instance for each user returned by the .all?
-      return User.all.collect { |user| user.id } if stored_file.access_level.name == "open"
+      # This assumes that if the stored file access level is open
+      # no global user array is generated.
 
       users = [stored_file.user.id] + stored_file.users_via_groups.collect { |user| user.id }
 
