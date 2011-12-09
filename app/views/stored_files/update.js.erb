@@ -1,5 +1,3 @@
-$("#file<%= @stored_file.id %> .tags").html("<%= @stored_file.indexed_tag_list.nil? ? '' : @stored_file.indexed_tag_list.join(', ') %>");
-$("#file<%= @stored_file.id %> .flags").html('<%= preserved_flag_display(@stored_file.flag_ids) %><%= university_flag_display(@stored_file.flag_ids) %>');
-$('#response').html("<%=j @stored_file.original_filename + " updated" %>").slideDown();
-$("#quick_edit_panel").parent().remove();
-$("#quick_edit_panel").remove();
+$("#file<%= @stored_file.id %> .tags").html("<%=j @stored_file.indexed_tag_list.nil? ? '' : @stored_file.indexed_tag_list.join(', ') %>");
+$("#file<%= @stored_file.id %> .flags").html("<%=j preserved_flag_display(@stored_file.flag_ids) %><%=j university_flag_display(@stored_file.flag_ids) %>");
+zone_one_search.close_quickview("<%=j @stored_file.original_filename + " updated" %>");
