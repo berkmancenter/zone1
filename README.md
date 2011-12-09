@@ -17,15 +17,16 @@ Notes on Stack, Dependencies
 - Background Jobs: resque + redis
 - Performance: Rails low-level caching to local disk storage
 
-- apache/nginx + passenger
-** if using apache
-*** must install mod_xsendfile, see https://tn123.org/mod_xsendfile/
-*** must configure Rails enviornment to include  
+apache/nginx + passenger
+--------
+* must install mod_xsendfile, see https://tn123.org/mod_xsendfile/
+* must configure Rails enviornment to include  
     # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for apache
 
-** if using nginx
-*** no additional configuration of websever is required
-*** must configure Rails enviornment to include 
+nginx
+--------
+* no additional configuration of websever is required
+* must configure Rails enviornment to include 
     # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for nginx
 
 Solr Notes
