@@ -10,22 +10,21 @@
 </head>
 
 <body>
-
-<header>
-<a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>
-<nav>
-<% if current_user -%>
-<%= link_to 'Upload Files', upload_path, :id => "upload_link" %> |
-<%= current_user.name %> | 
-<%= link_to 'LOGOUT', destroy_user_session_path, :method => :delete %> 
-<% else -%>
-<%= link_to 'LOG IN', new_user_session_path %>
-<% end -%>
-</nav>
-<div class="clear"></div>
-</header>
-
-<%= yield %>
-
+	<div id="wrapper">
+		<header>
+			<a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>
+			<nav>
+			<% if current_user -%>
+			<%= link_to 'Upload Files', upload_path, :id => "upload_link" %> |
+			<%= current_user.name %> | 
+			<%= link_to 'LOGOUT', destroy_user_session_path, :method => :delete %> 
+			<% else -%>
+			<%= link_to 'LOG IN', new_user_session_path %>
+			<% end -%>
+			</nav>
+			<div class="clear"></div>
+		</header>
+		<%= yield %>
+	</div>
 </body>
 </html>
