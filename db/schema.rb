@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111202121251) do
+ActiveRecord::Schema.define(:version => 20111212183505) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -231,6 +231,7 @@ ActiveRecord::Schema.define(:version => 20111202121251) do
     t.boolean  "allow_tags"
     t.integer  "mime_type_id"
     t.date     "original_date"
+    t.boolean  "has_thumbnail",     :default => false
   end
 
   add_index "stored_files", ["access_level_id"], :name => "index_stored_files_on_access_level_id"

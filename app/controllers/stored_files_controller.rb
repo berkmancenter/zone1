@@ -32,17 +32,14 @@ class StoredFilesController < ApplicationController
   end
 
   def download
-    @stored_file = StoredFile.find(params[:id])
     #:filename => @stored_file.original_filename
     send_file @stored_file.file_url, :x_sendfile => true
   end
 
   def thumbnail
-    @stored_file = StoredFile.find(params[:id])
-
-    #Because our files are not stored in a pbulic directory
-    #we must use send_file to pass data to the browser
-    send_file @stored_file.file_url(:thumb), :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
+    #TODO: use thumbnail_url in StoredFile model. Also, don't instantiate an object just to use a single field
+    stored_file = StoredFile.find(params[:id])
+    send_file stored_file.file_url(:thumbnail), :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
   end
 
   def show
@@ -175,9 +172,6 @@ class StoredFilesController < ApplicationController
   end
  
   def create
-    # Note: We jump through some logical hoops to delay saving the new StoredFile 
-    # instance if this is a SFTP-only request. This is how we avoid saving orphaned
-    # StoredFile instances to the DB during a SFTP-only request.
     if current_user.nil?
       render :json => {:success => false, :message => "It doesn't look like you're logged in."}
       return
@@ -186,22 +180,22 @@ class StoredFilesController < ApplicationController
     is_web_upload = params.has_key?(:name) && params.has_key?(:file)
     is_sftp_only = params[:sftp_only] == '1'
 
-    stored_file = StoredFile.new
-
     # Note: This is done because the custom_save handles accepted attributes
     params[:stored_file].merge!({ :user_id => current_user.id,
-      :original_filename => FileUploader.sanitize_filename(params.delete(:name)),
+      :original_filename => params.delete(:name),
       :file => params.delete(:file)
     })
+
+    stored_file = StoredFile.new
 
     exceptions = []
     if !is_sftp_only
       begin
         # custom_save gets its own exception handling because we might still
         # need to enqueue a RemoteFileImporter job after custom_save barfs
-        Rails.logger.debug "custom saving!"
         stored_file.custom_save(params[:stored_file], current_user)
-        Resque.enqueue(FitsRunner, stored_file.id)
+        #        stored_file.enqueue_post_process
+        stored_file.post_process  #inline for DEV only
       rescue Exception => e
         exceptions << e
       end          
@@ -221,7 +215,7 @@ class StoredFilesController < ApplicationController
         session[:remote_import_temp_batch_ids] ||= {}
         session[:remote_import_temp_batch_ids][params[:temp_batch_id]] = true
         file_params = params[:stored_file].dup
-        #Resque will barf trying to JSON serialize any binary entries in file_params
+        # Resque will barf trying to JSON serialize any binary entries in file_params
         file_params.delete :file
         # TODO: some kind of confirmation that this job was enqueued for X number of files
         Resque.enqueue(RemoteFileImporter, params[:sftp_username], file_params)

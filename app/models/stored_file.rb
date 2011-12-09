@@ -1,4 +1,5 @@
 class StoredFile < ActiveRecord::Base
+  require 'RMagick'
 
   include ApplicationHelper
 
@@ -30,6 +31,8 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
   
+  attr_accessor :wants_thumbnail
+
   attr_accessor :skip_quota
 
   before_save :update_file_size
@@ -50,13 +53,13 @@ class StoredFile < ActiveRecord::Base
   CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES).freeze
 
   FITS_ATTRIBUTES = [:file_size, :md5, :fits_mime_type].freeze
-  
+
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags, :mime_type, :mime_type_category]) do
-    # Note: Both text and string fields needed.
-    # Solr searches text in fulltext queries, but string is also needed
-    # for with in search
+    # Note: Both text and string fields needed. Solr searches text in fulltext
+    # queries, but string is also needed for with in search.
+    # trie => true optimizes the index for ranges
     text :author
     text :office
     text :title
@@ -94,8 +97,8 @@ class StoredFile < ActiveRecord::Base
     integer :mime_type_category_id
     integer :access_level_id, :stored => true
 
-    time :original_date, :stored => true, :trie => true #trie optimizes the index for ranges
-    time :created_at, :trie => true, :stored => true  #trie optimizes the index for ranges
+    time :original_date, :stored => true, :trie => true
+    time :created_at, :stored => true, :trie => true   
   end
 
   def mime_type_category_id
@@ -139,9 +142,7 @@ class StoredFile < ActiveRecord::Base
 
   def flag_set?(flag)
     #must use flaggings here instead of flags, because of bulk edit
-
     #in bulk edit, flags are not defined, because we're creating a new stored file
-
     #flaggings are defined for the new bulk_edit stored file
    
     set_flag_ids = self.flaggings.inject([]) do |array, flagging|
@@ -150,11 +151,6 @@ class StoredFile < ActiveRecord::Base
     end
 
     set_flag_ids.include?(flag.id)
-  end
-  
-  def initialize(params={})
-    super
-    @skip_quota = params[:skip_quota]
   end
 
   def decrease_available_user_quota!
@@ -226,17 +222,17 @@ class StoredFile < ActiveRecord::Base
     # this directly modifies the params, so nothing needs to bet set
     # or returned after executed
 
-    if params.has_key?(:flaggings_attributes)
-      Flag.all.each do |flag|
-        if params[:flaggings_attributes].has_key?(flag.id.to_s)
-          if params[:flaggings_attributes][flag.id.to_s].has_key?(:user_id)
-            if !user.can_flag?(flag)
-              params[:flaggings_attributes].delete(flag.id.to_s)
-            end
-          elsif params[:flaggings_attributes][flag.id.to_s][:_destroy] == "1"
-            if !user.can_unflag?(flag)
-              params[:flaggings_attributes].delete(flag.id.to_s)
-            end
+    return unless params.has_key?(:flaggings_attributes)
+    Flag.all.each do |flag|
+      flag_id = flag.id.to_s
+      if params[:flaggings_attributes].has_key?(flag_id)
+        if params[:flaggings_attributes][flag_id].has_key?(:user_id)
+          if !user.can_flag?(flag)
+            params[:flaggings_attributes].delete(flag_id)
+          end
+        elsif params[:flaggings_attributes][flag_id][:_destroy] == "1"
+          if !user.can_unflag?(flag)
+            params[:flaggings_attributes].delete(flag_id)
           end
         end
       end
@@ -289,7 +285,9 @@ class StoredFile < ActiveRecord::Base
 
     if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
       desired_access_level = AccessLevel.find(params[:access_level_id])
-      valid_attr << :access_level_id if desired_access_level && user.can_set_access_level?(self, desired_access_level)
+      if desired_access_level && user.can_set_access_level?(self, desired_access_level)
+        valid_attr << :access_level_id
+      end
     end
     valid_attr << :tag_list if self.allow_tags == true
     
@@ -356,6 +354,8 @@ class StoredFile < ActiveRecord::Base
   end
 
   def update_tags(param, context, user)
+#    ::Rails.logger.debug "PHUNK skipping update_tags to reduce log spam"
+#    return  #TODO: uncomment this before committing
     begin
       existing_tags = self.anonymous_tag_list(context).split(", ")
       submitted_tags = param.gsub(/\s+/, '').split(',')
@@ -411,24 +411,60 @@ class StoredFile < ActiveRecord::Base
     group_map
   end
 
-  def process_images
-    Rails.logger.debug "!!!!!!!!!!process images - FITS COMPLETE? #{stored_file.fits_complete?}"
-    if is_image? && manipulation_supported_by_rmagick?
-      Rails.logger.debug "!!!!!!!!recreate versions"
-      stored_file.file.recreate_versions!
+  def post_process
+    fits_updated = set_fits_attributes
+
+    self.wants_thumbnail = true
+    ::Rails.logger.debug "PHUNK: START recreate_versions!"
+    self.file.recreate_versions! rescue thumbnail_cache_cleanup
+    self.wants_thumbnail = false
+    ::Rails.logger.debug "PHUNK: DONE recreate_versions!"
+
+    if self.file.has_thumbnail?
+      current_thumbnail_path = self.file.thumbnail.url
+
+      # If the current thumbnail is not a jpg, replace it with one we create
+      if current_thumbnail_path !~ /\.jpg$/i
+        jpg_path = thumbnail_path(current_thumbnail_path)
+        im = Magick::ImageList.new(current_thumbnail_path).first
+        # Write the file to disk with the .jpg extension and imagemagick converts to jpg
+        im.write(jpg_path)
+
+        # If it was just created correctly, delete the previous, non-jpg one
+        if File.exist? jpg_path
+          self.has_thumbnail = true
+          File.delete current_thumbnail_path
+        end
+      end
+    else
+      # TODO: We could not generate a thumbnail for this file, so default to the mime_type_category
+      # TODO: handle stored_file with nil mime_type, too
+      ::Rails.logger.debug "PHUNK: Could not generate thumbnail. Go fish."
+    end
+    self.save! if (fits_updated || self.has_thumbnail)
+  end
+
+  def file_url(*args)
+    # Overridden version of CarrierWave::Mount.file_url to do special handling for :thumbnail
+    file_path = self.file.url(*args)
+
+    if args.first == :thumbnail
+      thumbnail_path(file_path)
+    else
+      file_path
     end
   end
 
-  def is_image?
-    true
+  def thumbnail_url
+    # Helper to get thumbnail if its defined, else get mime_type
+    #TODO: I'd like to avoid doing this lookup for every stored file. Perhaps MimeTypeCategory
+    # should have a cached hash of :mime_type_category_id => icon_filename ?
+    self.has_thumbnail ? self.file_url(:thumbnail) : 'no_thumbnail_for_you.jpg'
   end
 
-  def manipulation_supported_by_rmagick?
-    true
-  end
-
-  def fits_complete?
-    md5.present?
+  def enqueue_post_process
+    ::Rails.logger.debug "PHUNK: stored_file.ENQUEUE_post_process firing with self.id: #{self.id}"
+    Resque.enqueue(PostProcessor, self.id)
   end
 
   def update_fits_attributes
@@ -437,12 +473,12 @@ class StoredFile < ActiveRecord::Base
     return (set_fits_attributes && save) || false
   end
 
-  def set_fits_attributes(file_url=nil)
+  def set_fits_attributes(file_path=nil)
     # Note: Does NOT save changes to database
     # Returns: Boolean based on whether or not FITS returned usable metadata
-    file_url ||= self.file.url
+    file_path ||= self.file_url
     begin
-      metadata = Fits::analyze(file_url)
+      metadata = Fits::analyze(file_path)
       if metadata.class == Hash and metadata.keys.length > 0
         FITS_ATTRIBUTES.each do |name|
           self.send("#{name}=", metadata[name]) if metadata[name].present?
@@ -479,9 +515,30 @@ class StoredFile < ActiveRecord::Base
 
   private
 
+  def thumbnail_cache_cleanup
+    # Delete cached files that have been orphaned in their cache directory.
+    # Note that cache_dir is always going to be specific to this stored_file
+    # instance, but we are still explicit about what files we try to delete,
+    # just to be on the safe side. (It should never matter, really.)
+    return if self.file.cache_name.nil? || self.file.cache_dir.nil?
+
+    cache_dir = File.dirname(File.expand_path(self.file.cache_name, self.file.cache_dir))
+    base_name = File.basename(self.file.cache_name)
+    cache_files = [
+             File.expand_path(base_name, cache_dir),
+             File.expand_path('thumbnail_' + base_name, cache_dir)
+            ]
+    cache_files.each {|f| File.delete(f) rescue ''}
+    Dir.rmdir cache_dir    
+  end
+
+  def thumbnail_path(file_path)
+    file_path.sub( /(\.+[^\.]*|)$/, '.jpg' ) unless file_path.nil?
+  end
+
   def update_file_size
     if self.file_size.nil? && file.present? && file_changed?
-      self.file_size = file.file.size rescue 'update_file_size failed'
+      self.file_size = file.file.size rescue 0
     end
   end
 
