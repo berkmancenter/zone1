@@ -43,16 +43,8 @@ class Flag < ActiveRecord::Base
     Flag.find_all_by_name(PRESERVED)
   end
 
-  def preserved?
-    PRESERVED.include?(self.name)
-  end
-
   def self.selected
     Flag.find_all_by_name(SELECTED)
-  end
-
-  def selected?
-    SELECTED.include?(self.name)
   end
 
   private

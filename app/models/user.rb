@@ -62,10 +62,6 @@ class User < ActiveRecord::Base
     update_attribute(:quota_used, new_quota_used)
   end
 
-  def quota_exceeded?
-    self.quota_used >= self.quota_max
-  end
-
   def percent_quota_available
     (self.quota_used.to_f / self.quota_max.to_f)*100
   end
@@ -146,10 +142,6 @@ class User < ActiveRecord::Base
         WHERE ra.subject_type = 'User'
         AND r.action = '#{right}'").collect { |user| user.id }
     end
-  end
-
-  def is_admin?
-    User.users_with_right("view_admin").include?(self.id)
   end
 
   # Note: This is a class method because we want to handle

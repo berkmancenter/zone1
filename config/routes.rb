@@ -4,7 +4,7 @@ Zone1::Application.routes.draw do
 
   root :to => "home#index"
 
-  resources :bulk_edits
+  resources :bulk_edits, :only => [:new, :create]
 
   resources :stored_files, :as => :stored_file do
     collection do
@@ -16,17 +16,16 @@ Zone1::Application.routes.draw do
       post :toggle_method
       get :download
     end
-    resources :comments
   end
-  resources :groups
+  resources :groups, :only => [:new, :create, :edit, :update, :destroy, :index]
 
   namespace :admin, :as => :admin do
-    resources :users
-    resources :flags
-    resources :roles
-    resources :rights
-    resources :mime_type_categories
-    resources :mime_types
+    resources :users, :only => [:edit, :update, :index]
+    resources :flags, :only => [:show, :create, :edit, :update, :destroy, :index]
+    resources :roles, :only => [:show, :create, :edit, :update, :destroy, :index]
+    resources :rights, :only => [:show, :create, :edit, :update, :destroy, :index]
+    resources :mime_type_categories, :only => [:show, :create, :edit, :update, :destroy, :index]
+    resources :mime_types, :only => [:show, :create, :edit, :update, :destroy, :index]
   end
   match '/admin' => 'admin::Base#index'
   match '/admin/update' => 'admin::Base#update'
@@ -34,7 +33,7 @@ Zone1::Application.routes.draw do
   match 'upload' => 'stored_files#new', :as => :upload
   match 'search' => 'search#index', :as => :search
 
-  resources :sftp_users
+  resources :sftp_users, :only => :create
   mount Resque::Server, :at => '/resque'
 
 end
