@@ -232,9 +232,6 @@ class StoredFilesController < ApplicationController
     set = DownloadSet.new(selected_files)
     
     send_file set.path
-
-    #TODO when we get the x_sendfile implemented, we will need a cron script to do the clean up
-    File.delete(set.path) if File.file?(set.path)
   end
 
 
