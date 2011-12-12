@@ -22,11 +22,11 @@ var zone_one_search = {
 			if($(this).hasClass('expanded')) {
 				$('#accordion .ui-accordion-content').slideUp();
 				$('#accordion h3').removeClass('ui-state-active').removeClass('ui-state-focus');
-				$(this).removeClass('expanded').html('Expand All');
+				$(this).removeClass('expanded').html('Expand All<span></span>');
 			} else {
 				$('#accordion .ui-accordion-content').slideDown();
 				$('#accordion h3').addClass('ui-state-active').addClass('ui-state-focus');
-				$(this).addClass('expanded').html('Collapse All');
+				$(this).addClass('expanded').html('Collapse All<span></span>');
 			}
 		});
 	},
@@ -76,7 +76,7 @@ var zone_one_search = {
 			return false;
 		});
 	},
-	setup_search: function() { 
+	setup_search: function() {
 		$('#search_form').submit(function() {
 			if($('#people_value').val() != '') {
 				$('#people_value').attr('name', $('#people input[type=radio]:checked').val());
@@ -106,6 +106,10 @@ var zone_one_search = {
 					field.remove();
 				}
 			});
+
+			//Form must be appended to doc in order to submit in FF
+			new_form.hide();
+			$('body').prepend(new_form);
 			new_form.submit();
 			return false;
 		});

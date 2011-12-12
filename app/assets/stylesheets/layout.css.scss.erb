@@ -154,9 +154,16 @@ header {
     height: 29px; 
     a {
       display: inline-block;
-      padding: 9px 60px 0px 0px;
+      padding: 9px 50px 0px 0px;
       font-weight: bold;
       color: #000;
+      span {
+        display: inline-block;
+        width: 6px;
+		height: 10px;
+        margin-left: 6px;
+        background: url(<%= image_path "dark_right_arrow.png" %>) 0px 2px no-repeat;
+      }
     }
   }
 }

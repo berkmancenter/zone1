@@ -20,12 +20,11 @@ class StoredFilesController < ApplicationController
     StoredFile.find(params[:id]).can_user_destroy?(current_user)
   end
 
-  # Note: View/edit are on same form now, so this is really "can the user view or edit"
   def allow_show?
     if StoredFile.find(params[:id]).access_level_name == "open"
-      true
+      return true
     elsif current_user.present?
-      current_user.can_view_cached?(params[:id])
+      return current_user.can_view_cached?(params[:id])
     end
     false
   end
