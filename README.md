@@ -20,6 +20,7 @@ Notes on Stack, Dependencies
 apache/nginx + passenger
 --------
 * must install mod_xsendfile, see https://tn123.org/mod_xsendfile/
+** You must be sure to verify the module is loading in Apache, use apachectl -t -D DUMP_MODULES
 * must set the following directives in VirtualHost
 ** XSendFile On
 ** XSendFilePath $RAILS_ROOT/assets
