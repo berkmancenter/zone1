@@ -1,5 +1,6 @@
 require 'spec_helper'
 
 describe MimeTypeCategory do
-  pending "add some examples to (or delete) #{__FILE__}"
+  it { should have_many :mime_types }
+  it { should have_many :stored_files }
 end

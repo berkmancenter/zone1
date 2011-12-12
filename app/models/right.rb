@@ -8,4 +8,6 @@ class Right < ActiveRecord::Base
     :source_type => "Role"
 
   attr_accessible :action, :description, :role_ids
+
+  # TODO: Possibly add callbacks here to destroy various rights assigned to user, group, role
 end

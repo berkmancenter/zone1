@@ -24,23 +24,6 @@ describe StoredFile do
   #Flag.stub!(:preserved).and_return([flag])
   #FlagClass = doubleflag.stub(:name).and_return(Flag.PRESERVED_NAMES.first) # set name to PRESERVED
 
-  describe "#display_name" do
-    let(:stored_file) { Factory(:stored_file, :title => "Test Name") }
-    let(:stored_file2) { Factory(:stored_file, :original_filename => "foobar") }
-
-    context "when stored file has title" do
-      it "should return title" do
-        stored_file.display_name.should == stored_file.title
-      end
-    end
-
-    context "when stored file has no title" do
-      it "should return original_filename" do
-        stored_file2.display_name.should == stored_file2.original_filename
-      end
-    end
-  end
-
   describe "#license_name" do
     let(:license) { Factory(:license) }
     let(:stored_file) { Factory(:stored_file, :license_id => license.id) }
@@ -175,7 +158,7 @@ describe StoredFile do
         group.users = [user, user2, user3]
       end
       it "stored file users_via_groups should map to users" do
-        stored_file.users_via_groups.should == [user, user2, user3]
+        stored_file.users_via_groups.should == [user.id, user2.id, user3.id]
       end
     end
   end
@@ -326,9 +309,6 @@ describe StoredFile do
         stored_file.access_level.update_attribute(:name, "open")
         user1.inspect
       end
-      it "should be accessible to non-owner" do
-        StoredFile.cached_viewable_users(stored_file.id).include?(user1.id).should == true    
-      end
     end
 
     context "stored file that is partially open" do
@@ -407,7 +387,6 @@ describe StoredFile do
         (@stored_file.attr_accessible_for(@params, @user) & StoredFile::CREATE_ATTRIBUTES).should == StoredFile::CREATE_ATTRIBUTES
       end
     end
-
 
     context "when an existing record" do
       it "should NOT include CREATE_ATTRIBUTES" do

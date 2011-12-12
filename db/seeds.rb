@@ -195,7 +195,6 @@ Right.create([{ :action => "add_preserved", :description => "Ability to add PRES
  ri21, ri22, ri23, ri24, ri25, ri26, ri27, ri28, ri29, ri30,
  ri31) = Right.all
 
-
 role_admin.rights = Right.all
 role_admin.save
 role_steward.rights = [ri1, ri2, ri3, ri17, ri27, ri28, ri29] # preservation flags, view preserved flag content

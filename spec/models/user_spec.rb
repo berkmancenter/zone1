@@ -163,29 +163,6 @@ describe User do
     end
   end
 
-  describe "#quota_exceeded?" do
-    context "when quota used > quota max" do
-      let(:user) { Factory(:user, :quota_used => 101, :quota_max => 100) }
-      it "should return true" do
-        user.quota_exceeded?.should == true
-      end
-    end
-
-    context "when quota used = quota max" do
-      let(:user) { Factory(:user, :quota_used => 100, :quota_max => 100) }
-      it "should return true" do
-        user.quota_exceeded?.should == true
-      end
-    end
-
-    context "when quota used < quota max" do
-      let(:user) { Factory(:user, :quota_used => 99, :quota_max => 100) }
-      it "should return false" do
-        user.quota_exceeded?.should == false
-      end
-    end
-  end
-
   describe "#percent_quota_available" do
     let(:user) { Factory(:user, :quota_used => 100, :quota_max => 100) }
     it "should return percentage as a float" do
@@ -356,64 +333,7 @@ describe User do
     end
   end
 
-  describe "#is_admin?" do
-    let(:user1) { Factory(:user) }
-    let(:user2) { Factory(:user) }
-    let(:user3) { Factory(:user) }
-    let(:admin_right) { Factory(:right, :action => "view_admin") }
-    let(:group1) { Factory(:group, :assignable_rights => true) }
-    let(:group2) { Factory(:group, :assignable_rights => true) }
-    let(:group3) { Factory(:group, :assignable_rights => false) }
-    let(:role1) { Factory(:role) }
-    let(:role2) { Factory(:role) }
-
-    context "admin rights via group" do
-      before(:each) do
-        group1.users << user1
-        group1.rights << admin_right
-        group2.users << user2
-        group3.users << user3
-        group3.rights << admin_right
-      end
-      it "user in group with admin right should be admin" do
-        user1.is_admin?.should == true
-      end
-      it "user in group without admin right should be admin" do
-        user2.is_admin?.should == false
-      end
-      it "user in group without assignable_rights should not be admin" do
-        user3.is_admin?.should == false
-      end
-    end
-
-    context "admin rights via role" do
-      before(:each) do
-        role1.rights << admin_right
-        user1.roles << role1
-        user2.roles << role2
-      end
-      it "user with role with admin right should be admin" do
-        user1.is_admin?.should == true
-      end
-      it "user with role without admin right should not be admin" do
-        user2.is_admin?.should == false
-      end
-    end
-    
-    context "admin rights via user" do
-      before(:each) do
-        user1.rights << admin_right
-      end
-      it "user with admin right should be admin" do
-        user1.is_admin?.should == true
-      end
-      it "user without admin right should not be admin" do
-        user2.is_admin?.should == false
-      end
-    end
-  end
-
-  describe ".can_view_cached?" do
+  describe "#can_view_cached?" do
     let(:user1) { Factory(:user) } #owner
     let(:user2) { Factory(:user) } #not owner, no rights
     let(:user3) { Factory(:user) } #right via group
@@ -434,19 +354,19 @@ describe User do
 
     context "view items access" do
       it "stored file owner should allow view" do
-        User.can_view_cached?(stored_file.id, user1).should == true
+        user1.can_view_cached?(stored_file.id).should == true
       end
       it "random user should not allow view" do
-        User.can_view_cached?(stored_file.id, user2).should == false
+        user2.can_view_cached?(stored_file.id).should == false
       end
       it "user in group with view_items right should allow view" do
-        User.can_view_cached?(stored_file.id, user3).should == true
+        user3.can_view_cached?(stored_file.id).should == true
       end
       it "user with role with view_items right should allow view" do
-        User.can_view_cached?(stored_file.id, user4).should == true
+        user4.can_view_cached?(stored_file.id).should == true
       end
       it "user with view_items right should allow view" do
-        User.can_view_cached?(stored_file.id, user5).should == true
+        user5.can_view_cached?(stored_file.id).should == true
       end
     end
 
@@ -534,17 +454,6 @@ describe User do
       assert !Rails.cache.exist?("users")
       User.all
       assert Rails.cache.exist?("users")
-    end
-  end
-
-  describe ".name_map" do
-    before do
-      @u1=Factory(:user, :name => "1")
-      @u2=Factory(:user, :name => "2")
-      @u3=Factory(:user, :name => "3")
-    end
-    it "should return a map of user.id.to_s => user.name" do
-      User.name_map.should == {@u1.id.to_s=>@u1.name, @u2.id.to_s=>@u2.name, @u3.id.to_s=>@u3.name}
     end
   end
 end

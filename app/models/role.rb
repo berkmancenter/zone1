@@ -9,9 +9,16 @@ class Role < ActiveRecord::Base
   attr_accessible :name, :right_ids
 
   # Caching related callbacks
-  after_update { Group.destroy_viewable_users_cache }
-  after_create { Group.destroy_viewable_users_cache }
-  after_destroy { Group.destroy_viewable_users_cache }
+  after_update { Role.destroy_cache }
+  after_create { Role.destroy_cache }
+  after_destroy { Role.destroy_cache }
+
+  def self.user_rights
+    Rails.cache.fetch("user-rights") do
+      role = Role.find_by_name("user")
+      role.present? ? role.rights : []
+    end
+  end 
 
   def self.cached_viewable_users(right)
     Rails.cache.fetch("roles-viewable-users-#{right}") do
@@ -27,7 +34,8 @@ class Role < ActiveRecord::Base
 
   private
 
-  def self.destroy_viewable_users_cache
+  def self.destroy_cache
+    Rails.cache.delete("user-rights")
     Rails.cache.delete_matched(%r{roles-viewable-users-*})
   end
 end

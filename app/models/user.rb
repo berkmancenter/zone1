@@ -9,13 +9,7 @@ class User < ActiveRecord::Base
   # Caching related callbacks
   after_update { User.destroy_viewable_users_cache }
   after_destroy { User.destroy_viewable_users_cache }
-  after_create do |record|
-    #TODO
-    #test suite needs this role defined first
-    #shouldn't we check to see if this user has already been built with the user role?
-    record.roles << Role.find_by_name("user")
-    User.destroy_viewable_users_cache 
-  end
+  after_create { User.destroy_viewable_users_cache }
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
@@ -86,7 +80,8 @@ class User < ActiveRecord::Base
     # A users rights includese all rights assigned through
     # groups, roles, and directly to rights, through the 
     # polymorphic right_assignments table
-    rights = [self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
+    rights = [Role.user_rights + self.rights + self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights }]
+    rights = rights.flatten.uniq.collect { |r| r.action }
     rights.presence || []
   end
 

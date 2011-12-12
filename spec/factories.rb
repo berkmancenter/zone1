@@ -4,10 +4,6 @@ FactoryGirl.define do
     sequence(:email) {|n| "jdoe_#{n}@gmail.com" }
     password 'abcdefg'
     password_confirmation 'abcdefg'
-    after_build do |user|
-      #user's after_create callback expects a role with a name user 
-      Factory.create(:role, :name => "user") unless Role.find_by_name("user").present?
-    end
   end
 
   factory :access_level do

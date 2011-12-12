@@ -47,7 +47,7 @@ class StoredFile < ActiveRecord::Base
     :license_id, :publication_type_list, :groups_stored_files_attributes,
     :access_level_id, :original_date].freeze
 
-  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file, :original_date] + ALLOW_MANAGE_ATTRIBUTES).freeze
+  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES).freeze
 
   FITS_ATTRIBUTES = [:file_size, :md5, :fits_mime_type].freeze
   
