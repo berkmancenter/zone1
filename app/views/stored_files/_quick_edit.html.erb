@@ -52,7 +52,7 @@
 	<tr>
 </table>
 
-<% if current_user -%>
+<% if current_user.present? -%>
 	<a href="#" id="quick_edit">Quick Edit<span></span></a>
 
 	<%= form_for @stored_file, :remote => true, :html => { :id => "quick_edit_form" } do |f| %>
@@ -70,8 +70,9 @@
 			<td colspan="2" align="center">
 				<div class="submit_buttons">
 					<%= submit_tag "UPDATE" %>	
-					<%#= link_to "DELETE", stored_file_path(@stored_file), :method => :delete, :class => "delete", :remote => true %> 
+					<% if @stored_file.can_user_destroy?(current_user) %>
 					<%= link_to "DELETE", '#', :class => "delete" %>
+					<% end -%>
 				</div>
 			</td>
 		</tr>
