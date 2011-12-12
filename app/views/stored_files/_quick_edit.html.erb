@@ -38,7 +38,7 @@
 			</p>
 			<p>
 				<label>Attributes:</label>
-				<span>TODO: Mime type, flags</span>
+				<span><%= @stored_file.mime_type.name %>, <%= @stored_file.flags.collect { |f| f.label }.join(', ') %></span>
 			</p>
 			<p>
 				<label>Copyright:</label>
