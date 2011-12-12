@@ -122,6 +122,16 @@ puts "Generating content type"
 ContentType.create([{ :name => "image" }, { :name => "doc" }])
 (c1, c2) = ContentType.all
 
+#Roles are needed before users because
+#user role is automatically added to
+#new users
+puts "Generating roles"
+Role.create([{ :name => "admin" },
+  { :name => "steward" },
+  { :name => "records_manager" },
+  { :name => "user" }])
+(role_admin, role_steward, role_records_manager, role_user) = Role.all
+
 puts "Generating users"
 User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Steph' },
              {:email => 'bgadoury@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Phunk' },
@@ -185,12 +195,6 @@ Right.create([{ :action => "add_preserved", :description => "Ability to add PRES
  ri21, ri22, ri23, ri24, ri25, ri26, ri27, ri28, ri29, ri30,
  ri31) = Right.all
 
-puts "Generating roles"
-Role.create([{ :name => "admin" },
-  { :name => "steward" },
-  { :name => "records_manager" },
-  { :name => "user" }])
-(role_admin, role_steward, role_records_manager, role_user) = Role.all
 
 role_admin.rights = Right.all
 role_admin.save
@@ -201,13 +205,11 @@ role_records_manager.save
 role_user.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23, ri25] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
 role_user.save
 
-# Assign user role to all users
-user_steph.roles << [role_admin, role_user]
-user_bgadoury.roles << role_user
-user_etann.roles << role_user
-user_admin.roles << [role_admin, role_user]
-user_brianb.roles << [role_admin, role_user]
-user_user.roles << [role_user]
+# User role is automatically assigned to all users
+user_steph.roles << role_admin
+user_bgadoury.roles << role_admin
+user_admin.roles << role_admin
+user_brianb.roles << role_admin
 
 puts "Generating licenses"
 License.create([{ :name => 'All Rights Reserved' },

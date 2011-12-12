@@ -10,6 +10,9 @@ class User < ActiveRecord::Base
   after_update { User.destroy_viewable_users_cache }
   after_destroy { User.destroy_viewable_users_cache }
   after_create do |record|
+    #TODO
+    #test suite needs this role defined first
+    #shouldn't we check to see if this user has already been built with the user role?
     record.roles << Role.find_by_name("user")
     User.destroy_viewable_users_cache 
   end
