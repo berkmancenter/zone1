@@ -31,7 +31,7 @@
 		<% end -%>
 		</div>
 	<div id="search_keyword">
-		Search by Keyword <a href="#">(SEARCH TIPS)</a>
+		Search by Keyword <a href="#" id="tips">(SEARCH TIPS)</a>
 		<%= text_field_tag "search[]", '' %>
 		<input type="image" src="<%= image_path "search.png" %>" />
 	</div>
@@ -39,8 +39,9 @@
 	<div id="accordion">
 		<h3><a href="#">Tags</a></h3>
 		<div id="tags">
- 			<%= text_field_tag "indexed_tag_list[]" %><br />
+ 			<%= text_field_tag "indexed_tag_list[]" %>
 			<%= render "search/tag_filter" -%>
+			<div class="clear"></div>
 		</div>
 		<h3><a href="#">Date</a></h3>
 		<div id="dates">
@@ -116,4 +117,8 @@
 
 <div id="expand">
 <a href="#">Expand All<span></span></a>
+</div>
+
+<div id="search_tips">
+<p>Here are some search tips!!</p>
 </div>

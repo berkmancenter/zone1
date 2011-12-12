@@ -97,7 +97,7 @@ header {
         border-top: 1px solid #b9b9b9;
         background: transparent url(<%= image_path "accordion.png" %>) right 0px no-repeat;
         padding: 5px 0px 0px 0px;
-        a { padding: 0px 0px 3px 0px; }
+        a { padding: 0px 0px 3px 0px; font-weight: bold; }
       }
       .ui-accordion-content {
         padding: 0px 0px 15px 0px;
@@ -110,7 +110,14 @@ header {
         background: none;
       }
       #tags {
-        a { display: block; }
+        a { 
+          display: block;
+          width: 49%;
+          float: left;
+          text-transform: none;
+          color: #3a6697;
+        }
+        input#indexed_tag_list_ { display: block; margin-bottom: 10px; }
       }
       #dates {
         table {
@@ -145,7 +152,9 @@ header {
       #license {
         label { display: block; }
         a { display: block; }
+        #copyright_holder { margin-bottom: 10px; }
       }
+      #mime { padding-top: 10px; }
     }
   }
   #expand {
@@ -165,6 +174,10 @@ header {
         background: url(<%= image_path "dark_right_arrow.png" %>) 0px 2px no-repeat;
       }
     }
+  }
+  #tips { color: #3a6697; }
+  #search_tips {
+    display: none;
   }
 }
 

@@ -1,12 +1,12 @@
 <% if @facets -%>
 	<% if @facets[:indexed_tag_list] -%>
-		<label>Popular Tags</label><br />
+		<label>Browse Popular Tags</label><br />
 		<% @facets[:indexed_tag_list].each do |tag| %>
 		<%= link_to tag[:label], tag[:url] %>
 		<% end -%>
 	<% end -%>
 <% else -%>
-	<label>Popular Tags</label><br />
+	<label>Browse Popular Tags</label><br />
 	<% StoredFile.tag_list.each do |tag| %>
 	<%= link_to tag.name, url_for(:controller => "search", :action => "index", "indexed_tag_list[]" => tag.name) %>
 	<% end -%>

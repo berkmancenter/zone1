@@ -77,6 +77,9 @@ var zone_one_search = {
 		});
 	},
 	setup_search: function() {
+		$('#tips').click(function() {
+			$('#search_tips').dialog({ resizable: false });
+		});
 		$('#search_form').submit(function() {
 			if($('#people_value').val() != '') {
 				$('#people_value').attr('name', $('#people input[type=radio]:checked').val());
