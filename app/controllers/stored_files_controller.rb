@@ -57,7 +57,9 @@ class StoredFilesController < ApplicationController
     @title = 'EDIT'
 
     respond_to do |format|
-      format.html
+      format.html do
+        render 'show_edit'
+      end
       format.js
     end
   end
@@ -69,7 +71,7 @@ class StoredFilesController < ApplicationController
     @attr_accessible = []
     @title = 'DETAIL'
 
-    render 'edit'
+    render 'show_edit'
   end
 
 

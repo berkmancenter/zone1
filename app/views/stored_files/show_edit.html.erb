@@ -14,7 +14,7 @@
 		<h5><%= @stored_file.original_filename %></h5>
 		<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
 		<%= f.label :file_size %>: <%= number_to_human_size(@stored_file.file_size) %><br />
-	    <%= f.label :url %>: <%= link_to url_for(:action => "show", :controller => "stored_files", :id => @stored_file.id, :only_path => false), stored_file_path(@stored_file) %><br />
+	    <%= f.label :url %>: <%= link_to stored_file_url(@stored_file), stored_file_path(@stored_file) %><br />
 		<% if @stored_file.batch_id -%>
 		<%= f.label "Batch:" %> <%= @stored_file.batch_id %><br />
 		<% end -%>
