@@ -128,12 +128,22 @@ class BulkEditsController < ApplicationController
         #and it include it in the params so it can be updated or destroyed
         flagging_id = stored_file.find_flagging_id_by_flag_id(flagging[:flag_id]) 
 
+        #There are 4 scenarios here:
+        # if stored file has flag (flagging_id is present):
+        # -- if destroy is "1":
+        # ---- flag is deleted, with merged params (Delete)
+        # -- if destroy is "0":
+        # ---- flag is updated, flagging[:id] is set to flagging_id, with merged params (Update)
+        # if stored file does not have flag:
+        # -- if destroy is "1":
+        # ---- nothing is done, params are not merged (Ignore for this stored file)
+        # -- if destroy is "0":
+        # ---- flag is created, with merged params (Create)
+        
         #flagging_id wont be found when stored file doesn't have the flag set
         #This would create a new flagging
         flagging[:id] = flagging_id if flagging_id.present?
 
-        # If there is no flagging id, and destroy is called, we do 
-        # not merge the param. IE - nothing is done.
         if !(flagging_id.nil? && flagging["_destroy"] == "1")
           eligible_flaggings.merge!({key => flagging})
         end
@@ -153,12 +163,22 @@ class BulkEditsController < ApplicationController
         #so it can be updated or destroyed accordingly
         groups_stored_files_id = stored_file.find_groups_stored_files_id_by_group_id(group[:group_id])
 
+        #There are 4 scenarios here:
+        # if stored file has group (groups_stored_files_id is present):
+        # -- if destroy is "1":
+        # ---- group assignment is deleted, with merged params (Delete)
+        # -- if destroy is "0":
+        # ---- group assignment is updated, group[:id] is set to groups_stored_files_id, with merged params (Update)
+        # if stored file does not have group:
+        # -- if destroy is "1":
+        # ---- nothing is done, params are not merged (Ignore for this stored file)
+        # -- if destroy is "0":
+        # ---- group assignment is created, with merged params (Create)
+        
         #groups_stored_files_id won't be found when stored file doesn't have this group set
         #This would create a new group
         group[:id] = groups_stored_files_id if groups_stored_files_id.present?
 
-        # If there is no group_stores_files_id, and destroy is called, we do 
-        # not merge the param. IE - nothing is done.
         if !(groups_stored_files_id.nil? && group["_destroy"] == "1")
           eligible_groups.merge!({key => group})
         end
