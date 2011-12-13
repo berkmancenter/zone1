@@ -16,6 +16,7 @@ Zone1::Application.routes.draw do
       post :toggle_method
       get :download
     end
+    resources :comments
   end
   resources :groups, :only => [:new, :create, :edit, :update, :destroy, :index]
 

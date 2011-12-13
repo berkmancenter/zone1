@@ -17,10 +17,6 @@ module StoredFilesHelper
     params[:controller] == "bulk_edits"
   end
 
-  def edit?
-    params[:action] == "edit"
-  end
-
   def university_display(stored_file)
     if stored_file.flags.detect { |f| f == Flag.univ_record }
       "Yes"

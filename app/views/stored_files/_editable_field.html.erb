@@ -10,5 +10,9 @@
 	<% end -%>
 <% else -%>
 	<%= form.label "#{label}:" %>
+	<% if type == :check_box %>
+	<%= @stored_file.send(field) ? "Yes" : "No" %><br />
+	<% else -%>
 	<%= @stored_file.send(field) %><br />
+	<% end -%>
 <% end -%>
