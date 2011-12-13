@@ -35,6 +35,7 @@ class Role < ActiveRecord::Base
   private
 
   def self.destroy_cache
+    Rails.cache.delete_matched(%r{user-rights-*})
     Rails.cache.delete("user-rights")
     Rails.cache.delete_matched(%r{roles-viewable-users-*})
   end

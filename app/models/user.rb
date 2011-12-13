@@ -7,9 +7,9 @@ class User < ActiveRecord::Base
   acts_as_tagger
 
   # Caching related callbacks
-  after_update { User.destroy_viewable_users_cache }
-  after_destroy { User.destroy_viewable_users_cache }
-  after_create { User.destroy_viewable_users_cache }
+  after_update { |record| User.destroy_viewable_users_cache(record) }
+  after_destroy { |record| User.destroy_viewable_users_cache(record) }
+  after_create { |record| User.destroy_viewable_users_cache(record) }
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
@@ -76,15 +76,16 @@ class User < ActiveRecord::Base
   end
 
   def all_rights
-    # TODO: Low level caching on this later
     # A users rights includese all rights assigned through
     # groups, roles, and directly to rights, through the 
     # polymorphic right_assignments table
     #TODO: Fix crazy long lines
-    rights = [Role.user_rights + self.rights + self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights }]
-    rights = rights.flatten.uniq.collect { |r| r.action }
-    rights = [self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights } + self.rights].flatten.uniq.collect { |r| r.action }
-    rights.presence || []
+
+    Rails.cache.fetch("user-rights-#{self.id}") do
+      rights = [Role.user_rights + self.rights + self.groups.collect { |g| g.allowed_rights } + self.roles.collect { |r| r.rights }]
+      rights = rights.flatten.uniq.collect { |r| r.action }
+      rights.presence || []
+    end
   end
 
   def can_do_global_method?(method)
@@ -163,7 +164,8 @@ class User < ActiveRecord::Base
 
   # Note: When a user is added to a group, role, or assigned a right,
   # all of these caches need to be invalidated.
-  def self.destroy_viewable_users_cache
+  def self.destroy_viewable_users_cache(record)
+    Rails.cache.delete("user-rights-#{record.id}")
     Rails.cache.delete("users")
     Rails.cache.delete_matched(%r{users-viewable-users-*})
     Rails.cache.delete_matched(%r{roles-viewable-users-*})

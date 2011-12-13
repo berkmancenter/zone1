@@ -53,6 +53,7 @@ class Group < ActiveRecord::Base
   end
 
   def self.destroy_viewable_users_cache
+    Rails.cache.delete_matched(%r{user-rights-*})
     Rails.cache.delete_matched(%r{groups-viewable-users-*})
   end
 end
