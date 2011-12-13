@@ -207,9 +207,8 @@ class StoredFile < ActiveRecord::Base
 
     if id_array.length > 1
       logger.debug "self.flaggings.inspect=" + self.flaggings.inspect
-      logger.debug "flagging_attributes.inspect = " + flagging_attributes.inspect
       logger.debug "id_array = " + id_array.inspect
-      raise "Should find one flagging.id"
+      raise "Something isn't right.  StoredFile #{self.id} has #{id_array.count} flaggings.  It should have one or none."
 
     elsif id_array.length == 1
       return id_array.to_s

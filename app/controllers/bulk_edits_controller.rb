@@ -35,15 +35,30 @@ class BulkEditsController < ApplicationController
     else
       stored_files = StoredFile.find(params[:stored_file_ids])
 
+      #Run the bulk edit inside a transaction because
+      #if one save completes but another fails, all changes
+      #should be rolled back.  This also covers issues clearing
+      #flaggings or groups.
+      StoredFile.transaction do
 
-      stored_files.each do |stored_file|
+        stored_files.each do |stored_file|
 
-         #TODO only append flagging and groups params per stored_file, get rest of params once, not in loop
-         eligible_params = eligible_params_for(stored_file)
+          #TODO only append flagging and groups params per stored_file
+          #get other params once, not in loop
+          eligible_params = eligible_params_for(stored_file)
 
-         stored_file.custom_save(eligible_params, current_user)
-      
-      end
+          logger.debug "eligible_params used for bulk edit = #{eligible_params.inspect}"
+
+          #remove existing flaggings and replace with bulk edit choices
+          if eligible_params.has_key?("flaggings_attributes") #must use quotes
+            stored_file.flaggings.clear
+            logger.debug "clearing flaggings for stored file #{stored_file.id}"
+          end
+
+          stored_file.custom_save(eligible_params, current_user)
+
+        end #stored_file.each
+      end #StoredFile.transaction
       
       flash[:notice] = "Files updated."
       redirect_to :action => "new", :stored_file_ids => params[:stored_file_ids]
