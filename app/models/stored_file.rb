@@ -56,7 +56,7 @@ class StoredFile < ActiveRecord::Base
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
-  searchable(:include => [:tags, :mime_type, :mime_type_category]) do
+  searchable(:include => [:tags, :mime_type, :mime_type_category], :auto_index => false) do
     # Note: Both text and string fields needed. Solr searches text in fulltext
     # queries, but string is also needed for with in search.
     # trie => true optimizes the index for ranges

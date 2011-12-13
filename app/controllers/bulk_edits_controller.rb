@@ -57,6 +57,8 @@ class BulkEditsController < ApplicationController
 
           stored_file.custom_save(stored_file_params, current_user)
 
+          stored_file.index
+
         end #stored_file.each
       end #StoredFile.transaction
       

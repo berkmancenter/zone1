@@ -130,6 +130,8 @@ class StoredFilesController < ApplicationController
       @stored_file = StoredFile.find(params[:id])
 
       @stored_file.custom_save(params[:stored_file], current_user)
+        
+      @stored_file.index
    
       respond_to do |format|
         format.js
