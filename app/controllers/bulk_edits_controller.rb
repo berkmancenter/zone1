@@ -132,9 +132,11 @@ class BulkEditsController < ApplicationController
         #This would create a new flagging
         flagging[:id] = flagging_id if flagging_id.present?
 
-
-        eligible_flaggings.merge!({key => flagging})
-
+        # If there is no flagging id, and destroy is called, we do 
+        # not merge the param. IE - nothing is done.
+        if !(flagging_id.nil? && flagging["_destroy"] == "1")
+          eligible_flaggings.merge!({key => flagging})
+        end
       end
     end
 
@@ -155,9 +157,11 @@ class BulkEditsController < ApplicationController
         #This would create a new group
         group[:id] = groups_stored_files_id if groups_stored_files_id.present?
 
-
-        eligible_groups.merge!({key => group})
-
+        # If there is no group_stores_files_id, and destroy is called, we do 
+        # not merge the param. IE - nothing is done.
+        if !(groups_stored_files_id.nil? && group["_destroy"] == "1")
+          eligible_groups.merge!({key => group})
+        end
       end
     end
 
