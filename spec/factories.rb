@@ -11,10 +11,6 @@ FactoryGirl.define do
     label 'test_label'
   end
 
-  factory :content_type do
-    sequence(:name) { |n| "test_content_type #{n}" }
-  end
-
   factory :flag do
     name 'test_flag'
     label 'test_label'
@@ -51,7 +47,6 @@ FactoryGirl.define do
     original_filename 'test_stored_file'
     user
     access_level
-    content_type
   end
 
   factory :flagging do

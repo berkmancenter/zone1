@@ -11,7 +11,6 @@ Flag.delete_all
 User.delete_all
 Group.delete_all
 StoredFile.delete_all
-ContentType.delete_all
 Role.delete_all
 Right.delete_all
 Disposition.delete_all
@@ -117,10 +116,6 @@ Flag.create([{ :name => 'NOMINATED_FOR_PRESERVATION', :label => 'Nominated for P
             { :name => 'PRESERVED', :label => 'Preserved' },
             { :name => 'MAY_BE_UNIVERSITY_RECORD', :label => 'May be University Record' },
             { :name => 'UNIVERSITY_RECORD', :label => 'University Record' }])
-
-puts "Generating content type"
-ContentType.create([{ :name => "image" }, { :name => "doc" }])
-(c1, c2) = ContentType.all
 
 #Roles are needed before users because
 #user role is automatically added to

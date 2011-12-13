@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111212183505) do
+ActiveRecord::Schema.define(:version => 20111213220639) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -33,10 +33,6 @@ ActiveRecord::Schema.define(:version => 20111212183505) do
 
   add_index "comments", ["stored_file_id"], :name => "index_comments_on_stored_file_id"
   add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
-
-  create_table "content_types", :force => true do |t|
-    t.string "name", :null => false
-  end
 
   create_table "disposition_actions", :force => true do |t|
     t.string "action"
@@ -214,7 +210,6 @@ ActiveRecord::Schema.define(:version => 20111212183505) do
     t.string   "original_filename"
     t.string   "office"
     t.integer  "access_level_id",                      :null => false
-    t.integer  "content_type_id"
     t.string   "format_version"
     t.string   "md5"
     t.integer  "file_size"
@@ -236,7 +231,6 @@ ActiveRecord::Schema.define(:version => 20111212183505) do
 
   add_index "stored_files", ["access_level_id"], :name => "index_stored_files_on_access_level_id"
   add_index "stored_files", ["batch_id"], :name => "index_stored_files_on_batch_id"
-  add_index "stored_files", ["content_type_id"], :name => "index_stored_files_on_content_type_id"
   add_index "stored_files", ["license_id"], :name => "index_stored_files_on_license_id"
   add_index "stored_files", ["mime_type_id"], :name => "index_stored_files_on_mime_type_id"
   add_index "stored_files", ["user_id"], :name => "index_stored_files_on_user_id"

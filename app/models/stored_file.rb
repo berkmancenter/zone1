@@ -5,7 +5,6 @@ class StoredFile < ActiveRecord::Base
 
   belongs_to :license
   belongs_to :user
-  belongs_to :content_type
   belongs_to :access_level
   belongs_to :batch
   has_many :comments, :dependent => :destroy

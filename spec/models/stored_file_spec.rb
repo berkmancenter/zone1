@@ -3,7 +3,6 @@ require 'spec_helper'
 describe StoredFile do
   it { should belong_to :license }
   it { should belong_to :user }
-  it { should belong_to :content_type }
   it { should belong_to :access_level }
   it { should belong_to :batch }
   it { should have_many :comments }
