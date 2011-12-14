@@ -8,7 +8,7 @@ class StoredFilesController < ApplicationController
 
     allow logged_in, :to => [:bulk_edit, :bulk_destroy]
 
-    allow all, :to => [:edit, :download, :show], :if => :allow_show?
+    allow all, :to => [:thumbnail, :edit, :download, :show], :if => :allow_show?
 
     allow logged_in, :to => [:thumbnail, :show, :update, :edit, :download], :if => :allow_show?
 
