@@ -4,7 +4,7 @@ class FileUploader < CarrierWave::Uploader::Base
   storage :file
 
   version :thumbnail, :if => :wants_thumbnail? do
-    process :resize_to_limit => [100, 100]
+    process :resize_to_limit => [200, 200]
   end
 
   def wants_thumbnail?(uploader)
