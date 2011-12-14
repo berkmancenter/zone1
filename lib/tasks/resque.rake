@@ -1,8 +1,17 @@
 require 'resque/tasks'
 
-# start rails environment for each worker as it starts up
-task "resque:setup" => :environment do
-  # Fix for resque workers failing with postgres error after first successful job
-  Resque.before_fork = Proc.new { ActiveRecord::Base.establish_connection }
-end
+namespace :resque do
+  desc "Setup resque"
+  task :setup do 
+    Resque.before_fork = Proc.new { ActiveRecord::Base.establish_connection }
+  end
 
+  desc "Kill resque"
+  task :kill do
+    if File.exist?("#{Rails.root}/var/run/resque-work.pid")
+      Process.kill(9, File.read("#{Rails.root}/var/run/resque-work.pid").to_i)
+      sleep(2)
+      File.delete("#{Rails.root}/var/run/resque-work.pid")
+    end
+  end
+end

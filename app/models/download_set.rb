@@ -8,28 +8,20 @@ class DownloadSet
   attr_reader :path, :file
 
   def initialize(selected_stored_files)
-    @path = "#{Rails.root}/tmp/download_#{SecureRandom.hex(8)}.zip"
+    @path = "#{Rails.root}/downloads/download_#{SecureRandom.hex(8)}.zip"
     manifest_path = @path+"_manifest.txt"
+
     @file = Zip::ZipFile.open(@path, Zip::ZipFile::CREATE) do |download_set|
-      
       File.open(manifest_path, 'w') do |manifest|
-
         manifest_header(manifest)
-
         selected_stored_files.each_with_index do |stored_file, index|
-
           update_set(stored_file.file.to_s, stored_file.original_filename, index, download_set)
           update_manifest(stored_file, index, manifest)
-        
         end
-
         manifest_footer(manifest)
-
       end
 
-
       update_set(manifest_path, "manifest.txt", -1, download_set)
-
     end
   end
 

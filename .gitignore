@@ -8,6 +8,7 @@ config/resque.yml
 db/*.sqlite3
 log/
 uploads/
+downloads/
 tmp/
 sunspot-solr.pid
 public/coverage
