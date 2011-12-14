@@ -41,16 +41,19 @@ module StoredFilesHelper
   end
 
   def preview(stored_file)
-    if stored_file.file_url(:thumb)
-      return image_tag(thumbnail_stored_file_path(stored_file), :class => "thumbnail", :alt => "Thumbnail")
-    end
-  end
-
-  def search_thumbnail(hit)
-    if hit.stored(:has_thumbnail)
-      return image_tag(thumbnail_stored_file_path(hit.stored(:id)), :class => "thumbnail")
+    # stored_file is either a StoredFile or a Solr Hit
+    if stored_file.is_a?(StoredFile)
+      if stored_file.has_thumbnail
+        return image_tag(thumbnail_stored_file_path(stored_file.id), :class => 'thumbnail')
+      else
+        return image_tag("/mime_type_cat_icons/#{stored_file.mime_type.mime_type_category_id}.png", :class => 'thumbnail')
+      end 
     else
-      return image_tag("/mime_type_cat_icons/#{hit.stored(:mime_type_category_id)}.png", :class => "thumbnail")
-    end 
+      if stored_file.stored(:has_thumbnail)
+        return image_tag(thumbnail_stored_file_path(stored_file.stored(:id)), :class => "thumbnail")
+      else
+        return image_tag("/mime_type_cat_icons/#{stored_file.stored(:mime_type_category_id)}.png", :class => "thumbnail")
+      end 
+    end
   end
 end

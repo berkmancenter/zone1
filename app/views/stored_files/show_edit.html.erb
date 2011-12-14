@@ -11,7 +11,7 @@
 		</div>
 		<% end -%>
 		<div id="thumbnail">
-		<%= image_tag thumbnail_stored_file_path(@stored_file) %>
+			<%= preview @stored_file %>
 		</div>
 		<h5><%= @stored_file.original_filename %></h5>
 		<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
