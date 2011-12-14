@@ -44,13 +44,13 @@ module StoredFilesHelper
     # stored_file is either a StoredFile or a Solr Hit
     if stored_file.is_a?(StoredFile)
       if stored_file.has_thumbnail
-        return image_tag(thumbnail_stored_file_path(stored_file.id), :class => 'thumbnail')
+        return image_tag(thumbnail_stored_file_path(stored_file.id) + ".jpg", :class => 'thumbnail')
       else
         return image_tag("/mime_type_cat_icons/#{stored_file.mime_type.mime_type_category_id}.jpg", :class => 'thumbnail')
       end 
     else
       if stored_file.stored(:has_thumbnail)
-        return image_tag(thumbnail_stored_file_path(stored_file.stored(:id)), :class => "thumbnail")
+        return image_tag(thumbnail_stored_file_path(stored_file.stored(:id)) + ".jpg", :class => "thumbnail")
       else
         return image_tag("/mime_type_cat_icons/#{stored_file.stored(:mime_type_category_id)}.jpg", :class => "thumbnail")
       end 
