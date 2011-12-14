@@ -45,4 +45,12 @@ module StoredFilesHelper
       return image_tag(thumbnail_stored_file_path(stored_file), :class => "thumbnail", :alt => "Thumbnail")
     end
   end
+
+  def search_thumbnail(hit)
+    if hit.stored(:has_thumbnail)
+      return image_tag(thumbnail_stored_file_path(hit.stored(:id)), :class => "thumbnail")
+    else
+      return image_tag("/mime_type_cat_icons/#{hit.stored(:mime_type_category_id)}.png", :class => "thumbnail")
+    end 
+  end
 end

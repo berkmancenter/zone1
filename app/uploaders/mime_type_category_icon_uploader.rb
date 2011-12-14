@@ -1,13 +1,18 @@
 class MimeTypeCategoryIconUploader < CarrierWave::Uploader::Base
+  #include CarrierWave::RMagick
 
   storage :file
 
+  #process :resize_to_fit => [200,200]
+  #process :convert => 'png'
+
   def extension_white_list
-    %w(jpg jpeg gif png)
+    #%w(jpg jpeg gif png)
+    %w(png)
   end
 
-  def default_url
-    "/mime_type_cat_icons/default_mime_type_cat_icon.png"
+  def filename
+    @name = "#{self.model.id}.png"
   end
 
   def store_dir

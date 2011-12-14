@@ -93,11 +93,13 @@ class StoredFile < ActiveRecord::Base
     integer :license_id, :stored => true
     integer :file_size, :stored => true
     integer :mime_type_id
-    integer :mime_type_category_id
+    integer :mime_type_category_id, :stored => true
     integer :access_level_id, :stored => true
 
     time :original_date, :stored => true, :trie => true
     time :created_at, :stored => true, :trie => true   
+
+    boolean :has_thumbnail, :stored => true
   end
 
   def mime_type_category_id
@@ -445,6 +447,8 @@ class StoredFile < ActiveRecord::Base
       ::Rails.logger.debug "PHUNK: Could not generate thumbnail. Go fish."
     end
     self.save! if (fits_updated || self.has_thumbnail)
+
+    self.index
   end
 
   def file_url(*args)
@@ -491,7 +495,6 @@ class StoredFile < ActiveRecord::Base
           self.send("#{name}=", metadata[name]) if metadata[name].present?
         end
 
-        Sunspot.commit  #index these changes
         return true
       else
         ::Rails.logger.warn "Un-usable FITS metadata was: #{metadata.inspect}"
