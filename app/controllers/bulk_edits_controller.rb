@@ -53,8 +53,6 @@ class BulkEditsController < ApplicationController
           stored_file_params.merge! flaggings_attributes_for(stored_file)
           stored_file_params.merge! groups_attributes_for(stored_file)
 
-          logger.debug "custom stored file params used for bulk edit = #{stored_file_params.inspect}"
-
           stored_file.custom_save(stored_file_params, current_user)
 
           stored_file.index
@@ -108,8 +106,6 @@ class BulkEditsController < ApplicationController
     return group_attributes
   end
 
-
-
   def eligible_params_for_bulk_edit
     eligible_params = {}
 
@@ -142,9 +138,8 @@ class BulkEditsController < ApplicationController
         # -- if destroy is "0":
         # ---- flag is created, with merged params (Create)
         
-        #flagging_id wont be found when stored file doesn't have the flag set
-        #This would create a new flagging
-        flagging[:id] = flagging_id if flagging_id.present?
+        #flagging_id needs to be set to nil if new record, or existing flagging id
+        flagging[:id] = flagging_id 
 
         if !(flagging_id.nil? && flagging["_destroy"] == "1")
           eligible_flaggings.merge!({key => flagging})
@@ -177,9 +172,8 @@ class BulkEditsController < ApplicationController
         # -- if destroy is "0":
         # ---- group assignment is created, with merged params (Create)
         
-        #groups_stored_files_id won't be found when stored file doesn't have this group set
-        #This would create a new group
-        group[:id] = groups_stored_files_id if groups_stored_files_id.present?
+        #group id needs to be set to nil if new record, or existing group assignment id
+        group[:id] = groups_stored_files_id
 
         if !(groups_stored_files_id.nil? && group["_destroy"] == "1")
           eligible_groups.merge!({key => group})
