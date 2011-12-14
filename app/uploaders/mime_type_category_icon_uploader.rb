@@ -11,7 +11,11 @@ class MimeTypeCategoryIconUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    @name = "#{self.model.id}.jpg"
+    @name ||= "#{model.id}.#{model.icon.file.extension}" if original_filename.present?
+  end
+
+  def default_url
+    "/mime_type_cat_icons/default_mime_type_cat_icon.jpg"
   end
 
   def store_dir
