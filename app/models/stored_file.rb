@@ -412,6 +412,7 @@ class StoredFile < ActiveRecord::Base
 
   def post_process
     fits_updated = set_fits_attributes
+    ::Rails.logger.debug "PHUNK: fits_updated? = #{!!fits_updated}"
 
     self.wants_thumbnail = true
     ::Rails.logger.debug "PHUNK: START recreate_versions!"
@@ -420,6 +421,7 @@ class StoredFile < ActiveRecord::Base
     ::Rails.logger.debug "PHUNK: DONE recreate_versions!"
 
     if self.file.has_thumbnail?
+      # don't use self.file_url(:thumbnail) here because we override it
       current_thumbnail_path = self.file.thumbnail.url
 
       # If the current thumbnail is not a jpg, replace it with one we create
@@ -434,6 +436,8 @@ class StoredFile < ActiveRecord::Base
           self.has_thumbnail = true
           File.delete current_thumbnail_path
         end
+      else
+        self.has_thumbnail = true
       end
     else
       # TODO: We could not generate a thumbnail for this file, so default to the mime_type_category
@@ -458,7 +462,11 @@ class StoredFile < ActiveRecord::Base
     # Helper to get thumbnail if its defined, else get mime_type
     #TODO: I'd like to avoid doing this lookup for every stored file. Perhaps MimeTypeCategory
     # should have a cached hash of :mime_type_category_id => icon_filename ?
-    self.has_thumbnail ? self.file_url(:thumbnail) : 'no_thumbnail_for_you.jpg'
+
+#    TODO: for stored_file thumbnails, we deal with full paths but mtc icons are URLs.
+#              perhaps we need a new thumbnail_image_tag that wraps this logic around image_tag? 
+
+    self.has_thumbnail ? self.file_url(:thumbnail) : self.mime_type_category.icon_url
   end
 
   def enqueue_post_process

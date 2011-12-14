@@ -2,11 +2,11 @@ class MimeTypeCategory < ActiveRecord::Base
   has_many :mime_types
   has_many :stored_files, :through => :mime_types
 
-  attr_accessible :name, :image
+  attr_accessible :name, :icon
 
   validates_presence_of :name
 
-  mount_uploader :image, ImageUploader
+  mount_uploader :icon, MimeTypeCategoryIconUploader
 
   after_update { MimeTypeCategory.destroy_cache }
   after_create { MimeTypeCategory.destroy_cache }

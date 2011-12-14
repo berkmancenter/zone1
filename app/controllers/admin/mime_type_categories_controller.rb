@@ -24,11 +24,13 @@ class Admin::MimeTypeCategoriesController < Admin::BaseController
   def update
     begin
       mime_type_category = MimeTypeCategory.find(params[:id])
+      mime_type_category.icon = params[:icon] if params[:icon].present?
       mime_type_category.update_attributes(params[:mime_type_category])
       flash[:notice] = "updated!"
+      #TODO can't we just render :edit here if we also set @mime_type_category and get @right ?
       redirect_to edit_admin_mime_type_category_path(mime_type_category)
     rescue Exception => e
-      flash[:error] = "Problems updating! Please try again."
+      flash[:error] = "Problems updating! Please try again. #{e}"
       log_exception e
       redirect_to edit_admin_mime_type_category_path(mime_type_category)
     end

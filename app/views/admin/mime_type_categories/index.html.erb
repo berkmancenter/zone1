@@ -16,7 +16,7 @@
 <% @mime_type_categories.each do |mime_type_category| %>
 <tr>
 <td><%= link_to mime_type_category.name, edit_admin_mime_type_category_path(mime_type_category) %></td>
-<td><%= image_tag(mime_type_category.image_url) if mime_type_category.image? %></td>
+<td><%= image_tag(mime_type_category.icon_url) %></td>
 <td><%= link_to 'Delete', admin_mime_type_category_path(mime_type_category), :method => "DELETE" %></td>
 </tr>
 <% end -%>

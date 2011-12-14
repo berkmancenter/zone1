@@ -10,7 +10,7 @@
 		<%= flash[key] %>
 		</div>
 		<% end -%>
-		ADD THUMBNAIL!
+		<%= image_tag thumbnail_stored_file_path(@stored_file), :class => 'thumbnail' %>
 		<h5><%= @stored_file.original_filename %></h5>
 		<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
 		<%= f.label :file_size %>: <%= number_to_human_size(@stored_file.file_size) %><br />

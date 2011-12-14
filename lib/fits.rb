@@ -3,7 +3,8 @@ module Fits
   def self.analyze(file_url)
     # Fields returned must match stored_file attributes or setters such that the
     # return value of this method is suitable to pass to model.update_attribute()
-    raise "File not found: #{file_url}" unless test(?f, file_url)
+    ::Rails.logger.debug "FITS.analyze firing for #{file_url}"
+    raise "File not found: #{file_url}" unless File.exists? file_url
 
     fits_output = open("|/usr/local/bin/fits/fits.sh -i #{file_url}") {|f| f.read}
     raise "FITS call failed" if fits_output == ''

@@ -86,7 +86,7 @@
 	<% @hits.each do |hit| %> 
 		<div class="file <%= cycle("even", "odd") %>" data-id="<%= hit.stored(:id) %>" id="file<%= hit.stored(:id) %>">
 			<span class="icon">
-				<%= image_tag "image.png" %>
+    			<%= image_tag thumbnail_stored_file_path(hit.stored(:id)), :class => 'thumbnail' %>
 			</span>
 			<span class="filename">	
 				<span class="finput">

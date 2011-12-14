@@ -1,6 +1,7 @@
 class StoredFilesController < ApplicationController
   protect_from_forgery
   include ApplicationHelper
+  
 
   access_control do
     allow logged_in, :to => [:create, :new]
@@ -32,14 +33,14 @@ class StoredFilesController < ApplicationController
   end
 
   def download
-    #:filename => @stored_file.original_filename
-    send_file @stored_file.file_url, :x_sendfile => true
+    stored_file = StoredFile.find(params[:id])
+    send_file stored_file.file_url, :x_sendfile => true, :filename => stored_file.original_filename
   end
 
   def thumbnail
-    #TODO: use thumbnail_url in StoredFile model. Also, don't instantiate an object just to use a single field
     stored_file = StoredFile.find(params[:id])
-    send_file stored_file.file_url(:thumbnail), :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
+    ::Rails.logger.debug "PHUNK: thumbnail route requesting: #{stored_file.thumbnail_url}"
+    send_file stored_file.thumbnail_url, :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
   end
 
   def show
