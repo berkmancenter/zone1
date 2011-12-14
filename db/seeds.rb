@@ -16,6 +16,9 @@ Right.delete_all
 Disposition.delete_all
 Preference.delete_all
 DispositionAction.delete_all
+License.delete_all
+MimeType.delete_all
+MimeTypeCategory.delete_all
 
 connection = ActiveRecord::Base.connection
 connection.execute("DELETE FROM roles_users")
