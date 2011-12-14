@@ -16,6 +16,7 @@ Notes on Stack, Dependencies
 - File Metadata: fits
 - Background Jobs: resque + redis
 - Performance: Rails low-level caching to local disk storage
+- Image processing: ImageMagick, RMagick gem
 
 apache/nginx + passenger
 --------
