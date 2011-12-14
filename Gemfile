@@ -24,7 +24,6 @@ gem 'sunspot_rails'
 gem 'sunspot_solr'
 gem 'acl9'
 gem 'will_paginate', '3.0.2'
-# gem 'rmagick'
 gem 'nokogiri'
 gem 'carrierwave'
 gem 'rmagick' #needed for thumbnail generation

@@ -1,18 +1,17 @@
 class MimeTypeCategoryIconUploader < CarrierWave::Uploader::Base
-  #include CarrierWave::RMagick
+  include CarrierWave::RMagick
 
   storage :file
 
-  #process :resize_to_fit => [200,200]
-  #process :convert => 'png'
+  process :resize_to_fill => [200,200]
+  process :convert => 'jpg'
 
   def extension_white_list
-    #%w(jpg jpeg gif png)
-    %w(png)
+    %w(jpg jpeg gif png)
   end
 
   def filename
-    @name = "#{self.model.id}.png"
+    @name = "#{self.model.id}.jpg"
   end
 
   def store_dir
