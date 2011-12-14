@@ -290,7 +290,7 @@ class StoredFile < ActiveRecord::Base
         valid_attr << :access_level_id
       end
     end
-    valid_attr << :tag_list if self.allow_tags == true
+    valid_attr << :tag_list if self.allow_tags == true && user.present?
     
     logger.debug "ATTR_ACCESSIBLE_FOR"
     logger.debug valid_attr.uniq.inspect
