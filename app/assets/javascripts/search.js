@@ -196,7 +196,9 @@ var zone_one_search = {
 		}
 	},
 	close_quickview: function(message) {
-		$('#response').html(message).slideDown();
+		if(message != "") {
+			$('#response').html(message).slideDown();
+		}
 		$('#quick_edit_panel').parent().remove();
 		$('#quick_edit_panel').remove();
 	}
