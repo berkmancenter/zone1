@@ -299,7 +299,7 @@ class StoredFilesController < ApplicationController
     # Update this temp_batch entry in the session
     session[:upload_batches][temp_batch_id] = {
       :system_batch_id => batch.try(:id),
-      :updated_at => Time.now.utc.iso8601,
+      :updated_at => Time.now.utc,
       :file_count => file_count + 1,
       :first_file_id => first_file_id
     }
@@ -318,7 +318,7 @@ class StoredFilesController < ApplicationController
     @temp_batch_id = Batch.new_temp_batch_id
     session[:upload_batches][@temp_batch_id] = {
       :system_batch_id => nil,
-      :updated_at => Time.now.utc.iso8601,
+      :updated_at => Time.now.utc,
       :file_count => 0,
       :first_file_id => nil
     }
@@ -336,8 +336,7 @@ class StoredFilesController < ApplicationController
 
     stale_ids = []
     session[:upload_batches].each do |temp_batch_id, batch_info|
-      diff = DateTime.parse(Time.now.utc.iso8601) - DateTime.parse(batch_info[:updated_at])
-      foo, hours, = Date.day_fraction_to_time diff
+      hours = (Time.now.utc - batch_info[:updated_at])/3600
       stale_ids << temp_batch_id if hours >= max_age_hours
     end
 
