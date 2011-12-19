@@ -126,7 +126,7 @@ class SearchController < ApplicationController
   end
 
   def build_removeable_facets(params)
-    @removeable_facets = {}
+    facets_to_remove = {}
     @hidden_facets = {}
 
     removed_facets = ["search", "tag",
@@ -139,12 +139,12 @@ class SearchController < ApplicationController
     params.each do |facet, value|
       if value.presence && removed_facets.include?(facet)
         @hidden_facets.merge!({ facet => value })
-        @removeable_facets[facet] ||= []
+        facets_to_remove[facet] ||= []
         if value.is_a?(Array)
           params[facet].each do |v|
             t = params.clone
             t[facet] = t[facet].select{ |b| b != v }
-            @removeable_facets[facet] << {
+            facets_to_remove[facet] << {
               :label => facet == "flag_ids" ? Flag.facet_label(v) : v,
               :url => url_for(t)
             }
@@ -152,12 +152,12 @@ class SearchController < ApplicationController
         else
           if ["license_id", "mime_type_id", "mime_type_category_id"].include?(facet)
             klass = facet.gsub(/_id$/, '').classify.constantize
-            @removeable_facets[facet] << {
+            facets_to_remove[facet] << {
              :label => klass.facet_label(value),
              :url => url_for(params.clone.remove!(facet))
             }
           else 
-            @removeable_facets[facet] << {
+            facets_to_remove[facet] << {
              :label => value,
              :url => url_for(params.clone.remove!(facet))
             }
@@ -182,10 +182,13 @@ class SearchController < ApplicationController
       "contributor_name" => "Contributor",
       "copyright_holder" => "Copyright Holder"
     }
-    @removeable_facets.each do |k, v|
+
+    @removeable_facets = {}
+    facets_to_remove.each do |k, v|
       if(label_map[k])
         @removeable_facets[label_map[k]] = v
-        @removeable_facets.delete(k)
+      else
+        @removeable_facets[k] = v
       end
     end
 

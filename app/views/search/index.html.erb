@@ -91,12 +91,12 @@
 			<span class="filename">	
 				<span class="finput">
 					<input class="downloadable" type="checkbox" name="stored_file[<%= hit.stored(:id) %>]" value="1" data-stored-file-id="<%= hit.stored(:id) %>" />
-					<%= link_to hit.stored(:display_name), download_stored_file_path(hit.stored(:id)), :class => 'download-single' %>
-					<%= link_to hit.stored(:display_name), stored_file_path(hit.stored(:id)), :class => 'show-single' %>
-					<%= link_to hit.stored(:display_name), edit_stored_file_path(hit.stored(:id)), :class => 'edit-single' %>
+					<%= link_to hit.stored(:display_name).first, download_stored_file_path(hit.stored(:id)), :class => 'download-single' %>
+					<%= link_to hit.stored(:display_name).first, stored_file_path(hit.stored(:id)), :class => 'show-single' %>
+					<%= link_to hit.stored(:display_name).first, edit_stored_file_path(hit.stored(:id)), :class => 'edit-single' %>
 				</span>
 				<span class="name">
-					<%= link_to hit.stored(:display_name), edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %>
+					<%= link_to hit.stored(:display_name).first, edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %>
 				</span>
 			</span>
 			<span class="size"><%= number_to_human_size(hit.stored(:file_size)) %></span>
