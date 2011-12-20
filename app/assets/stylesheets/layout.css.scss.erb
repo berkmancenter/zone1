@@ -88,11 +88,11 @@ header {
       clear: both;
       padding: 15px 25px 3px 25px;
       .ui-state-active, .ui-state-defualt {
-        a, a:visited { color: #3a6697; }
+        a, a:visited { color: #336699; }
       }
       .ui-icon { display: none; }
       .ui-accordion-header {
-        color: #3a6697;
+        color: #336699;
         border: none;
         border-top: 1px solid #b9b9b9;
         background: transparent url(<%= image_path "accordion.png" %>) right 0px no-repeat;
@@ -115,7 +115,7 @@ header {
           width: 49%;
           float: left;
           text-transform: none;
-          color: #3a6697;
+          color: #336699;
         }
         input#indexed_tag_list_ { display: block; margin-bottom: 10px; }
       }
@@ -175,7 +175,7 @@ header {
       }
     }
   }
-  #tips { color: #3a6697; }
+  #tips { color: #336699; }
   #search_tips {
     display: none;
   }
@@ -185,17 +185,19 @@ header {
 .submit_buttons {
   text-align: center;
   input[type=submit], a.delete {
-    background: url(<%= image_path "submit_button.png" %>) repeat-x;
+    background: url(<%= image_path "submit_button.png?body=1" %>) repeat-x;
     border: 1px solid #24568b;
     color: #FFF;
     font-size: 11px;
-    line-height: 23px;
+    line-height: 24px;
     padding: 0px 5px;
     font-weight: bold;  
+    height: 26px; 
   }
   a.delete {
     margin-left: 15px;
     display: inline-block; 
+    height: 24px; 
   }
 }
 
@@ -207,7 +209,10 @@ header {
   font-weight: bold; 
   font-size: 14px; 
   padding: 5px; 
-  margin-bottom: 10px;
+  margin: 2px 0px; 
 }
 #response { display: none; }
 
+.ui-dialog .ui-dialog-titlebar-close span {
+  background: transparent url(<%= image_path "close.png?body=1" %>) right 0px no-repeat;
+}

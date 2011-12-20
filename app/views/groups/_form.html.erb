@@ -9,30 +9,54 @@
 	</div>
 <% end %>
 
-<div class="field">
-	<%= f.label :name %><br />
+<%= form_for @group, :remote => true do |f| %>
+	<%= f.label :name %>
 	<%= f.text_field :name %>
-</div>
 
-<% if current_user.can_do_global_method?("edit_group_rights") -%>
-<%= f.label :assignable_rights %>
-<%= f.check_box :assignable_rights %>
-Note: This is a dangerous field to play with.
+	<% if current_user.can_do_global_method?("edit_group_rights") -%>
+	<%= f.check_box :assignable_rights %>
+	<%= f.label :assignable_rights, "Assign rights to this group", :id => "rights_label" %>
+	<small>Note: This is a dangerous field to play with.</small>
 
-<% if @group.assignable_rights %>
-<% Right.all.each do |right| -%>
-<p>
-<%= check_box_tag "group[right_ids][]", right.id, @group.rights.include?(right) %>
-<%= right.action %><br />
-<small><%= right.description %></small>
-</p>
-<% end -%>
-<% end -%>
-<% end -%>
+	<% if @group.assignable_rights %>
+	<% Right.all.each do |right| -%>
+	<p>
+	<%= check_box_tag "group[right_ids][]", right.id, @group.rights.include?(right) %>
+	<%= right.action %><br />
+	<small><%= right.description %></small>
+	</p>
+	<% end -%>
+	<% end -%>
+	<% end -%>
 
-<% if @group.new_record? -%>
-<div class="field" id="user">
-	<%= label_tag :user_email, "Users" %><br />
-	<%= text_field_tag :user_email, @group.users.collect { |b| b.email }.join(',') %>
-</div>
+	<% if @members.any? -%>
+	<table id="group_members">
+		<tr>
+			<th>Members</th>
+			<th>Owner</th>
+			<th>Remove</th>
+		</tr>
+		<% @members.each do |email, value| -%>
+		<tr id="row">
+			<td><%= value[:user].name %></td>
+			<td align="center"><%= check_box_tag "owner[#{value[:user].id}]", 1, value[:owner] %></td>
+			<td align="center"><%= check_box_tag "remove[#{value[:user].id}]", 1, false %></td>
+		</tr>
+		<% end -%>
+	</table>
+	<% end -%>
+
+	<%= text_field_tag :user_email, nil, :placeholder => "Enter emails, comma delimited" %>
+
+	<div class="submit_buttons">
+	<% if @group.new_record? -%>
+	<%= f.submit %>
+	<% else -%>
+	<%= f.submit "UPDATE" %>
+	<%= link_to "DELETE", '#', :class => "delete" %>
+	<% end -%>
+	</div>
+<% end %>
+
+<%= form_for @group, :remote => true, :method => :delete, :html => { :id => "quick_edit_delete" } do |f| %>
 <% end -%>

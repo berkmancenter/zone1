@@ -1,40 +1,32 @@
-<% if current_user -%>
-<%= link_to 'Add a group', new_group_path %>
-<h1>Listing groups</h1>
+<section id="filter">
+<%= render 'search/filter' %>
+</section>
 
-<table style="width:800px">
-	<tr> 
-		<th>Groups</th>
-		<th>Status</th>
-		<th>Creation Date</th>
-		<th>Modification Date</th>
-	</tr>
-	<% @groups.each do |group| %>
-	<tr>
-		<td><%= group.name %></td>
-		<td>
-            <% if group.owners.include?(current_user) -%>
-            Owner
-            <% elsif group.users.include?(current_user) -%>
-            Member
-            <% else -%>
-            General Admin
-            <% end -%>
-		</td>
-		<td><%= group.created_at.strftime("%b %d, %Y") %></td>
-		<td><%= group.updated_at.strftime("%b %d, %Y") %></td>
-		<% if current_user.can_do_group_method?(group, "edit_groups") %>
- 		<td><%= link_to 'Edit', edit_group_path(group) %></td>
-		<td><%= link_to 'Destroy', group, :confirm => 'Are you sure?', :method => :delete %></td>
+<% flash.each do |key, msg| -%>
+<div id="form_error">
+<%= flash[key] %>
+</div>
+<% end -%>
+
+<section class="right" id="groups">
+	<p id="response"></p>
+	<hgroup>
+		<h3>Manage Groups</h3>
+		<ul><li><%= link_to 'Add a group', new_group_path, :remote => true %></li></ul>
+	</hgroup>
+	<table cellpadding="5" cellspacing="0" width="100%">
+		<tr> 
+			<th>Groups</th>
+			<th>Status</th>
+			<th>Created</th>
+			<th>Modified</th>
+			<th>Membership</th>
+		</tr>
+		<%= render :partial => "group", :collection => @groups %>
+		<% if @groups.empty? %>
+		<tr><td>You don't belong to or own any groups.</td></tr>
 		<% end %>
-	</tr>
-	<% end %>
-	<% if @groups.empty? %>
-	<tr><td>You don't belong to or own any groups.</td></tr>
-	<% end %>
-</table>
-<% else -%>
-You must be logged in to view groups.
-<% end %>
-
-<%= flash[:notice] %><br /><br />
+	</table>
+	<hgroup>
+	</hgroup>
+</section>

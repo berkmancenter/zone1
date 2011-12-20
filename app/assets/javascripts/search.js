@@ -196,6 +196,7 @@ var zone_one_search = {
 		}
 	},
 	close_quickview: function(message) {
+		$('#response').slideUp();
 		if(message != "") {
 			$('#response').html(message).slideDown();
 		}

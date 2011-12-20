@@ -15,11 +15,20 @@ class GroupsController < ApplicationController
 
   def new
     @group = Group.new
+    @members = []
+
+    respond_to do |format|
+      format.js
+    end
   end
 
   def edit
     @group = Group.find(params[:id])
     @members = @group.members
+
+    respond_to do |format|
+      format.js
+    end
   end
 
   def create
@@ -30,10 +39,17 @@ class GroupsController < ApplicationController
       @group.owners << current_user
 
       @group.save
-    
-      redirect_to edit_group_path(@group)
+   
+      respond_to do |format|
+        format.js
+      end
     rescue Exception => e
-      render :json => {:success => 'false', :message => e.to_s}
+      respond_to do |format|
+        format.js do
+          @message = e.to_s
+          render "create_fail"
+        end
+      end
     end
   end
 
@@ -52,9 +68,16 @@ class GroupsController < ApplicationController
 
       @group.update_attributes(params[:group])
 
-      redirect_to edit_group_path(@group)
+      respond_to do |format|
+        format.js
+      end
     rescue Exception => e
-      render :json => { :message => e.to_s }
+      respond_to do |format|
+        format.js do
+          @message = e.to_s
+          render "update_fail"
+        end
+      end
     end
   end
 
@@ -63,11 +86,13 @@ class GroupsController < ApplicationController
       Group.delete(params[:id])
 
       respond_to do |format|
-        format.html { redirect_to groups_url }
-        format.json { head :ok }
+        format.js
       end
     rescue Exception => e
-      render :json => { :success => 'false', :message => e.to_s }
+      respond_to do |format|
+        @message = e.to_s
+        render 'destroy_fail'
+      end
     end
   end
 end

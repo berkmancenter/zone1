@@ -1,0 +1,6 @@
+zone_one_search.close_quickview("<%=j @group.name + " created" %>");
+var last = $('#groups table tr:last').attr('class');
+$('#groups table').append("<%=j render "group", :group => @group %>");
+if(last == "even") {
+	$('#groups table tr:last').addClass('odd').removeClass('even');
+}
