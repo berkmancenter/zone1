@@ -35,10 +35,12 @@ class GroupsController < ApplicationController
     begin
       @group = Group.new(params[:group])
 
-      @group.users = User.find_all_by_email(params[:user_email].split(', '))
-      @group.owners << current_user
-
-      @group.save
+      if @group.save
+        @group.users = User.find_all_by_email(params[:user_email].split(', '))
+        @group.owners << current_user
+      else
+        raise @group.errors.full_messages.join(', ')
+      end
    
       respond_to do |format|
         format.js
@@ -57,16 +59,19 @@ class GroupsController < ApplicationController
     begin
       @group = Group.find(params[:id])
 
-      # Remove by remove params
-      @group.users.delete(User.find_all_by_id(params[:remove].keys)) if params.has_key?(:remove)
 
-      # Set owners
-      @group.owners = User.find_all_by_id(params[:owner].keys) if params.has_key?(:owner)
+      if @group.update_attributes(params[:group])
+        # Remove by remove params
+        @group.users.delete(User.find_all_by_id(params[:remove].keys)) if params.has_key?(:remove)
 
-      # Add new users
-      @group.users << User.find_all_by_email(params[:user_email].split(', '))
+        # Set owners
+        @group.owners = User.find_all_by_id(params[:owner].keys) if params.has_key?(:owner)
 
-      @group.update_attributes(params[:group])
+        # Add new users
+        @group.users << User.find_all_by_email(params[:user_email].split(', '))
+      else
+        raise @group.errors.full_messages.join(', ')
+      end
 
       respond_to do |format|
         format.js

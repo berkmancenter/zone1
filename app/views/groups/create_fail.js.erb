@@ -1,1 +1,2 @@
-$('#quick_edit_panel form').prepend($('<p>').attr('id', 'fail_response').html('Unable to create group: ' + "<%= @message %>"));
+$('#quick_edit_panel #new_group #fail_response').remove();
+$('#quick_edit_panel #new_group').prepend($('<p>').attr('id', 'fail_response').html('Unable to create group: ' + "<%=j @message %>"));

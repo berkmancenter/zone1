@@ -7,7 +7,8 @@ class Group < ActiveRecord::Base
   has_many :right_assignments, :as => :subject
 
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_groups
-  
+
+  validates_presence_of :name  
   validates_uniqueness_of :name
 
   attr_accessible :name, :assignable_rights, :right_ids
