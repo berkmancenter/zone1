@@ -19,7 +19,7 @@ class SearchController < ApplicationController
       end
 
       [:flag_ids, :mime_type_id, :mime_type_category_id, :license_id,
-        :indexed_collection_list, :batch_id, :indexed_tag_list].each do |facet|
+        :indexed_collection_list, :batch_id, :indexed_tag_list, :user_id].each do |facet|
         if params.has_key?(facet)
           if params[facet].is_a?(Array)
             params[facet].each { |t| with facet, t }
@@ -134,7 +134,7 @@ class SearchController < ApplicationController
       "original_date_start_date", "original_date_end_date",
       "flag_ids", "license_id", "mime_type_id", "mime_type_category_id",
       "indexed_collection_list", "batch_id", "indexed_tag_list", "author",
-      "contributor_name", "copyright_holder"]
+      "contributor_name", "copyright_holder", "user_id"]
 
     params.each do |facet, value|
       if value.presence && removed_facets.include?(facet)
@@ -179,8 +179,9 @@ class SearchController < ApplicationController
       "original_date_end_date" => "Original Date Before",
       "mime_type_category_id" => "File Type Category",
       "mime_type_id" => "File Type",
-      "contributor_name" => "Contributor",
-      "copyright_holder" => "Copyright Holder"
+      "contributor_name" => "Contributor Name",
+      "copyright_holder" => "Copyright Holder",
+      "user_id" => "Contributor Id"
     }
 
     @removeable_facets = {}

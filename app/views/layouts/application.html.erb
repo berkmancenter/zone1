@@ -19,9 +19,8 @@
 			<li id="userlinks">
 				<%= link_to raw("#{current_user.name}<span></span>"), "#", :id => "username" %>
 				<div>
-					<%= link_to "Manage Images", "#" %>
+					<%= link_to "Manage Files", url_for(:controller => "search", :action => "index", :user_id => current_user.id) %>
 					<%= link_to "Manage Groups", groups_url %>
-					<%= link_to "Manage Profile", "#" %>
 				</div>
 			</li>
 			<li><%= link_to 'LOGOUT', destroy_user_session_path, :method => :delete, :class => "last" %></li>
