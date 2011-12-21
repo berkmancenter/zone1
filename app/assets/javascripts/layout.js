@@ -1,14 +1,22 @@
 $(function() {
-	zone_one_search.setup_accordion();
-	zone_one_search.setup_listgrid();
-	zone_one_search.setup_quickview();
-	zone_one_search.setup_search();
-	zone_one_search.setup_bulk_actions();
-	zone_one_search.setup_menu_actions();
-	zone_one_search.setup_datepickers();
+	zone_one_base.setup_accordion();
+	zone_one_base.setup_listgrid();
+	zone_one_base.setup_quickview();
+	zone_one_base.setup_search();
+	zone_one_base.setup_bulk_actions();
+	zone_one_base.setup_menu_actions();
+	zone_one_base.setup_datepickers();
+	zone_one_base.setup_username();
 });
 
-var zone_one_search = {
+var zone_one_base = {
+	setup_username: function() {
+		$('#userlinks').hover(function() {
+			$('#userlinks').addClass('hovered');
+		}, function() {
+			$('#userlinks').removeClass('hovered');
+		});
+	},
 	setup_accordion: function() {
 		$('#accordion').accordion({
 			collapsible: true,
@@ -119,7 +127,7 @@ var zone_one_search = {
 	}, 
 	setup_bulk_actions: function() {
 		$('#download-submit, #bulk-edit-submit').click(function() {
-			zone_one_search.clone_downloadable_checkboxes_to($(this).parent());
+			zone_one_base.clone_downloadable_checkboxes_to($(this).parent());
 			$(this).parent().submit();
 			return false;
 		});
@@ -127,7 +135,7 @@ var zone_one_search = {
 		$('#bulk-delete-submit').click(function() {
 			var bulk_delete = $('#bulk-delete');
 			$(bulk_delete).children('input').remove();
-			zone_one_search.clone_downloadable_checkboxes_to(bulk_delete);
+			zone_one_base.clone_downloadable_checkboxes_to(bulk_delete);
 			var count = $(bulk_delete).children("input:checked").length;
 			$(bulk_delete).append($('<input>').attr('type', 'hidden').attr('name', 'previous_search').val(location.href));
 			$('<p>').html("Are you sure you want to delete the " + count + " items?").dialog({
@@ -153,8 +161,8 @@ var zone_one_search = {
 		//UI
 		$.each(['display_options', 'set_options', 'sort_options'], function(i, v) {
 			$('#show_' + v).click(function() {
+				$('.displayed').not($(this)).removeClass('displayed');
 				$(this).parent().toggleClass('displayed');
-				$('#' + v).toggle();
 			});
 		});
 		$("input[type='checkbox'].toggle_column").click(function() {
@@ -169,7 +177,7 @@ var zone_one_search = {
 	setup_datepickers: function() {
 		//Calendar Datepicker	
 		$("#dates input[type=text]").datepicker({
-			beforeShow: zone_one_search.custom_range
+			beforeShow: zone_one_base.custom_range
 		});
 	},
 	clone_downloadable_checkboxes_to: function(destination) {

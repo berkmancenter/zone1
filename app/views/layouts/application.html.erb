@@ -13,15 +13,22 @@
 	<div id="wrapper">
 		<header>
 			<a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>
-			<nav>
+			<ul id="nav">
 			<% if current_user -%>
-			<%= link_to 'Upload Files', upload_path, :id => "upload_link" %> |
-			<%= current_user.name %> | 
-			<%= link_to 'LOGOUT', destroy_user_session_path, :method => :delete %> 
+			<li><%= link_to 'Upload Files', upload_path, :id => "upload_link" %></li>
+			<li id="userlinks">
+				<%= link_to raw("#{current_user.name}<span></span>"), "#", :id => "username" %>
+				<div>
+					<%= link_to "Manage Images", "#" %>
+					<%= link_to "Manage Groups", groups_url %>
+					<%= link_to "Manage Profile", "#" %>
+				</div>
+			</li>
+			<li><%= link_to 'LOGOUT', destroy_user_session_path, :method => :delete, :class => "last" %></li>
 			<% else -%>
-			<%= link_to 'LOG IN', new_user_session_path %>
+			<li><%= link_to 'LOG IN', new_user_session_path %></li>
 			<% end -%>
-			</nav>
+			</ul>
 			<div class="clear"></div>
 		</header>
 		<%= yield %>
