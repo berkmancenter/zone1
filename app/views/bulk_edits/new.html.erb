@@ -12,7 +12,9 @@
 		</div>
 		<% end -%>
 		<%= f.label :contributor %>: <%= @stored_file.user.present? ? @stored_file.user.name : '' %><br />
+		<% if @stored_file.batch_id -%>
 		<%= f.label "Batch:" %> <%= @stored_file.batch_id.to_s %><br />
+		<% end -%>
   		<% @stored_files.each do |stored_file| %>
     		<%= hidden_field_tag "stored_file_ids[]", stored_file.id %>
   		<% end %>

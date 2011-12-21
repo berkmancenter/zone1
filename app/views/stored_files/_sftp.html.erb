@@ -1,19 +1,11 @@
-<style type="text/css">
-#sftp.hidden {
-    display: none;
-}
-</style>
-
-
 <fieldset>
-  <legend><span id="sftp_toggler">SFTP:</span></legend>
-<div id="sftp" class="hidden">
-  <div id="sftp_form_div">
-    <%= label_tag :sftp_username %>: 
-      <%= text_field_tag :sftp_username, '', {:id => 'sftp_username', :readonly => 'readonly'} %><br/>
-    <%= label_tag :sftp_password %>: 
-      <%= text_field_tag :sftp_password, '', {:id => 'sftp_password', :readonly => 'readonly'} %>
-  </div>
-</div>
+	<div id="sftp">
+		<p>Basic instructions here.</p>
+		<div id="sftp_form_div">
+			<%= label_tag :sftp_username %>: 
+			<%= text_field_tag :sftp_username, '', {:id => 'sftp_username', :readonly => 'readonly'} %><br/>
+			<%= label_tag :sftp_password %>: 
+			<%= text_field_tag :sftp_password, '', {:id => 'sftp_password', :readonly => 'readonly'} %>
+		</div>
+	</div>
 </fieldset>
-

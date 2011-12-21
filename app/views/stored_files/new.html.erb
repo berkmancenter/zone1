@@ -10,15 +10,16 @@
 			<%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
 			<%= hidden_field_tag 'max_web_upload_file_size', @max_web_upload_file_size %>
 
-			<p>Some upload details here.</p>
-	
-			<%= render "form", :f => f %>
-	
+			<h4>1. Upload File(s)</h4>	
 	        <div id="uploader">
 		    	<p>Failed to initialize the upload tool. Not to point fingers, but
 	               perhaps you are using a very old browser that is unsupported?</p>
 		    </div>
 	
+			<h4>2. Enter Common Attributes</h4>
+			<%= render "form", :f => f %>
+
+			<h4 id="sftp_toggler">3. SFTP</h4>
 	        <%= render 'sftp' %>
 		<% end %>
 	
