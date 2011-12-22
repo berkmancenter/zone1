@@ -32,8 +32,11 @@
 		</div>
 	<div id="search_keyword">
 		Search by Keyword <a href="#" id="tips">(SEARCH TIPS)</a>
-		<%= text_field_tag "search[]", '' %>
-		<input type="image" src="<%= image_path "search.png" %>" />
+		<div id="search_bar">
+			<%= text_field_tag "search[]", '' %>
+			<input type="image" src="<%= image_path "search.png" %>" />
+			<div class="clear"></div>
+		</div>
 	</div>
 
 	<div id="accordion">

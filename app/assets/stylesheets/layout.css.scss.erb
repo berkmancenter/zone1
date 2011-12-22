@@ -123,12 +123,17 @@ header {
     }
     #search_keyword {
       padding: 3px 25px;
-      input[type=text] {
-        padding: 5px 5px 4px 5px;
-      }
-      input { float: left;
-        display: inline-block;
-        margin: 0px;
+      #search_bar {
+        background: #eaeaea;
+        border: 1px solid #a0a0a0;
+        height: 26px;
+        input[type=text] {
+          padding: 5px 5px 4px 5px;
+  	      border: 0px;
+        }
+        input[type=image] {
+          float: right; 
+        }
       }
     }
     #accordion {
