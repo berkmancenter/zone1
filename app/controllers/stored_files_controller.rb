@@ -199,8 +199,8 @@ class StoredFilesController < ApplicationController
         # custom_save gets its own exception handling because we might still
         # need to enqueue a RemoteFileImporter job after custom_save barfs
         stored_file.custom_save(params[:stored_file], current_user)
-        #        stored_file.enqueue_post_process
-        stored_file.post_process  #inline for DEV only
+        #Resque.enqueue(PostProcessor, stored_file.id) if stored_file.id
+        stored_file.post_process if stored_file.id  #inline for DEV only
       rescue Exception => e
         exceptions << e
       end          
@@ -214,15 +214,16 @@ class StoredFilesController < ApplicationController
       # update_batch can see the stored_file.id. For is_sftp_only, stored_file.id
       # will of course be nil, which update_batch can handle just fine.
       batch_id = update_batch(params[:temp_batch_id], stored_file.id, force_batch)
+      stored_file.index
 
       if needs_remote_file_import?(sftp_user)
+        #TODO: I'm not sure sftp files are getting the correct batch_id any more
         # Only enqueue job once for this temp_batch_id
         session[:remote_import_temp_batch_ids] ||= {}
         session[:remote_import_temp_batch_ids][params[:temp_batch_id]] = true
         file_params = params[:stored_file].dup
         # Resque will barf trying to JSON serialize any binary entries in file_params
         file_params.delete :file
-        # TODO: some kind of confirmation that this job was enqueued for X number of files
         Resque.enqueue(RemoteFileImporter, params[:sftp_username], file_params)
       end
     rescue Exception => e
@@ -247,7 +248,6 @@ class StoredFilesController < ApplicationController
     selected_files = StoredFile.find(selected_stored_file_ids)
 
     set = DownloadSet.new(selected_files)
-    
     send_file set.path, :x_sendfile => true
 
     File.delete(set.path) if File.file?(set.path)
@@ -268,9 +268,8 @@ class StoredFilesController < ApplicationController
   end
 
   def update_batch(temp_batch_id, new_file_id, force_create)
-    # Returns: batch.id if a batch was created/found AND new_file_id should be
-    # assigned to that batch. Returns nil if no batch created/found (in which
-    # case, new_file_id does not need to be assigned to any batch.)
+    # Returns: batch.id if a batch was created/found. Returns nil if no batch created/found 
+    # (in which case, new_file_id does not need to be assigned to any batch.)
     file_count = session[:upload_batches][temp_batch_id][:file_count]
     first_file_id = session[:upload_batches][temp_batch_id][:first_file_id]
 
@@ -285,21 +284,22 @@ class StoredFilesController < ApplicationController
     # Populate first_file_id. Harmless no-op if new_file_id is nil.
     first_file_id ||= new_file_id
 
-    # If there was previously one persisted file in this temp batch, add
-    # it to this new batch instance. This is how we retroactively include a
+    # If there was a previously persisted file in this temp batch, retroactively 
+    # add it to this new batch instance. This is how we retroactively include a
     # previous single-file upload (which does not get a Batch instance) 
     if file_count == 1 && first_file_id
       batch.stored_files << StoredFile.find_by_id(first_file_id.to_i)
     end
 
     if batch && file_count > 0 #(meaning this is the 2nd or later file in this batch
+      #TODO: Can we change new_file_id to stored_file to skip this find?
       batch.stored_files << StoredFile.find_by_id(new_file_id.to_i)
     end
 
     # Update this temp_batch entry in the session
     session[:upload_batches][temp_batch_id] = {
       :system_batch_id => batch.try(:id),
-      :updated_at => Time.now.utc,
+      :updated_at => Time.now.to_i,
       :file_count => file_count + 1,
       :first_file_id => first_file_id
     }
@@ -313,36 +313,31 @@ class StoredFilesController < ApplicationController
     # the same Batch instance.
     session[:upload_batches] ||= {}
     prune_temp_batches
-    expire_stale_temp_batches
 
     @temp_batch_id = Batch.new_temp_batch_id
     session[:upload_batches][@temp_batch_id] = {
       :system_batch_id => nil,
-      :updated_at => Time.now.utc,
+      :updated_at => Time.now.to_i,
       :file_count => 0,
       :first_file_id => nil
     }
   end
 
   def prune_temp_batches
-    # limit to "the last X batches" to avoid ActionDispatch::Cookies::CookieOverflow
-    #TODO: implement similar to expire_stale_temp_batches
-  end
+    # Limit to "the oldest X batches" to avoid ActionDispatch::Cookies::CookieOverflow
 
-  def expire_stale_temp_batches(max_age_hours=72)
-    # Remove temp_batch_id hashes from the session if they are more than X hours stale
-    return unless session[:upload_batches].present?
-    #TODO: We need to limit to "the last X batches" to avoid ActionDispatch::Cookies::CookieOverflow
+    # batch_limit is an arbitrary number chosen as "the max number of open upload
+    # sessions an absent minded professor is likely to have open at once."
+    # Note: Could use ruby 1.9's ActiveSupport.OrderedHash here, but it is not critical
+    batch_limit = 5
+    return unless session[:upload_batches].try(:length) > batch_limit
 
-    stale_ids = []
-    session[:upload_batches].each do |temp_batch_id, batch_info|
-      hours = (Time.now.utc - batch_info[:updated_at])/3600
-      stale_ids << temp_batch_id if hours >= max_age_hours
-    end
+    timestamps = session[:upload_batches].collect {|id, batch| batch[:updated_at] }
+    timestamps.sort!.reverse!
+    limit = timestamps[batch_limit - 1]
 
-    stale_ids.each do |temp_batch_id|
-      session[:upload_batches].delete temp_batch_id
-    end
+    # delete any batch that is older than our limit batch
+    session[:upload_batches].delete_if {|id, batch| batch[:updated_at] < limit }
   end
 
 end

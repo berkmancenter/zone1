@@ -31,7 +31,6 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable_on :publication_types, :collections
   
   attr_accessor :wants_thumbnail
-
   attr_accessor :skip_quota
 
   before_save :update_file_size
@@ -51,7 +50,7 @@ class StoredFile < ActiveRecord::Base
 
   CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES).freeze
 
-  FITS_ATTRIBUTES = [:file_size, :md5, :fits_mime_type].freeze
+  FITS_ATTRIBUTES = [:file_size, :md5, :mime_type].freeze
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
@@ -108,25 +107,6 @@ class StoredFile < ActiveRecord::Base
     self.mime_type.mime_type_category_id if self.mime_type && self.mime_type.mime_type_category
   end
 
-  def fits_mime_type=(hash)
-    if [:format_name, :mime_type, :file_extension].all? { |k| hash.keys.include?(k) }
-
-      mime_type = MimeType.find_or_initialize_by_extension(hash[:file_extension].downcase)
-
-      if mime_type.new_record?
-        mime_type.name = hash[:file_extension].gsub(".", "").upcase
-        mime_type.mime_type_category_id = MimeTypeCategory.find_or_create_by_name(hash[:mime_type].split("/").first.capitalize).try(:id)
-        mime_type.mime_type_name = hash[:format_name]
-        mime_type.mime_type = hash[:mime_type]
-      end
-
-      self.mime_type = mime_type
-    else
-      logger.warn "Expected :format_name and :mime_type as keys, but got #{hash.inspect}"
-      raise "FITs process not supplying appropriate format data to StoredFile."
-    end
-  end
-
   def indexed_tag_list
     self.owner_tags_on(nil, :tags)
   end
@@ -152,10 +132,6 @@ class StoredFile < ActiveRecord::Base
     end
 
     set_flag_ids.include?(flag.id)
-  end
-
-  def decrease_available_user_quota!
-    user.decrease_available_quota!(file_size)
   end
 
   def build_bulk_flaggings_for(stored_files, user)
@@ -242,8 +218,7 @@ class StoredFile < ActiveRecord::Base
 
   def custom_save(params, user)
     if new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
-      raise Exception.new( MimeType.blacklisted_message(params[:original_filename]) )
-      return false
+      raise MimeType.blacklisted_message(params[:original_filename])
     end
 
     self.accessible = attr_accessible_for(params, user)
@@ -265,8 +240,7 @@ class StoredFile < ActiveRecord::Base
 
       return true
     else
-      raise Exception.new(self.errors.full_messages.join(', '))
-      return false
+      raise self.errors.full_messages.join(', ')
     end
   end
 
@@ -275,8 +249,7 @@ class StoredFile < ActiveRecord::Base
 
     valid_attr = ALWAYS_ACCESSIBLE_ATTRIBUTES.dup
 
-    logger.debug "ALWAYS ACCESSIBLE"
-    logger.debug valid_attr.inspect
+#    logger.debug "ALWAYS ACCESSIBLE: #{valid_attr.inspect}"
 
     if self.new_record?
       valid_attr = valid_attr + CREATE_ATTRIBUTES
@@ -292,8 +265,7 @@ class StoredFile < ActiveRecord::Base
     end
     valid_attr << :tag_list if self.allow_tags == true && user.present?
     
-    logger.debug "ATTR_ACCESSIBLE_FOR"
-    logger.debug valid_attr.uniq.inspect
+#    logger.debug "ATTR_ACCESSIBLE_FOR: #{valid_attr.uniq.inspect}"
     
     valid_attr.uniq
   end
@@ -308,11 +280,18 @@ class StoredFile < ActiveRecord::Base
     @tag_list ||= self.anonymous_tag_list(:tags)
   end
 
+  def decrease_available_user_quota!
+    ::Rails.logger.debug "PHUNK: DEcrease_available_user_quota!(#{file_size}) firing"
+    user.decrease_available_quota!(file_size)
+  end
+
   def decrease_available_user_quota(amount_in_bytes=file_size)
+    ::Rails.logger.debug "PHUNK: DEcrease_available_user_quota-noex(#{amount_in_bytes}) firing"
     user.decrease_available_quota!(amount_in_bytes)
   end
 
   def increase_available_user_quota!(amount_in_bytes=file_size)
+    ::Rails.logger.debug "PHUNK: INcrease_available_user_quota!(#{amount_in_bytes}) firing"
     user.increase_available_quota!(amount_in_bytes)
   end
 
@@ -355,8 +334,6 @@ class StoredFile < ActiveRecord::Base
   end
 
   def update_tags(param, context, user)
-#    ::Rails.logger.debug "PHUNK skipping update_tags to reduce log spam"
-#    return  #TODO: uncomment this before committing
     begin
       existing_tags = self.anonymous_tag_list(context).split(", ")
       submitted_tags = param.gsub(/\s+/, '').split(',')
@@ -370,7 +347,7 @@ class StoredFile < ActiveRecord::Base
 
       # Figure out which global tags user is removing, and remove
       removed_tags.each do |removed_tag|
-        # TODO: But acts-as-taggable doesn't give you an easy way to delete another user's tags.
+        # Note: acts-as-taggable doesn't give you an easy way to delete another user's tags.
         st = ActiveRecord::Base.connection.execute("DELETE FROM taggings WHERE taggable_id = '#{self.id}' AND context = '#{context.to_s}' AND tag_id = (SELECT id FROM tags WHERE name = '#{removed_tag}')")
       end
     rescue Exception => e
@@ -414,16 +391,13 @@ class StoredFile < ActiveRecord::Base
 
   def post_process
     fits_updated = set_fits_attributes
-    ::Rails.logger.debug "PHUNK: fits_updated? = #{!!fits_updated}"
-
-    self.wants_thumbnail = true
-    ::Rails.logger.debug "PHUNK: START recreate_versions!"
+    #    self.wants_thumbnail = true
+    @wants_thumbnail = true
     self.file.recreate_versions! rescue thumbnail_cache_cleanup
-    self.wants_thumbnail = false
-    ::Rails.logger.debug "PHUNK: DONE recreate_versions!"
+    @wants_thumbnail = false
 
     if self.file.has_thumbnail?
-      # don't use self.file_url(:thumbnail) here because we override it
+      # Don't use self.file_url(:thumbnail) here because we override it
       current_thumbnail_path = self.file.thumbnail.url
 
       # If the current thumbnail is not a jpg, replace it with one we create
@@ -442,8 +416,6 @@ class StoredFile < ActiveRecord::Base
         self.has_thumbnail = true
       end
     else
-      # TODO: We could not generate a thumbnail for this file, so default to the mime_type_category
-      # TODO: handle stored_file with nil mime_type, too
       ::Rails.logger.debug "PHUNK: Could not generate thumbnail. Go fish."
     end
     self.save! if (fits_updated || self.has_thumbnail)
@@ -452,7 +424,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def file_url(*args)
-    # Overridden version of CarrierWave::Mount.file_url to do special handling for :thumbnail
+    # Overridden version of CarrierWave::Mount.#{mounted_on}_url to do special handling for :thumbnail
     file_path = self.file.url(*args)
 
     if args.first == :thumbnail
@@ -460,22 +432,6 @@ class StoredFile < ActiveRecord::Base
     else
       file_path
     end
-  end
-
-  def thumbnail_url
-    # Helper to get thumbnail if its defined, else get mime_type
-    #TODO: I'd like to avoid doing this lookup for every stored file. Perhaps MimeTypeCategory
-    # should have a cached hash of :mime_type_category_id => icon_filename ?
-
-#    TODO: for stored_file thumbnails, we deal with full paths but mtc icons are URLs.
-#              perhaps we need a new thumbnail_image_tag that wraps this logic around image_tag? 
-
-    self.has_thumbnail ? self.file_url(:thumbnail) : self.mime_type_category.icon_url
-  end
-
-  def enqueue_post_process
-    ::Rails.logger.debug "PHUNK: stored_file.ENQUEUE_post_process firing with self.id: #{self.id}"
-    Resque.enqueue(PostProcessor, self.id)
   end
 
   def update_fits_attributes
@@ -490,18 +446,20 @@ class StoredFile < ActiveRecord::Base
     file_path ||= self.file_url
     begin
       metadata = Fits::analyze(file_path)
-      if metadata.class == Hash and metadata.keys.length > 0
-        FITS_ATTRIBUTES.each do |name|
-          self.send("#{name}=", metadata[name]) if metadata[name].present?
-        end
-
-        return true
-      else
-        ::Rails.logger.warn "Un-usable FITS metadata was: #{metadata.inspect}"
+      if !(metadata.class == Hash && metadata.keys.length > 0)
+        ::Rails.logger.warn "Got un-usable metadata from FITS: #{metadata.inspect}"
         return false
       end
+
+      self.accessible = FITS_ATTRIBUTES
+      updated_attrs = metadata.slice(*FITS_ATTRIBUTES)
+      updated_attrs[:mime_type] = MimeType.new_from_attributes(metadata)
+      updated_attrs.delete_if {|attr, value| value.blank?}
+      self.attributes = updated_attrs
+
+      return true
     rescue Exception => e
-      ::Rails.logger.warn "Warning: set_fits_attributes caught exception: #{e}"
+      log_exception e, "Warning: set_fits_attributes caught exception"
     end
     return false
   end
@@ -548,7 +506,7 @@ class StoredFile < ActiveRecord::Base
 
   def update_file_size
     if self.file_size.nil? && file.present? && file_changed?
-      self.file_size = file.file.size rescue 0
+      self.file_size = file.file.size  # rescue 0
     end
   end
 

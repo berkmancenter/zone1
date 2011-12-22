@@ -7,15 +7,17 @@ class DownloadSet
 
   attr_reader :path, :file
 
-  def initialize(selected_stored_files)
-    @path = "#{Rails.root}/downloads/download_#{SecureRandom.hex(8)}.zip"
-    manifest_path = @path+"_manifest.txt"
+  def initialize(stored_files)
+    download_root = "#{Rails.root}/downloads"
+    Dir.mkdir(download_root) unless File.directory?(download_root)
+    @path = "#{download_root}/download_#{SecureRandom.hex(8)}.zip"
+    manifest_path = @path + "_manifest.txt"
 
     @file = Zip::ZipFile.open(@path, Zip::ZipFile::CREATE) do |download_set|
       File.open(manifest_path, 'w') do |manifest|
         manifest_header(manifest)
-        selected_stored_files.each_with_index do |stored_file, index|
-          update_set(stored_file.file.to_s, stored_file.original_filename, index, download_set)
+        stored_files.each_with_index do |stored_file, index|
+          update_set(stored_file.file_url, stored_file.original_filename, index, download_set)
           update_manifest(stored_file, index, manifest)
         end
         manifest_footer(manifest)
@@ -27,23 +29,22 @@ class DownloadSet
 
   private
 
-  def seperator(file)
+  def separator(file)
     file.puts "============================================="
   end
 
   def manifest_footer(file)
-    seperator(file)
+    separator(file)
     file.puts "End of manifest"
   end
 
   def manifest_header(file)
     file.puts "Download manifest"
-    seperator(file)
+    separator(file)
   end
 
   def update_set(filepath, filename, index, set)
-    count = (index+1).to_s
-    name = "#{count}_" + filename
+    name = "#{index+1}_" + filename
     set.add(name, filepath)
   end
 

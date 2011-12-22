@@ -18,7 +18,7 @@ gem 'rubyzip'
 gem 'resque', :require => "resque/server"
 gem 'execjs'
 gem 'therubyracer'
-gem 'rake', '0.8.7'
+gem 'rake'
 
 # Gems used only for assets and not required in production environments by default.
 group :assets do

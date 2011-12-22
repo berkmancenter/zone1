@@ -10,8 +10,9 @@ class FileUploader < CarrierWave::Uploader::Base
   def wants_thumbnail?(uploader)
     # Note: that uploader param is automagically supplied by CarrierWave
     # We 'rescue true' to err on the side of letting CarrierWave try to create
-    # thumbnails even if we couldn't figure out the mime_type on our own.    
-    !!model.wants_thumbnail && !!(model.mime_type.mime_type.to_s =~ /image\//i rescue true)
+    # thumbnails even if we couldn't figure out the mime_type on our own.
+    # TODO: find a slicker way to broaden the scope of what is considered thumbnail-able
+    !!model.wants_thumbnail && !!(model.mime_type.mime_type.to_s =~ /^image|pdf$/i rescue true)
   end
 
   def has_thumbnail?
@@ -49,7 +50,13 @@ class FileUploader < CarrierWave::Uploader::Base
   def filename
     # Override the filename of the uploaded files:
     # Avoid using model.id or version_name here, see uploader/store.rb for details.
-    @name ||= "#{secure_token}.#{file.extension.downcase}" if original_filename.present?
+    return @name if @name
+    if original_filename.present?
+      @name = "#{secure_token}.#{file.extension.downcase}"
+      # Handle filenames with no extension
+      @name.chop! if @name =~ /\.$/
+      return @name
+    end
   end
 
   protected
