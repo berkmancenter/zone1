@@ -59,16 +59,20 @@ class GroupsController < ApplicationController
     begin
       @group = Group.find(params[:id])
 
-
       if @group.update_attributes(params[:group])
-        # Remove by remove params
-        @group.users.delete(User.find_all_by_id(params[:remove].keys)) if params.has_key?(:remove)
-
         # Set owners
-        @group.owners = User.find_all_by_id(params[:owner].keys) if params.has_key?(:owner)
+        @group.owners = User.find_all_by_id(params[:owner].keys)
+
+        # Remove from users and owners
+        if params.has_key?(:remove)
+          delete_users = User.find_all_by_id(params[:remove].keys)
+          @group.owners.delete(delete_users)
+          @group.users.delete(delete_users)
+        end
 
         # Add new users
-        @group.users << User.find_all_by_email(params[:user_email].split(', '))
+        new_users = User.find_all_by_email(params[:user_email].split(',').uniq) - @group.users
+        @group.users << new_users
       else
         raise @group.errors.full_messages.join(', ')
       end

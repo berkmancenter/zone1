@@ -28,8 +28,13 @@
 		<% @members.each do |email, value| -%>
 		<tr id="row">
 			<td><%= value[:user].name %></td>
+			<% if value[:user].id == current_user.id -%>
+			<td align="center"><%= check_box_tag "owner[#{value[:user].id}]", 1, value[:owner], :readonly => "readonly" %></td>
+			<td align="center"></td>
+			<% else -%>
 			<td align="center"><%= check_box_tag "owner[#{value[:user].id}]", 1, value[:owner] %></td>
 			<td align="center"><%= check_box_tag "remove[#{value[:user].id}]", 1, false %></td>
+			<% end -%>
 		</tr>
 		<% end -%>
 	</table>

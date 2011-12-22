@@ -24,11 +24,11 @@ class Group < ActiveRecord::Base
 
   def members
     members = {}
-    self.users.each do |user|
-      members[user.email] = { :user => user, :owner => false }
-    end
     self.owners.each do |user|
       members[user.email] = { :user => user, :owner => true }
+    end
+    self.users.each do |user|
+      members[user.email] ||= { :user => user, :owner => false }
     end
     members
   end
