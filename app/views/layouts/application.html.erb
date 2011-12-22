@@ -9,7 +9,7 @@
 	<%= yield :head %>
 </head>
 
-<body>
+<body id="<%= params[:controller] %>_body">
 	<div id="wrapper">
 		<header>
 			<a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>

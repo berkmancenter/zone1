@@ -40,7 +40,9 @@
 	</table>
 	<% end -%>
 
-	<%= text_field_tag :user_email, nil, :placeholder => "Enter emails, comma delimited" %>
+	<div id="entered_emails">
+		<%= text_field_tag :user_email, nil, :placeholder => "Enter emails, comma delimited" %>
+	</div>
 
 	<div class="submit_buttons">
 	<% if @group.new_record? -%>

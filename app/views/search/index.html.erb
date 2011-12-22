@@ -91,9 +91,9 @@
 			<span class="filename">	
 				<span class="finput">
 					<input class="downloadable" type="checkbox" name="stored_file[<%= hit.stored(:id) %>]" value="1" data-stored-file-id="<%= hit.stored(:id) %>" />
-					<%= link_to hit.stored(:display_name).first, download_stored_file_path(hit.stored(:id)), :class => 'download-single' %>
-					<%= link_to hit.stored(:display_name).first, stored_file_path(hit.stored(:id)), :class => 'show-single' %>
-					<%= link_to hit.stored(:display_name).first, edit_stored_file_path(hit.stored(:id)), :class => 'edit-single' %>
+					<%= link_to raw('<span></span>'), download_stored_file_path(hit.stored(:id)), :class => 'download-single' %>
+					<%= link_to raw('<span></span>'), stored_file_path(hit.stored(:id)), :class => 'show-single' %>
+					<%= link_to raw('<span></span>'), edit_stored_file_path(hit.stored(:id)), :class => 'edit-single' %>
 				</span>
 				<span class="name">
 					<%= link_to hit.stored(:display_name).first, edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %>
@@ -108,7 +108,7 @@
 			</span>
 			<span class="author"><%= hit.stored(:author) %></span>
 			<span class="contributor"><%= hit.stored(:contributor_name) %></span>
-			<span class="license"><%= hit.stored(:license_name) %></span>
+			<span class="license"><%= hit.stored(:license_name).nil? ? '' : hit.stored(:license_name).first %></span>
 			<span class="batch"><%= hit.stored(:batch_id) %></span>
 		</div>
 	<% end %>

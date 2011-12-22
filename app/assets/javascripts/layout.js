@@ -161,8 +161,9 @@ var zone_one_base = {
 		//UI
 		$.each(['display_options', 'set_options', 'sort_options'], function(i, v) {
 			$('#show_' + v).click(function() {
-				$('.displayed').not($(this)).removeClass('displayed');
-				$(this).parent().toggleClass('displayed');
+				var par = $(this).parent();
+				$('.displayed').not(par).removeClass('displayed');
+				par.toggleClass('displayed');
 			});
 		});
 		$("input[type='checkbox'].toggle_column").click(function() {

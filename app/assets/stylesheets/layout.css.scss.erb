@@ -207,7 +207,10 @@ header {
         a { display: block; }
         #copyright_holder { margin-bottom: 10px; }
       }
-      #mime { padding-top: 10px; }
+      #mime {
+        padding-top: 10px; 
+        #mime_type { width: 110px; }
+      }
     }
   }
   #expand {
@@ -266,6 +269,50 @@ header {
 }
 #response { display: none; }
 
-.ui-dialog .ui-dialog-titlebar-close span {
-  background: transparent url(<%= image_path "close.png" %>) right 0px no-repeat;
+.ui-dialog {
+  border-radius: 0px;
+  border: 2px solid #cccccc;
+  display: none;
+  padding: 0px;
+  top: 0px; 
+  .ui-dialog-content {
+    padding: 0px;
+  }
+  .ui-dialog-titlebar {
+    .ui-dialog-title {
+      width: 366px;
+    }
+    border-radius: 0px;
+    background: #cccccc; 
+    font-weight: normal;
+    padding: 0px;
+    margin: 0px;
+    padding: 4px 4px 4px 20px;
+    line-height: 25px;
+    border: none;
+    a {
+      float: right;
+      border-left: 1px solid #e4e4e4;
+      height: 26px;
+      padding: 0px 5px;
+    }
+	.ui-dialog-titlebar-close {
+      margin: 0px;
+      top: 4px;
+      height: 26px;
+      span {
+        margin: 1px;
+        background: transparent url(<%= image_path "close.png" %>) right 0px no-repeat;
+      }
+    } 
+    .ui-state-hover {
+      border: none;
+      border-left: 1px solid #e4e4e4;
+      background: none;
+      width: 28px;
+      span {
+        margin-left: 5px;
+      }
+    }
+  }
 }
