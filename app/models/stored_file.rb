@@ -48,9 +48,9 @@ class StoredFile < ActiveRecord::Base
     :license_id, :publication_type_list, :groups_stored_files_attributes,
     :access_level_id, :original_date].freeze
 
-  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file] + ALLOW_MANAGE_ATTRIBUTES).freeze
+  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file, :batch_id] + ALLOW_MANAGE_ATTRIBUTES).freeze
 
-  FITS_ATTRIBUTES = [:file_size, :md5, :mime_type].freeze
+  FITS_ATTRIBUTES = [:file_size, :md5, :format_version, :mime_type].freeze
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
@@ -285,11 +285,6 @@ class StoredFile < ActiveRecord::Base
     user.decrease_available_quota!(file_size)
   end
 
-  def decrease_available_user_quota(amount_in_bytes=file_size)
-    ::Rails.logger.debug "PHUNK: DEcrease_available_user_quota-noex(#{amount_in_bytes}) firing"
-    user.decrease_available_quota!(amount_in_bytes)
-  end
-
   def increase_available_user_quota!(amount_in_bytes=file_size)
     ::Rails.logger.debug "PHUNK: INcrease_available_user_quota!(#{amount_in_bytes}) firing"
     user.increase_available_quota!(amount_in_bytes)
@@ -334,6 +329,8 @@ class StoredFile < ActiveRecord::Base
   end
 
   def update_tags(param, context, user)
+    return ::Rails.logger.debug "PHUNK: Skipping update_tags"
+    
     begin
       existing_tags = self.anonymous_tag_list(context).split(", ")
       submitted_tags = param.gsub(/\s+/, '').split(',')
@@ -390,38 +387,13 @@ class StoredFile < ActiveRecord::Base
   end
 
   def post_process
-    fits_updated = set_fits_attributes
-    #    self.wants_thumbnail = true
-    @wants_thumbnail = true
-    self.file.recreate_versions! rescue thumbnail_cache_cleanup
-    @wants_thumbnail = false
+    fits_ok = set_fits_attributes
+    thumbnail_ok = generate_thumbnail
 
-    if self.file.has_thumbnail?
-      # Don't use self.file_url(:thumbnail) here because we override it
-      current_thumbnail_path = self.file.thumbnail.url
-
-      # If the current thumbnail is not a jpg, replace it with one we create
-      if current_thumbnail_path !~ /\.jpg$/i
-        jpg_path = thumbnail_path(current_thumbnail_path)
-        im = Magick::ImageList.new(current_thumbnail_path).first
-        # Write the file to disk with the .jpg extension and imagemagick converts to jpg
-        im.write(jpg_path)
-
-        # If it was just created correctly, delete the previous, non-jpg one
-        if File.exist? jpg_path
-          self.has_thumbnail = true
-          File.delete current_thumbnail_path
-        end
-      else
-        self.has_thumbnail = true
-      end
-    else
-      ::Rails.logger.debug "PHUNK: Could not generate thumbnail. Go fish."
-    end
-    self.save! if (fits_updated || self.has_thumbnail)
-
+    self.save! if fits_ok || thumbnail_ok
     self.index
   end
+
 
   def file_url(*args)
     # Overridden version of CarrierWave::Mount.#{mounted_on}_url to do special handling for :thumbnail
@@ -432,12 +404,6 @@ class StoredFile < ActiveRecord::Base
     else
       file_path
     end
-  end
-
-  def update_fits_attributes
-    # Convenience method similar to standard "update_attributes", for FITS metadata,
-    # including the expected save() call that set_fits_attributes does NOT do
-    return (set_fits_attributes && save) || false
   end
 
   def set_fits_attributes(file_path=nil)
@@ -464,6 +430,36 @@ class StoredFile < ActiveRecord::Base
     return false
   end
 
+  def generate_thumbnail
+    @wants_thumbnail = true
+    self.file.recreate_versions! rescue thumbnail_cache_cleanup
+    @wants_thumbnail = false
+
+    if self.file.has_thumbnail?
+      # Don't use self.file_url(:thumbnail) in this method because we override it
+      current_thumbnail_path = self.file.thumbnail.url
+
+      # If the current thumbnail is not a jpg, replace it with one we create
+      if current_thumbnail_path !~ /\.jpg$/i
+        jpg_path = thumbnail_path(current_thumbnail_path)
+        im = Magick::ImageList.new(current_thumbnail_path).first
+        im.write(jpg_path)
+
+        # If it was just created correctly, delete the previous, non-jpg one
+        if File.exist? jpg_path
+          self.has_thumbnail = true
+          File.delete current_thumbnail_path
+        end
+      else
+        self.has_thumbnail = true
+      end
+    else
+      ::Rails.logger.debug "PHUNK: Could not generate thumbnail. Go fish."
+    end
+
+    self.has_thumbnail
+  end
+
   def self.cached_viewable_users(id)
     Rails.cache.fetch("stored-file-#{id}-viewable-users") do
       stored_file = StoredFile.find(id, :include => :user)
@@ -480,6 +476,7 @@ class StoredFile < ActiveRecord::Base
       users
     end
   end
+
 
   private
 

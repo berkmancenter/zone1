@@ -10,7 +10,7 @@ class RecreateSftpUsers < ActiveRecord::Migration
       t.integer :sftp_group_id
       t.string :homedir
       t.string :shell
-	    t.boolean :active, :default => true
+      t.boolean :active, :default => true
       t.timestamps
     end
     add_index :sftp_users, :username

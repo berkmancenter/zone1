@@ -14,7 +14,7 @@ class SftpUser < ActiveRecord::Base
   def uploaded_files
     # if homedir exists, but we don't have full access to it (possibly due to
     # a filesystem permissions problem in a parent directory, complain about it
-    if test(?d, self.homedir) && !( test(?r,self.homedir) && test(?x, self.homedir) )
+    if File.directory?(self.homedir) && !( File.readable?(self.homedir) && File.executable?(self.homedir) )
       ::Rails.logger.warn "Warning: homedir exists but is not accessible (+rx) to this user"
     end
     Dir[self.homedir + "/**/*"].reject {|fn| File.directory?(fn) }
@@ -29,15 +29,16 @@ class SftpUser < ActiveRecord::Base
 
   def initialize(params = nil)
     super
-    self.username = generate_username 
-    @raw_password = generate_password
+    # TODO: uncomment generate_* methods outside of dev
+    self.username = 'testuser' #generate_username 
+    @raw_password = 'testpass' #generate_password
     # proftpd requires that the attribute be named passwd instead of password. :/
     self.passwd = hash_password(@raw_password)
     self.homedir = generate_homedir
   end
 
   def delete_homedir
-    FileUtils.rm_rf self.homedir if test(?d, self.homedir)
+    FileUtils.rm_rf self.homedir if File.directory? self.homedir
   end
 
   def generate_username

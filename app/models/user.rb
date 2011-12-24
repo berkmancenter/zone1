@@ -6,12 +6,10 @@ class User < ActiveRecord::Base
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_users
   acts_as_tagger
 
-  # Caching related callbacks
   after_update { |record| User.destroy_viewable_users_cache(record) }
   after_destroy { |record| User.destroy_viewable_users_cache(record) }
   after_create { |record| User.destroy_viewable_users_cache(record) }
 
-  # Setup accessible (or protected) attributes for your model
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
     :quota_used, :quota_max, :role_ids, :right_ids
 
@@ -31,7 +29,8 @@ class User < ActiveRecord::Base
   validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
 
   def quota_used
-     #must use self.quota_used in order to call instance method instead of directly accessing database value
+    #must use self.quota_used in order to call instance method instead of directly accessing database value
+    # TODO: do we need this, especially since we have added a default value of zero to the DB?
     read_attribute(:quota_used) || 0
   end
 
@@ -42,19 +41,15 @@ class User < ActiveRecord::Base
 
   def default_quota_max
     default = Preference.find_by_name_cached("Default User Upload Quota")
-    default.present? ? default.value.to_i : 0
+    default.nil? ? 0 : default.value.to_i
   end
 
   def quota_max=(amount)
-    if amount.to_i != default_quota_max
-      write_attribute :quota_max, amount
-    else
-      write_attribute :quota_max, nil
-    end
+    write_attribute :quota_max, (amount.to_i != default_quota_max ? amount : nil)
   end
 
   def decrease_available_quota!(amount)
-    return increment(:quota_used, amount.to_i)
+    return increment!(:quota_used, amount.to_i)
   end
 
   def increase_available_quota!(amount)

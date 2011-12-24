@@ -37,11 +37,11 @@ class StoredFilesController < ApplicationController
     send_file stored_file.file_url, :x_sendfile => true, :filename => stored_file.original_filename
   end
 
-  def thumbnail
-    stored_file = StoredFile.find(params[:id])
-    ::Rails.logger.debug "PHUNK: thumbnail route requesting: #{stored_file.thumbnail_url}"
-    send_file stored_file.thumbnail_url, :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
-  end
+#  def thumbnail
+#    stored_file = StoredFile.find(params[:id])
+#    ::Rails.logger.debug "PHUNK: thumbnail route requesting: #{stored_file.thumbnail_url}"
+#    send_file stored_file.thumbnail_url, :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
+#  end
 
   def show
     @stored_file = StoredFile.find(params[:id])
@@ -177,6 +177,7 @@ class StoredFilesController < ApplicationController
   end
  
   def create
+    # TODO: I think this gets handled in the ApplicationController now. If so, remove this.
     if current_user.nil?
       render :json => {:success => false, :message => "It doesn't look like you're logged in."}
       return
@@ -214,7 +215,7 @@ class StoredFilesController < ApplicationController
       # update_batch can see the stored_file.id. For is_sftp_only, stored_file.id
       # will of course be nil, which update_batch can handle just fine.
       batch_id = update_batch(params[:temp_batch_id], stored_file.id, force_batch)
-      stored_file.index
+      stored_file.index unless is_sftp_only
 
       if needs_remote_file_import?(sftp_user)
         #TODO: I'm not sure sftp files are getting the correct batch_id any more
@@ -222,9 +223,11 @@ class StoredFilesController < ApplicationController
         session[:remote_import_temp_batch_ids] ||= {}
         session[:remote_import_temp_batch_ids][params[:temp_batch_id]] = true
         file_params = params[:stored_file].dup
+        file_params[:batch_id] = batch_id
         # Resque will barf trying to JSON serialize any binary entries in file_params
         file_params.delete :file
-        Resque.enqueue(RemoteFileImporter, params[:sftp_username], file_params)
+        #Resque.enqueue(RemoteFileImporter, params[:sftp_username], file_params)
+        RemoteFileImporter.perform params[:sftp_username], file_params
       end
     rescue Exception => e
       exceptions << e

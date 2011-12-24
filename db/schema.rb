@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111220204730) do
+ActiveRecord::Schema.define(:version => 20111224004725) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -187,21 +187,18 @@ ActiveRecord::Schema.define(:version => 20111220204730) do
   end
 
   create_table "sftp_users", :force => true do |t|
-    t.integer  "user_id",                         :null => false
-    t.string   "username",                        :null => false
-    t.string   "passwd",                          :null => false
+    t.integer  "user_id",       :null => false
+    t.string   "username",      :null => false
+    t.string   "passwd",        :null => false
     t.integer  "uid"
     t.integer  "sftp_group_id"
     t.string   "homedir"
-    t.string   "shell"
-    t.boolean  "active",        :default => true
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "shell"
   end
 
   add_index "sftp_users", ["passwd"], :name => "index_sftp_users_on_passwd"
-  add_index "sftp_users", ["sftp_group_id"], :name => "index_sftp_users_on_sftp_group_id"
-  add_index "sftp_users", ["user_id"], :name => "index_sftp_users_on_user_id"
   add_index "sftp_users", ["username"], :name => "index_sftp_users_on_username"
 
   create_table "stored_files", :force => true do |t|
@@ -269,7 +266,7 @@ ActiveRecord::Schema.define(:version => 20111220204730) do
     t.string   "affiliation"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "quota_used"
+    t.integer  "quota_used",                            :default => 0
     t.integer  "quota_max"
   end
 

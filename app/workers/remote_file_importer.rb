@@ -2,8 +2,8 @@ class RemoteFileImporter
   @queue = :remote_file_importer_queue
 
   def self.perform(sftp_username, file_params)
-    ::Rails.logger.debug "RemoteFileImporter firing for sftp_username #{sftp_username}"
-    sftp_user = SftpUser.find_by_username(sftp_username, :include => :user)
+    ::Rails.logger.info "RemoteFileImporter firing for sftp_username: #{sftp_username}"
+    sftp_user = SftpUser.find_by_username(sftp_username)
     bytes_used = 0
 
     exceptions = {}
@@ -11,9 +11,10 @@ class RemoteFileImporter
       begin
         file_params[:original_filename] = File.basename(file_path)
         file_params[:file] = File.open(file_path)
-        stored_file = StoredFile.new(:skip_quota => true)
+        stored_file = StoredFile.new
+        stored_file.skip_quota = true
         stored_file.custom_save(file_params, sftp_user.user)
-        stored_file.post_process!
+        stored_file.post_process
         bytes_used += stored_file.file.size
       rescue Exception => e
         exceptions[file_params[:original_filename]] = e.to_s
