@@ -26,7 +26,7 @@ apache/nginx + passenger
 ** XSendFile On
 ** XSendFilePath $RAILS_ROOT/assets
 ** XSendFilePath $RAILS_ROOT/uploads
-** XSendFilePath $RAILS_ROOT/tmp
+** XSendFilePath $RAILS_ROOT/downloads
 ** XSendFilePath $RAILS_ROOT/public
 ** In general, make sure to add XSendFilePath to whitelist any location you want users to be able to download from
 * must configure Rails enviornment to include  
@@ -42,9 +42,11 @@ nginx
 
 Required cron jobs
 ========
-Temporary files are created by stored_files_controller#download_set in $RAILS_ROOT/tmp.  These
-files must be cleared periodically by running rake zone_one:remove_download_sets.  This task will
-delete zip files older than 1 hour.
+Temporary files are created by stored_files_controller#download_set in $RAILS_ROOT/downloads.
+These files must be cleared periodically by running rake zone_one:remove_download_sets. You'll
+want a cron job to clear old files out of that directory periodically. E.g.
+# expire download files after 120 minutes
+20 * * * * nice find $RAILS_ROOT/download/ -mindepth 1 -maxdepth 1 -mmin +120 -print0 | xargs -0 -r rm -rf
 
 
 Solr Notes
@@ -71,3 +73,34 @@ RAILS BEST PRACTICES OUTPUT
 * bundle exec rails_best_practices -f html .
 * mv rails_best_practices.html public/rbp.html
 * visit http://<your_camp>/rbp.html
+
+
+SFTP / Proftpd setup and use
+========
+
+In development, proftpd is run on a camp-specific port number and uses virtual users, but
+you'll need to update your camp's var/proftpd.conf file to match your camp's paths, database
+connection info, as well as the proftpd port number in order for it to run correctly in
+*your* camp. See below for how to start and access it.
+
+To run proftpd in production, just take the camp-specific var/proftpd.conf file from this
+git repo and either customize all the camp-specific config entries, or delete them and
+let proftpd run with the defaults. You will need to keep and customize the following 
+config values: SQLConnectInfo, SQLDefaultUID, SQLDefaultGID. See the camp-specific
+proftpd.conf for more details.
+
+To start proftpd in a camp, do this as *root*:
+
+  proftpd -c /home/phunk/camp12/var/proftpd.conf
+
+To restart proftpd in a camp, do this as *root*:
+
+  kill -HUP `cat /home/phunk/camp12/var/run/proftpd.pid`
+
+To connect and upload files:
+
+  sftp -oPort=10120 $username@174.37.104.41
+
+where the port is correct for your camp, and $username is from the SFTP piece of
+the Upload UI.
+
