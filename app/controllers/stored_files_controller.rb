@@ -2,7 +2,6 @@ class StoredFilesController < ApplicationController
   protect_from_forgery
   include ApplicationHelper
   
-
   access_control do
     allow logged_in, :to => [:create, :new]
 
@@ -31,17 +30,6 @@ class StoredFilesController < ApplicationController
     end
     false
   end
-
-  def download
-    stored_file = StoredFile.find(params[:id])
-    send_file stored_file.file_url, :x_sendfile => true, :filename => stored_file.original_filename
-  end
-
-#  def thumbnail
-#    stored_file = StoredFile.find(params[:id])
-#    ::Rails.logger.debug "PHUNK: thumbnail route requesting: #{stored_file.thumbnail_url}"
-#    send_file stored_file.thumbnail_url, :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
-#  end
 
   def show
     @stored_file = StoredFile.find(params[:id])
@@ -244,6 +232,16 @@ class StoredFilesController < ApplicationController
       render :json => {:success => false, :message => errors.join(', ')}
     end
 
+  end
+
+  def thumbnail
+    stored_file = StoredFile.find(params[:id])
+    send_file stored_file.file_url(:thumbnail), :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
+  end
+
+  def download
+    stored_file = StoredFile.find(params[:id])
+    send_file stored_file.file_url, :x_sendfile => true, :filename => stored_file.original_filename
   end
 
   def download_set

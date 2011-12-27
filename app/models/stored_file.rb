@@ -329,8 +329,6 @@ class StoredFile < ActiveRecord::Base
   end
 
   def update_tags(param, context, user)
-    return ::Rails.logger.debug "PHUNK: Skipping update_tags"
-    
     begin
       existing_tags = self.anonymous_tag_list(context).split(", ")
       submitted_tags = param.gsub(/\s+/, '').split(',')

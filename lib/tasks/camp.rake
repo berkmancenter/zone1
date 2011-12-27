@@ -9,7 +9,6 @@ namespace :camp do
     Rake::Task["db:migrate"].invoke
     Rake::Task["db:seed"].invoke
     Rake::Task["sunspot:reindex"].invoke([StoredFile])
-    `/home/camp/bin/re stop --all`
-    `/home/camp/bin/re start --all`
+    `/home/camp/bin/re --all`
   end
 end
