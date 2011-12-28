@@ -8,4 +8,5 @@
 //= require jquery_ujs
 //= require jquery-ui
 //= require plupload
+//= require jquery.cookie
 //= require_tree .

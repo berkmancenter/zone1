@@ -41,6 +41,7 @@ var zone_one_base = {
 	setup_listgrid: function() {
 		//Toggle between list and thumb
 		$('#list,#grid').click(function() {
+			$.cookie("list_grid", $(this).attr('id'), { path: "/" });
 			if($('#results').hasClass($(this).attr('id'))) {
 				return false;
 			}
@@ -55,7 +56,11 @@ var zone_one_base = {
 			$(this).attr("checked", true);
 			return true;
 		});
-		$('#list').attr('checked', true);
+		if($.cookie("list_grid")) {
+			$('#' + $.cookie('list_grid')).click();
+		} else {
+			$('#list').attr('checked', true);
+		}
 	},
 	setup_quickview: function() {
 		$('.quick_edit_link').click(function() {
