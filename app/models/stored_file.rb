@@ -102,9 +102,9 @@ class StoredFile < ActiveRecord::Base
   end
 
   def mime_type_category_id
-    #used for faceted search.
+    # Used for faceted search and as a convenience method for stored_files_helper#preview
     # Delegate didn't really play nice with the nils that are happening before Fits::analyze runs
-    self.mime_type.mime_type_category_id if self.mime_type && self.mime_type.mime_type_category
+    self.mime_type.try :mime_type_category_id
   end
 
   def indexed_tag_list
@@ -216,8 +216,11 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
-  def custom_save(params, user)
-    if new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
+  def custom_save(file_params, user)
+    # Operate on a copy of file_params
+    params = file_params.dup
+
+    if self.new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
       raise MimeType.blacklisted_message(params[:original_filename])
     end
 
@@ -227,18 +230,13 @@ class StoredFile < ActiveRecord::Base
 
     prepare_comment_params(params, user)
 
-    if update_attributes(params)
-      if params.has_key?(:tag_list)
-        update_tags(params[:tag_list], :tags, user)
-        params.delete(:tag_list)
-      end
-  
-      if params.has_key?(:collection_list)
-        update_tags(params[:collection_list], :collections, user)
-        params.delete(:collection_list)
-      end
+    # Use strings instead of symbols so this will work when called via a Resque job, too.
+    tag_list = params.delete('tag_list')
+    collection_list = params.delete('collection_list')
 
-      return true
+    if update_attributes(params)
+      update_tags(tag_list, :tags, user) if tag_list
+      update_tags(collection_list, :collections, user) if collection_list
     else
       raise self.errors.full_messages.join(', ')
     end
@@ -248,8 +246,6 @@ class StoredFile < ActiveRecord::Base
   def attr_accessible_for(params, user)
 
     valid_attr = ALWAYS_ACCESSIBLE_ATTRIBUTES.dup
-
-#    logger.debug "ALWAYS ACCESSIBLE: #{valid_attr.inspect}"
 
     if self.new_record?
       valid_attr = valid_attr + CREATE_ATTRIBUTES
@@ -265,8 +261,6 @@ class StoredFile < ActiveRecord::Base
     end
     valid_attr << :tag_list if self.allow_tags == true && user.present?
     
-#    logger.debug "ATTR_ACCESSIBLE_FOR: #{valid_attr.uniq.inspect}"
-    
     valid_attr.uniq
   end
 
@@ -281,12 +275,10 @@ class StoredFile < ActiveRecord::Base
   end
 
   def decrease_available_user_quota!
-    ::Rails.logger.debug "PHUNK: DEcrease_available_user_quota!(#{file_size}) firing"
     user.decrease_available_quota!(file_size)
   end
 
   def increase_available_user_quota!(amount_in_bytes=file_size)
-    ::Rails.logger.debug "PHUNK: INcrease_available_user_quota!(#{amount_in_bytes}) firing"
     user.increase_available_quota!(amount_in_bytes)
   end
 
@@ -387,29 +379,22 @@ class StoredFile < ActiveRecord::Base
   def post_process
     fits_ok = set_fits_attributes
     thumbnail_ok = generate_thumbnail
-
     self.save! if fits_ok || thumbnail_ok
+    # Always index, regardless of fits and thumbnail results
     self.index
   end
-
 
   def file_url(*args)
     # Overridden version of CarrierWave::Mount.#{mounted_on}_url to do special handling for :thumbnail
     file_path = self.file.url(*args)
-
-    if args.first == :thumbnail
-      thumbnail_path(file_path)
-    else
-      file_path
-    end
+    return args.first == :thumbnail ? thumbnail_path(file_path) : file_path
   end
 
-  def set_fits_attributes(file_path=nil)
+  def set_fits_attributes
     # Note: Does NOT save changes to database
     # Returns: Boolean based on whether or not FITS returned usable metadata
-    file_path ||= self.file_url
     begin
-      metadata = Fits::analyze(file_path)
+      metadata = Fits::analyze(self.file_url)
       if !(metadata.class == Hash && metadata.keys.length > 0)
         ::Rails.logger.warn "Got un-usable metadata from FITS: #{metadata.inspect}"
         return false
@@ -430,7 +415,7 @@ class StoredFile < ActiveRecord::Base
 
   def generate_thumbnail
     @wants_thumbnail = true
-    self.file.recreate_versions! rescue thumbnail_cache_cleanup
+    self.file.recreate_versions! rescue failed_thumbnail_cleanup
     @wants_thumbnail = false
 
     if self.file.has_thumbnail?
@@ -452,7 +437,7 @@ class StoredFile < ActiveRecord::Base
         self.has_thumbnail = true
       end
     else
-      ::Rails.logger.debug "PHUNK: Could not generate thumbnail. Go fish."
+      #::Rails.logger.debug "PHUNK: Could not generate thumbnail."
     end
 
     self.has_thumbnail
@@ -478,7 +463,7 @@ class StoredFile < ActiveRecord::Base
 
   private
 
-  def thumbnail_cache_cleanup
+  def failed_thumbnail_cleanup
     # Delete cached files that have been orphaned in their cache directory.
     # Note that cache_dir is always going to be specific to this stored_file
     # instance, but we are still explicit about what files we try to delete,
@@ -496,12 +481,12 @@ class StoredFile < ActiveRecord::Base
   end
 
   def thumbnail_path(file_path)
-    file_path.sub( /(\.+[^\.]*|)$/, '.jpg' ) unless file_path.nil?
+    file_path.sub( /(\.+[^\.]*|)$/, '.jpg' ) if file_path.present?
   end
 
   def update_file_size
     if self.file_size.nil? && file.present? && file_changed?
-      self.file_size = file.file.size  # rescue 0
+      self.file_size = file.file.size
     end
   end
 
@@ -509,7 +494,7 @@ class StoredFile < ActiveRecord::Base
     if params[:comments_attributes]
       params[:comments_attributes].delete_if { |key, value| value[:content].empty? }
       params[:comments_attributes].values.each do |comment_hash|
-        comment_hash.merge!("user_id" => user.id)
+        comment_hash.merge!(:user_id => user.id)
       end
     end
   end

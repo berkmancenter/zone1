@@ -4,7 +4,9 @@ class FileUploader < CarrierWave::Uploader::Base
   storage :file
 
   version :thumbnail, :if => :wants_thumbnail? do
+    # TODO: Could you define the filename method just for :thumbnail here a la https://groups.google.com/forum/#!topic/carrierwave/mtTFkoT82pg ?
     process :resize_to_limit => [200, 200]
+    #process :convert =>['jpg'] ?
   end
 
   def wants_thumbnail?(uploader)
@@ -48,15 +50,15 @@ class FileUploader < CarrierWave::Uploader::Base
   end
   
   def filename
-    # Override the filename of the uploaded files:
-    # Avoid using model.id or version_name here, see uploader/store.rb for details.
-    return @name if @name
-    if original_filename.present?
-      @name = "#{secure_token}.#{file.extension.downcase}"
-      # Handle filenames with no extension
-      @name.chop! if @name =~ /\.$/
-      return @name
-    end
+    # Generate the new filename for uploaded files. Avoid using model.id or
+    # version_name here, see uploader/store.rb for details.
+
+    # Note: This logic looks a little convoluted because it needs to ensure
+    # this file and its versions get the same base filename even when called
+    # in two separate processes (i.e. @name will be nil in the second process.)
+    @name ||= model.file_identifier if model.file_identifier
+    ext = file.extension.present? ? ".#{file.extension.downcase}" : ''
+    @name ||= secure_token + ext if original_filename.present?
   end
 
   protected

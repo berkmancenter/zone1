@@ -2,7 +2,7 @@ require 'resque/tasks'
 
 namespace :resque do
   desc "Setup resque"
-  task :setup do 
+  task :setup => :environment do
     Resque.before_fork = Proc.new { ActiveRecord::Base.establish_connection }
   end
 

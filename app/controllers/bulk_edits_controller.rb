@@ -28,41 +28,35 @@ class BulkEditsController < ApplicationController
 
   def create
     begin 
-    unless params.has_key? :attr_for_bulk_edit
+      if !params.has_key? :attr_for_bulk_edit
+        raise "Please select items to update."
+      end
 
-      raise "Please select items to update."
-
-    else
       stored_files = StoredFile.find(params[:stored_file_ids])
 
-      #Run the bulk edit inside a transaction because
-      #if one save completes but another fails, all changes
-      #should be rolled back.  This also covers issues clearing
-      #flaggings or groups.
+      # Run the bulk edit inside a transaction because if one save completes but
+      # another fails, all changes should be rolled back. This also covers issues 
+      # clearing flaggings or groups.
       StoredFile.transaction do
-
-        #Does not include flaggings or groups.
-        #These must be customized for each stored file.
+        # Does not include flaggings or groups.
+        # These must be customized for each stored file.
         eligible_params = eligible_params_for_bulk_edit
         
         stored_files.each do |stored_file|
+          # Always start with same base
+          stored_file_params = eligible_params.clone 
 
-          stored_file_params = eligible_params.clone #always start with same base
-
-          #customize flaggings and groups per stored file
+          # Customize flaggings and groups per stored file
           stored_file_params.merge! flaggings_attributes_for(stored_file)
           stored_file_params.merge! groups_attributes_for(stored_file)
 
           stored_file.custom_save(stored_file_params, current_user)
-
           stored_file.index
+        end
 
-        end #stored_file.each
-      end #StoredFile.transaction
-      
-      flash[:notice] = "Files updated."
-      redirect_to :action => "new", :stored_file_ids => params[:stored_file_ids]
-    end
+        flash[:notice] = "Files updated."
+        redirect_to :action => "new", :stored_file_ids => params[:stored_file_ids]
+      end
 
     rescue Exception => e
       log_exception e
@@ -79,40 +73,32 @@ class BulkEditsController < ApplicationController
   def flaggings_attributes_for(stored_file)
     flagging_attributes = {}
     params[:attr_for_bulk_edit].each do |attr|
-
       if attr.is_a?(Hash) 
-        
         if attr.has_key?("flag_ids") && params[:stored_file].has_key?("flaggings_attributes")
-
           flagging_attributes.merge! eligible_flagging_attributes(stored_file, attr[:flag_ids], params[:stored_file][:flaggings_attributes])
         end
-      end #attr.is_a?
-    end #params loop
+      end
+    end
     return flagging_attributes
   end
 
   def groups_attributes_for(stored_file)
     group_attributes = {}
     params[:attr_for_bulk_edit].each do |attr|
-
       if attr.is_a?(Hash) 
-        
         if attr.has_key?("group_ids") && params[:stored_file].has_key?("groups_stored_files_attributes")
-
           group_attributes.merge! eligible_group_attributes(stored_file, attr[:group_ids], params[:stored_file][:groups_stored_files_attributes])
         end
-      end #attr.is_a?
-    end #params loop
+      end
+    end
     return group_attributes
   end
 
   def eligible_params_for_bulk_edit
     eligible_params = {}
-
     params[:attr_for_bulk_edit].each do |attr|
       eligible_params.merge!({ attr => params[:stored_file][attr] }) if params[:stored_file].has_key?(attr)
     end
-
     eligible_params
   end
 
