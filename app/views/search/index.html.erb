@@ -11,7 +11,8 @@
 	<% end -%>
 	<hgroup class="results_options">
 		<ul>
-			<li>
+      <li>
+        <input type="checkbox" id="bulk_select" />
 				<a id="show_set_options" href="#">SELECTED</a>
 				<div id="set_options">
 					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
