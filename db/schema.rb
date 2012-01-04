@@ -193,9 +193,9 @@ ActiveRecord::Schema.define(:version => 20111224004725) do
     t.integer  "uid"
     t.integer  "sftp_group_id"
     t.string   "homedir"
+    t.string   "shell"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "shell"
   end
 
   add_index "sftp_users", ["passwd"], :name => "index_sftp_users_on_passwd"

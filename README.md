@@ -1,7 +1,7 @@
-Data Setup
+Camp Setup
 ========
 
-rake db:rebuild RAILS_ENV=development
+rake camp:rebuild RAILS_ENV=development
 
 Notes on Stack, Dependencies
 ========
