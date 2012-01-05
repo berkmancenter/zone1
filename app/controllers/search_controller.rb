@@ -50,7 +50,9 @@ class SearchController < ApplicationController
     end
 
     @search.execute!
-    @hits = filter_and_paginate_search_results(@search)
+    @all_hits = filter_search_results(@search)
+    @hits = @all_hits.paginate(:page => params[:page], :per_page => per_page)
+    @hit_ids_on_other_pages = (@all_hits.collect { |hit| hit.stored(:id) }) - (@hits.collect { |hit| hit.stored(:id) })
 
     build_removeable_facets(params)
 
@@ -200,10 +202,10 @@ class SearchController < ApplicationController
 
   private
 
-  # Private method for filtering and paginating search results
+  # Private method for filtering search results
   # Working directly with search.hits minimizes the requirement to access
   # stored file object, and eliminates object instantiation
-  def filter_and_paginate_search_results(search)
+  def filter_search_results(search)
     filtered_results = []
 
     open = AccessLevel.open
@@ -214,8 +216,8 @@ class SearchController < ApplicationController
         filtered_results << hit 
       end
     end
-
-    filtered_results.paginate :page => params[:page], :per_page => per_page
+    
+    filtered_results
   end
 
   def per_page

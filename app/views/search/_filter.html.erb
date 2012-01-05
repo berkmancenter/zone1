@@ -16,7 +16,10 @@
 	</div>
 	<% end -%>
 
-	<%= form_tag search_path, :method => :get, :id => "search_form" do %>
+  <%= form_tag search_path, :method => :get, :id => "search_form" do %>
+
+    <input type="hidden" name="per_page" id="per_page" size="3" value="<%= per_page %>" />
+
 		<div id="hidden_facets">
 		<% if @hidden_facets -%>
 		<% @hidden_facets.each do |k, v| %>
@@ -34,7 +37,7 @@
 		Search by Keyword <a href="#" id="tips">(SEARCH TIPS)</a>
 		<div id="search_bar">
 			<%= text_field_tag "search[]", '' %>
-			<input type="image" src="<%= image_path "search.png" %>" />
+			<input type="image" src="<%= image_path "search.png" %>" id="execute_search_image" />
 			<div class="clear"></div>
 		</div>
 	</div>

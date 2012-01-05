@@ -9,7 +9,7 @@
 	<%= flash[key] %>
 	</div>
 	<% end -%>
-	<hgroup class="results_options">
+  <hgroup class="results_options">
 		<ul>
       <li>
         <input type="checkbox" id="bulk_select" />
@@ -30,7 +30,7 @@
 			</li>
 			<li>
 				<a id="show_display_options" href="#">DISPLAY OPTIONS</a>
-				<div id="display_options">
+        <div id="display_options">
 					<input type="radio" name="list_grid" id="list" checked="true" />
 					<div id="list_view"></div>
 					<input type="radio" name="list_grid" id="grid" />
@@ -62,7 +62,11 @@
 							<%= toggle_field_box "batch" %>
 						</p>
 						<div class="clear"></div>
-					</div>
+          </div>
+          <div class="per_page">
+            <hr />
+            <input type="text" id="per_page_user_input" size="3" value="<%= per_page %>" /> Results per page (<a href="#" id="refresh-per-page">refresh</a>)
+          </div>
 				</div>
 			</li>
 			<li>
@@ -75,12 +79,15 @@
 					<%= sortable "file_size" %>
 					<%= sortable "batch_id" %>
 				</div>
-			</li>
+      </li>
 		</ul>
 		<div class="paginate">
-			<%= will_paginate @hits %>
-		</div>
-		<div class="clear"></div>
+      <%= will_paginate @hits %>
+    </div>
+    <div class="clear"></div>
+    <div class="multi_page_selection_helper">
+      <%= render "multi_page_selection_helper" %>
+    </div>
 	</hgroup>
 
 		<div id="files">	
@@ -120,5 +127,5 @@
 		</div>
 		<div class="clear"></div>
 	</hgroup>
-</section>
-<div class="clear"></div>
+  </section>
+  <div class="clear"></div>

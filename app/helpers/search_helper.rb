@@ -36,4 +36,8 @@ module SearchHelper
       end
     end
   end
+  
+  def per_page
+    session[:per_page] = params[:per_page] || session[:per_page] || "10"
+  end
 end
