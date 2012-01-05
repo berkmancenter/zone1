@@ -102,14 +102,13 @@ $(function() {
 		// We have to do this after the uploads are done, otherwise
 		// PLupload blows away our custom error message.
 		var rowId = '#' + file.id;
-		$(rowId).removeClass('plupload_done');
-		$(rowId).addClass('ui-state-error').addClass('plupload_failed');
-		var spanId = rowId + ' td.plupload_cell span';
+		$(rowId).removeClass('plupload_done').addClass('ui-state-error').addClass('plupload_failed');
+
+    var spanId = rowId + ' td.plupload_cell span';
 		$(spanId).text( $(spanId).text() + '  [ERROR: ' + msg + ']' );
 
-		var iconTd = $(rowId).children()[3];
-		var iconDiv = iconTd.firstChild;
-		$(iconDiv).removeClass('ui-icon-circle-check').addClass('ui-icon-alert');
+    var iconDivId = rowId + "td.plupload_file_action div.ui-icon";
+		$(iconDivId).removeClass('ui-icon-circle-check').addClass('ui-icon-alert');
 	};
 
 	var SFTP_INITIALIZED = false;
