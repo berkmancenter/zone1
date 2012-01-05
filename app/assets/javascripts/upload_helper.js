@@ -173,7 +173,7 @@ $(function() {
 				$('#uploader_start').button('enable');
 				var uploader = $('#uploader').plupload('getUploader');
 				uploader.bind('StateChanged', function(up) { 
-					if (!SFTP_DONE && (up.state == plupload.STARTED) && (up.files.length == 0)) {
+					if (!SFTP_DONE && (up.state == plupload.STARTED)) {
 						post_sftp(up);
 					}
 				}

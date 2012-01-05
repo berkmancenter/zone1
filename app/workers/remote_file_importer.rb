@@ -21,13 +21,20 @@ class RemoteFileImporter
         bytes_used += stored_file.file.size
         file_list << stored_file.original_filename
       rescue Exception => e
-        exceptions << params[:original_filename] + ': ' + e.backtrace.to_s
+        exceptions << [params[:original_filename], e]
       end
     end
 
     # TODO: Email user a summary/confirmation of job completion, especially any errors
     if !exceptions.empty?
-      ::Rails.logger.warn "RemoteFileImporter errors found: #{exceptions.inspect}"
+      exceptions.each do |exception|
+        ::Rails.logger.warn "RemoteFileImporter errors found for #{exception[0]}"
+        ::Rails.logger.warn exception[1].inspect
+        ::Rails.logger.warn "BACKTRACE:"
+        exception[1].backtrace.each do |backtrace_line|
+          ::Rails.logger.warn backtrace_line
+        end
+      end
     end
 
     # skip_quota was in effect (see above), so debit this user's quota once for total bytes used
