@@ -17,6 +17,18 @@ class Preference < ActiveRecord::Base
     Preference.all.detect { |p| p.name == name }
   end 
 
+  def self.default_user_upload_quota
+    Preference.find_by_name_cached("Default User Upload Quota")
+  end
+
+  def self.max_web_upload_filesize
+    Preference.find_by_name_cached("Max Web Upload Filesize")
+  end
+
+  def self.retention_period
+    Preference.find_by_name_cached("Retention Period")
+  end
+
   # TODO: Use constants for :name, or at least add a :display value that the user sees,
   # then make :name something more constant-ish and programatically friendly
   # e.g. :name => 'max_http_upload_file_size', :display => 'Maximum filesize that can be uploaded via the Web UI (KB)'

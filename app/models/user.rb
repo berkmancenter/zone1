@@ -40,7 +40,7 @@ class User < ActiveRecord::Base
   end
 
   def default_quota_max
-    default = Preference.find_by_name_cached("Default User Upload Quota")
+    default = Preference.default_user_upload_quota
     default.nil? ? 0 : default.value.to_i
   end
 
