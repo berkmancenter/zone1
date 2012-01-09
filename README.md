@@ -106,3 +106,58 @@ To connect and upload files:
 where the port is correct for your camp, and $username is from the SFTP piece of
 the Upload UI.
 
+CACHING
+=========
+AccessLevel
+-------------
+Cached methods: .all
+Caches will be destroyed: after_update, after_create, after_destroy
+
+Flag
+-------------
+Cached methods: .all
+Caches will be destroyed: after_update, after_create, after_destroy
+
+Group
+-------------
+Cached methods: .cached_viewable_users(right)
+Caches will be destroyed: after_update, after_create, after_destroy
+
+License
+------------
+Cached methods: .all
+Caches will be destroyed: after_update, after_create, after_destroy
+
+MimeType
+------------
+Cached methods: .all, .blacklisted_extensions
+Caches will be destroyed: after_update, after_create, after_destroy
+
+MimeTypeCategory
+------------
+Cached methods: .all
+Caches will be destroyed: after_update, after_create, after_destroy
+
+Preference
+------------
+Cached methods: .all
+Caches will be destroyed: after_update, after_create, after_destroy
+
+Role
+------------
+Cached methods: .user_rights, .cached_viewable_users(right)
+Caches will be destroyed: after_update, after_create, after_destroy
+
+StoredFile
+--------------
+Cached methods: #tag_list, .cached_viewable_users(id)
+Caches will be destroyed: after_update, before_destroy
+
+User
+-----------
+Cached methods: #all_rights, .users_with_right, .cached_viewable_users, can_view_cached?, .all
+Caches will be destroyed: after_update, after_create, after_destroy
+
+Warden::Manager (see application_controller)
+-----------
+Caches will be destroyed: after_authentication
