@@ -12,7 +12,7 @@ gem 'sunspot_solr'
 gem 'acl9'
 gem 'will_paginate', '3.0.2'
 gem 'nokogiri'
-gem 'carrierwave', :git => "git@github.com:bbuchalter/carrierwave.git"
+gem 'carrierwave'
 gem 'rmagick'
 gem 'rubyzip'
 gem 'resque', :require => "resque/server"

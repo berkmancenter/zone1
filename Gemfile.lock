@@ -5,13 +5,6 @@ GIT
     rails3_acts_as_paranoid (0.1.1.4)
       activerecord (~> 3.1)
 
-GIT
-  remote: git@github.com:bbuchalter/carrierwave.git
-  revision: 7d4468d2bad9e9edcb07da1a5f7174b833acdef3
-  specs:
-    carrierwave (0.5.8)
-      activesupport (>= 3.0)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -56,6 +49,8 @@ GEM
       rack-test (>= 0.5.4)
       selenium-webdriver (~> 2.0)
       xpath (~> 0.1.4)
+    carrierwave (0.5.8)
+      activesupport (~> 3.0)
     childprocess (0.2.4)
       ffi (~> 1.0.6)
     coffee-rails (3.1.1)
@@ -225,7 +220,7 @@ DEPENDENCIES
   acl9
   acts-as-taggable-on
   capybara
-  carrierwave!
+  carrierwave
   coffee-rails (~> 3.1.0)
   database_cleaner
   devise

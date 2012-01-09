@@ -69,6 +69,26 @@ class StoredFile < ActiveRecord::Base
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
+  def remove_file!
+    # This method overloads the remove_file! helper method which is provided by Carrierwave::Mount
+    # The purpose of this override is to prevent the after_destroy callback from firing.
+    # This allows for the soft-delete functionality acts_as_paranoid provides.
+    #
+    # Unforutnatly, Rails 3.1.3 has a bug in skip_callback, so despite best efforts, this nice line:
+    # StoredFile.skip_callback :destroy, :after, :remove_file!
+    # WILL NOT WORK.
+    #
+    # Thus we override the method, and leave it to the developer to call this if they REALLY
+    # want to delete the associated file:
+    #
+    # _mounter(:file).remove!
+    #
+    # This is a private method, so if you need to use it outside the model call it as follows:
+    #
+    # @stored_file.__send__(:_mounter, :file).remove!
+    #
+  end
+
   searchable(:include => [:tags, :mime_type, :mime_type_category], :auto_index => false) do
     # Note: Both text and string fields needed. Solr searches text in fulltext
     # queries, but string is also needed for with in search.
