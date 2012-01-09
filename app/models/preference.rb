@@ -29,6 +29,11 @@ class Preference < ActiveRecord::Base
     Preference.find_by_name_cached("Retention Period")
   end
 
+  def self.default_license
+    license_preference = Preference.find_by_name_cached("Default License")
+    License.find_by_name(license_preference.value)
+  end
+
   # TODO: Use constants for :name, or at least add a :display value that the user sees,
   # then make :name something more constant-ish and programatically friendly
   # e.g. :name => 'max_http_upload_file_size', :display => 'Maximum filesize that can be uploaded via the Web UI (KB)'

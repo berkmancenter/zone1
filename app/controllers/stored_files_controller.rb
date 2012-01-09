@@ -151,6 +151,7 @@ class StoredFilesController < ApplicationController
     # TODO: Possibly clean up later, but low priority
     @stored_file.user = current_user
     @stored_file.access_level = AccessLevel.default
+    @stored_file.license = Preference.default_license
     @max_web_upload_file_size = Preference.max_web_upload_filesize.try(:value)
     @max_web_upload_file_size ||= '100mb' #arbitrary default. (standard 'mb', 'kb', 'b' units required)
 

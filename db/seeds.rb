@@ -27,6 +27,7 @@ puts "Generating preferences"
 Preference.create([{:name => "Default User Upload Quota", :value => "10485760" }])
 Preference.create([{:name => "Retention Period", :value => "1825" }])
 Preference.create([{:name => "Max Web Upload Filesize", :value => "10mb" }])
+Preference.create :name => "Default License", :value => "CC BY"
 
 
 puts "Generating MimeTypeCategories"
