@@ -40,6 +40,11 @@ class StoredFile < ActiveRecord::Base
   # we must manually force the index/commit.
   after_recover :reindex_sunspot
   
+  def reindex_sunspot
+    self.index
+    Sunspot.commit
+  end
+  
   attr_accessor :wants_thumbnail
   attr_accessor :skip_quota
 
