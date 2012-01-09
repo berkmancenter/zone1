@@ -29,6 +29,16 @@ class StoredFile < ActiveRecord::Base
 
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
+
+  acts_as_paranoid
+
+  # Because acts_as_paranoid overloads destroy
+  # we don't get the usual Sunspot index/commit callbacks.
+  after_destroy :reindex_sunspot
+
+  # In order for the recovery to be reflected in the index
+  # we must manually force the index/commit.
+  after_recover :reindex_sunspot
   
   attr_accessor :wants_thumbnail
   attr_accessor :skip_quota
@@ -97,6 +107,7 @@ class StoredFile < ActiveRecord::Base
 
     time :original_date, :stored => true, :trie => true
     time :created_at, :stored => true, :trie => true   
+    time :deleted_at
 
     boolean :has_thumbnail, :stored => true
   end

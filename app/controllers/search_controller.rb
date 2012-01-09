@@ -46,6 +46,9 @@ class SearchController < ApplicationController
         end
       end
 
+      # Excluded deleted files
+      with(:deleted_at, nil)
+
       order_by sort_column, sort_direction 
     end
 

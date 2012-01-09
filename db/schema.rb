@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20111224004725) do
+ActiveRecord::Schema.define(:version => 20120106180819) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(:version => 20111224004725) do
     t.integer  "stored_file_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "deleted_at"
   end
 
   add_index "comments", ["stored_file_id"], :name => "index_comments_on_stored_file_id"
@@ -45,16 +46,18 @@ ActiveRecord::Schema.define(:version => 20111224004725) do
     t.text     "location"
     t.text     "note"
     t.datetime "action_date"
+    t.datetime "deleted_at"
   end
 
   add_index "dispositions", ["disposition_action_id"], :name => "index_dispositions_on_disposition_action_id"
   add_index "dispositions", ["stored_file_id"], :name => "index_dispositions_on_stored_file_id"
 
   create_table "flaggings", :force => true do |t|
-    t.integer "flag_id"
-    t.integer "stored_file_id"
-    t.integer "user_id"
-    t.text    "note"
+    t.integer  "flag_id"
+    t.integer  "stored_file_id"
+    t.integer  "user_id"
+    t.text     "note"
+    t.datetime "deleted_at"
   end
 
   add_index "flaggings", ["flag_id"], :name => "index_flaggings_on_flag_id"
@@ -225,6 +228,7 @@ ActiveRecord::Schema.define(:version => 20111224004725) do
     t.integer  "mime_type_id"
     t.date     "original_date"
     t.boolean  "has_thumbnail",     :default => false
+    t.datetime "deleted_at"
   end
 
   add_index "stored_files", ["access_level_id"], :name => "index_stored_files_on_access_level_id"

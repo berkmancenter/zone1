@@ -12,13 +12,14 @@ gem 'sunspot_solr'
 gem 'acl9'
 gem 'will_paginate', '3.0.2'
 gem 'nokogiri'
-gem 'carrierwave'
+gem 'carrierwave', :git => "git@github.com:bbuchalter/carrierwave.git"
 gem 'rmagick'
 gem 'rubyzip'
 gem 'resque', :require => "resque/server"
 gem 'execjs'
 gem 'therubyracer'
 gem 'rake'
+gem 'rails3_acts_as_paranoid', :git => "git://github.com/bbuchalter/rails3_acts_as_paranoid.git"
 
 # Gems used only for assets and not required in production environments by default.
 group :assets do

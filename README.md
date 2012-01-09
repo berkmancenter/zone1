@@ -17,6 +17,8 @@ Notes on Stack, Dependencies
 - Background Jobs: resque + redis
 - Performance: Rails low-level caching to local disk storage
 - Image processing: ImageMagick, RMagick gem
+- Carrierwave has been forked to remove the automatic removal of files with the after_destroy callback
+- rails3_acts_as_paranoid has been forked from a branch which had provided Rails 3.1.x.  Mainline did not support as of this commit.
 
 apache/nginx + passenger
 --------
