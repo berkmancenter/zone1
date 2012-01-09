@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120106180819) do
+ActiveRecord::Schema.define(:version => 20120109163713) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -101,13 +101,10 @@ ActiveRecord::Schema.define(:version => 20120106180819) do
   add_index "groups_users", ["user_id"], :name => "index_groups_users_on_user_id"
 
   create_table "licenses", :force => true do |t|
-    t.integer  "stored_file_id"
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
-
-  add_index "licenses", ["stored_file_id"], :name => "index_licenses_on_stored_file_id"
 
   create_table "mime_type_categories", :force => true do |t|
     t.string   "name"
