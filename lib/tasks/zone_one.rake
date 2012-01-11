@@ -5,4 +5,16 @@ namespace :zone_one do
     # ::Rails.cache.clear
     system("rm -rf #{Rails.root}/tmp/cache/*") 
   end
+
+  desc "Drop, create, migrate, seed database.  Index Solr.  Clear /tmp"
+  task :setup => [
+    'environment',
+    'no_production_check',
+    'db:drop',
+    'db:create',
+    'db:migrate',
+    'db:seed',
+    'sunspot:reindex',
+    'tmp:clear'
+  ]
 end

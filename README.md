@@ -1,3 +1,9 @@
+Initial Setup
+========
+After configuring the stack dependcies below:
+* bundle
+* rake zone_one:setup
+
 Notes on Stack, Dependencies
 ========
 * Authentication: devise gem + devise_harvard_auth_proxy

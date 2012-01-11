@@ -6,23 +6,6 @@
 #   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
 #   Mayor.create(:name => 'Emanuel', :city => cities.first)
 
-AccessLevel.delete_all
-Flag.delete_all
-User.delete_all
-Group.delete_all
-StoredFile.delete_all
-Role.delete_all
-Right.delete_all
-Disposition.delete_all
-Preference.delete_all
-DispositionAction.delete_all
-License.delete_all
-MimeType.delete_all
-MimeTypeCategory.delete_all
-
-connection = ActiveRecord::Base.connection
-connection.execute("DELETE FROM roles_users")
-
 puts "Generating preferences"
 Preference.create([{:name => "Default User Upload Quota", :value => "10485760" }])
 Preference.create([{:name => "Retention Period", :value => "1825" }])
@@ -127,30 +110,7 @@ Role.create([{ :name => "admin" },
   { :name => "user" }])
 (role_admin, role_steward, role_records_manager, role_user) = Role.all
 
-puts "Generating users"
-User.create([{ :email => 'steph@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Steph' },
-             {:email => 'bgadoury@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Phunk' },
-             {:email => 'etann@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Evan' },
-             {:email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin' },
-             {:email => 'brianb@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Brian' },
-             {:email => "user@endpoint.com", :password => "berkman", :password_confirmation => "berkman", :name => "User"}])
-(user_steph, user_bgadoury, user_etann, user_admin, user_brianb, user_user) = User.all
-
-puts "Generating groups"
-Group.create([{ :name => "End Point" },
-              { :name => "Test 1" },
-              { :name => "Test 2" },
-              { :name => "Test 3" }])
-(g1, g2, g3, g4) = Group.all
-
-g1.users << User.all
-g1.owners = [user_steph, user_brianb]
-g2.users = [user_steph, user_bgadoury, user_brianb, user_user]
-g2.owners = [user_steph, user_brianb]
-g3.users = [user_steph, user_bgadoury]
-g3.owners << user_steph
-g4.users = [user_steph, user_bgadoury]
-g4.owners << user_steph
+User.create :email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin'
 
 puts "Generating rights"
 Right.create([{ :action => "add_preserved", :description => "Ability to add PRESERVED flag." },
@@ -199,11 +159,6 @@ role_records_manager.save
 role_user.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23, ri25] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
 role_user.save
 
-# User role is automatically assigned to all users
-user_steph.roles << role_admin
-user_bgadoury.roles << role_admin
-user_admin.roles << role_admin
-user_brianb.roles << role_admin
 
 puts "Generating licenses"
 License.create([{ :name => 'All Rights Reserved' },

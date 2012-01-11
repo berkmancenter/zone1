@@ -17,7 +17,14 @@ namespace :camp do
   desc "Restart camp"
   task :restart do
     `re --all`
-  end  
+  end 
+
+ desc "Setup test users"
+  task :test_users do
+    Rake::Task['environment'].invoke
+    test_users_file = File.join(Rails.root, 'db', 'test_users.rb')
+    load(test_users_file) if File.exist?(test_users_file)
+  end 
 end
 
 desc "Raise error if run in production"
