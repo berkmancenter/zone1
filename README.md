@@ -2,7 +2,7 @@ Initial Setup
 ========
 After configuring the stack dependcies below:
 * bundle
-* rake zone_one:setup
+* rake zone_one:first_run
 
 Notes on Stack, Dependencies
 ========

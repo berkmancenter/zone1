@@ -6,15 +6,13 @@ namespace :zone_one do
     system("rm -rf #{Rails.root}/tmp/cache/*") 
   end
 
-  desc "Drop, create, migrate, seed database.  Index Solr.  Clear /tmp"
-  task :setup => [
+  desc "Create tables, seed database.  Index Solr.  Clear /tmp"
+  task :first_run => [
     'environment',
     'no_production_check',
-    'db:drop',
-    'db:create',
     'db:migrate',
     'db:seed',
-    'sunspot:reindex',
-    'tmp:clear'
+    'tmp:clear',
+    'sunspot:reindex'
   ]
 end
