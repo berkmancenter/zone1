@@ -10,7 +10,7 @@
 	</div>
 	<% end -%>
   <hgroup class="results_options">
-		<ul>
+	<ul>
       <li>
         <input type="checkbox" id="bulk_select" />
 				<a id="show_set_options" href="#">SELECTED</a>
@@ -94,7 +94,7 @@
 	<% @hits.each do |hit| %> 
 		<div class="file <%= cycle("even", "odd") %>" data-id="<%= hit.stored(:id) %>" id="file<%= hit.stored(:id) %>">
 			<span class="icon">
-				<%= preview hit %>
+				<%= link_to preview(hit), stored_file_path(hit.stored(:id)) %>
 			</span>
 			<span class="filename">	
 				<span class="finput">
