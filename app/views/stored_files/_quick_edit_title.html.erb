@@ -1,4 +1,5 @@
 <%= @stored_file.original_filename %>
+<%= link_to raw('<span></span>'), '#', :class => 'close-quickview' %>
 <%= link_to raw('<span></span>'), download_stored_file_path(@stored_file.id), :class => 'download-single' %>
 <%= link_to raw('<span></span>'), stored_file_path(@stored_file.id), :class => 'show-single' %>
 <% if current_user.present? -%>

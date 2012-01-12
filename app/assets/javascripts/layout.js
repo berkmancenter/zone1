@@ -73,6 +73,9 @@ var zone_one_base = {
 		$('#quick_edit').live("click", function() {
 			$('#quick_edit_form').slideToggle();
 		});
+		$('.close-quickview').live("click", function() {
+			zone_one_base.close_quickview("");
+		});
 		$('#quick_edit_form .delete').live("click", function() {
 			$('#fail_response').slideUp();
 			$('<p>').html("Are you sure you want to delete this file?").dialog({

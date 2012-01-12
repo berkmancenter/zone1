@@ -1,6 +1,6 @@
 zone_one_base.close_quickview(""); 
 $('<div>').attr('id', 'quick_edit_panel').addClass('group_quick_edit').html("<%=j render "form" %>").dialog({
-	title: "New Group",
+	title: "<%=j render "quick_edit_title" %>",
 	width: 420,
 	resizable: false,
 	close: function() {
