@@ -129,6 +129,11 @@ var zone_one_base = {
 			return false;
 		});
 	}, 
+  search_result_column: function(column_name) {
+    // Helper function to find the search column consistently
+    // accross different functions.
+    return $("div#files span." + column_name).toggle();
+  },
 	setup_menu_actions: function() {
 		//UI
 		$.each(['display_options', 'set_options', 'sort_options'], function(i, v) {
@@ -138,14 +143,30 @@ var zone_one_base = {
 				par.toggleClass('displayed');
 			});
 		});
-		$("input[type='checkbox'].toggle_column").click(function() {
-			var selector = "span." + $(this).data("column-class");
+		$("div.list_options input:checkbox.toggle_column").click(function() {
+      var column_name = $(this).data("column-class");
 			if($(this).attr("checked")=="checked") {
-				$(selector).show();
+				zone_one_base.search_result_column(column_name).show();
+        // checked column = clear cookie
+        $.cookie("toggle_column_" + column_name, null);
 			} else {
-				$(selector).hide();
+				zone_one_base.search_result_column(column_name).hide();
+        //record checkbox ids which need to be unchecked
+        $.cookie("toggle_column_" + column_name, $(this).attr('id'), { path: "/" });
 			}
 		});
+
+    // Show all columns by default
+    // Loop through all columns, use name to check cookies
+    // If cookie is present, uncheck box, hide column
+    $("div.list_options input:checkbox.toggle_column").each(function () {
+      var column_name = $(this).data("column-class");
+      if($.cookie("toggle_column_" + column_name)) {
+        //cookie exists = hide column
+        $(this).attr('checked', null)
+        zone_one_base.search_result_column(column_name).hide();
+      }
+    });
 	},
 	setup_datepickers: function() {
 		//Calendar Datepicker	
