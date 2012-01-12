@@ -6,9 +6,13 @@ $(function() {
 	zone_one_base.setup_menu_actions();
 	zone_one_base.setup_datepickers();
 	zone_one_base.setup_username();
+  zone_one_base.setup_watermarks();
 });
 
 var zone_one_base = {
+  setup_watermarks: function() {
+    $("#people_value").watermark("Enter name");
+  },
 	setup_username: function() {
 		$('#userlinks').hover(function() {
 			$('#userlinks').addClass('hovered');

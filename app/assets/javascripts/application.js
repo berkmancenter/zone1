@@ -9,4 +9,6 @@
 //= require jquery-ui
 //= require plupload
 //= require jquery.cookie
+//= require jquery.data
+//= require jquery.watermark.min
 //= require_tree .
