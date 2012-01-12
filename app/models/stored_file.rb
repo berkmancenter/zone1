@@ -417,7 +417,7 @@ class StoredFile < ActiveRecord::Base
     thumbnail_ok = generate_thumbnail
     self.save! if fits_ok || thumbnail_ok
     # Always index, regardless of fits and thumbnail results
-    self.index
+    reindex_sunspot
   end
 
   def file_url(*args)
