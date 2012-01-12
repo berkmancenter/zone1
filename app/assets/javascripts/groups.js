@@ -4,7 +4,7 @@ $(function() {
 
 var zone_one_groups = {
 	setup_quickview: function() {
-		$('#quick_edit_panel .delete').live("click", function() {
+		$('#groups_body #quick_edit_panel .delete').live("click", function() {
 			$('#fail_response').slideUp();
 			$('<p>').html("Are you sure you want to delete this group?").dialog({
 				buttons: [

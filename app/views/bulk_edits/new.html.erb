@@ -19,6 +19,8 @@
     		<%= hidden_field_tag "stored_file_ids[]", stored_file.id %>
   		<% end %>
   		<%= render "stored_files/form", :f => f %>  
-  		<%= f.submit "Update #{@stored_files.count} files" %> 
+		<div class="submit_buttons">
+  			<%= f.submit "UPDATE #{@stored_files.count} FILES", :class => "update" %> 
+		</div>
 	<% end %>
 </div>

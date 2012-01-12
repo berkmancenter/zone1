@@ -46,10 +46,10 @@
 
 	<div class="submit_buttons">
 	<% if @group.new_record? -%>
-	<%= f.submit %>
+	<%= f.submit "CREATE GROUP", :class => "update" %>
 	<% else -%>
-	<%= f.submit "UPDATE" %>
-	<%= link_to "DELETE", '#', :class => "delete" %>
+	<%= f.submit "UPDATE", :class => "update" %>
+	<%= f.submit "DELETE", :class => "delete" %>
 	<% end -%>
 	</div>
 <% end %>

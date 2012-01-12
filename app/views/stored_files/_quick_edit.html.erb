@@ -69,9 +69,9 @@
 		<tr>
 			<td colspan="2" align="center">
 				<div class="submit_buttons">
-					<%= submit_tag "UPDATE" %>	
+					<%= submit_tag "UPDATE", :class => "update" %>	
 					<% if @stored_file.can_user_destroy?(current_user) %>
-					<%= link_to "DELETE", '#', :class => "delete" %>
+					<%= submit_tag "DELETE", :class => "delete" %>
 					<% end -%>
 				</div>
 			</td>

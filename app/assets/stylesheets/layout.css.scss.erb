@@ -241,20 +241,19 @@ header {
 /* Shared Buttons */
 .submit_buttons {
   text-align: center;
-  input[type=submit], a.delete {
+  input.update, input.delete {
     background: url(<%= image_path "submit_button.png" %>) repeat-x;
     border: 1px solid #24568b;
     color: #FFF;
     font-size: 11px;
-    line-height: 24px;
+    line-height: 26px;
     padding: 0px 5px;
     font-weight: bold;  
+    margin-left: 15px;
     height: 26px; 
   }
-  a.delete {
-    margin-left: 15px;
-    display: inline-block; 
-    height: 24px; 
+  input.update:hover, input.delete:hover {
+    cursor: pointer;
   }
 }
 
