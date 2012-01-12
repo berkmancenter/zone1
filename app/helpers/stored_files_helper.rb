@@ -56,4 +56,13 @@ module StoredFilesHelper
       end 
     end
   end
+
+  def search_by_tags(tag_string)
+    # tag_string will come in as "tag1, tag2, tag3"
+    output = []
+    tag_array = tag_string.split(", ").each do |tag|
+     output << link_to(tag, search_path(:"indexed_tag_list[]" => tag))
+    end
+    output.join(", ").html_safe
+  end
 end
