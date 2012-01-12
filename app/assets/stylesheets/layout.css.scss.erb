@@ -143,24 +143,25 @@ header {
       .ui-state-active, .ui-state-defualt {
         a, a:visited { color: #336699; }
       }
-      .ui-icon { display: none; }
-      .ui-accordion-header {
+      a.acc_header {
         color: #336699;
         border: none;
         border-top: 1px solid #b9b9b9;
         background: transparent url(<%= image_path "accordion.png" %>) right 5px no-repeat;
-        padding: 5px 0px 0px 0px;
-        a { padding: 0px 0px 3px 0px; font-weight: bold; }
+        padding: 2px 0px 0px 0px;
+        font-weight: bold;
+        display: block;
+        color: #555;
+        font-size: 11px;
       }
-      .ui-accordion-content {
+      .acc_content {
         padding: 0px 0px 15px 0px;
-        border: none; 
+        border: none;
+        display: none; 
       }
-      .ui-state-active {
+      #tags { display: block; }
+      a.active {
         background-position: right -15px;
-      }
-      .ui-widget-content { 
-        background: none;
       }
       #tags {
         a { 

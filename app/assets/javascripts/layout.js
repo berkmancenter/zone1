@@ -17,22 +17,23 @@ var zone_one_base = {
 		});
 	},
 	setup_accordion: function() {
-		$('#accordion').accordion({
-			collapsible: true,
-			changestart: function(event, ui) {
-				$('#accordion .ui-accordion-content').slideUp();
-				$('#accordion h3').removeClass('ui-state-active').removeClass('ui-state-focus');
-				ui.newContent.slideDown();
+		$('#accordion .acc_header').click(function() {
+			if(!$(this).hasClass('active')) {
+				$('.acc_header').removeClass('active');
+				$('.acc_content').slideUp();
+				$(this).addClass('active');
+				$(this).next('.acc_content').slideDown();
 			}
+			return false;
 		});
 		$('#expand a').click(function() {
 			if($(this).hasClass('expanded')) {
-				$('#accordion .ui-accordion-content').slideUp();
-				$('#accordion h3').removeClass('ui-state-active').removeClass('ui-state-focus');
+				$('.acc_header').removeClass('active');
+				$('.acc_content').slideUp();
 				$(this).removeClass('expanded').html('Expand All<span></span>');
 			} else {
-				$('#accordion .ui-accordion-content').slideDown();
-				$('#accordion h3').addClass('ui-state-active').addClass('ui-state-focus');
+				$('.acc_header').addClass('active');
+				$('.acc_content').slideDown();
 				$(this).addClass('expanded').html('Collapse All<span></span>');
 			}
 		});

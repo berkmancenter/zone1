@@ -43,14 +43,14 @@
 	</div>
 
 	<div id="accordion">
-		<h3><a href="#">Tags</a></h3>
-		<div id="tags">
+		<a class="acc_header active" href="#">Tags</a>
+		<div id="tags" class="acc_content">
  			<%= text_field_tag "indexed_tag_list[]" %>
 			<%= render "search/tag_filter" -%>
 			<div class="clear"></div>
 		</div>
-		<h3><a href="#">Date</a></h3>
-		<div id="dates">
+		<a class="acc_header" href="#">Date</a>
+		<div id="dates" class="acc_content">
 			Date Uploaded
 			<%= radio_button_tag "date_type", "created_at", (!params.has_key?(:date_type) || params[:date_type] == "created_at") %>
 			Original Document Date
@@ -68,8 +68,8 @@
 				</tr>
 			</table>
 		</div>
-		<h3><a href="#">People</a></h3>
-		<div id="people">
+		<a class="acc_header" href="#">People</a>
+		<div id="people" class="acc_content">
 			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr>
 					<td>
@@ -87,8 +87,8 @@
 				</tr>
 			</table>
 		</div>
-		<h3><a href="#">File Attributes</a></h3>
-		<div>
+		<a class="acc_header" href="#">File Attributes</a>
+		<div class="acc_content">
 			<table width="100%" cellpadding="0" cellspacing="0">
 				<tr>
 					<td width="170">
@@ -110,8 +110,8 @@
 				</tr>
 			</table>
 		</div>
-		<h3><a href="#">Copyright</a></h3>
-		<div id="license">
+		<a class="acc_header" href="#">Copyright</a>
+		<div id="license" class="acc_content">
 			<label>Copyright Holder</label>
  			<%= text_field_tag "copyright_holder" %>
 			<%= render "search/license_filter" %>
