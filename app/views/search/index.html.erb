@@ -90,7 +90,19 @@
     </div>
 	</hgroup>
 
-		<div id="files">	
+  <div id="files">
+    <div class="file">
+      <span class="filename"><%= sortable "title", "Name" %></span>
+      <span class="size"><%= sortable "file_size", "Size" %></span>
+      <span class="date"><%= sortable "created_at", "Date" %></span>
+      <span class="tags">Tags</span>
+      <span class="flags">Flags</span>
+      <span class="author"><%= sortable "author" %></span>
+      <span class="contributor">Contributor</span>
+      <span class="license">License</span>
+      <span class="batch"><%= sortable "batch_id" %></span>
+    </div>
+
 	<% @hits.each do |hit| %> 
 		<div class="file <%= cycle("even", "odd") %>" data-id="<%= hit.stored(:id) %>" id="file<%= hit.stored(:id) %>">
 			<span class="icon">
