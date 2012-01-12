@@ -224,6 +224,7 @@ class SearchController < ApplicationController
   end
 
   def per_page
+    params[:per_page] = "10" if params[:per_page].to_i == 0
     session[:per_page] = params[:per_page] || session[:per_page] || "10"
   end
 
