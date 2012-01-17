@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120109163713) do
+ActiveRecord::Schema.define(:version => 20120112201657) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -76,14 +76,6 @@ ActiveRecord::Schema.define(:version => 20120109163713) do
     t.boolean  "assignable_rights", :default => false
   end
 
-  create_table "groups_owners", :id => false, :force => true do |t|
-    t.integer "group_id"
-    t.integer "owner_id"
-  end
-
-  add_index "groups_owners", ["group_id"], :name => "index_groups_owners_on_group_id"
-  add_index "groups_owners", ["owner_id"], :name => "index_groups_owners_on_owner_id"
-
   create_table "groups_stored_files", :force => true do |t|
     t.integer "group_id"
     t.integer "stored_file_id"
@@ -92,19 +84,26 @@ ActiveRecord::Schema.define(:version => 20120109163713) do
   add_index "groups_stored_files", ["group_id"], :name => "index_groups_stored_files_on_group_id"
   add_index "groups_stored_files", ["stored_file_id"], :name => "index_groups_stored_files_on_stored_file_id"
 
-  create_table "groups_users", :id => false, :force => true do |t|
-    t.integer "user_id"
-    t.integer "group_id"
-  end
-
-  add_index "groups_users", ["group_id"], :name => "index_groups_users_on_group_id"
-  add_index "groups_users", ["user_id"], :name => "index_groups_users_on_user_id"
-
   create_table "licenses", :force => true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  create_table "memberships", :force => true do |t|
+    t.integer  "group_id"
+    t.integer  "user_id"
+    t.boolean  "is_owner",        :default => false
+    t.datetime "joined_at"
+    t.integer  "invited_by"
+    t.string   "membership_code"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "memberships", ["group_id"], :name => "index_memberships_on_group_id"
+  add_index "memberships", ["membership_code"], :name => "index_memberships_on_membership_code"
+  add_index "memberships", ["user_id"], :name => "index_memberships_on_user_id"
 
   create_table "mime_type_categories", :force => true do |t|
     t.string   "name"

@@ -22,8 +22,12 @@ var zone_one_groups = {
 				]   
 			}); 
 			return false;
-
-			alert('deleted!');
 		});
+    $("input[type='checkbox'][readonly='readonly']").live("click", function () {
+      // The readonly attribute is designed to prevent modification to the
+      // input's value, not it's state.  Clicking a checkbox changes it's state.
+      // This prevents that.
+      return false;
+    });
 	}
 };

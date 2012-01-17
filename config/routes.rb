@@ -19,7 +19,10 @@ Zone1::Application.routes.draw do
     end
     resources :comments
   end
+  
   resources :groups, :only => [:new, :create, :edit, :update, :destroy, :index]
+
+  match 'memberships/:id/:membership_code/accept' => 'memberships#accept', :as => :accept_membership
 
   namespace :admin, :as => :admin do
     resources :users, :only => [:edit, :update, :index]

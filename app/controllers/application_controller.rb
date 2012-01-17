@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  include ApplicationHelper
   protect_from_forgery
 
   Warden::Manager.after_authentication do |user, auth, opts|

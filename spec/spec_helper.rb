@@ -22,6 +22,7 @@ RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
+    ActionMailer::Base.default_url_options[:host] = "localhost"
   end
 
   config.before(:each) do

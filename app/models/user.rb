@@ -13,9 +13,11 @@ class User < ActiveRecord::Base
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
     :quota_used, :quota_max, :role_ids, :right_ids
 
-  has_and_belongs_to_many :groups
+  has_many :memberships, :dependent => :destroy
+  has_many :groups, :through => :memberships, :source => :group
+
   has_and_belongs_to_many :roles
-  has_and_belongs_to_many :owned_groups, :class_name => "Group", :join_table => "groups_owners", :foreign_key => "owner_id"
+
   has_many :sftp_users, :dependent => :destroy
   has_many :batches
   has_many :comments
@@ -27,6 +29,10 @@ class User < ActiveRecord::Base
 
   validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
   validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
+
+  def owned_groups
+    memberships.owner.includes(:group).collect { |membership| membership.group }
+  end
 
   def quota_used
     #must use self.quota_used in order to call instance method instead of directly accessing database value

@@ -18,30 +18,32 @@
 	<% end -%>
 	<% end -%>
 
-	<% if @members.any? -%>
+	<% if @group.memberships.any? -%>
 	<table id="group_members">
 		<tr>
 			<th>Members</th>
 			<th>Owner</th>
 			<th>Remove</th>
+    </tr>
+    <%= f.fields_for :memberships do |member_fields| %>
+      <% member = member_fields.object %>
+    <tr id="row">
+      <%= member_fields.hidden_field :id, :value => member.id %>
+      <td>
+        <%= member.user.name %>
+        <% if member.invited? %>
+          <span class="invitation_notice">(Invited by <%= member.invited_by_name %> <%= time_ago_in_words member.created_at %> ago)</span>
+        <% end %>
+      </td>
+			<td align="center"><%= member_fields.check_box "is_owner" %></td>
+			<td align="center"><%= member_fields.check_box :_destroy %></td>
 		</tr>
-		<% @members.each do |email, value| -%>
-		<tr id="row">
-			<td><%= value[:user].name %></td>
-			<% if value[:user].id == current_user.id -%>
-			<td align="center"><%= check_box_tag "owner[#{value[:user].id}]", 1, value[:owner], :readonly => "readonly" %></td>
-			<td align="center"></td>
-			<% else -%>
-			<td align="center"><%= check_box_tag "owner[#{value[:user].id}]", 1, value[:owner] %></td>
-			<td align="center"><%= check_box_tag "remove[#{value[:user].id}]", 1, false %></td>
-			<% end -%>
-		</tr>
-		<% end -%>
+    <% end %>
 	</table>
 	<% end -%>
 
 	<div id="entered_emails">
-		<%= text_field_tag :user_email, nil, :placeholder => "Enter emails, comma delimited" %>
+		<%= text_area_tag :user_email, nil, :placeholder => "Enter emails, one per line" %>
 	</div>
 
 	<div class="submit_buttons">

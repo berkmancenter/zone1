@@ -1,9 +1,9 @@
 require "spec_helper"
 
 describe User do
-  it { should have_and_belong_to_many :groups }
+  it { should have_many :memberships }
+  it { should have_many :groups }
   it { should have_and_belong_to_many :roles }
-  it { should have_and_belong_to_many :owned_groups }
   it { should have_many :sftp_users }
   it { should have_many :batches }
   it { should have_many :comments }
@@ -259,8 +259,8 @@ describe User do
     let(:global_right) { Factory(:right, :action => "some_global_right") }
     let(:owned_right) { Factory(:right, :action => "some_right_on_owned") }
     let(:group) do
-      group = Group.new(:name => "Test Group")
-      group.owners << user2
+      group = Factory.create(:group, :name => "Test Group")
+      Membership.add_users_to_groups([user2], [group], :is_owner => true)
       group
     end
 
@@ -410,8 +410,7 @@ describe User do
     let(:right_actions) { [right1.action, right2.action] }
 
     before(:each) do
-      group1.users << user1
-      group2.users << user1
+      Membership.add_users_to_groups([user1], [group1, group2])
       group1.rights << right1
       group2.rights << right2
     end

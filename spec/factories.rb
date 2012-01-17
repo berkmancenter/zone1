@@ -24,6 +24,23 @@ FactoryGirl.define do
 
   factory :group do
     sequence(:name) {|n| "Group ##{n}" }
+    factory :group_with_owner do
+      after_create do |group|
+        Factory(:membership_as_owner, :group => group)
+        group.reload
+      end
+    end
+  end
+
+  factory :membership do
+    user
+    group 
+    factory :confirmed_membership do
+      joined_at Time.now
+      factory :membership_as_owner do
+        is_owner true
+      end
+    end
   end
 
   factory :license do

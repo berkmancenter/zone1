@@ -335,7 +335,7 @@ class StoredFile < ActiveRecord::Base
   def users_via_groups
     if self.access_level != AccessLevel.dark
       # TODO: Add performance improvements here (possibly via low level caching, raw SQL)
-      return self.groups.collect { |b| b.users }.flatten.uniq.collect { |u| u.id }
+      return self.groups.collect { |g| g.confirmed_members }.flatten.uniq.collect { |u| u.id }
     end
     return []
   end
@@ -492,7 +492,7 @@ class StoredFile < ActiveRecord::Base
         users += User.users_with_right("view_preserved_flag_content")
       end
 
-      users
+      users.uniq
     end
   end
 

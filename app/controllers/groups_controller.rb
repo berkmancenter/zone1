@@ -1,4 +1,7 @@
 class GroupsController < ApplicationController
+  
+  before_filter :mailer_set_url_options, :on => [:create, :update]
+  
   access_control do
     allow logged_in, :to => [:index, :new, :create]
 
@@ -15,7 +18,6 @@ class GroupsController < ApplicationController
 
   def new
     @group = Group.new
-    @members = []
 
     respond_to do |format|
       format.js
@@ -24,7 +26,6 @@ class GroupsController < ApplicationController
 
   def edit
     @group = Group.find(params[:id])
-    @members = @group.members
 
     respond_to do |format|
       format.js
@@ -35,13 +36,17 @@ class GroupsController < ApplicationController
     begin
       @group = Group.new(params[:group])
 
-      if @group.save
-        @group.users = User.find_all_by_email(params[:user_email].split(', '))
-        @group.owners << current_user
-      else
-        raise @group.errors.full_messages.join(', ')
+      Group.transaction do
+
+        if @group.save
+          Membership.add_users_to_groups([current_user], [@group], :is_owner => true)
+          @group.invite_users_by_email(params[:user_email].split.uniq, current_user)
+        else
+          raise @group.errors.full_messages.join(', ')
+        end
+  
       end
-   
+
       respond_to do |format|
         format.js
       end
@@ -59,22 +64,15 @@ class GroupsController < ApplicationController
     begin
       @group = Group.find(params[:id])
 
-      if @group.update_attributes(params[:group])
-        # Set owners
-        @group.owners = User.find_all_by_id(params[:owner].keys)
+      Group.transaction do
 
-        # Remove from users and owners
-        if params.has_key?(:remove)
-          delete_users = User.find_all_by_id(params[:remove].keys)
-          @group.owners.delete(delete_users)
-          @group.users.delete(delete_users)
+        if @group.update_attributes(params[:group])
+          # Invite new users
+          @group.invite_users_by_email(params[:user_email].split.uniq, current_user)
+        else
+          raise @group.errors.full_messages.join(', ')
         end
 
-        # Add new users
-        new_users = User.find_all_by_email(params[:user_email].split(',').uniq) - @group.users
-        @group.users << new_users
-      else
-        raise @group.errors.full_messages.join(', ')
       end
 
       respond_to do |format|
@@ -83,6 +81,7 @@ class GroupsController < ApplicationController
     rescue Exception => e
       respond_to do |format|
         format.js do
+          log_exception e
           @message = e.to_s
           render "update_fail"
         end
@@ -92,7 +91,7 @@ class GroupsController < ApplicationController
 
   def destroy
     begin
-      Group.delete(params[:id])
+      Group.destroy(params[:id]) # fire callbacks
 
       respond_to do |format|
         format.js
@@ -103,5 +102,12 @@ class GroupsController < ApplicationController
         render 'destroy_fail'
       end
     end
+  end
+
+  private
+  def mailer_set_url_options
+    # Because we email from inside the model, we must tell the mailer
+    # what our host URL is from inside the controller.
+    ActionMailer::Base.default_url_options[:host] = request.host_with_port
   end
 end
