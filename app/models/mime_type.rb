@@ -20,7 +20,11 @@ class MimeType < ActiveRecord::Base
   end
 
   def self.facet_label(value)
+    begin
     self.all.detect { |l| l.id == value.to_i }.name
+    rescue
+      "Unknown"
+    end
   end
 
   def self.blacklisted_extensions
