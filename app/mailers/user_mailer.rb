@@ -1,5 +1,5 @@
 class UserMailer < ActionMailer::Base
-  default from: "from@example.com"
+  default from: Preference.group_invite_from_address.value
 
   def membership_invitation_email(membership)
     @inviter = User.find_by_id(membership.invited_by)

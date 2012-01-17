@@ -13,6 +13,7 @@ User.transaction do
   Preference.create([{:name => "Retention Period", :value => "1825" }])
   Preference.create([{:name => "Max Web Upload Filesize", :value => "10mb" }])
   Preference.create :name => "Default License", :value => "CC BY"
+  Preference.create :name => "Group Invite Email From Address", :value => "group_invites@zoneone.domain"
 
 
   puts "Generating MimeTypeCategories"
