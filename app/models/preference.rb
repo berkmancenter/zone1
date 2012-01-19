@@ -18,24 +18,20 @@ class Preference < ActiveRecord::Base
   end 
 
   def self.default_user_upload_quota
-    Preference.find_by_name_cached("Default User Upload Quota")
+    Preference.find_by_name_cached("Default User Upload Quota").try(:value)
   end
 
   def self.max_web_upload_filesize
-    Preference.find_by_name_cached("Max Web Upload Filesize")
-  end
-
-  def self.retention_period
-    Preference.find_by_name_cached("Retention Period")
+    Preference.find_by_name_cached("Max Web Upload Filesize").try(:value)
   end
 
   def self.default_license
     license_preference = Preference.find_by_name_cached("Default License")
-    License.find_by_name(license_preference.value)
+    License.find_by_name(license_preference.try(:value))
   end
 
   def self.group_invite_from_address
-    Preference.find_by_name_cached("Group Invite Email From Address")
+    Preference.find_by_name_cached("Group Invite Email From Address").try(:value)
   end
 
   # TODO: Use constants for :name, or at least add a :display value that the user sees,
