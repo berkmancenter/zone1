@@ -91,6 +91,10 @@ For an example please review var/proftpd.conf.
 
 CACHING
 =========
+
+NOTE: If using ActiveSupport::Cache::FileStore
+the cache will grow until the disk is full unless you periodically clear out old entries.
+
 AccessLevel
 -------------
 Cached methods: .all
@@ -125,6 +129,10 @@ Preference
 ------------
 Cached methods: .all
 Caches will be destroyed: after_update, after_create, after_destroy
+
+RightAssignment
+-----------
+StoredFile caches will be destroyed: after_create, after_destroy
 
 Role
 ------------
