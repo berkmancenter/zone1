@@ -93,9 +93,13 @@ $(function() {
 	var track_upload_result = function(file, info_json) {
 		// Track each upload result so we can inform the user later
 		//TODO: Would be nice to include SFTP-specific flag here
-		var result = $.parseJSON( info_json['response'] );
-		return result['success'] ? UPLOAD.ok(file) : UPLOAD.fail(file, result['message']);
-	};
+    try {
+      var result = $.parseJSON( info_json['response'] );
+      return result['success'] ? UPLOAD.ok(file) : UPLOAD.fail(file, result['message']);
+	  } catch(err) {
+        return UPLOAD.fail(file, err.message);
+    }
+  };
 
 	var mark_failed_upload = function(file, msg) {
 		// UI changes to better indicate which uploads failed and why

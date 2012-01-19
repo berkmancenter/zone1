@@ -6,7 +6,7 @@
 	<fieldset>
 	   <h3>Upload</h3>
 	
-		<%= form_for @stored_file, :url => "/stored_files", :html => {:id => :upload_data} do |f| %>
+		<%= form_for @stored_file, :url => "/stored_files.json", :html => {:id => :upload_data} do |f| %>
 			<%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
 			<%= hidden_field_tag 'max_web_upload_file_size', @max_web_upload_file_size %>
 

@@ -212,11 +212,15 @@ class StoredFilesController < ApplicationController
       exceptions << e
     end
 
-    if exceptions.empty?
-      render :json => {:success => true}
-    else
-      errors = exceptions.inject([]) {|array, e| array << e.to_s; array}
-      render :json => {:success => false, :message => errors.join(', ')}
+    respond_to do |format|
+      format.json do
+        if exceptions.empty?
+          render :json => {:success => true}
+        else
+          errors = exceptions.inject([]) {|array, e| array << e.to_s; array}
+          render :json => {:success => false, :message => errors.join(', ')}
+        end
+      end
     end
 
   end
