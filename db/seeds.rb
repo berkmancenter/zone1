@@ -14,7 +14,7 @@ User.transaction do
   Preference.create([{:name => "Max Web Upload Filesize", :value => "10mb" }])
   Preference.create :name => "Default License", :value => "CC BY"
   Preference.create :name => "Group Invite Email From Address", :value => "group_invites@zoneone.domain"
-
+  Preference.create :name => "Retention Period in Days for Deleted Files", :value => "360"
 
   puts "Generating MimeTypeCategories"
   #http://www.iana.org/assignments/media-types/index.html

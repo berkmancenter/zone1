@@ -34,6 +34,10 @@ class Preference < ActiveRecord::Base
     Preference.find_by_name_cached("Group Invite Email From Address").try(:value)
   end
 
+  def self.retention_period
+    Preference.find_by_name_cached("Retention Period in Days for Deleted Files").try(:value).to_i
+  end
+
   # TODO: Use constants for :name, or at least add a :display value that the user sees,
   # then make :name something more constant-ish and programatically friendly
   # e.g. :name => 'max_http_upload_file_size', :display => 'Maximum filesize that can be uploaded via the Web UI (KB)'

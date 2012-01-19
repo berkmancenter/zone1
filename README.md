@@ -48,6 +48,9 @@ You'll want a cron job to clear old files out of that directory periodically. E.
 # expire download files after 120 minutes
 20 * * * * nice find $RAILS_ROOT/download/ -mindepth 1 -maxdepth 1 -mmin +120 -print0 | xargs -0 -r rm -rf
 
+You'll want to a cron job to clear the soft-deleted stored files which have expired.
+This rake job loads the Rails enviornment, so please execute as a user with appropriate permissions.
+0 0 * * * cd $RAILS_ROOT && bundle exec rake zone_one:hard_delete_expired_stored_files
 
 Solr Notes
 ========
