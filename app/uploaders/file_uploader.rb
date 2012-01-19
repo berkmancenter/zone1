@@ -57,7 +57,7 @@ class FileUploader < CarrierWave::Uploader::Base
     # this file and its versions get the same base filename even when called
     # in two separate processes (i.e. @name will be nil in the second process.)
     @name ||= model.file_identifier if model.file_identifier
-    ext = file.extension.present? ? ".#{file.extension.downcase}" : ''
+    ext = file.try(:extension).present? ? ".#{file.extension.downcase}" : ''
     @name ||= secure_token + ext if original_filename.present?
   end
 

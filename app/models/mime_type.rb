@@ -35,7 +35,7 @@ class MimeType < ActiveRecord::Base
 
   def self.file_extension_blacklisted?(filename='')
     # Note that "" (empty string) is a valid MimeType record and is blacklist-able
-    MimeType.blacklisted_extensions.include?(File.extname(filename).downcase)
+    MimeType.blacklisted_extensions.include?(File.extname(filename).downcase) unless filename.nil?
   end
   
   def self.blacklisted_message(filename)
