@@ -20,7 +20,7 @@ class Membership < ActiveRecord::Base
   after_update :validate_group_has_owner
   after_update :destroy_member_cache
 
-  def accept(time=Time.now)
+  def accept(time=Time.current)
     update_attribute(:joined_at, time)
     destroy_member_cache
   end
@@ -66,7 +66,7 @@ class Membership < ActiveRecord::Base
 
   def self.add_users_to_groups(users, groups, options={})
     # By setting the joined_at time we skip the invitation process
-    options.with_defaults!(:is_owner => false, :joined_at => Time.now)
+    options.with_defaults!(:is_owner => false, :joined_at => Time.current)
     create_with_options(users, groups, options)
   end
 

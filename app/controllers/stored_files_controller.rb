@@ -305,7 +305,7 @@ class StoredFilesController < ApplicationController
     # Update this temp_batch entry in the session
     session[:upload_batches][temp_batch_id] = {
       :system_batch_id => batch.try(:id),
-      :updated_at => Time.now.to_i,
+      :updated_at => Time.current.to_i,
       :file_count => file_count + 1,
       :first_file_id => first_file_id
     }
@@ -323,7 +323,7 @@ class StoredFilesController < ApplicationController
     @temp_batch_id = Batch.new_temp_batch_id
     session[:upload_batches][@temp_batch_id] = {
       :system_batch_id => nil,
-      :updated_at => Time.now.to_i,
+      :updated_at => Time.current.to_i,
       :file_count => 0,
       :first_file_id => nil
     }
