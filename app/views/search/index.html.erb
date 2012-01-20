@@ -72,7 +72,7 @@
 			<li>
 				<a id="show_sort_options" href="#">SORT BY</a>
 				<div id="sort_options">
-					<%= sortable "title", "Name" %>
+					<%= sortable "display_name", "Name" %>
 					<%= sortable "created_at", "Date" %>
 					<%= sortable "author" %>
 					<%= sortable "copyright_holder", "Copyright" %>
@@ -92,7 +92,7 @@
 
   <div id="files">
     <div class="file">
-      <span class="filename"><%= sortable "title", "Name" %></span>
+      <span class="filename"><%= sortable "display_name", "Name" %></span>
       <span class="size"><%= sortable "file_size", "Size" %></span>
       <span class="date"><%= sortable "created_at", "Date" %></span>
       <span class="tags">Tags</span>

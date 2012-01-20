@@ -109,6 +109,9 @@ class StoredFile < ActiveRecord::Base
     string :title
     string :copyright_holder 
     string :contributor_name, :stored => true
+    string :display_name, :stored => true do
+      self.title.presence || self.original_filename
+    end
 
     string :indexed_tag_list, :stored => true, :multiple => true 
     string :indexed_collection_list, :stored => true, :multiple => true do

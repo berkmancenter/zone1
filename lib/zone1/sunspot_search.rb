@@ -67,7 +67,15 @@ module Zone1
         # Excluded deleted files
         with(:deleted_at, nil)
 
-        order_by sort_column, sort_direction 
+        begin
+          order_by sort_column, sort_direction
+        rescue Sunspot::UnrecognizedFieldError
+          # Protects from user manipluation of the params[:sort_column]
+          # and params[:sort_direction}
+          params[:sort_column] = "created_at"
+          params[:sort_direction]  = "desc"
+          retry
+        end 
       end
     end #build stored_file_search
   
@@ -220,17 +228,13 @@ module Zone1
 
     def sort_column
       column = params[:sort_column] || session[:sort_column]
-      if StoredFile.column_names.include?(column)
-        session[:sort_column] = column
-      else
-        "created_at"
-      end
+      session[:sort_column] = column  #rembmer this choice
     end
 
     def sort_direction
       direction = params[:sort_direction] || session[:sort_direction]
       if %w(asc desc).include?(direction)
-        session[:sort_direction] = direction
+        session[:sort_direction] = direction #remember this choice
       else
         "desc"
       end
