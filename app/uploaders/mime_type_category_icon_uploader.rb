@@ -11,7 +11,8 @@ class MimeTypeCategoryIconUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    @name ||= "#{model.id}.#{model.icon.file.extension}" if original_filename.present?
+    # force .jpg extension because CW doesn't change the file extension after :convert
+    @name ||= "#{model.id}.jpg" if original_filename.present?
   end
 
   def default_url
