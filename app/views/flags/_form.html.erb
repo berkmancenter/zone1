@@ -1,5 +1,8 @@
-<% @stored_file.flag_map(current_user).each do |flag_map| -%>
-<%= f.fields_for :flaggings, flag_map[:flagging] do |flaggings_form| %>
-<%= render "flaggings/form", :f => flaggings_form, :stored_file => @stored_file, :flag => flag_map[:flag] %>
-<% end -%>
-<% end -%>
+<h4>Flag Content</h4>
+<div id="flags_container">
+  <% @stored_file.flag_map(current_user).each do |flag_map| -%>
+    <%= f.fields_for :flaggings, flag_map[:flagging] do |flaggings_form| %>
+      <%= render "flaggings/form", :f => flaggings_form, :stored_file => @stored_file, :flag => flag_map[:flag] %>
+    <% end -%>
+  <% end -%>
+</div>

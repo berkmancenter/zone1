@@ -70,6 +70,7 @@ $(function() {
 					if (!result.success) {
 						mark_failed_upload(result.file, result.message);
 					}
+                    status_upload_complete();
 				}
 			},
 			Error: function(up, args) {
@@ -77,11 +78,11 @@ $(function() {
 				// Perhaps this should go in FilesAdded instead?
 				var file = args.file;
 				if (file.size !== undefined && file.size > up.settings.max_file_size) {
-					var msg = "Sorry, but this file is too large to upload using this interface:";
+					var msg = "This file is too large to upload using this interface:";
 					msg += '\nFilename: ' + file.name;
 					msg += '\nFile size: ' + file.size;
 					msg += '\nMaximum file size: ' + up.settings.max_file_size;
-					msg += "\n\nPlease use the SFTP interface below.";
+					msg += "\n\nPlease use the SFTP interface to the right.";
 					alert(msg);
 					init_sftp();
 					return false;
@@ -141,12 +142,12 @@ $(function() {
 	var display_sftp_credentials = function(credentials) {
 		$(username_id).val(credentials['u']);
 		$(password_id).val(credentials['p']);
+        update_status('hello!');
 	}
 
 	var post_sftp = function(uploader) {
 		if (! SFTP_INITIALIZED) {return;} 
 		SFTP_DONE = true;
-		//console.log('POSTING SFTP Only!');
 		var post_data = $('#upload_data').serializeJSON();
 		post_data['sftp_only'] = 1;
 		$.post(
@@ -154,7 +155,6 @@ $(function() {
 			post_data,
 			function(data) {
 				//alert('Successfully queued 42 files for import');
-				//console.log('sftpPOST done');
 			}
 		).error( function(data) {
 			var response = $.parseJSON(data.responseText);
@@ -191,4 +191,15 @@ $(function() {
 
 });
 
+function status_upload_complete() {
+    var href = $('#manage_files').attr('href');
+    var msg = 'Files uploaded!<br />You can upload more files in this batch ' +
+    'or <a href="' + href + '">see your files</a>';
+    update_status(msg);
+}
 
+function update_status(msg) {
+    var div = '#upload_table_status';
+    $(div).show();
+    $(div).html(msg + '<br />');
+}

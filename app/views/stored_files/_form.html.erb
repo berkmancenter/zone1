@@ -4,9 +4,9 @@
 	<tr>
 		<td width="340px" valign="top">
 			<%#= tag_list hitting the database %>
-			<%= editable_field(f, @attr_accessible, :tag_list, {}, :text_field, "Tags") %>
-
 			<%= editable_field(f, @attr_accessible, :title, {}, :text_field) %>
+
+			<%= editable_field(f, @attr_accessible, :tag_list, {}, :text_field, "Tags") %>
 
 			<%= editable_field(f, @attr_accessible, :description, { :rows => 3}, :text_area) %>
 
@@ -24,6 +24,11 @@
 
 			<%= editable_field(f, @attr_accessible, :office, {}, :text_field) %>
 		</td>
+		<td valign="top">
+          <%= editable_field(f, @attr_accessible, :copyright_holder, {}, :text_field) %>
+
+          <%= render "licenses/form", :attrs => @attr_accessible, :f => f %>
+		</td>
 	</tr>
 </table>
 
@@ -40,11 +45,6 @@
 		</td>
 	</tr>
 </table>
-
-<hr />
-
-<%= editable_field(f, @attr_accessible, :copyright_holder, {}, :text_field) %>
-<%= render "licenses/form", :attrs => @attr_accessible, :f => f %>
 
 <hr />
 
