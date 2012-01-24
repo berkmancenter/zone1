@@ -218,6 +218,7 @@ module Zone1
       session[:per_page] = params[:per_page] || session[:per_page] || "10"
     end
 
+    # TODO: Move away from using global params here.
     def sort_column
       if params.has_key?(:sort_column)
         column = params[:sort_column]
@@ -230,6 +231,7 @@ module Zone1
       column
     end
 
+    # TODO: Move away from using global params here.
     def sort_direction
       if params.has_key?(:sort_direction)
         direction = params[:sort_direction]
