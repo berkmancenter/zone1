@@ -24,11 +24,13 @@
 
 			<%= editable_field(f, @attr_accessible, :office, {}, :text_field) %>
 		</td>
+		<% if params[:controller] == "stored_files" && params[:action] == "new"-%>
 		<td valign="top">
           <%= editable_field(f, @attr_accessible, :copyright_holder, {}, :text_field) %>
 
           <%= render "licenses/form", :attrs => @attr_accessible, :f => f %>
 		</td>
+		<% end -%>
 	</tr>
 </table>
 
@@ -47,6 +49,12 @@
 </table>
 
 <hr />
+		
+<% if !(params[:controller] == "stored_files" && params[:action] == "new") -%>
+<%= editable_field(f, @attr_accessible, :copyright_holder, {}, :text_field) %>
+<%= render "licenses/form", :attrs => @attr_accessible, :f => f %>
+<hr />
+<% end -%>
 
 <%= render "flags/form", :f => f %>
 
