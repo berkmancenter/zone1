@@ -22,6 +22,8 @@ module Zone1
     end
 
     def build_stored_file_search
+      count = StoredFile.count
+
       Sunspot.search(StoredFile) do
         if params.has_key?(:search)
           fulltext params[:search] do
@@ -67,6 +69,7 @@ module Zone1
         # Excluded deleted files
         with(:deleted_at, nil)
 
+        paginate :page => 1, :per_page => count
         order_by sort_column, sort_direction
       end
     end #build stored_file_search
