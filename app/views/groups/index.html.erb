@@ -24,7 +24,7 @@
 		</tr>
 		<%= render :partial => "group", :collection => @groups %>
 		<% if @groups.empty? %>
-		<tr><td>You don't belong to or own any groups.</td></tr>
+		<tr id="empty_groups"><td>You don't belong to or own any groups.</td></tr>
 		<% end %>
 	</table>
 	<hgroup>

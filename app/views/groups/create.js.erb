@@ -4,3 +4,4 @@ $('#groups table').append("<%=j render "group", :group => @group %>");
 if(last == "even") {
 	$('#groups table tr:last').addClass('odd').removeClass('even');
 }
+$('#empty_groups').remove();
