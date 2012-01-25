@@ -30,8 +30,9 @@ class User < ActiveRecord::Base
   validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
   validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
 
+  # TODO: Remove conditional here and make sure memberships are removed after group is deleted
   def owned_groups
-    memberships.owner.includes(:group).collect { |membership| membership.group }
+    memberships.owner.includes(:group).select { |membership| membership.group if !membership.group.nil? }
   end
 
   def quota_used
