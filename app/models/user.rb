@@ -32,7 +32,7 @@ class User < ActiveRecord::Base
 
   # TODO: Remove conditional here and make sure memberships are removed after group is deleted
   def owned_groups
-    memberships.owner.includes(:group).select { |membership| membership.group if !membership.group.nil? }
+    memberships.owner.includes(:group).inject([]) {|array, m| array << m.group if !m.group.nil?; array}
   end
 
   def quota_used

@@ -6,10 +6,10 @@ class Membership < ActiveRecord::Base
 
   attr_accessible :user, :group, :user_id, :group_id, :is_owner, :joined_at, :invited_by
 
-  scope :invited, where(["joined_at IS ?", nil])
-  scope :confirmed, where(["joined_at IS NOT ?", nil])
-  scope :owner, where(["is_owner = ?", true])
-  scope :user, where(["is_owner = ?", false])
+  scope :invited, where("joined_at IS NULL")
+  scope :confirmed, where("joined_at IS NOT NULL")
+  scope :owner, where("is_owner")
+  scope :user, where("NOT is_owner")
 
   after_create :send_invitation_email, :if => :invited?
   after_create :destroy_member_cache
@@ -26,8 +26,7 @@ class Membership < ActiveRecord::Base
   end
 
   def invited_by_name
-    user = User.find_by_id(invited_by)
-    user.try(:name)
+    User.find_by_id(invited_by).try :name
   end
 
   def send_invitation_email
@@ -73,12 +72,16 @@ class Membership < ActiveRecord::Base
   private
 
   def validate_group_has_owner
-    raise "Groups must have at least one owner." if group.owners.empty? || Membership.where(:group_id => group.id, :is_owner => true).empty?
+    if group.owners.empty? || Membership.where(:group_id => group.id, :is_owner => true).empty?
+      raise "Groups must have at least one owner."
+    end
   end
 
   def uniqueness_of_user
-    # check database and object state
-    raise "#{user.email} already belongs to group #{group.name}." if Membership.where(:group_id => group.id, :user_id => user.id).present?
+    if Membership.where(:group_id => group.id, :user_id => user.id).present?
+      # check database and object state
+      raise "#{user.email} already belongs to group #{group.name}."
+    end
   end
 
   def self.create_with_options(users, groups, options)
@@ -86,19 +89,17 @@ class Membership < ActiveRecord::Base
     new_memberships = []
 
     Membership.transaction do
-
       users.each do |user|
         groups.each do |group|
           attributes = options.merge(:user => user, :group => group)
           new_memberships << create!(attributes)
-
-        end #groups.each
-      end #users.each
-    end #transaction
+        end
+      end
+    end
 
     new_memberships
+  end
 
-  end #create_with_options
 
   private
   

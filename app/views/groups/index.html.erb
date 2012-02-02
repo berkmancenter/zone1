@@ -3,9 +3,7 @@
 </section>
 
 <% flash.each do |key, msg| -%>
-<div id="form_error">
-<%= flash[key] %>
-</div>
+    <div id="form_error"><%= flash[key] %></div>
 <% end -%>
 
 <section class="right" id="groups">
@@ -22,9 +20,9 @@
 			<th>Modified</th>
 			<th>Membership</th>
 		</tr>
-		<%= render :partial => "group", :collection => @groups %>
+        <%= render :partial => "group", :collection => @groups %>
 		<% if @groups.empty? %>
-		<tr id="empty_groups"><td>You don't belong to or own any groups.</td></tr>
+    		<tr id="empty_groups"><td>You don't belong to or own any groups.</td></tr>
 		<% end %>
 	</table>
 	<hgroup>
