@@ -7,20 +7,20 @@ $(function() {
 var zone_one_search = {
 	setup_per_page_refresh: function () {
 		// The #per_page_user_input text field is not inside the rest of
-    // the search filter form.  Populate hidden field inside form
-    // when user clicks refresh.
+        // the search filter form.  Populate hidden field inside form
+        // when user clicks refresh.
 
-    $("#refresh-per-page").live("click", function () {
+        $("#refresh-per-page").live("click", function () {
 			$("#per_page").val($("#per_page_user_input").val());
 			$("#execute_search_image").click();
 		});
 
-    // Click refresh on enter
-    $("#per_page_user_input").keyup(function(event) {
-      if(event.keyCode == 13) {
-        $("#refresh-per-page").click();
-      }
-    });
+        // Click refresh on enter
+        $("#per_page_user_input").keyup(function(event) {
+            if(event.keyCode == 13) {
+                $("#refresh-per-page").click();
+            }
+        });
 	},
 	setup_bulk_actions: function () { 
 		$('#download-submit, #bulk-edit-submit').click(function() {

@@ -10,7 +10,7 @@
 	<p id="response"></p>
 	<hgroup>
 		<h3>Manage Groups</h3>
-		<ul><li><%= link_to 'Add a group', new_group_path, :remote => true %></li></ul>
+		<ul><li><%= link_to 'Create group', new_group_path, :remote => true %></li></ul>
 	</hgroup>
 	<table cellpadding="5" cellspacing="0" width="100%">
 		<tr> 
@@ -18,7 +18,6 @@
 			<th>Status</th>
 			<th>Created</th>
 			<th>Modified</th>
-			<th>Membership</th>
 		</tr>
         <%= render :partial => "group", :collection => @groups %>
 		<% if @groups.empty? %>

@@ -1,16 +1,26 @@
-<h1>Create New Flag</h1>
+<section id="filter">
+<div id="panel">	
+
+<h3>New Flag</h3>
 
 <%= form_for @flag, :url => admin_flags_path do |f| %>
 <%= f.label :name %>
 <%= f.text_field :name %><br />
 <%= f.label :label %>
 <%= f.text_field :label %><br />
-<%= f.submit "Update" %>
+<%= f.submit "Create" %>
 <% end -%>
 
-<h1>Flags</h1>
 
-<table width="100%" cellpadding="0" cellspacing="0">
+</div>
+</section>
+
+<section id="results" class="right">
+<div id="panel">	 
+
+<h3>Existing Flags</h3>
+
+<table width="100%" cellpadding="0" cellspacing="0" class="admin_table">
 <tr>
 <th>Name</th>
 <th>Label</th>
@@ -24,3 +34,7 @@
 </tr>
 <% end -%>
 </table>
+
+</div>
+</section>
+

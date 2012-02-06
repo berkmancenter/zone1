@@ -1,9 +1,21 @@
-Welcome to the admin dashboard.
+<section id="filter">
+<div id="panel">	
+
+<h3>Find Files</h3>
 
 <%= form_tag "/admin/update" do %>
+<table class="admin_table">
   <% @preferences.each do |preference| -%>
-    <label><%= preference.name %></label>
-    <%= text_field :preference, preference.id, { :value => preference.value } %><br />
+    <tr>
+    <td><label><%= preference.name %></label> </td>
+    <td><%= text_field :preference, preference.id, { :value => preference.value } %> </td>
+    </tr>
   <% end -%>
-  <%= submit_tag "Update" %>
+<tr>
+  <td colspan="2"><%= submit_tag "Update" %></td>
+</tr>
+</table>
 <% end -%>
+
+</div>
+</section>

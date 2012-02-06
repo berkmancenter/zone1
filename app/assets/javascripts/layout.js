@@ -6,18 +6,26 @@ $(function() {
 	zone_one_base.setup_menu_actions();
 	zone_one_base.setup_datepickers();
 	zone_one_base.setup_username();
-  zone_one_base.setup_watermarks();
+	zone_one_base.setup_admin_username();
+	zone_one_base.setup_watermarks();
 });
 
 var zone_one_base = {
-  setup_watermarks: function() {
-    $("#people_value").watermark("Enter name");
-  },
+	setup_watermarks: function() {
+		$("#people_value").watermark("Enter name");
+	},
 	setup_username: function() {
 		$('#userlinks').hover(function() {
 			$('#userlinks').addClass('hovered');
 		}, function() {
 			$('#userlinks').removeClass('hovered');
+		});
+	},
+	setup_admin_username: function() {
+		$('#adminlinks').hover(function() {
+			$('#adminlinks').addClass('hovered');
+		}, function() {
+			$('#adminlinks').removeClass('hovered');
 		});
 	},
 	setup_accordion: function() {
@@ -139,7 +147,7 @@ var zone_one_base = {
 	}, 
   search_result_column: function(column_name) {
     // Helper function to find the search column consistently
-    // accross different functions.
+    // across different functions.
     return $("div#files span." + column_name).toggle();
   },
 	setup_menu_actions: function() {
@@ -185,17 +193,17 @@ var zone_one_base = {
 	custom_range: function(input) {
 		if (input.id == 'end_date') {
 			return {
-				minDate: jQuery('#start_date').datepicker("getDate"),
+				minDate: $('#start_date').datepicker("getDate"),
 				maxDate: '+0d'
 			};
 		} else if (input.id == 'start_date') {
-			if(jQuery('#end_date').datepicker("getDate")) {
+			if($('#end_date').datepicker("getDate")) {
 				return {
-						maxDate: jQuery('#end_date').datepicker("getDate")
+					maxDate: $('#end_date').datepicker("getDate")
 				};
 			} else {
 				return {
-						maxDate: '+0d'
+					maxDate: '+0d'
 				};
 			}
 		}
