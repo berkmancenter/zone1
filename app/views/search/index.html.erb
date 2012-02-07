@@ -91,7 +91,7 @@
 	</hgroup>
 
   <div id="files">
-    <div class="file">
+    <div class="file menu">
       <span class="filename"><%= sortable "display_name", "Name" %></span>
       <span class="size"><%= sortable "file_size", "Size" %></span>
       <span class="date"><%= sortable "created_at", "Date" %></span>
@@ -133,9 +133,7 @@
 	<% end %>
 	</div>
 	<hgroup class="results_options">
-		<div class="paginate">
-			<%= will_paginate @hits %>
-		</div>
+		<%= will_paginate @hits %>
 		<div class="clear"></div>
 	</hgroup>
   </section>
