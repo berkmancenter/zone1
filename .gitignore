@@ -1,11 +1,9 @@
 config/database.yml
 config/sunspot.yml
 config/resque.yml
-
 *.swp
 .bundle
 .sass-cache/
-db/*.sqlite3
 log/
 uploads/
 downloads/
@@ -16,7 +14,6 @@ redis/redis-local.conf
 redis/dump.rdb
 var/
 db/development_structure.sql
-
 httpd/
 pgsql/
 public/assets/

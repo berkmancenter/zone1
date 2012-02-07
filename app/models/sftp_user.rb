@@ -9,6 +9,7 @@ class SftpUser < ActiveRecord::Base
   attr_accessible :user_id, :homedir
   attr_reader :raw_password
 
+  # TODO: Store this in DB 
   HOMEDIR_ROOT = '/home/sftp/uploads'
 
   def uploaded_files
@@ -30,8 +31,8 @@ class SftpUser < ActiveRecord::Base
   def initialize(params = nil)
     super
     # TODO: uncomment generate_* methods outside of dev
-    self.username = 'testuser' #generate_username 
-    @raw_password = 'testpass' #generate_password
+    self.username = generate_username
+    @raw_password = generate_password
     # proftpd requires that the attribute be named passwd instead of password. :/
     self.passwd = hash_password(@raw_password)
     self.homedir = generate_homedir

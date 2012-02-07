@@ -159,12 +159,6 @@ class StoredFilesController < ApplicationController
   end
  
   def create
-    # TODO: I think this gets handled in the ApplicationController now. If so, remove this.
-    if current_user.nil?
-      render :json => {:success => false, :message => "It doesn't look like you're logged in."}
-      return
-    end
-
     is_web_upload = params.has_key?(:name) && params.has_key?(:file)
     is_sftp_only = params[:sftp_only] == '1'
 
@@ -182,7 +176,6 @@ class StoredFilesController < ApplicationController
         # custom_save gets its own exception handling because we might still
         # need to enqueue a RemoteFileImporter job after custom_save barfs
         stored_file.custom_save(params[:stored_file], current_user)
-        #::Rails.logger.debug "PHUNK: Enqueueing PostProcessor for file_url: #{stored_file.file_url}"
         Resque.enqueue(PostProcessor, stored_file.id) if stored_file.id
       rescue Exception => e
         exceptions << e
@@ -190,22 +183,21 @@ class StoredFilesController < ApplicationController
     end
 
     begin
-      sftp_user = SftpUser.find_by_username(params[:sftp_username]) if params[:sftp_username].present?
-      force_batch = (is_sftp_only || needs_remote_file_import?(sftp_user))
-
       # If this is a web-upload, we can only update_batch _after_ custom_save() so
       # update_batch can see the stored_file.id. For is_sftp_only, stored_file.id
       # will of course be nil, which update_batch can handle just fine.
-      batch_id = update_batch(params[:temp_batch_id], stored_file, force_batch)
-      params[:stored_file][:batch_id] = batch_id if batch_id
-      
-      # TODO: Add some logging for an index failure here, or refactor our exception handling all together?
+      batch_id = update_batch(params[:temp_batch_id], stored_file)
+
       # Do not bother trying to index if not valid? because it will not work.
       if !is_sftp_only && stored_file.valid?
         stored_file.index rescue ''
       end
 
-      if needs_remote_file_import?(sftp_user)
+      sftp_user = SftpUser.find_by_username(params[:sftp_username]) if params[:sftp_username].present?
+      if needs_remote_file_import?(sftp_user, params[:temp_batch_id])
+        remote_file_count = sftp_user.uploaded_files.size
+        # Update params with batch_id so remote files will be imported into this batch
+        params[:stored_file][:batch_id] = batch_id
         enqueue_remote_file_import(params, sftp_user.username)
       end
     rescue Exception => e
@@ -215,7 +207,7 @@ class StoredFilesController < ApplicationController
     respond_to do |format|
       format.json do
         if exceptions.empty?
-          render :json => {:success => true}
+          render :json => {:success => true, :remote_file_count => remote_file_count || 0}
         else
           errors = exceptions.inject([]) {|array, e| array << e.to_s; array}
           render :json => {:success => false, :message => errors.join(', ')}
@@ -227,8 +219,9 @@ class StoredFilesController < ApplicationController
 
   def enqueue_remote_file_import(file_params, sftp_username)
     # Only enqueue job once for this temp_batch_id
-    session[:remote_import_temp_batch_ids] ||= {}
-    session[:remote_import_temp_batch_ids][file_params[:temp_batch_id]] = true
+#    session[:remote_import_temp_batch_ids] ||= {}
+#    session[:remote_import_temp_batch_ids][file_params[:temp_batch_id]] = true
+    session[:upload_batches][file_params[:temp_batch_id]][:remote_import_done] = true
 
     # Remove un-needed and potentially un-serializable fields from file_params
     file_params[:stored_file].delete :original_filename
@@ -260,57 +253,35 @@ class StoredFilesController < ApplicationController
 
   private
 
-  def needs_remote_file_import?(sftp_user)
+  def needs_remote_file_import?(sftp_user, temp_batch_id)
     return @needs_remote_file_import = false if sftp_user.nil?
 
     if @needs_remote_file_import.nil? 
-      @needs_remote_file_import = !( session[:remote_import_temp_batch_ids] &&
-        session[:remote_import_temp_batch_ids][params[:temp_batch_id]] ) &&
+      @needs_remote_file_import = !session[:upload_batches][temp_batch_id][:remote_import_done] &&
         sftp_user.uploaded_files?
     end
     @needs_remote_file_import
   end
 
-  def update_batch(temp_batch_id, stored_file, force_create)
-    # Returns: batch.id if a batch was created/found. Returns nil if no batch created/found 
-    # (in which case, stored_file.id does not need to be assigned to any batch.)
-    # The force_create boolean will be true when there are also remote files
-    # that are going into this batch.
-    file_count = session[:upload_batches][temp_batch_id][:file_count]
-    first_file_id = session[:upload_batches][temp_batch_id][:first_file_id]
-
+  def update_batch(temp_batch_id, stored_file)
     # Get batch from session
     if session[:upload_batches][temp_batch_id][:system_batch_id].present?
+      remote_import_done = session[:upload_batches][temp_batch_id][:remote_import_done]
       batch = Batch.find(session[:upload_batches][temp_batch_id][:system_batch_id].to_i)
-    elsif force_create || file_count == 1
+    else
       batch = Batch.new(:user_id => current_user.id)
       batch.save!
     end
 
-    # Populate first_file_id. Harmless no-op if stored_file.id is nil.
-    first_file_id ||= stored_file.try(:id)
-
-    # If there was already a single stored_file in this temp batch, retroactively 
-    # add it to this new batch instance. This is needed because we only create a
-    # Batch instance once the second file gets uploaded for this temp_batch
-    if file_count == 1 && first_file_id
-      batch.stored_files << StoredFile.find_by_id(first_file_id.to_i)
-    end
-
-    # This is the 2nd or later file in this batch or force_create is true.
-    if batch && (file_count > 0 || force_create)
-      batch.stored_files << stored_file if stored_file.id
-    end
-
-    # Update this temp_batch entry in the session
     session[:upload_batches][temp_batch_id] = {
-      :system_batch_id => batch.try(:id),
+      :system_batch_id => batch.id,
       :updated_at => Time.current.to_i,
-      :file_count => file_count + 1,
-      :first_file_id => first_file_id
+      :remote_import_done => remote_import_done
     }
 
-    return batch.try(:id)
+    batch.stored_files << stored_file if stored_file.id
+
+    return batch.id
   end
 
   def init_new_batch
@@ -320,32 +291,28 @@ class StoredFilesController < ApplicationController
     session[:upload_batches] ||= {}
     prune_temp_batches
 
+    # @temp_batch_id used in stored_files/new view
     @temp_batch_id = Batch.new_temp_batch_id
     session[:upload_batches][@temp_batch_id] = {
       :system_batch_id => nil,
-      :updated_at => Time.current.to_i,
-      :file_count => 0,
-      :first_file_id => nil
+      :updated_at => Time.current.to_i
     }
   end
 
   def prune_temp_batches
-    # Limit to "the oldest X batches" to avoid ActionDispatch::Cookies::CookieOverflow
-
+    # Limit to "the most recent X batches" to keep the session trim.
     # batch_limit is an arbitrary number chosen as "the max number of open upload
     # sessions an absent minded professor is likely to have open at once."
     # Note: Could use ruby 1.9's ActiveSupport.OrderedHash here, but it is not critical
     batch_limit = 5
     return unless session[:upload_batches].try(:length) > batch_limit
 
-    timestamps = session[:upload_batches].collect {|id, batch| batch[:updated_at] }
+    timestamps = session[:upload_batches].collect {|id, batch| batch[:updated_at]}
     timestamps.sort!.reverse!
     limit = timestamps[batch_limit - 1]
 
-    # delete any batch that is older than our limit batch
-    session[:upload_batches].delete_if {|id, batch| batch[:updated_at] < limit }
-    # TODO: Remove same temp_batch_id's from session[:remote_import_temp_batch_ids][params[:temp_batch_id]]
-    # as populated by
+    # delete any batch that is older (i.e. timestamp is lower) than our limit batch
+    session[:upload_batches].delete_if {|temp_id, batch| batch[:updated_at] < limit}
   end
 
 end

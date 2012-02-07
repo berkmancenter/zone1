@@ -475,8 +475,6 @@ class StoredFile < ActiveRecord::Base
       else
         self.has_thumbnail = true
       end
-    else
-      #::Rails.logger.debug "PHUNK: Could not generate thumbnail."
     end
 
     self.has_thumbnail
