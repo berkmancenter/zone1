@@ -1,11 +1,14 @@
+<label id="license_label">License</label>
+<ul>
 <% if @facets -%>
 	<% if @facets[:license_id] -%>
 		<% @facets[:license_id].each do |license| %>
-		<%= link_to license[:label], license[:url] %>
+		<li><%= link_to license[:label], license[:url] %></li>
 		<% end -%>
 	<% end -%>
 <% else -%>
 	<% License.all.each do |license| %>
-	<%= link_to license.name, url_for(:controller => "search", :action => "index", :license_id => license.id) %>
+	<li class="license_facet_link"><%= link_to license.name, url_for(:controller => "search", :action => "index", :license_id => license.id) %></li>
 	<% end -%>
 <% end -%>
+</ul>

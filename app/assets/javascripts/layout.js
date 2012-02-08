@@ -51,6 +51,8 @@ var zone_one_base = {
 		});
 	},
 	setup_listgrid: function() {
+        $('#list_view').click( function() { $('#list').click(); } );
+        $('#grid_view').click( function() { $('#grid').click(); } );
 		//Toggle between list and thumb
 		$('#list,#grid').click(function() {
 			$.cookie("list_grid", $(this).attr('id'), { path: "/" });

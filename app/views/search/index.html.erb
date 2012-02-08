@@ -118,7 +118,7 @@
 					<%= link_to hit.stored(:display_name).first, edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %>
 				</span>
 			</span>
-			<span class="size"><%= number_to_human_size(hit.stored(:file_size)) %></span>
+			<span class="size"><%= number_to_human_size(hit.stored(:file_size), :precision => 2) %></span>
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
 			<span class="tags"><%= hit.stored(:indexed_tag_list).nil? ? '' : hit.stored(:indexed_tag_list).join(', ') %></span>
 			<span class="flags">
