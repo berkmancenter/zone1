@@ -119,12 +119,15 @@ module Zone1
       if !params.has_key?(:mime_type_id) 
         @mime_categories = []
         links = []
-        search.facet(:mime_hierarchy).rows.each do |row|
-          (mime_type_category_id, mime_type_id) = row.value.split('-')
+        
+        mime_pairs = search.facet(:mime_hierarchy).rows.collect {|row| row.value}
+        # Sort the strings to group mime_types by their mime_type_category
+        mime_pairs.sort.each do |pair|
+          (mime_type_category_id, mime_type_id) = pair.split('-')
 
-          next if !(mime_type_category_id.present? && mime_type_id.present?)
-     
-          if !params.has_key?(:mime_type_category_id) && !@mime_categories.include?(mime_type_category_id) 
+          next if mime_type_category_id.nil? || mime_type_id.nil?
+
+          if !params.has_key?(:mime_type_category_id) && !@mime_categories.include?(mime_type_category_id)
             links.push({
               :label => MimeTypeCategory.facet_label(mime_type_category_id),
               :id => mime_type_category_id,
@@ -132,6 +135,7 @@ module Zone1
             })
             @mime_categories << mime_type_category_id 
           end
+
           links.push({
             :label => "&nbsp;&nbsp;#{MimeType.facet_label(mime_type_id)}",
             :id => mime_type_id,

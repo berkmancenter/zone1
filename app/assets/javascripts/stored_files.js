@@ -1,6 +1,7 @@
 $(function() {
 	zone_one_single.setup_datepickers();
 	zone_one_single.setup_delete_listener();
+    zone_one_single.setup_comment_delete_listener();
 });
 
 var zone_one_single = {
@@ -14,7 +15,12 @@ var zone_one_single = {
 			$('#stored_file_delete').submit();
 			return false;
 		});
-	}
+	},
+    setup_comment_delete_listener: function() {
+        $(document).on('ajax:success', '.delete-comment', function() {
+            $(this).parent().slideUp();
+        });
+    }
 };
 
 

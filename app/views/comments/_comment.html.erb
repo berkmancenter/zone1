@@ -1,6 +1,6 @@
-<div style="border:1px dashed #dfdfdf;">
-<%= comment.content %> / <%= comment.user_name %>
+<div class="single_comment" >
+<%= comment.content %> -<em><%= comment.user_name %></em>
 <% if comment.can_user_delete?(current_user) %>
-<%= link_to 'X', stored_file_comment_path(stored_file, comment), :method => :delete, :class => "delete-comment", :remote => true %>
+    <%= link_to 'X', stored_file_comment_path(stored_file, comment), :method => :delete, :class => "delete-comment", :remote => true %>
 <% end -%>
 </div>

@@ -17,9 +17,7 @@
 		<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
 		<%= f.label :file_size %>: <%= number_to_human_size(@stored_file.file_size) %><br />
 	    <%= f.label :url %>: <%= link_to stored_file_url(@stored_file), stored_file_path(@stored_file) %><br />
-		<% if @stored_file.batch_id -%>
-		<%= f.label "Batch:" %> <%= @stored_file.batch_id %><br />
-		<% end -%>
+		<%= f.label "Batch:" %> <%= @stored_file.try :batch_id %><br />
 		<%= f.label "Preserved:" %> <%= preserved_display(@stored_file) %><br />
 		<%= f.label "University Record:" %> <%= university_display(@stored_file) %><br />
 		<%= f.label :ingest_date %>: <%= @stored_file.created_at.strftime("%m-%d-%Y") %><br />

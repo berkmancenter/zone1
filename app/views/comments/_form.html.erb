@@ -1,6 +1,6 @@
 <% if stored_file.allow_notes -%>
 <div id="comments">
-<% f.object.comments.each do |comment| %>
+<% f.object.comments.order(:id).each do |comment| %>
   <%= render comment, :stored_file => f.object %>
 <% end -%>
 
