@@ -23,7 +23,6 @@ var zone_one_single = {
     }
 };
 
-
 function toggle_flag_note(checkbox) {
     var checkbox_id = checkbox.id;
     var textarea_id = '#' + checkbox_id.replace('_destroy', '') + 'note';

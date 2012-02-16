@@ -12,17 +12,14 @@ class Membership < ActiveRecord::Base
   scope :user, where("NOT is_owner")
 
   after_create :send_invitation_email, :if => :invited?
-  after_create :destroy_member_cache
+  after_save :destroy_member_cache
 
+  after_update :validate_group_has_owner
   after_destroy :validate_group_has_owner
   after_destroy :destroy_member_cache
   
-  after_update :validate_group_has_owner
-  after_update :destroy_member_cache
-
-  def accept(time=Time.current)
-    update_attribute(:joined_at, time)
-    destroy_member_cache
+  def accept
+    touch(:joined_at)
   end
 
   def invited_by_name
@@ -72,13 +69,13 @@ class Membership < ActiveRecord::Base
   private
 
   def validate_group_has_owner
-    if group.owners.empty? || Membership.where(:group_id => group.id, :is_owner => true).empty?
+    if group.owners.empty? || !Membership.where(:group_id => group.id, :is_owner => true).exists?
       raise "Groups must have at least one owner."
     end
   end
 
   def uniqueness_of_user
-    if Membership.where(:group_id => group.id, :user_id => user.id).present?
+    if Membership.where(:group_id => group.id, :user_id => user.id).exists?
       # check database and object state
       raise "#{user.email} already belongs to group #{group.name}."
     end
@@ -100,9 +97,6 @@ class Membership < ActiveRecord::Base
     new_memberships
   end
 
-
-  private
-  
   def destroy_member_cache
     Rails.cache.delete("user-rights-#{user.id}")
     Rails.cache.delete("groups-viewable-users-#{group.id}")

@@ -189,27 +189,6 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
-  def find_groups_stored_files_id_by_group_id(group_id)
-    
-    id_array = self.groups_stored_files.inject([]) do |array, group|
-      array << group.id if group.group_id.to_s == group_id
-      array
-    end
-
-    if id_array.length > 1
-      logger.debug "self.groups_stored_files.inspect=" + self.groups_stored_files.inspect
-      logger.debug "id_array = " + id_array.inspect
-      raise "Should find one groups_stored_files.id"
-
-    elsif id_array.length == 1
-      return id_array.to_s
-
-    elsif id_array.length == 0
-      #it's ok if we find nothing, this means this flag was never set for the stored file
-      return nil
-    end
-  end
-  
   def find_flagging_id_by_flag_id(flag_id)
     
     id_array = self.flaggings.inject([]) do |array, flagging|
@@ -270,8 +249,8 @@ class StoredFile < ActiveRecord::Base
     prepare_comment_params(params, user)
 
     # Use strings instead of symbols so this will work when called via a Resque job, too.
-    tag_list = params.delete('tag_list')
-    collection_list = params.delete('collection_list')
+    tag_list = params.delete("tag_list")
+    collection_list = params.delete("collection_list")
 
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list

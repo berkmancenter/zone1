@@ -32,10 +32,15 @@
       <td>
         <%= member.user.name %>
         <% if member.invited? %>
-          <span class="invitation_notice">(Invited by <%= member.invited_by_name %> <%= time_ago_in_words member.created_at %> ago)</span>
+          <span class="invitation_notice">(Invited by <%= member.invited_by_name %>
+            <%= time_ago_in_words member.updated_at %> ago.) 
+            <% if @group.owners.include? current_user -%>
+                <span>(<%= link_to 'Re-send invite', resend_group_invite_path(member), :remote => true, :class => "resend_invite" %>)</span>
+            <% end -%>
+          </span>
         <% end %>
       </td>
-			<td align="center"><%= member_fields.check_box "is_owner" %></td>
+			<td align="center"><%= member_fields.check_box :is_owner, :disabled => member.invited? %></td>
 			<td align="center"><%= member_fields.check_box :_destroy %></td>
 		</tr>
     <% end %>

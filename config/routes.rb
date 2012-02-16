@@ -22,7 +22,8 @@ Zone1::Application.routes.draw do
   
   resources :groups, :only => [:new, :create, :edit, :update, :destroy, :index]
 
-  match 'memberships/:id/:membership_code/accept' => 'memberships#accept', :as => :accept_membership
+  match 'memberships/:membership_code/accept' => 'memberships#accept', :as => :accept_membership
+  match 'memberships/:id/resend_invite' => 'memberships#resend_invite', :as => :resend_group_invite
 
   namespace :admin do
     resources :users, :only => [:edit, :update, :index]

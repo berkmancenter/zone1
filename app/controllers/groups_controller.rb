@@ -25,7 +25,7 @@ class GroupsController < ApplicationController
   end
 
   def edit
-    @group = Group.find(params[:id])
+    @group = Group.find(params[:id], :include => :memberships)
 
     respond_to do |format|
       format.js
@@ -64,15 +64,28 @@ class GroupsController < ApplicationController
     begin
       @group = Group.find(params[:id])
 
-      Group.transaction do
+      # Rebuild :memberships_attributes hash in this order:
+      # * owner adds
+      # * owner removes
+      # * membership deletes
+      # This lets the user make any combination of changes in one update, which was
+      # not otherwise possible.
+      attrs = params[:group].delete :memberships_attributes
 
+      adds = attrs.select {|idx, hash| hash['_destroy'] == "0"}
+      adds_owners = adds.select {|idx, hash| hash['is_owner'] == "1"}
+      adds_users = adds.select {|idx, hash| hash['is_owner'] == "0"}
+
+      removes = attrs.select {|idx, hash| hash['_destroy'] == "1"}
+
+      params[:group][:memberships_attributes] = adds_owners.merge(adds_users).merge(removes)
+      
+      Group.transaction do
         if @group.update_attributes(params[:group])
-          # Invite new users
           @group.invite_users_by_email(params[:user_email].split.uniq, current_user)
         else
           raise @group.errors.full_messages.join(', ')
         end
-
       end
 
       respond_to do |format|
@@ -91,15 +104,17 @@ class GroupsController < ApplicationController
 
   def destroy
     begin
-      Group.destroy(params[:id]) # fire callbacks
+      Group.destroy(params[:id])
 
       respond_to do |format|
         format.js
       end
     rescue Exception => e
       respond_to do |format|
-        @message = e.to_s
-        render 'destroy_fail'
+        format.js do
+          log_exception e
+          render "destroy_fail"
+        end
       end
     end
   end

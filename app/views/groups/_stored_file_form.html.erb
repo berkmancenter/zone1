@@ -6,6 +6,8 @@
         <% end -%>
     <% end -%>
 <% else -%>
-    <%= f.label "to" %>
-    <%= @stored_file.groups.collect { |g| g.name }.join(', ') %>
+    <% if !@stored_file.groups.empty? -%>
+        <%= f.label "to" %>
+        <%= @stored_file.groups.collect { |g| g.name }.join(', ') %>
+    <% end -%>
 <% end -%>

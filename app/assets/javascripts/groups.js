@@ -1,10 +1,11 @@
 $(function() {
 	zone_one_groups.setup_quickview();
+    zone_one_groups.setup_group_delete_listener();
 });
 
 var zone_one_groups = {
 	setup_quickview: function() {
-		$('#groups_body #quick_edit_panel .delete').live("click", function() {
+		$(document).on('click', '#groups_body #quick_edit_panel .delete', function() {
 			$('#fail_response').slideUp();
 			$('<p>').html("Are you sure you want to delete this group?").dialog({
 				buttons: [
@@ -23,11 +24,19 @@ var zone_one_groups = {
 			}); 
 			return false;
 		});
-    $("input[type='checkbox'][readonly='readonly']").live("click", function () {
-      // The readonly attribute is designed to prevent modification to the
-      // input's value, not it's state.  Clicking a checkbox changes it's state.
-      // This prevents that.
-      return false;
-    });
-	}
+        $(document).on('click', "input[type='checkbox'][readonly='readonly']", function () {
+          // The readonly attribute is designed to prevent modification to the
+          // input's value, not its state.  Clicking a checkbox changes it's state.
+          // This prevents that.
+          return false;
+        });
+        $(document).on('ajax:success', '.resend_invite', function() {
+            var span = $(this).parent().addClass('re-sent').html('(Invite Re-sent)');
+        });
+	},
+    setup_group_delete_listener: function() {
+        $(document).on('ajax:error', '#quick_edit_delete', function() {
+            console.log('zone_one_groups.setup_group_delete_listener firing.');
+        });
+    }
 };

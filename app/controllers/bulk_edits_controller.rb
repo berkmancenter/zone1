@@ -75,11 +75,15 @@ class BulkEditsController < ApplicationController
     params[:attr_for_bulk_edit].each do |attr|
       if attr.is_a?(Hash) 
         if attr.has_key?("flag_ids") && params[:stored_file].has_key?("flaggings_attributes")
-          flagging_attributes.merge! eligible_flagging_attributes(stored_file, attr[:flag_ids], params[:stored_file][:flaggings_attributes])
+          flagging_attributes.merge! eligible_flagging_attributes(
+                                                                  stored_file,
+                                                                  attr[:flag_ids],
+                                                                  params[:stored_file][:flaggings_attributes]
+                                                                  )
         end
       end
     end
-    return flagging_attributes
+    flagging_attributes
   end
 
   def groups_attributes_for(stored_file)
@@ -87,11 +91,15 @@ class BulkEditsController < ApplicationController
     params[:attr_for_bulk_edit].each do |attr|
       if attr.is_a?(Hash) 
         if attr.has_key?("group_ids") && params[:stored_file].has_key?("groups_stored_files_attributes")
-          group_attributes.merge! eligible_group_attributes(stored_file, attr[:group_ids], params[:stored_file][:groups_stored_files_attributes])
+          group_attributes.merge! eligible_group_attributes(
+                                                            stored_file,
+                                                            attr[:group_ids],
+                                                            params[:stored_file][:groups_stored_files_attributes]
+                                                            )
         end
       end
     end
-    return group_attributes
+    group_attributes
   end
 
   def eligible_params_for_bulk_edit
@@ -142,9 +150,10 @@ class BulkEditsController < ApplicationController
     group_attributes.each do |key, group|
       if group_ids.include?(group[:group_id])
 
-        #We must find group_stored_files_id for the specific stored_file
+        #Find group_stored_files_id for the specific stored_file
         #so it can be updated or destroyed accordingly
-        groups_stored_files_id = stored_file.find_groups_stored_files_id_by_group_id(group[:group_id])
+        gsf = GroupsStoredFile.where(:group_id => group[:group_id], :stored_file_id => stored_file.id).limit(1)
+        groups_stored_files_id = gsf.try(:first).try(:id)
 
         #There are 4 scenarios here:
         # if stored file has group (groups_stored_files_id is present):
@@ -166,7 +175,6 @@ class BulkEditsController < ApplicationController
         end
       end
     end
-
     {"groups_stored_files_attributes" => eligible_groups}
   end
 
