@@ -1,6 +1,5 @@
 $(function() {
 	zone_one_groups.setup_quickview();
-    zone_one_groups.setup_group_delete_listener();
 });
 
 var zone_one_groups = {
@@ -26,17 +25,12 @@ var zone_one_groups = {
 		});
         $(document).on('click', "input[type='checkbox'][readonly='readonly']", function () {
           // The readonly attribute is designed to prevent modification to the
-          // input's value, not its state.  Clicking a checkbox changes it's state.
+          // input's value, not its state.  Clicking a checkbox changes its state.
           // This prevents that.
           return false;
         });
         $(document).on('ajax:success', '.resend_invite', function() {
             var span = $(this).parent().addClass('re-sent').html('(Invite Re-sent)');
         });
-	},
-    setup_group_delete_listener: function() {
-        $(document).on('ajax:error', '#quick_edit_delete', function() {
-            console.log('zone_one_groups.setup_group_delete_listener firing.');
-        });
-    }
+	}
 };

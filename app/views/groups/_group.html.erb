@@ -9,6 +9,10 @@
 	<td>
 		<% if group.owners.include?(current_user) -%>
 		Owner
+		<% elsif group.invited_members.include?(current_user) -%>
+		Invited <span class="invited_links">
+        (<%= link_to 'Accept', group_accept_path(group) %> or
+        <%= link_to 'Decline', group_decline_path(group) %>)</span>
 		<% elsif group.users.include?(current_user) -%>
 		Member
 		<% else -%>

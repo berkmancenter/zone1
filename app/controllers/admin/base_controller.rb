@@ -1,5 +1,4 @@
 class Admin::BaseController < ApplicationController
-#  layout "application"
   include ApplicationHelper
 
   access_control do

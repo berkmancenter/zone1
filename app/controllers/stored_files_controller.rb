@@ -3,19 +3,13 @@ class StoredFilesController < ApplicationController
   include ApplicationHelper
 
   access_control do
-    allow logged_in, :to => [:create, :new]
-
-    allow logged_in, :to => [:bulk_edit, :bulk_destroy]
+    allow logged_in, :to => [:new, :create, :bulk_edit, :bulk_destroy, :download_set]
 
     allow all, :to => [:thumbnail, :edit, :download, :show], :if => :allow_show?
 
-    allow logged_in, :to => [:thumbnail, :show, :update, :edit, :download], :if => :allow_show?
-
-    allow logged_in, :to => [:update], :if => :allow_show?
+    allow logged_in, :to => [:update, :thumbnail, :show, :update, :edit, :download], :if => :allow_show?
 
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
-
-    allow logged_in, :to => :download_set
   end
 
   def allow_destroy?
