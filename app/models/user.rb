@@ -105,7 +105,6 @@ class User < ActiveRecord::Base
     false
   end
 
-  # stored_file can be an id or it can be a StoredFile
   def can_do_group_method?(group, method)
     rights = self.all_rights
     return true if rights.include?(method)
@@ -141,12 +140,12 @@ class User < ActiveRecord::Base
 
   def self.cached_viewable_users(right)
     Rails.cache.fetch("users-viewable-users-#{right}") do
-      User.find_by_sql("SELECT u.id
+      self.connection.select_all("SELECT u.id
         FROM users u
         JOIN right_assignments ra ON ra.subject_id = u.id
         JOIN rights r ON r.id = ra.right_id
         WHERE ra.subject_type = 'User'
-        AND r.action = '#{right}'").collect { |user| user.id }
+        AND r.action = '#{right}'").collect {|user| user['id'].to_i}
     end
   end
 

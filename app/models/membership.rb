@@ -12,10 +12,10 @@ class Membership < ActiveRecord::Base
   scope :user, where("NOT is_owner")
 
   after_create :send_invitation_email, :if => :invited?
-  after_save :destroy_member_cache
-
   after_update :validate_group_has_owner
   after_destroy :validate_group_has_owner
+
+  after_save :destroy_member_cache
   after_destroy :destroy_member_cache
   
   def accept

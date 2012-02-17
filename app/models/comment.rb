@@ -8,10 +8,9 @@ class Comment < ActiveRecord::Base
 
   delegate :name, :to => :user, :prefix => :user
 
-  attr_accessible :content, :user_id, :stored_file_id,
-    :created_at, :updated_at
+  attr_accessible :content, :user_id, :stored_file_id, :created_at, :updated_at
 
   def can_user_delete?(user)
-    user.can_do_method?(self.stored_file, "delete_comments") || self.user == user
+    self.user == user || user.can_do_method?(self.stored_file, "delete_comments")
   end
 end

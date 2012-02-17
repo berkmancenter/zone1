@@ -42,19 +42,22 @@ module StoredFilesHelper
 
   def preview(stored_file)
     # stored_file is either a StoredFile or a Solr Hit
+    # We use to_i() here to force nil values to zero, to create "/0.jpg" instead of "/.jpg"
     if stored_file.is_a?(StoredFile)
       if stored_file.has_thumbnail
-        return image_tag(thumbnail_stored_file_path(stored_file.id) + ".jpg", :class => 'thumbnail')
+        path = thumbnail_stored_file_path(stored_file.id) + ".jpg"
       else
-        return image_tag("/mime_type_cat_icons/#{stored_file.mime_type_category_id}.jpg", :class => 'thumbnail')
+        path = "/mime_type_cat_icons/#{stored_file.mime_type_category_id.to_i}.jpg"
       end 
     else
       if stored_file.stored(:has_thumbnail)
-        return image_tag(thumbnail_stored_file_path(stored_file.stored(:id)) + ".jpg", :class => "thumbnail")
+        path = thumbnail_stored_file_path(stored_file.stored(:id)) + ".jpg"
       else
-        return image_tag("/mime_type_cat_icons/#{stored_file.stored(:mime_type_category_id)}.jpg", :class => "thumbnail")
+        path = "/mime_type_cat_icons/#{stored_file.stored(:mime_type_category_id).to_i}.jpg"
       end 
     end
+    
+    return image_tag(path, :class => 'thumbnail', :alt => '')
   end
 
   def search_by_tags(tag_string)

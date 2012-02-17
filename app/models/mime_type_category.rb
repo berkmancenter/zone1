@@ -8,9 +8,8 @@ class MimeTypeCategory < ActiveRecord::Base
 
   mount_uploader :icon, MimeTypeCategoryIconUploader
 
-  after_update { MimeTypeCategory.destroy_cache }
-  after_create { MimeTypeCategory.destroy_cache }
-  after_destroy { MimeTypeCategory.destroy_cache }
+  after_save :destroy_cache
+  after_destroy :destroy_cache
 
   def self.all
     Rails.cache.fetch("mime_type_categories") do
@@ -24,7 +23,7 @@ class MimeTypeCategory < ActiveRecord::Base
 
   private
 
-  def self.destroy_cache
+  def destroy_cache
     Rails.cache.delete("mime_type_categories")
   end
 end

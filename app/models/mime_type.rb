@@ -9,8 +9,7 @@ class MimeType < ActiveRecord::Base
   before_create :downcase_extension
   before_create :set_default_category
 
-  after_update :delete_cache
-  after_create :delete_cache
+  after_save :delete_cache
   after_destroy :delete_cache
 
   def self.all
@@ -21,7 +20,7 @@ class MimeType < ActiveRecord::Base
 
   def self.facet_label(value)
     begin
-    self.all.detect { |l| l.id == value.to_i }.name
+      self.all.detect { |l| l.id == value.to_i }.name
     rescue
       "Unknown"
     end
@@ -34,7 +33,7 @@ class MimeType < ActiveRecord::Base
   end
 
   def self.file_extension_blacklisted?(filename='')
-    # Note that "" (empty string) is a valid MimeType record and is blacklist-able
+    # Note that '' (empty string) is a valid MimeType record and is blacklist-able
     MimeType.blacklisted_extensions.include?(File.extname(filename).downcase) unless filename.nil?
   end
   

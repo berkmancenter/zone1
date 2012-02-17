@@ -33,9 +33,8 @@ class Group < ActiveRecord::Base
   end
 
   def self.cached_viewable_users(right)
-    # TODO: I believe this should use select_all instead of find_by_sql
     Rails.cache.fetch("groups-viewable-users-#{right}") do
-      User.find_by_sql("SELECT u.id
+      self.connection.select_all("SELECT u.id
         FROM users u
         JOIN memberships m ON u.id = m.user_id
         JOIN groups g ON g.id = m.group_id
@@ -44,7 +43,7 @@ class Group < ActiveRecord::Base
         WHERE ra.subject_type = 'Group'
         AND g.assignable_rights
         AND m.joined_at IS NOT NULL
-        AND r.action = '#{right}'").collect { |user| user.id }
+        AND r.action = '#{right}'").collect {|user| user['id'].to_i}
     end
   end
 

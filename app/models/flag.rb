@@ -9,9 +9,8 @@ class Flag < ActiveRecord::Base
   SELECTED = ["SELECTED_FOR_PRESERVATION", "UNIVERSITY_RECORD"]
 
   # Caching related callbacks
-  after_update { Flag.destroy_cache }
-  after_create { Flag.destroy_cache }
-  after_destroy { Flag.destroy_cache }
+  after_save :destroy_cache
+  after_destroy :destroy_cache
 
   def self.preserved
     Flag.find_by_name("PRESERVED")
@@ -49,7 +48,7 @@ class Flag < ActiveRecord::Base
 
   private
 
-  def self.destroy_cache
+  def destroy_cache
     Rails.cache.delete("flags")
   end
 end
