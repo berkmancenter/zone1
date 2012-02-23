@@ -11,9 +11,8 @@ class RightAssignment < ActiveRecord::Base
   def destroy_perserved_flag_stored_files_cache
     if right.action == "view_preserved_flag_content"
 
-      # Must delete this cache first so when
-      # StoredFile.cached_viewable_users rebuilds
-      # it doesn't build from a stale cache
+      # Must delete this cache first so when StoredFile.cached_viewable_users 
+      # rebuilds it doesn't build from a stale cache.
 
       case subject_type  
       when "User"

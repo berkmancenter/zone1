@@ -41,7 +41,7 @@ class BulkEditsController < ApplicationController
         # Does not include flaggings or groups.
         # These must be customized for each stored file.
         eligible_params = eligible_params_for_bulk_edit
-        
+
         stored_files.each do |stored_file|
           # Always start with same base
           stored_file_params = eligible_params.clone 
@@ -76,10 +76,10 @@ class BulkEditsController < ApplicationController
       if attr.is_a?(Hash) 
         if attr.has_key?("flag_ids") && params[:stored_file].has_key?("flaggings_attributes")
           flagging_attributes.merge! eligible_flagging_attributes(
-                                                                  stored_file,
-                                                                  attr[:flag_ids],
-                                                                  params[:stored_file][:flaggings_attributes]
-                                                                  )
+              stored_file,
+              attr[:flag_ids],
+              params[:stored_file][:flaggings_attributes]
+            )
         end
       end
     end
@@ -92,10 +92,10 @@ class BulkEditsController < ApplicationController
       if attr.is_a?(Hash) 
         if attr.has_key?("group_ids") && params[:stored_file].has_key?("groups_stored_files_attributes")
           group_attributes.merge! eligible_group_attributes(
-                                                            stored_file,
-                                                            attr[:group_ids],
-                                                            params[:stored_file][:groups_stored_files_attributes]
-                                                            )
+              stored_file,
+              attr[:group_ids],
+              params[:stored_file][:groups_stored_files_attributes]
+            )
         end
       end
     end
@@ -114,7 +114,8 @@ class BulkEditsController < ApplicationController
     eligible_flaggings = {}
 
     flagging_attributes.each do |key, flagging|
-      if flag_ids.include?(flagging[:flag_id]) #we've found an eligible flagging
+      #if this flagging is eligible
+      if flag_ids.include?(flagging[:flag_id]) 
 
         #we must find the flagging.id for the stored_file
         #and it include it in the params so it can be updated or destroyed

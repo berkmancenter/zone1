@@ -8,17 +8,16 @@ class Admin::FlagsController < Admin::BaseController
     begin
       flag = Flag.new(params[:flag])
       if flag.save
-        flash[:notice] = "created!"
-        redirect_to edit_admin_flag_path(flag)
+        flag_name = flag.name.downcase
+        flash[:notice] = "Created! Your new flag will not be available to anyone until you create rights for it (e.g. add_#{flag_name}, remove_#{flag_name})"
       else
         flash[:error] = "Errors #{flag.errors.full_messages.join(', ')}"
-        redirect_to admin_flags_path
       end
     rescue Exception => e
-      flash[:error] = "problems creating. try again."
+      flash[:error] = "problems creating. "
       log_exception e
-      redirect_to admin_flags_path
     end
+    redirect_to admin_flags_path
   end
 
   def update
@@ -26,12 +25,11 @@ class Admin::FlagsController < Admin::BaseController
       flag = Flag.find(params[:id])
       flag.update_attributes(params[:flag])
       flash[:notice] = "updated!"
-      redirect_to edit_admin_flag_path(flag)
     rescue Exception => e
-      flash[:error] = "Problems updating! Please try again."
+      flash[:error] = "Problems updating!"
       log_exception e
-      redirect_to edit_admin_flag_path(flag)
     end
+    redirect_to edit_admin_flag_path(flag)
   end
 
   def show
@@ -44,8 +42,14 @@ class Admin::FlagsController < Admin::BaseController
   end
 
   def destroy
-    Flag.delete(params[:id])
-    flash[:notice] = "Deleted flag."
+    begin 
+      Flag.destroy(params[:id])
+      flash[:notice] = "Deleted flag."
+    rescue Exception => e
+      flash[:error] = "Problems deleting: #{e}"
+      log_exception e
+    end
     redirect_to admin_flags_path
   end
+
 end

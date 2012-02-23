@@ -11,6 +11,9 @@ class Flagging < ActiveRecord::Base
 
   attr_reader :checked
 
+  # If you need any destroy callbacks, you need to update the before_destroy
+  # callback in the Flag model
+
   def checked=(boolean)
     #When creating a new flagging, we need a way to tell the form
     #whether or not to check the checkbox

@@ -40,11 +40,6 @@ class StoredFile < ActiveRecord::Base
   # we must manually force the index/commit.
   after_recover :reindex_sunspot
   
-  def reindex_sunspot
-    self.index
-    Sunspot.commit
-  end
-  
   attr_accessor :wants_thumbnail
   attr_accessor :skip_quota
 
@@ -69,6 +64,11 @@ class StoredFile < ActiveRecord::Base
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
+  def reindex_sunspot
+    self.index
+    Sunspot.commit
+  end
+  
   def remove_file!
     # This method overloads the remove_file! helper method which is provided by Carrierwave::Mount
     # The purpose of this override is to prevent the after_destroy callback from firing.
@@ -152,7 +152,8 @@ class StoredFile < ActiveRecord::Base
 
   def self.tag_list
     Rails.cache.fetch("tag-list") do
-      Tag.find_by_sql("SELECT ts.tag_id AS id, t.name FROM taggings ts
+      Tag.find_by_sql("SELECT ts.tag_id AS id, t.name
+        FROM taggings ts
         JOIN tags t ON ts.tag_id = t.id
         WHERE ts.context = 'tags'
         GROUP BY ts.tag_id, t.name
@@ -190,23 +191,18 @@ class StoredFile < ActiveRecord::Base
   end
 
   def find_flagging_id_by_flag_id(flag_id)
-    
     id_array = self.flaggings.inject([]) do |array, flagging|
       array << flagging.id if flagging.flag_id.to_s == flag_id
       array
     end
 
-    if id_array.length > 1
+    if id_array.length < 2
+      # might return nil, which means this flag was never set for the stored file
+      return id_array.first
+    else
       logger.debug "self.flaggings.inspect=" + self.flaggings.inspect
       logger.debug "id_array = " + id_array.inspect
-      raise "Something isn't right.  StoredFile #{self.id} has #{id_array.count} flaggings.  It should have one or none."
-
-    elsif id_array.length == 1
-      return id_array.to_s
-
-    elsif id_array.length == 0
-      #it's ok if we find nothing, this means this flag was never set for the stored file
-      return nil
+      raise "Something isn't right. StoredFile #{self.id} has #{id_array.count} flaggings. It should have one or none."
     end
   end
 
@@ -214,24 +210,26 @@ class StoredFile < ActiveRecord::Base
     # This isn't quite as simple as a global attribute to be updated
     # So, we are checking if the user has add and remove rights
     #
-    # this directly modifies the params, so nothing needs to bet set
-    # or returned after executed
-
+    # This directly modifies the params hash argument, so we return nothing 
     return unless params.has_key?(:flaggings_attributes)
+
+    # shorthand
+    attrs = params[:flaggings_attributes]
+    
+    # Loops through each flag and see if that flag_id shows up in any of the
+    # checkbox hashes in attrs. If it does, validate it against can_flag?()
     Flag.all.each do |flag|
       flag_id = flag.id.to_s
-      if params[:flaggings_attributes].has_key?(flag_id)
-        if params[:flaggings_attributes][flag_id].has_key?(:user_id)
-          if !user.can_flag?(flag)
-            params[:flaggings_attributes].delete(flag_id)
-          end
-        elsif params[:flaggings_attributes][flag_id][:_destroy] == "1"
-          if !user.can_unflag?(flag)
-            params[:flaggings_attributes].delete(flag_id)
-          end
+      if attrs.any? {|k,v| v['flag_id'] == flag_id}
+        attr_key = attrs.select {|k,v| v['flag_id'] == flag_id}.keys.first
+        if attrs[attr_key].has_key?(:user_id)
+          attrs.delete(attr_key) unless user.can_flag?(flag)
+        elsif attrs[attr_key][:_destroy] == "1"
+          attrs.delete(attr_key) unless user.can_unflag?(flag)
         end
       end
     end
+    params[:flaggings_attributes] = attrs
   end
 
   def custom_save(file_params, user)

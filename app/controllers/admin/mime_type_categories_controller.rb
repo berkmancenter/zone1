@@ -46,7 +46,7 @@ class Admin::MimeTypeCategoriesController < Admin::BaseController
   end
 
   def destroy
-    MimeTypeCategory.delete(params[:id])
+    MimeTypeCategory.destroy(params[:id])
     flash[:notice] = "Deleted mime_type_category."
     redirect_to admin_mime_type_categories_path
   end

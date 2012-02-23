@@ -7,6 +7,7 @@
 <%= f.text_field :description %><br />
 
 <h3>Attached Roles</h3>
+<%= hidden_field_tag "right[role_ids][]" %>
 
 <% @roles.each do |role| -%>
 <%= check_box_tag "right[role_ids][]", role.id, @right.roles.include?(role) %>

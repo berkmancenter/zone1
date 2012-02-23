@@ -121,6 +121,7 @@
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
 			<span class="tags"><%= hit.stored(:indexed_tag_list).nil? ? '' : hit.stored(:indexed_tag_list).join(', ') %></span>
 			<span class="flags">
+                <%# this does not support custom flags %>
 				<%= preserved_flag_display(hit.stored(:flag_ids)) %>
 				<%= university_flag_display(hit.stored(:flag_ids)) %>
 			</span>

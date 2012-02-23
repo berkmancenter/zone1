@@ -14,8 +14,7 @@ class Role < ActiveRecord::Base
 
   def self.user_rights
     Rails.cache.fetch("user-rights") do
-      role = Role.find_by_name("user")
-      role.present? ? role.rights : []
+      Role.find_by_name("user").try(:rights) || []
     end
   end 
 
@@ -30,6 +29,7 @@ class Role < ActiveRecord::Base
         AND r.action = '#{right}'").collect {|user| user['id'].to_i}
     end
   end
+
 
   private
 

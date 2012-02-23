@@ -1,5 +1,5 @@
 class Membership < ActiveRecord::Base
-  belongs_to :group
+  belongs_to :group, :touch => true
   belongs_to :user
 
   validate :uniqueness_of_user, :on => :create

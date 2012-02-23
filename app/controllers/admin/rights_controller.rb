@@ -32,7 +32,7 @@ class Admin::RightsController < Admin::BaseController
       flash[:notice] = "updated!"
       redirect_to edit_admin_right_path(right)
     rescue Exception => e
-      flash[:error] = "Problems updating! Please try again."
+      flash[:error] = "Problems updating: #{e}"
       log_exception e
       redirect_to edit_admin_right_path(right)
     end
@@ -44,7 +44,7 @@ class Admin::RightsController < Admin::BaseController
   end
 
   def destroy
-    Right.delete(params[:id])
+    Right.destroy(params[:id])
     flash[:notice] = "Deleted right."
     redirect_to admin_rights_path
   end

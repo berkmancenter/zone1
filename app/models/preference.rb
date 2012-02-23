@@ -25,8 +25,8 @@ class Preference < ActiveRecord::Base
   end
 
   def self.default_license
-    license_preference = Preference.find_by_name_cached("Default License")
-    License.find_by_name(license_preference.try(:value))
+    license_preference = Preference.find_by_name_cached("Default License").try(:value)
+    License.find_by_name(license_preference) if license_preference
   end
 
   def self.group_invite_from_address
