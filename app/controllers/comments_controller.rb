@@ -12,8 +12,8 @@ class CommentsController < ApplicationController
 
   def destroy
     begin
-      Comment.delete(params[:id])
-      render :json => { :success => true }
+      Comment.destroy(params[:id])
+      head :ok
     rescue Exception => e
       render :json => { :success => false, :message => e.to_s }
     end

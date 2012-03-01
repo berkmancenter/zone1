@@ -247,6 +247,7 @@ class StoredFile < ActiveRecord::Base
     prepare_comment_params(params, user)
 
     # Use strings instead of symbols so this will work when called via a Resque job, too.
+    # Delete these to lists from params because update_attributes can't handle them
     tag_list = params.delete("tag_list")
     collection_list = params.delete("collection_list")
 
@@ -339,7 +340,7 @@ class StoredFile < ActiveRecord::Base
   def update_tags(param, context, user)
     begin
       existing_tags = self.anonymous_tag_list(context).split(", ")
-      submitted_tags = param.gsub(/\s+/, '').split(',')
+      submitted_tags = param.gsub(/\s+/, ' ').split(',').map {|string| string.rstrip.lstrip}
 
       removed_tags = existing_tags - (existing_tags & submitted_tags)
 
@@ -351,14 +352,13 @@ class StoredFile < ActiveRecord::Base
       # Figure out which global tags user is removing, and remove
       removed_tags.each do |removed_tag|
         # Note: acts-as-taggable doesn't give you an easy way to delete another user's tags.
-        st = ActiveRecord::Base.connection.execute("DELETE FROM taggings WHERE taggable_id = '#{self.id}' AND context = '#{context.to_s}' AND tag_id = (SELECT id FROM tags WHERE name = '#{removed_tag}')")
+        st = StoredFile.connection.execute("DELETE FROM taggings WHERE taggable_id = '#{self.id}' AND context = '#{context.to_s}' AND tag_id = (SELECT id FROM tags WHERE name = '#{removed_tag}')")
       end
     rescue Exception => e
       log_exception e
     end
   end
 
-  # Note: passing flag in hash is not necessary, but is an optimization
   def flag_map(user)
     flag_map = []
 
@@ -376,7 +376,6 @@ class StoredFile < ActiveRecord::Base
     flag_map
   end
 
-  # Note: passing group in hash is not necessary, but is an optimization
   def group_map(user)
     group_map = []
 

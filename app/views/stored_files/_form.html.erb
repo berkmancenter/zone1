@@ -3,7 +3,6 @@
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td width="340px" valign="top">
-			<%#= tag_list hitting the database %>
 			<%= editable_field(f, @attr_accessible, :title, {}, :text_field) %>
 
 			<%= editable_field(f, @attr_accessible, :tag_list, {}, :text_field, "Tags") %>
@@ -18,7 +17,7 @@
 		<td valign="top">
 			<%= editable_field(f, @attr_accessible, :author, {}, :text_field, "Creator") %>
 
-			<%= editable_field(f, @attr_accessible, :collection_list, {}, :text_field, "Collection") %>
+			<%= editable_field(f, @attr_accessible, :collection_list, {}, :text_field, "Collections") %>
 
 			<%= editable_field(f, @attr_accessible, :original_date, {}, :text_field) %>
 
