@@ -22,7 +22,6 @@ module Zone1
     end
 
     def build_stored_file_search
-      count = StoredFile.count
 
       Sunspot.search(StoredFile) do
         if params.has_key?(:search)
@@ -31,13 +30,29 @@ module Zone1
           end
         end
 
+        # Implements case insensitive string fields from StoredFile's searchable block
+        downcased_facets = {
+          :indexed_tag_list => :indexed_tag_list_downcase,
+          :indexed_collection_list => :indexed_collection_list_downcase
+        }
+
         [:flag_ids, :mime_type_id, :mime_type_category_id, :license_id,
-          :indexed_collection_list, :batch_id, :indexed_tag_list, :user_id].each do |facet|
+         :batch_id, :indexed_tag_list, :indexed_collection_list, :user_id].each do |facet|
           if params.has_key?(facet)
             if params[facet].is_a?(Array)
-              params[facet].each { |t| with facet, t }
+              params[facet].each do |t|
+                if downcased_facets[facet]
+                  with(downcased_facets[facet], t.downcase)
+                else
+                  with(facet, t)
+                end
+              end
             else
-              with facet, CGI.unescape(params[facet])
+              if downcased_facets[facet]
+                with(downcased_facets[facet], CGI.unescape(params[facet].downcase))
+              else
+                with(facet, CGI.unescape(params[facet]))
+              end
             end
           end
         end
@@ -69,7 +84,7 @@ module Zone1
         # Excluded deleted files
         with(:deleted_at, nil)
 
-        paginate :page => 1, :per_page => count
+        paginate :page => 1, :per_page => StoredFile.count
         order_by sort_column, sort_direction
       end
     end #build stored_file_search
@@ -150,12 +165,12 @@ module Zone1
       facets_to_remove = {}
       @hidden_facets = {}
 
-      removed_facets = ["search", "tag",
-        "created_at_start_date", "created_at_end_date",
-        "original_date_start_date", "original_date_end_date",
-        "flag_ids", "license_id", "mime_type_id", "mime_type_category_id",
-        "indexed_collection_list", "batch_id", "indexed_tag_list", "author",
-        "contributor_name", "copyright_holder", "user_id"]
+      removed_facets = %w( search tag
+        created_at_start_date created_at_end_date
+        original_date_start_date original_date_end_date
+        flag_ids license_id mime_type_id mime_type_category_id
+        indexed_collection_list batch_id indexed_tag_list author
+        contributor_name copyright_holder user_id )
 
       params.each do |facet, value|
         if value.presence && removed_facets.include?(facet)
@@ -191,7 +206,7 @@ module Zone1
         "search" => "Keyword",
         "indexed_tag_list" => "Tag",
         "license_id" => "License",
-        "indexed_collection_list" => "Collection Name",
+        "indexed_collection_list" => "Collection",
         "flag_ids" => "Flags",
         "batch_id" => "Batch",
         "created_at_start_date" => "Created After",

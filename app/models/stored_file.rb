@@ -91,8 +91,7 @@ class StoredFile < ActiveRecord::Base
 
   searchable(:include => [:tags, :mime_type, :mime_type_category], :auto_index => false) do
     # Note: Both text and string fields needed. Solr searches text in fulltext
-    # queries, but string is also needed for with in search.
-    # trie => true optimizes the index for ranges
+    # queries, but string is also needed for using Sunspot's "with" in search.
     text :author
     text :office
     text :title
@@ -100,25 +99,29 @@ class StoredFile < ActiveRecord::Base
     text :original_filename, :description
     text :contributor_name
     text :license_name, :stored => true
-    text :display_name, :stored => true do
-      self.title.presence || self.original_filename
-    end
+    text :display_name, :stored => true
 
     string :author, :stored => true
     string :office
     string :title
     string :copyright_holder 
     string :contributor_name, :stored => true
-    string :display_name, :stored => true do
-      self.title.presence || self.original_filename
+    string :display_name, :stored => true
+
+    # Original tags and collections. Used for hit display
+    string :indexed_tag_list, :stored => true, :multiple => true
+    string :indexed_collection_list, :stored => true, :multiple => true
+
+    # Case insensitive tags and collections. Used for queries.
+    # See lib/zone1/sunspot_search.rb for corresponding facet handling
+    string :indexed_tag_list_downcase, :multiple => true do
+      self.indexed_tag_list.each {|t| t.name.downcase!}
+    end
+    string :indexed_collection_list_downcase, :multiple => true do
+      self.indexed_collection_list.each {|t| t.name.downcase!}
     end
 
-    string :indexed_tag_list, :stored => true, :multiple => true 
-    string :indexed_collection_list, :stored => true, :multiple => true do
-      self.owner_tags_on(nil, :collections)
-    end
-    # Used for mime hierarchy reference on search
-    # Performance, to minimize hierarchy lookup
+    # Used for mime hierarchy reference on search. Minimizes hierarchy lookup.
     string :mime_hierarchy do
       "#{self.mime_type_category_id}-#{self.mime_type_id}"
     end
@@ -146,8 +149,16 @@ class StoredFile < ActiveRecord::Base
     self.mime_type.try :mime_type_category_id
   end
 
+  def display_name
+    self.title.presence || self.original_filename
+  end
+
   def indexed_tag_list
     self.owner_tags_on(nil, :tags)
+  end
+
+  def indexed_collection_list
+    self.owner_tags_on(nil, :collections)
   end
 
   def self.tag_list
@@ -165,7 +176,6 @@ class StoredFile < ActiveRecord::Base
     #must use flaggings here instead of flags, because of bulk edit
     #in bulk edit, flags are not defined, because we're creating a new stored file
     #flaggings are defined for the new bulk_edit stored file
-   
     set_flag_ids = self.flaggings.inject([]) do |array, flagging|
       array << flagging.flag_id if flagging.checked?
       array
