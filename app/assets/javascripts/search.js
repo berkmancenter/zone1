@@ -25,6 +25,8 @@ var zone_one_search = {
 	setup_bulk_actions: function () { 
 		$('#download-submit, #bulk-edit-submit').click(function() {
 			zone_one_search.clone_downloadable_checkboxes_to($(this).parent());
+			var count = $(this).parent().children("input:checked").length;
+			if (count == 0) {return false;}  //Nothing to do
 			$(this).parent().submit();
 			return false;
 		});
@@ -34,6 +36,8 @@ var zone_one_search = {
 			$(bulk_delete).children('input').remove();
 			zone_one_search.clone_downloadable_checkboxes_to(bulk_delete);
 			var count = $(bulk_delete).children("input:checked").length;
+			if (count == 0) {return false;}  //Nothing to do
+
 			$(bulk_delete).append($('<input>').attr('type', 'hidden').attr('name', 'previous_search').val(location.href));
 			$('<p>').html("Are you sure you want to delete the " + count + " items?").dialog({
 				buttons: [
