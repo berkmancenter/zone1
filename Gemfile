@@ -19,7 +19,7 @@ gem 'resque', :require => "resque/server"
 gem 'execjs'
 gem 'therubyracer'
 gem 'rake'
-gem 'rails3_acts_as_paranoid', :git => "git://github.com/bbuchalter/rails3_acts_as_paranoid.git"
+gem 'paranoia'
 
 # Gems used only for assets and not required in production environments by default.
 group :assets do
@@ -38,7 +38,6 @@ group :test, :development do
   gem 'database_cleaner'
   gem 'remarkable', "~> 4.0.0.alpha4"
   gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
-  gem 'rcov'
 # these two commented out during ruby 1.9.3 upgrade
 #  gem 'rails_best_practices'
 #  gem 'ripper' #required by rails_best_practices, run sudo yum install bison first

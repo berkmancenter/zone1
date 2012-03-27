@@ -4,7 +4,6 @@ class RemoteFileImporter
   def self.perform(sftp_username, params)
     sftp_user = SftpUser.find_by_username(sftp_username)
     raise "No such SFTP username: #{sftp_username}" if sftp_user.nil?
-    user = sftp_user.user
 
     bytes_used = 0
     exceptions = []
@@ -16,7 +15,7 @@ class RemoteFileImporter
         params[:file] = File.open(file_path)
         stored_file = StoredFile.new
         stored_file.skip_quota = true
-        stored_file.custom_save(params, user)
+        stored_file.custom_save(params, sftp_user.user)
         stored_file.post_process
         bytes_used += stored_file.file.size
         file_list << stored_file.original_filename
@@ -24,6 +23,9 @@ class RemoteFileImporter
         exceptions << [params[:original_filename], e]
       end
     end
+
+    # If we created any new files, force Sunspot to update its index on disk to pick them up
+    Sunspot.commit unless file_list.empty?
 
     # TODO: Email user a summary/confirmation of job completion, especially any errors
     if !exceptions.empty?

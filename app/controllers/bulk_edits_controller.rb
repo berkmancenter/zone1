@@ -20,7 +20,6 @@ class BulkEditsController < ApplicationController
     
     elsif params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length == 1
       redirect_to edit_stored_file_path(params[:stored_file_ids].first)
-    
     else
       redirect_to search_path
     end
@@ -51,7 +50,6 @@ class BulkEditsController < ApplicationController
           stored_file_params.merge! groups_attributes_for(stored_file)
 
           stored_file.custom_save(stored_file_params, current_user)
-          stored_file.index
         end
 
         flash[:notice] = "Files updated."

@@ -3,14 +3,17 @@ class StoredFile < ActiveRecord::Base
 
   include ApplicationHelper
 
+  acts_as_paranoid
+
   belongs_to :license
   belongs_to :user
   belongs_to :access_level
   belongs_to :batch
-  has_many :comments, :dependent => :destroy
+
+  has_many :comments, :order => "id", :dependent => :destroy
   has_many :flaggings, :dependent => :destroy
   has_many :flags, :through => :flaggings
-  has_many :groups_stored_files
+  has_many :groups_stored_files, :dependent => :destroy
   has_many :groups, :through => :groups_stored_files
   has_one :disposition, :dependent => :destroy
   belongs_to :mime_type
@@ -30,24 +33,16 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable
   acts_as_taggable_on :publication_types, :collections
 
-  acts_as_paranoid
-
-  # Because acts_as_paranoid overloads destroy
-  # we don't get the usual Sunspot index/commit callbacks.
-  after_destroy :reindex_sunspot
-
-  # In order for the recovery to be reflected in the index
-  # we must manually force the index/commit.
-  after_recover :reindex_sunspot
-  
-  attr_accessor :wants_thumbnail
-  attr_accessor :skip_quota
+  attr_accessor :wants_thumbnail, :skip_quota, :defer_search_commit
 
   before_save :update_file_size
-  after_create :decrease_available_user_quota!, :unless => :skip_quota
-  after_destroy :increase_available_user_quota!
-  after_update { |record| StoredFile.destroy_cache(record) }
-  before_destroy { |record| StoredFile.destroy_cache(record) }
+  after_create :register_user_stored_file, :unless => :skip_quota
+  after_update :paranoid_action_callback, :if => :deleted_at_changed?
+  after_update :destroy_cache
+  before_destroy :destroy_cache
+
+  # Only unregister this stored file if it was not already soft-deleted
+  before_destroy :unregister_user_stored_file, :if => "deleted_at.nil?"
 
   validates_presence_of :user_id, :access_level_id
 
@@ -63,31 +58,6 @@ class StoredFile < ActiveRecord::Base
   FITS_ATTRIBUTES = [:file_size, :md5, :format_version, :mime_type].freeze
 
   mount_uploader :file, FileUploader, :mount_on => :file
-
-  def reindex_sunspot
-    self.index
-    Sunspot.commit
-  end
-  
-  def remove_file!
-    # This method overloads the remove_file! helper method which is provided by Carrierwave::Mount
-    # The purpose of this override is to prevent the after_destroy callback from firing.
-    # This allows for the soft-delete functionality acts_as_paranoid provides.
-    #
-    # Unforutnatly, Rails 3.1.3 has a bug in skip_callback, so despite best efforts, this nice line:
-    # StoredFile.skip_callback :destroy, :after, :remove_file!
-    # WILL NOT WORK.
-    #
-    # Thus we override the method, and leave it to the developer to call this if they REALLY
-    # want to delete the associated file:
-    #
-    # _mounter(:file).remove!
-    #
-    # This is a private method, so if you need to use it outside the model call it as follows:
-    #
-    # @stored_file.__send__(:_mounter, :file).remove!
-    #
-  end
 
   searchable(:include => [:tags, :mime_type, :mime_type_category], :auto_index => false) do
     # Note: Both text and string fields needed. Solr searches text in fulltext
@@ -138,9 +108,38 @@ class StoredFile < ActiveRecord::Base
 
     time :original_date, :stored => true, :trie => true
     time :created_at, :stored => true, :trie => true   
-    time :deleted_at
+    time :deleted_at, :stored => true
 
     boolean :has_thumbnail, :stored => true
+  end
+
+  # Handle hard destroy via the destroy! method. This must come _after_ the searchable
+  # block to ensure that the callbacks leave the search index in correct state
+  after_destroy :remove_from_index!, :unless => :defer_search_commit
+
+  def soft_destroy
+    # This is from acts_as_paranoid, and DOES trigger update callbacks, surprisingly.
+    # Note that one should never call plain old .destroy() on a stored_file instance, as
+    # that will hard-destroy all its :dependent => :destroy associations while only 
+    # soft-destroying the stored_file. 
+    self.delete  
+  end
+
+  def hard_destroy
+    # Convenience method for hard-destroying a stored file that may or may not already
+    # have been soft-destroyed.
+    self.deleted_at = nil
+    self.destroy!
+  end
+
+  def destroy_without_commit!
+    # Convenience/encapsulation for hard-destroying a single StoredFile instance
+    # without having Sunspot's remove_from_index! automatically called. Used when
+    # destroying a bunch of stored files at once. You are responsible for calling
+    # Sunspot.commit once you are done destroying all your stored files. Failing to
+    # do so may cause ActiveRecord::RecordNotFound errors on the front end.
+    self.defer_search_commit = true
+    self.hard_destroy
   end
 
   def mime_type_category_id
@@ -218,8 +217,7 @@ class StoredFile < ActiveRecord::Base
 
   def flaggings_server_side_validation(params, user)
     # This isn't quite as simple as a global attribute to be updated
-    # So, we are checking if the user has add and remove rights
-    #
+    # So, we are checking if the user has add and remove rights.
     # This directly modifies the params hash argument, so we return nothing 
     return unless params.has_key?(:flaggings_attributes)
 
@@ -243,6 +241,11 @@ class StoredFile < ActiveRecord::Base
   end
 
   def custom_save(file_params, user)
+    # Note: Calling Sunspot.commit is an exercise left to the user of this model. This
+    # enables bulk imports (see remote_file_importer.rb) and updates (bulk_edits_controller)
+    # to create or update multiple new StoredFile instances and only call Sunspot.commit 
+    # once at the end. (Which is much more efficient.)
+
     # Operate on a copy of file_params
     params = file_params.dup
 
@@ -264,6 +267,7 @@ class StoredFile < ActiveRecord::Base
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
       update_tags(collection_list, :collections, user) if collection_list
+      self.index
     else
       raise self.errors.full_messages.join(', ')
     end
@@ -299,14 +303,6 @@ class StoredFile < ActiveRecord::Base
   def tag_list
     #so form value does not have to be manually set
     @tag_list ||= self.anonymous_tag_list(:tags)
-  end
-
-  def decrease_available_user_quota!
-    user.decrease_available_quota!(file_size)
-  end
-
-  def increase_available_user_quota!(amount_in_bytes=file_size)
-    user.increase_available_quota!(amount_in_bytes)
   end
 
   def flag_ids
@@ -404,9 +400,10 @@ class StoredFile < ActiveRecord::Base
   def post_process
     fits_ok = set_fits_attributes
     thumbnail_ok = generate_thumbnail
-    self.save! if fits_ok || thumbnail_ok
-    # Always index, regardless of fits and thumbnail results
-    reindex_sunspot
+    if fits_ok || thumbnail_ok
+      self.save! 
+      self.index
+    end
   end
 
   def file_url(*args)
@@ -468,7 +465,7 @@ class StoredFile < ActiveRecord::Base
 
   def self.cached_viewable_users(id)
     Rails.cache.fetch("stored-file-#{id}-viewable-users") do
-      stored_file = StoredFile.find(id, :include => :user)
+      stored_file = StoredFile.find(id)
 
       # This assumes that if the stored file access level is open
       # no global user array is generated.
@@ -486,6 +483,30 @@ class StoredFile < ActiveRecord::Base
 
   private
 
+  def paranoid_action_callback
+    # Handle our soft_destroy and acts_as_paranoid's restore! methods
+    # Note: Caching is handled by other more general callbacks
+    if deleted?
+      # soft-destroyed
+      remove_from_index!
+      unregister_user_stored_file
+    else
+      # restored
+      index!
+      register_user_stored_file
+    end
+  end
+
+
+  def unregister_user_stored_file
+    user.increase_available_quota!(file_size)
+  end
+
+  def register_user_stored_file
+    user.decrease_available_quota!(file_size)
+  end
+
+
   def failed_thumbnail_cleanup
     # Delete cached files that have been orphaned in their cache directory.
     # Note that cache_dir is always going to be specific to this stored_file
@@ -499,7 +520,7 @@ class StoredFile < ActiveRecord::Base
              File.expand_path(base_name, cache_dir),
              File.expand_path('thumbnail_' + base_name, cache_dir)
             ]
-    cache_files.each {|f| File.delete(f) rescue ''}
+    cache_files.each {|f| File.delete(f) rescue nil}
     Dir.rmdir cache_dir    
   end
 
@@ -522,8 +543,11 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
-  def self.destroy_cache(record)
+  def destroy_cache
+    raise Exception.new("no self.id found in destroy_cache") unless self.id.present?
     Rails.cache.delete("tag-list")
-    Rails.cache.delete("stored-file-#{record.id}-viewable-users")
+    Rails.cache.delete("stored-file-#{self.id}-viewable-users")
   end
+
+
 end

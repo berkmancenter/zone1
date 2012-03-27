@@ -4,7 +4,7 @@ class CommentsController < ApplicationController
   end
 
   def allow_destroy?
-    comment = Comment.find(params[:id], :include => :user)
+    comment = Comment.find(params[:id])
     return true if comment.user == current_user
 
     current_user.can_do_method?(params[:stored_file_id], "delete_comments")

@@ -4,10 +4,6 @@ require 'active_support/concern'
 # or add require_or_load File.join(Rails.root, "lib", "zone1", "sunspot_search")
 # to files using this module
 
-
-# Because search is used both by home#index and search#index
-# we need to extract functionality into a module both controllers can use
-
 module Zone1
   module SunspotSearch
     extend ActiveSupport::Concern

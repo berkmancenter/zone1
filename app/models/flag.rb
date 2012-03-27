@@ -59,13 +59,11 @@ class Flag < ActiveRecord::Base
       FROM flaggings
       WHERE flaggings.flag_id = '#{flag.id}'").collect {|row| row['stored_file_id'].to_i}
 
-    # nothing to do
-    return true if stored_file_ids.length == 0
-    
-    Flagging.delete_all(:stored_file_id => stored_file_ids, :flag_id => flag.id)
-
-    # unscoped because we want to update soft-deleted StoredFiles too
-    StoredFile.unscoped.find(stored_file_ids).each {|stored_file| stored_file.reindex_sunspot }
+    if !stored_file_ids.empty?
+      Flagging.delete_all(:stored_file_id => stored_file_ids, :flag_id => flag.id)
+      StoredFile.find(stored_file_ids).each(&:index)
+      Sunspot.commit
+    end
 
     true
   end

@@ -5,9 +5,11 @@ class StoredFilesController < ApplicationController
   access_control do
     allow logged_in, :to => [:new, :create, :bulk_edit, :bulk_destroy, :download_set]
 
+    #TODO: I think edit should be removed, but how can anonymous add comments then?
     allow all, :to => [:thumbnail, :edit, :download, :show], :if => :allow_show?
 
-    allow logged_in, :to => [:update, :thumbnail, :show, :update, :edit, :download], :if => :allow_show?
+    #TODO: Do we need this line if it's the same as the 'allow all' line, and :allow_show? handles the logic?
+    allow logged_in, :to => [:thumbnail, :edit, :update, :download, :show], :if => :allow_show?
 
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
   end
@@ -27,8 +29,7 @@ class StoredFilesController < ApplicationController
 
   def edit
     @licenses = License.all
-    @stored_file = StoredFile.find(params[:id], :include => [:comments, :access_level, :groups, :flags])
-
+    @stored_file = StoredFile.find(params[:id], :include => [{:comments => :user}])
     @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
     @title = 'EDIT'
 
@@ -42,8 +43,7 @@ class StoredFilesController < ApplicationController
 
   def show
     @licenses = License.all
-    @stored_file = StoredFile.find(params[:id], :include => [:comments, :access_level, :groups, :flags])
-
+    @stored_file = StoredFile.find(params[:id], :include => [{:comments => :user}])
     @attr_accessible = []
     @title = 'DETAIL'
 
@@ -53,7 +53,7 @@ class StoredFilesController < ApplicationController
 
   def destroy
     begin
-      StoredFile.find(params[:id]).destroy
+      StoredFile.find(params[:id]).soft_destroy
       respond_to do |format|
         format.js
         format.html do
@@ -81,20 +81,19 @@ class StoredFilesController < ApplicationController
   def bulk_destroy
     stored_file_ids = params[:stored_file].keys 
     destroyed = 0
-    if stored_file_ids.is_a?(Array) && stored_file_ids.length > 0
-      stored_files = StoredFile.find(stored_file_ids)
-      stored_files.each do |stored_file|
-        if stored_file.can_user_destroy?(current_user)
-          if stored_file.destroy
-            destroyed += 1
-          end
+
+    StoredFile.find(stored_file_ids).each do |stored_file|
+      if stored_file.can_user_destroy?(current_user)
+        if stored_file.soft_destroy
+          destroyed += 1
         end
-      end      
-    end
+      end
+    end      
+
     if destroyed == stored_file_ids.size
-      flash[:notice] = "All files deleted."
+      flash[:notice] = "Selected files deleted."
     else 
-      flash[:notice] = "#{destroyed} file(s) deleted, you do not have access to delete all #{stored_file_ids.size} files."
+      flash[:notice] = "Deleted #{destroyed}/#{stored_file_ids.size} file(s). You do not have access to delete all #{stored_file_ids.size} files."
     end
     redirect_to params[:previous_search]
   end
@@ -108,9 +107,7 @@ class StoredFilesController < ApplicationController
       @stored_file = StoredFile.find(params[:id])
 
       @stored_file.custom_save(params[:stored_file], current_user)
-        
-      @stored_file.index
-   
+
       respond_to do |format|
         format.js
         format.html do
@@ -162,40 +159,33 @@ class StoredFilesController < ApplicationController
       :file => params.delete(:file)
     })
 
-    stored_file = StoredFile.new
+    # Update params with existing (or new) batch_id because the client never provides it in params
+    params[:stored_file][:batch_id] = update_batch(params[:temp_batch_id])
 
     exceptions = []
     if !is_sftp_only
       begin
         # custom_save gets its own exception handling because we might still
-        # need to enqueue a RemoteFileImporter job after custom_save barfs
+        # need to enqueue a RemoteFileImporter job if custom_save were to barf
+        stored_file = StoredFile.new
         stored_file.custom_save(params[:stored_file], current_user)
-        Resque.enqueue(PostProcessor, stored_file.id) if stored_file.id
+        Resque.enqueue(PostProcessor, stored_file.id)
+        Sunspot.commit
       rescue Exception => e
         exceptions << e
       end          
     end
 
-    begin
-      # If this is a web-upload, we can only update_batch _after_ custom_save() so
-      # update_batch can see the stored_file.id. For is_sftp_only, stored_file.id
-      # will of course be nil, which update_batch can handle just fine.
-      batch_id = update_batch(params[:temp_batch_id], stored_file)
-
-      # Do not bother trying to index if not valid? because it will not work.
-      if !is_sftp_only && stored_file.valid?
-        stored_file.index rescue ''
+    if params[:sftp_username].present?
+      begin
+        sftp_user = SftpUser.find_by_username(params[:sftp_username]) 
+        if needs_remote_file_import?(sftp_user, params[:temp_batch_id])
+          remote_file_count = sftp_user.uploaded_files.size
+          enqueue_remote_file_import(params, sftp_user.username)
+        end
+      rescue Exception => e
+        exceptions << e
       end
-
-      sftp_user = SftpUser.find_by_username(params[:sftp_username]) if params[:sftp_username].present?
-      if needs_remote_file_import?(sftp_user, params[:temp_batch_id])
-        remote_file_count = sftp_user.uploaded_files.size
-        # Update params with batch_id so remote files will be imported into this batch
-        params[:stored_file][:batch_id] = batch_id
-        enqueue_remote_file_import(params, sftp_user.username)
-      end
-    rescue Exception => e
-      exceptions << e
     end
 
     respond_to do |format|
@@ -213,15 +203,12 @@ class StoredFilesController < ApplicationController
 
   def enqueue_remote_file_import(file_params, sftp_username)
     # Only enqueue job once for this temp_batch_id
-#    session[:remote_import_temp_batch_ids] ||= {}
-#    session[:remote_import_temp_batch_ids][file_params[:temp_batch_id]] = true
     session[:upload_batches][file_params[:temp_batch_id]][:remote_import_done] = true
 
     # Remove un-needed and potentially un-serializable fields from file_params
     file_params[:stored_file].delete :original_filename
     file_params[:stored_file].delete :file
     Resque.enqueue(RemoteFileImporter, sftp_username, file_params[:stored_file])
-    #RemoteFileImporter.perform(sftp_username, file_params[:stored_file])  #inline for Dev only
   end
 
   def thumbnail
@@ -235,8 +222,7 @@ class StoredFilesController < ApplicationController
   end
 
   def download_set
-    selected_stored_file_ids = params[:stored_file].collect { |k,v| k.to_i }
-    stored_files = StoredFile.find(selected_stored_file_ids)
+    stored_files = StoredFile.find(params[:stored_file].keys)
 
     set = DownloadSet.new(stored_files)
     send_file set.path, :x_sendfile => true
@@ -257,7 +243,7 @@ class StoredFilesController < ApplicationController
     @needs_remote_file_import
   end
 
-  def update_batch(temp_batch_id, stored_file)
+  def update_batch(temp_batch_id)
     # Get batch from session
     if session[:upload_batches][temp_batch_id][:system_batch_id].present?
       remote_import_done = session[:upload_batches][temp_batch_id][:remote_import_done]
@@ -272,8 +258,6 @@ class StoredFilesController < ApplicationController
       :updated_at => Time.current.to_i,
       :remote_import_done => remote_import_done
     }
-
-    batch.stored_files << stored_file if stored_file.id
 
     return batch.id
   end

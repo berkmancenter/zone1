@@ -6,6 +6,7 @@ class User < ActiveRecord::Base
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_users
   acts_as_tagger
 
+  #TODO: Convert these to symbols and update method
   after_update { |record| User.destroy_viewable_users_cache(record) }
   after_destroy { |record| User.destroy_viewable_users_cache(record) }
   after_create { |record| User.destroy_viewable_users_cache(record) }
