@@ -1,6 +1,13 @@
 class ApplicationController < ActionController::Base
   include ApplicationHelper
   protect_from_forgery
+  require File.join(Rails.root, 'lib', 'zone1', 'version.rb')
+  helper_method :app_version
+
+  def app_version
+    #@zone1_version ||= Zone1::VERSION
+    Zone1::VERSION
+  end
 
   Warden::Manager.after_authentication do |user, auth, opts|
     Rails.cache.delete("user-rights-#{user.id}")

@@ -70,13 +70,6 @@ Testing
 * *rake rcov:rspec* will generate coverage data with rcov, copy to public, visit http://<root_url>/coverage/index.html)
 
 
-Rails Best Practices Output
-========
-* bundle exec rails_best_practices -f html .
-* mv rails_best_practices.html public/rbp.html
-* visit http://<your_host>/rbp.html
-
-
 SFTP / Proftpd setup and use
 ========
 You'll need to update your proftpd.conf file to setup the proper paths, database
@@ -88,67 +81,3 @@ to be able to `cd` into a virtual user's homedir, and run a `ls` there.
 
 For an example please review var/proftpd.conf.
 
-
-CACHING
-=========
-
-NOTE: If using ActiveSupport::Cache::FileStore
-the cache will grow until the disk is full unless you periodically clear out old entries.
-
-AccessLevel
--------------
-Cached methods: .all
-Caches will be destroyed: after_update, after_create, after_destroy
-
-Flag
--------------
-Cached methods: .all
-Caches will be destroyed: after_update, after_create, after_destroy
-
-Group
--------------
-Cached methods: .cached_viewable_users(right)
-Caches will be destroyed: after_update, after_create, after_destroy
-
-License
-------------
-Cached methods: .all
-Caches will be destroyed: after_update, after_create, after_destroy
-
-MimeType
-------------
-Cached methods: .all, .blacklisted_extensions
-Caches will be destroyed: after_update, after_create, after_destroy
-
-MimeTypeCategory
-------------
-Cached methods: .all
-Caches will be destroyed: after_update, after_create, after_destroy
-
-Preference
-------------
-Cached methods: .all
-Caches will be destroyed: after_update, after_create, after_destroy
-
-RightAssignment
------------
-StoredFile caches will be destroyed: after_create, after_destroy
-
-Role
-------------
-Cached methods: .user_rights, .cached_viewable_users(right)
-Caches will be destroyed: after_update, after_create, after_destroy
-
-StoredFile
---------------
-Cached methods: #tag_list, .cached_viewable_users(id)
-Caches will be destroyed: after_update, before_destroy
-
-User
------------
-Cached methods: #all_rights, .users_with_right, .cached_viewable_users, can_view_cached?, .all
-Caches will be destroyed: after_update, after_create, after_destroy
-
-Warden::Manager (see application_controller)
------------
-Logged out user's rights cache will be destroyed: after_authentication
