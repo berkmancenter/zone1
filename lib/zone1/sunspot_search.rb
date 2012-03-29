@@ -94,37 +94,37 @@ module Zone1
           params[:indexed_tag_list] ||= []
           arr.push({
             :label => tag.name,
-            :url => url_for(params.clone.merge({ :indexed_tag_list => params[:indexed_tag_list] + [tag.name] }))
+            :url => url_for(params.clone.merge({ :indexed_tag_list => params[:indexed_tag_list] + [tag.name], :controller => 'search' }))
           })
         end
         arr
       end
-      @facets[:indexed_tag_list] = links if links.size > 0
+      @facets[:indexed_tag_list] = links unless links.empty?
 
-      # flags
-      links = search.facet(:flag_ids).rows.inject([]) do |arr, row|
-        if !params[:flag_ids] || !params[:flag_ids].include?(row.value.to_s)
-          params[:flag_ids] ||= []
-          arr.push({
-            :label => Flag.facet_label(row.value),
-            :url => url_for(params.clone.merge({ :flag_ids => params[:flag_ids] + [row.value] }))
-          })
-        end
-        arr
-      end
-      @facets[:flag_ids] = links if links.size > 0
+      # flags - not used at the moment
+#      links = search.facet(:flag_ids).rows.inject([]) do |arr, row|
+#        if !params[:flag_ids] || !params[:flag_ids].include?(row.value.to_s)
+#          params[:flag_ids] ||= []
+#          arr.push({
+#            :label => Flag.facet_label(row.value),
+#            :url => url_for(params.clone.merge({ :flag_ids => params[:flag_ids] + [row.value] }))
+#          })
+#        end
+#        arr
+#      end
+#      @facets[:flag_ids] = links unless links.empty?
 
       # licenses
       links = search.facet(:license_id).rows.inject([]) do |arr, row|
         if params[:license_id] != row.value.to_s
           arr.push({
             :label => License.facet_label(row.value),
-            :url => url_for(params.clone.merge({ :license_id => row.value }))
+            :url => url_for(params.clone.merge({ :license_id => row.value, :controller => :search }))
           })
         end
         arr
       end
-      @facets[:license_id] = links if links.size > 0
+      @facets[:license_id] = links unless links.empty?
 
       # mime type hierarchy
       if !params.has_key?(:mime_type_id) 
@@ -148,16 +148,16 @@ module Zone1
           end
 
           links.push({
-            :label => "&nbsp;&nbsp;#{MimeType.facet_label(mime_type_id)}",
+            :label => "&nbsp;&nbsp;" + MimeType.facet_label(mime_type_id),
             :id => mime_type_id,
             :class => "mime_type_id"
           })
         end
-        @facets[:mime_hierarchy] = links if links.size > 0
+        @facets[:mime_hierarchy] = links unless links.empty?
       end
     end
 
-    def build_removeable_facets(params)
+    def build_removable_facets(params)
       facets_to_remove = {}
       @hidden_facets = {}
 
@@ -170,7 +170,8 @@ module Zone1
 
       params.each do |facet, value|
         if value.presence && removed_facets.include?(facet)
-          @hidden_facets.merge!({ facet => value })
+          # Flag checkboxes persist in the form so we don't need it as a hidden facet
+          @hidden_facets.merge!({ facet => value }) unless facet == 'flag_ids'
           facets_to_remove[facet] ||= []
           if value.is_a?(Array)
             params[facet].each do |v|
@@ -182,18 +183,16 @@ module Zone1
               }
              end
           else
-            if ["license_id", "mime_type_id", "mime_type_category_id"].include?(facet)
+            if %w( license_id mime_type_id mime_type_category_id ).include?(facet)
               klass = facet.gsub(/_id$/, '').classify.constantize
-              facets_to_remove[facet] << {
-               :label => klass.facet_label(value),
-               :url => url_for(params.clone.remove!(facet))
-              }
-            else 
-              facets_to_remove[facet] << {
-               :label => value,
-               :url => url_for(params.clone.remove!(facet))
-              }
+              label = klass.facet_label(value)
+            else
+              label = value
             end
+            facets_to_remove[facet] << {
+               :label => label,
+               :url => url_for(params.clone.remove!(facet))
+            }
           end
         end
       end
@@ -216,19 +215,25 @@ module Zone1
         "user_id" => "Contributor Id"
       }
 
-      @removeable_facets = {}
+      @removable_facets = {}
       facets_to_remove.each do |k, v|
-        if(label_map[k])
-          @removeable_facets[label_map[k]] = v
-        else
-          @removeable_facets[k] = v
-        end
+        @removable_facets[ label_map[k] || k ] = v
       end
 
+      # Used to show friendlier facet label/value than "Contributor ID: 42" for 'only my files' etc.
+      mapped_user_id = label_map['user_id']
+      if @removable_facets[ mapped_user_id ]
+        if current_user.try(:id).to_s == @removable_facets[ mapped_user_id ].first[:label]
+          key = 'Only My Files'
+          @removable_facets[key] = @removable_facets.delete mapped_user_id
+          @removable_facets[key].first[:label] = 'yes'
+        end
+      end
+      
       if params.has_key?(:date_type)
         @hidden_facets.merge!({ :date_type => params[:date_type] })
       end
-    end  #build_removalable facets
+    end  #build_removable facets
 
 
     def per_page
@@ -236,54 +241,26 @@ module Zone1
       session[:per_page] = params[:per_page] || session[:per_page] || "10"
     end
 
-    # TODO: Move away from using global params here.
     def sort_column
-      if params.has_key?(:sort_column)
-        column = params[:sort_column]
-      elsif session.has_key?(:sort_column)
-        column = session[:sort_column]
-      else
-        column = "created_at"
-      end
-      session[:sort_column] = column
-      column
+      session[:sort_column] = params[:sort_column] || session[:sort_column] || "created_at"
     end
 
-    # TODO: Move away from using global params here.
     def sort_direction
-      if params.has_key?(:sort_direction)
-        direction = params[:sort_direction]
-      elsif session.has_key?(:sort_direction)
-        direction = session[:sort_direction]
-      else
-        direction = "desc"
-      end
-
-      if %w(asc desc).include?(direction)
-        session[:sort_direction] = direction
-      end
-      direction
+      direction = params[:sort_direction] || session[:sort_direction]
+      session[:sort_direction] = %w(asc desc).include?(direction) ? direction : "desc"
     end
 
 
     private
 
-    # Private method for filtering search results
     # Working directly with search.hits minimizes the requirement to access
     # stored file object, and eliminates object instantiation
     def filter_search_results(search)
-      filtered_results = []
+      open_id = AccessLevel.open.id
 
-      open = AccessLevel.open
-      search.hits.each do |hit|
-        if hit.stored(:access_level_id).to_i == open.id
-          filtered_results << hit 
-        elsif current_user.present? && current_user.can_view_cached?(hit.stored(:id))
-          filtered_results << hit 
-        end
+      search.hits.select do |hit|
+        hit.stored(:access_level_id).to_i == open_id || current_user.try(:can_view_cached?, hit.stored(:id))
       end
-      
-      filtered_results
     end
 
   end #module sunspot search

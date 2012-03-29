@@ -14,26 +14,26 @@ module SearchHelper
   end
 
   def university_flag_display(flag_ids)
+    return nil unless flag_ids
     flags = Flag.all.inject({}) { |h, f| h[f.name] = f.id; h }
-    if flag_ids
-      if flag_ids.include?(flags["UNIVERSITY_RECORD"])
-        content_tag 'span', 'U', :class => 'highlighted'
-      elsif flag_ids.include?(flags["MAY_BE_UNIVERSITY_RECORD"])
-        content_tag 'span', 'U'
-      end
+
+    if flag_ids.include?(flags["UNIVERSITY_RECORD"])
+      content_tag 'span', 'U', :class => 'highlighted'
+    elsif flag_ids.include?(flags["MAY_BE_UNIVERSITY_RECORD"])
+      content_tag 'span', 'U'
     end
   end
 
   def preserved_flag_display(flag_ids)
+    return nil unless flag_ids
     flags = Flag.all.inject({}) { |h, f| h[f.name] = f.id; h }
-    if flag_ids
-      if flag_ids.include?(flags["PRESERVED"])
-        content_tag 'span', 'P', :class => 'highlighted'
-      elsif flag_ids.include?(flags["SELECTED_FOR_PRESERVATION"])
-        content_tag 'span', 'P', :class => 'selected'
-      elsif flag_ids.include?(flags["NOMINATED_FOR_PRESERVATION"])
-        content_tag 'span', 'P'
-      end
+
+    if flag_ids.include?(flags["PRESERVED"])
+      content_tag 'span', 'P', :class => 'highlighted'
+    elsif flag_ids.include?(flags["SELECTED_FOR_PRESERVATION"])
+      content_tag 'span', 'P', :class => 'selected'
+    elsif flag_ids.include?(flags["NOMINATED_FOR_PRESERVATION"])
+      content_tag 'span', 'P'
     end
   end
   

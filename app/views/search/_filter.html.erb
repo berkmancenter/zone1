@@ -1,11 +1,11 @@
 <div id="panel">	
 	<h3>Find Files</h3>
 
-	<% if @removeable_facets && @removeable_facets.size > 0 -%>
+	<% if @removable_facets && @removable_facets.size > 0 -%>
 	<div id="current_search">
 		Current Search Criteria <a href="/search">(Clear All)</a>
 		<div id="current_facets">
-		<% @removeable_facets.each do |k, v| -%>
+		<% @removable_facets.each do |k, v| -%>
 		<span><%= k %></span>:
 		<% v.each do |remove_link| -%>
 			<%= remove_link[:label] %> <%= link_to 'X', remove_link[:url] %>
@@ -18,7 +18,7 @@
 
   <%= form_tag search_path, :method => :get, :id => "search_form" do %>
 
-    <input type="hidden" name="per_page" id="per_page" size="3" value="<%= per_page %>" />
+    <input type="hidden" name="per_page" id="per_page" value="<%= per_page %>" />
 
 		<div id="hidden_facets">
 		<% if @hidden_facets -%>

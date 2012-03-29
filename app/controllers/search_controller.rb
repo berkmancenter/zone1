@@ -12,7 +12,7 @@ class SearchController < ApplicationController
     @hits = @all_hits.paginate(:page => params[:page], :per_page => per_page)
     @hit_ids_on_other_pages = (@all_hits.collect { |hit| hit.stored(:id) }) - (@hits.collect { |hit| hit.stored(:id) })
 
-    build_removeable_facets(params)
+    build_removable_facets(params)
     build_searchable_facets(params, @search)
   end
 end

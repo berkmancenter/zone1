@@ -1,9 +1,7 @@
-<% if @facets -%>
-  Flags <br/>
-  <% Flag.all.each do |flag| %>
-    <% selected = params[:flag_ids].present? && params[:flag_ids].include?(flag.id.to_s) %> 
-    <%= check_box_tag "flag_ids[]", flag.id, selected %>
-    <%= flag.label %>
-    <br/>
-  <% end -%>
+<label>Flags</label> <br/>
+<% Flag.all.each do |flag| %>
+  <% selected = params[:flag_ids].present? && params[:flag_ids].include?(flag.id.to_s) %> 
+  <%= check_box_tag "flag_ids[]", flag.id, selected %>
+  <%= flag.label %>
+  <br/>
 <% end -%>
