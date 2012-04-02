@@ -119,7 +119,7 @@
 			</span>
 			<span class="size"><%= number_to_human_size(hit.stored(:file_size), :precision => 2) %></span>
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
-			<span class="tags"><%= hit.stored(:indexed_tag_list).nil? ? '' : hit.stored(:indexed_tag_list).join(', ') %></span>
+			<span class="tags"><%= Array.wrap(hit.stored(:indexed_tag_list)).join(', ') %></span>
 			<span class="flags">
                 <%# this does not support custom flags %>
 				<%= preserved_flag_display(hit.stored(:flag_ids)) %>
@@ -127,7 +127,7 @@
 			</span>
 			<span class="author"><%= hit.stored(:author) %></span>
 			<span class="contributor"><%= hit.stored(:contributor_name) %></span>
-			<span class="license"><%= hit.stored(:license_name).nil? ? '' : hit.stored(:license_name).first %></span>
+			<span class="license"><%= hit.stored(:license_name).try(:first) %></span>
 			<span class="batch"><%= hit.stored(:batch_id) %></span>
 		</div>
 	<% end %>

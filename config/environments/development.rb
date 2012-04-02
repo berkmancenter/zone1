@@ -28,9 +28,6 @@ Zone1::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = true
 
-  #DEVONLY -phunk
-  #ActiveSupport::Deprecation.silenced = true
-  
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for apache
   # config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect' # for nginx
 end
