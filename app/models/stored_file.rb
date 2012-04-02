@@ -59,7 +59,7 @@ class StoredFile < ActiveRecord::Base
 
   mount_uploader :file, FileUploader, :mount_on => :file
 
-  searchable(:include => [:tags, :mime_type, :mime_type_category], :auto_index => false) do
+  searchable(:include => [:tags, :collections, :mime_type, :mime_type_category, :flags, :license, :user], :auto_index => false) do
     # Note: Both text and string fields needed. Solr searches text in fulltext
     # queries, but string is also needed for using Sunspot's "with" in search.
     text :author
@@ -85,10 +85,10 @@ class StoredFile < ActiveRecord::Base
     # Case insensitive tags and collections. Used for queries.
     # See lib/zone1/sunspot_search.rb for corresponding facet handling
     string :indexed_tag_list_downcase, :multiple => true do
-      self.indexed_tag_list.each {|t| t.name.downcase!}
+      self.indexed_tag_list.map {|t| t.name.downcase}
     end
     string :indexed_collection_list_downcase, :multiple => true do
-      self.indexed_collection_list.each {|t| t.name.downcase!}
+      self.indexed_collection_list.map {|t| t.name.downcase}
     end
 
     # Used for mime hierarchy reference on search. Minimizes hierarchy lookup.
