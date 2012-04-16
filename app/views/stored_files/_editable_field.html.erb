@@ -2,7 +2,7 @@
 	<% if type == :check_box %>
 		<%= bulk_edit field %>
 		<%= form.send(type, field, options) %>
-		<%= form.label label %>
+		<%= form.label label %><br />
 	<% else -%>
 		<%= bulk_edit field %>
 		<%= form.label "#{label}:" %>
