@@ -9,9 +9,6 @@ class SftpUser < ActiveRecord::Base
   attr_accessible :user_id, :homedir
   attr_reader :raw_password
 
-  # TODO: Store this in DB 
-  HOMEDIR_ROOT = '/home/sftp/uploads'
-
   def uploaded_files
     # if homedir exists, but we don't have full access to it (possibly due to
     # a filesystem permissions problem in a parent directory, complain about it
@@ -30,7 +27,7 @@ class SftpUser < ActiveRecord::Base
 
   def initialize(params = nil)
     super
-    # TODO: uncomment generate_* methods outside of dev
+
     self.username = generate_username
     @raw_password = generate_password
     # proftpd requires that the attribute be named passwd instead of password. :/
@@ -55,7 +52,7 @@ class SftpUser < ActiveRecord::Base
   end
 
   def generate_homedir
-    HOMEDIR_ROOT + '/' + self.user_id.to_s + '/' + self.username
+    File.join(Preference.sftp_user_home_directory_root, self.user_id.to_s, self.username)
   end
 
 end

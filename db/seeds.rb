@@ -10,6 +10,7 @@ User.transaction do
   Preference.create :name => "default_license", :label => "Default License Name", :value => "CC BY"
   Preference.create :name => "group_invite_from_address", :label => "Group Invite Email From Address", :value => "group_invites@zoneone.domain"
   Preference.create :name => "group_invite_pending_duration", :label => "Group Invite Pending Invite Expiration (Days)", :value => "90"
+  Preference.create :name => "sftp_user_home_directory_root", :label => "SFTP User Home Directory Root (Absolute Path)", :value => "/home/sftp/uploads"
 
   puts "Generating MimeTypeCategories"
   #http://www.iana.org/assignments/media-types/index.html
