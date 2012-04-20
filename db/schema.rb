@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120207235606) do
+ActiveRecord::Schema.define(:version => 20120416075605) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -126,10 +126,11 @@ ActiveRecord::Schema.define(:version => 20120207235606) do
   add_index "mime_types", ["mime_type_category_id"], :name => "index_mime_types_on_mime_type_category_id"
 
   create_table "preferences", :force => true do |t|
-    t.string   "name"
+    t.string   "label"
     t.string   "value"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "name"
   end
 
   create_table "right_assignments", :force => true do |t|
