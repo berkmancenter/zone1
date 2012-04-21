@@ -6,7 +6,9 @@ module Fits
     ::Rails.logger.info "FITS.analyze firing for #{file_url}"
     raise "File not found: #{file_url}" unless File.exists? file_url
 
-    fits_output = open("|#{FITS_SCRIPT_PATH} -i #{file_url}") {|f| f.read}
+    fits_script_path = Preference.fits_script_path
+    validate_fits_script_path(fits_script_path)
+    fits_output = open("|#{fits_script_path} -i #{file_url}") {|f| f.read}
     raise "FITS call failed" if fits_output == ''
 
     xml = Nokogiri::XML(fits_output)
@@ -31,6 +33,12 @@ module Fits
     metadata[:md5] = md5checksum.first.content if md5checksum and md5checksum.first
 
     metadata
+  end
+
+  def self.validate_fits_script_path(fits_script_path)
+    if !(File.executable?(fits_script_path) && fits_script_path =~ /fits\.sh$/)
+      raise "Invalid fits_script_path preference value: #{fits_script_path}"
+    end
   end
 
 end

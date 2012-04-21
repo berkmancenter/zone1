@@ -11,6 +11,7 @@ User.transaction do
   Preference.create :name => "group_invite_from_address", :label => "Group Invite Email From Address", :value => "group_invites@zoneone.domain"
   Preference.create :name => "group_invite_pending_duration", :label => "Group Invite Pending Invite Expiration (Days)", :value => "90"
   Preference.create :name => "sftp_user_home_directory_root", :label => "SFTP User Home Directory Root (Absolute Path)", :value => "/home/sftp/uploads"
+  Preference.create :name => "fits_script_path", :label => "FITS script Full Path", :value => "#{Rails.root}/bin/fits-0.6.0/fits.sh"
 
   puts "Generating MimeTypeCategories"
   #http://www.iana.org/assignments/media-types/index.html

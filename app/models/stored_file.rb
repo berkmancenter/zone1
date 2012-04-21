@@ -1,5 +1,6 @@
 class StoredFile < ActiveRecord::Base
   require 'RMagick'
+  require 'zone1/fits'
 
   include ApplicationHelper
 
@@ -430,7 +431,7 @@ class StoredFile < ActiveRecord::Base
 
       return true
     rescue Exception => e
-      log_exception e, "Warning: set_fits_attributes caught exception"
+      log_exception e
     end
     return false
   end
