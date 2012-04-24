@@ -105,16 +105,14 @@
 					</td>
 					<td valign="top" id="mime">
 						<%= render "search/mime_filter" %>
+                		<div id="license">
+                			<%= render "search/license_filter" %>
+                		</div>
 					</td>
 				</tr>
 			</table>
 		</div>
-		<a class="acc_header" href="#">Copyright &amp; License</a>
-		<div id="license" class="acc_content">
-			<label>Copyright Holder</label>
- 			<%= text_field_tag "copyright_holder" %>
-			<%= render "search/license_filter" %>
-		</div>
+
 	</div>
 	<% end -%>
 	<div class="clear"></div>
