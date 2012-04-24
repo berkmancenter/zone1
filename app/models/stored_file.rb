@@ -61,41 +61,14 @@ class StoredFile < ActiveRecord::Base
   mount_uploader :file, FileUploader, :mount_on => :file
 
   searchable(:include => [:tags, :collections, :mime_type, :mime_type_category, :flags, :license, :user], :auto_index => false) do
-    # Note: Both text and string fields needed. Solr searches text in fulltext
-    # queries, but string is also needed for using Sunspot's "with" in search.
-    text :author
+    text :author, :stored => true
+    text :contributor_name, :stored => true
+    text :copyright_holder, :stored => true
     text :office
-    text :title
-    text :copyright_holder
-    text :original_filename, :description
-    text :contributor_name
-    text :license_name, :stored => true
     text :display_name, :stored => true
-
-    string :author, :stored => true
-    string :office
-    string :title
-    string :copyright_holder 
-    string :contributor_name, :stored => true
-    string :display_name, :stored => true
-
-    # Original tags and collections. Used for hit display
-    string :indexed_tag_list, :stored => true, :multiple => true
-    string :indexed_collection_list, :stored => true, :multiple => true
-
-    # Case insensitive tags and collections. Used for queries.
-    # See lib/zone1/sunspot_search.rb for corresponding facet handling
-    string :indexed_tag_list_downcase, :multiple => true do
-      self.indexed_tag_list.map {|t| t.name.downcase}
-    end
-    string :indexed_collection_list_downcase, :multiple => true do
-      self.indexed_collection_list.map {|t| t.name.downcase}
-    end
-
-    # Used for mime hierarchy reference on search. Minimizes hierarchy lookup.
-    string :mime_hierarchy do
-      "#{self.mime_type_category_id}-#{self.mime_type_id}"
-    end
+    text :original_filename
+    text :description
+    text :license_name, :stored => true
 
     integer :id, :stored => true
     integer :batch_id, :stored => true
@@ -112,6 +85,25 @@ class StoredFile < ActiveRecord::Base
     time :deleted_at, :stored => true
 
     boolean :has_thumbnail, :stored => true
+
+    # Original tags and collections. Used for hit *display*
+    string :indexed_tag_list, :stored => true, :multiple => true
+    string :indexed_collection_list, :stored => true, :multiple => true
+
+    # Case insensitive tags and collections. Used for queries, not display.
+    # See lib/zone1/sunspot_search.rb for corresponding facet handling
+    string :indexed_tag_list_downcase, :multiple => true do
+      self.indexed_tag_list.map {|t| t.name.downcase}
+    end
+    string :indexed_collection_list_downcase, :multiple => true do
+      self.indexed_collection_list.map {|t| t.name.downcase}
+    end
+
+    # Used for mime hierarchy reference on search. Minimizes hierarchy lookup.
+    string :mime_hierarchy do
+      "#{self.mime_type_category_id}-#{self.mime_type_id}"
+    end
+
   end
 
   # Handle hard destroy via the destroy! method. This must come _after_ the searchable

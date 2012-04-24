@@ -53,8 +53,8 @@ module Zone1
           end
         end
 
-        [:copyright_holder, :author, :contributor_name].each do |text_facet|
-          unless params[text_facet].blank?
+        [:author, :contributor_name, :copyright_holder].each do |text_facet|
+          if !params[text_facet].blank?
             fulltext(params[text_facet], :fields => [text_facet])
           end
         end
