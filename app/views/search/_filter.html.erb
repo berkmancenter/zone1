@@ -1,7 +1,7 @@
 <div id="panel">	
 	<h3>Find Files</h3>
 
-	<% if @removable_facets && @removable_facets.size > 0 -%>
+	<% if @removable_facets.try(:any?) -%>
 	<div id="current_search">
 		Current Search Criteria <a href="/search">(Clear All)</a>
 		<div id="current_facets">
