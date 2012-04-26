@@ -80,6 +80,8 @@ module Zone1
         # Excluded deleted files
         with(:deleted_at, nil)
 
+        with(:complete, false) if params[:complete] == "0"
+
         paginate :page => 1, :per_page => StoredFile.count
         order_by sort_column, sort_direction
       end
@@ -100,19 +102,6 @@ module Zone1
         arr
       end
       @facets[:indexed_tag_list] = links unless links.empty?
-
-      # flags - not used at the moment
-#      links = search.facet(:flag_ids).rows.inject([]) do |arr, row|
-#        if !params[:flag_ids] || !params[:flag_ids].include?(row.value.to_s)
-#          params[:flag_ids] ||= []
-#          arr.push({
-#            :label => Flag.facet_label(row.value),
-#            :url => url_for(params.clone.merge({ :flag_ids => params[:flag_ids] + [row.value] }))
-#          })
-#        end
-#        arr
-#      end
-#      @facets[:flag_ids] = links unless links.empty?
 
       # licenses
       links = search.facet(:license_id).rows.inject([]) do |arr, row|
