@@ -214,7 +214,6 @@ module Zone1
       }
 
       # Further tweak some labels/values to make them a little friendlier
-      logger.debug "PHUNK: got RF : #{facets_to_remove.inspect }"
       facets_to_remove['complete'].first[:label] = 'yes' if facets_to_remove['complete']
 
       # Show friendlier facet label/value than "Contributor ID: 42" for 'only my files' 
@@ -232,7 +231,6 @@ module Zone1
       end
       
     end  #build_removable facets
-
 
     def per_page
       params[:per_page] = "10" if params[:per_page].to_i == 0
