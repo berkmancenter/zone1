@@ -31,7 +31,7 @@ group :test, :development do
   gem 'rspec' 
   gem 'rspec-rails', '~> 2.7.0'
   gem 'factory_girl_rails'
-  gem 'shoulda'
+  gem 'shoulda', :require => false
   gem 'simplecov', :require => false
   gem 'capybara'
   gem 'database_cleaner'
