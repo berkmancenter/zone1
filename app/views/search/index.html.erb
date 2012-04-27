@@ -125,8 +125,8 @@
 				<%= preserved_flag_display(hit.stored(:flag_ids)) %>
 				<%= university_flag_display(hit.stored(:flag_ids)) %>
 			</span>
-			<span class="author"><%= hit.stored(:author) %></span>
-			<span class="contributor"><%= hit.stored(:contributor_name) %></span>
+			<span class="author"><%= hit.stored(:author).first %></span>
+			<span class="contributor"><%= hit.stored(:contributor_name).first %></span>
 			<span class="license"><%= hit.stored(:license_name).try(:first) %></span>
 			<span class="batch"><%= hit.stored(:batch_id) %></span>
 		</div>

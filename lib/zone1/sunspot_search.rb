@@ -53,8 +53,8 @@ module Zone1
           end
         end
 
-        [:copyright_holder, :author, :contributor_name].each do |text_facet|
-          unless params[text_facet].blank?
+        [:author, :contributor_name, :copyright_holder].each do |text_facet|
+          if !params[text_facet].blank?
             fulltext(params[text_facet], :fields => [text_facet])
           end
         end
@@ -80,6 +80,8 @@ module Zone1
         # Excluded deleted files
         with(:deleted_at, nil)
 
+        with(:complete, false) if params[:complete] == "0"
+
         paginate :page => 1, :per_page => StoredFile.count
         order_by sort_column, sort_direction
       end
@@ -100,19 +102,6 @@ module Zone1
         arr
       end
       @facets[:indexed_tag_list] = links unless links.empty?
-
-      # flags - not used at the moment
-#      links = search.facet(:flag_ids).rows.inject([]) do |arr, row|
-#        if !params[:flag_ids] || !params[:flag_ids].include?(row.value.to_s)
-#          params[:flag_ids] ||= []
-#          arr.push({
-#            :label => Flag.facet_label(row.value),
-#            :url => url_for(params.clone.merge({ :flag_ids => params[:flag_ids] + [row.value] }))
-#          })
-#        end
-#        arr
-#      end
-#      @facets[:flag_ids] = links unless links.empty?
 
       # licenses
       links = search.facet(:license_id).rows.inject([]) do |arr, row|
@@ -158,6 +147,9 @@ module Zone1
     end
 
     def build_removable_facets(params)
+      # Build facets that show up in "current search" of search filter box with
+      # a remove_link "X" proceeding them. Also build hidden form elements that persist
+      # those removable facets within the search form
       facets_to_remove = {}
       @hidden_facets = {}
 
@@ -166,19 +158,19 @@ module Zone1
         original_date_start_date original_date_end_date
         flag_ids license_id mime_type_id mime_type_category_id
         indexed_collection_list batch_id indexed_tag_list author
-        contributor_name copyright_holder user_id )
+        contributor_name copyright_holder user_id complete )
 
       params.each do |facet, value|
         if value.presence && removed_facets.include?(facet)
-          # Flag checkboxes persist in the form so we don't need it as a hidden facet
-          @hidden_facets.merge!({ facet => value }) unless facet == 'flag_ids'
+          # Checkboxes persist in the form so we don't need them as a hidden facets
+          @hidden_facets.merge!({ facet => value }) unless (facet == 'flag_ids' || facet == 'complete')
           facets_to_remove[facet] ||= []
           if value.is_a?(Array)
             params[facet].each do |v|
               t = params.clone
               t[facet] = t[facet].select{ |b| b != v }
               facets_to_remove[facet] << {
-                :label => facet == "flag_ids" ? Flag.facet_label(v) : v,
+                :label => facet == 'flag_ids' ? Flag.facet_label(v) : v,
                 :url => url_for(t)
               }
              end
@@ -197,6 +189,11 @@ module Zone1
         end
       end
 
+      if params.has_key?(:date_type)
+        @hidden_facets.merge!({ :date_type => params[:date_type] })
+      end
+
+      # Make nice, readable labels for current search facets
       label_map = {
         "search" => "Keyword",
         "indexed_tag_list" => "Tag",
@@ -212,29 +209,27 @@ module Zone1
         "mime_type_id" => "File Type",
         "contributor_name" => "Contributor Name",
         "copyright_holder" => "Copyright Holder",
-        "user_id" => "Contributor Id"
+        "user_id" => "Contributor Id",
+        "complete" => "Incomplete Files Only"
       }
 
+      # Further tweak some labels/values to make them a little friendlier
+      facets_to_remove['complete'].first[:label] = 'yes' if facets_to_remove['complete']
+
+      # Show friendlier facet label/value than "Contributor ID: 42" for 'only my files' 
+      # but only if user_id = the logged in user.
+      if facets_to_remove['user_id']
+        if current_user.try(:id).to_s == facets_to_remove['user_id'].first[:label]
+          facets_to_remove['user_id'].first[:label] = 'yes'
+          label_map['user_id'] = 'Only My Files'
+        end
+      end
+      
       @removable_facets = {}
       facets_to_remove.each do |k, v|
         @removable_facets[ label_map[k] || k ] = v
       end
-
-      # Used to show friendlier facet label/value than "Contributor ID: 42" for 'only my files' etc.
-      mapped_user_id = label_map['user_id']
-      if @removable_facets[ mapped_user_id ]
-        if current_user.try(:id).to_s == @removable_facets[ mapped_user_id ].first[:label]
-          key = 'Only My Files'
-          @removable_facets[key] = @removable_facets.delete mapped_user_id
-          @removable_facets[key].first[:label] = 'yes'
-        end
-      end
-      
-      if params.has_key?(:date_type)
-        @hidden_facets.merge!({ :date_type => params[:date_type] })
-      end
     end  #build_removable facets
-
 
     def per_page
       params[:per_page] = "10" if params[:per_page].to_i == 0

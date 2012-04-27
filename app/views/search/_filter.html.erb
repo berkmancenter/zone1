@@ -1,7 +1,7 @@
 <div id="panel">	
 	<h3>Find Files</h3>
 
-	<% if @removable_facets && @removable_facets.size > 0 -%>
+	<% if @removable_facets.try(:any?) -%>
 	<div id="current_search">
 		Current Search Criteria <a href="/search">(Clear All)</a>
 		<div id="current_facets">
@@ -105,16 +105,22 @@
 					</td>
 					<td valign="top" id="mime">
 						<%= render "search/mime_filter" %>
+                		<div id="license">
+                			<%= render "search/license_filter" %>
+                		</div>
 					</td>
 				</tr>
+				<tr>
+					<td colspan="2">
+                        <br/>
+                        <label>Metadata Status</label> <br/>
+                        <%= check_box_tag "complete", 0, params[:complete] == "0"%> Incomplete Files Only?
+					</td>
+				</tr>
+
 			</table>
 		</div>
-		<a class="acc_header" href="#">Copyright &amp; License</a>
-		<div id="license" class="acc_content">
-			<label>Copyright Holder</label>
- 			<%= text_field_tag "copyright_holder" %>
-			<%= render "search/license_filter" %>
-		</div>
+
 	</div>
 	<% end -%>
 	<div class="clear"></div>

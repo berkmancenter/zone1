@@ -100,7 +100,7 @@ class Membership < ActiveRecord::Base
   def destroy_member_cache
     Rails.cache.delete("user-rights-#{user.id}")
     Rails.cache.delete("groups-viewable-users-#{group.id}")
-    stored_file_ids = group.stored_files.collect{ |stored_file| stored_file.id }
+    stored_file_ids = group.stored_files.collect{ |stored_file| stored_file.id }.sort
     Rails.cache.delete_matched(%r{stored-file-#{stored_file_ids}-viewable-users}) if stored_file_ids.present?
   end
 end

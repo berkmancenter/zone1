@@ -67,10 +67,12 @@ $(function() {
                 // Called when all queued files finish uploading
 				for (x in UPLOAD.results) {
 					var result = UPLOAD.results[x];
-					if (!result.success) {
-						mark_failed_upload(result.file, result.message);
+					if (result.success) {
+                        status_upload_complete();
 					}
-                    status_upload_complete();
+                    else {
+						mark_failed_upload(result.file, result.message);
+                    }
 				}
                 if (SFTP_INITIALIZED && !SFTP_DONE) {
                     // SFTP upload is still pending, so re-enable the button

@@ -11,6 +11,7 @@ class Comment < ActiveRecord::Base
   attr_accessible :content, :user_id, :stored_file_id, :created_at, :updated_at
 
   def can_user_delete?(user)
+    return false if user.nil?
     self.user == user || user.can_do_method?(self.stored_file, "delete_comments")
   end
 end

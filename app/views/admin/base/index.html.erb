@@ -1,13 +1,13 @@
-<section id="filter">
+<section id="filter" style="width: 550px;">
 <div id="panel">	
 
-<h3>Find Files</h3>
+<h3>Zone One Configuration</h3>
 
 <%= form_tag "/admin/update" do %>
 <table class="admin_table">
   <% @preferences.each do |preference| -%>
     <tr>
-    <td><label><%= preference.name %></label> </td>
+    <td><label><%= preference.label %></label> </td>
     <td><%= text_field :preference, preference.id, { :value => preference.value } %> </td>
     </tr>
   <% end -%>

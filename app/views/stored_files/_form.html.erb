@@ -9,7 +9,8 @@
 
 			<%= editable_field(f, @attr_accessible, :description, { :rows => 3}, :text_area) %>
 
-			<%= editable_field(f, @attr_accessible, :allow_tags, {}, :check_box, "Allow users to add tags") %><br />
+			<%= editable_field(f, @attr_accessible, :allow_tags, {}, :check_box, "Allow users to add tags") %>
+
 			<%= editable_field(f, @attr_accessible, :allow_notes, {}, :check_box, "Allow users to add comments") %>
 
 			<%= render("comments/form", :stored_file => @stored_file, :attrs => @attr_accessible, :f => f) unless bulk_edit? %>
@@ -40,7 +41,7 @@
 		<td valign="top" width="35%">
 			<%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
 		</td>
-		<td align="left">
+		<td valign="top" align="left">
 			<%= render "groups/stored_file_form", :attrs => @attr_accessible, :f => f %>
 		</td>
 	</tr>

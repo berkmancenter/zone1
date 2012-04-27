@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120207235606) do
+ActiveRecord::Schema.define(:version => 20120426010547) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -126,10 +126,11 @@ ActiveRecord::Schema.define(:version => 20120207235606) do
   add_index "mime_types", ["mime_type_category_id"], :name => "index_mime_types_on_mime_type_category_id"
 
   create_table "preferences", :force => true do |t|
-    t.string   "name"
+    t.string   "label"
     t.string   "value"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "name"
   end
 
   create_table "right_assignments", :force => true do |t|
@@ -224,6 +225,7 @@ ActiveRecord::Schema.define(:version => 20120207235606) do
     t.date     "original_date"
     t.boolean  "has_thumbnail",     :default => false
     t.datetime "deleted_at"
+    t.boolean  "complete",          :default => false
   end
 
   add_index "stored_files", ["access_level_id"], :name => "index_stored_files_on_access_level_id"

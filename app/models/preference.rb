@@ -1,8 +1,8 @@
 class Preference < ActiveRecord::Base
-  validates_presence_of :name, :value
-  attr_accessible :name, :value
+  validates_presence_of :name, :label, :value
+  validates_uniqueness_of :name, :label
+  attr_accessible :name, :label, :value
 
-  # Caching related callbacks
   after_save :destroy_cache
   after_destroy :destroy_cache
 
@@ -13,33 +13,21 @@ class Preference < ActiveRecord::Base
   end
 
   def self.find_by_name_cached(name)
-    Preference.all.detect { |p| p.name == name }
-  end 
-
-  def self.default_user_upload_quota
-    Preference.find_by_name_cached("Default User Upload Quota").try(:value)
+    self.all.detect { |p| p.name == name }
   end
 
-  def self.max_web_upload_filesize
-    Preference.find_by_name_cached("Max Web Upload Filesize").try(:value)
+  def self.define_preference_methods
+    # Convenience method that defines the recommended API for this model: one class
+    # method for each preference.name value out of the database
+    self.all.each do |pref|
+      pref_symbol = :"#{pref.name}"
+      next if self.respond_to? :pref_symbol
+      self.define_singleton_method(pref_symbol) { self.find_by_name_cached( pref_symbol.to_s ).try(:value) }
+    end
   end
 
-  def self.default_license
-    license_preference = Preference.find_by_name_cached("Default License").try(:value)
-    License.find_by_name(license_preference) if license_preference
-  end
+  define_preference_methods
 
-  def self.group_invite_from_address
-    Preference.find_by_name_cached("Group Invite Email From Address").try(:value)
-  end
-
-  def self.retention_period
-    Preference.find_by_name_cached("Retention Period in Days for Deleted Files").try(:value).to_i
-  end
-
-  # TODO: Use constants for :name, or at least add a :display value that the user sees,
-  # then make :name something more constant-ish and programatically friendly
-  # e.g. :name => 'max_http_upload_file_size', :display => 'Maximum filesize that can be uploaded via the Web UI (KB)'
   private
 
   def destroy_cache

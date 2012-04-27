@@ -1,5 +1,6 @@
 class StoredFile < ActiveRecord::Base
   require 'RMagick'
+  require 'zone1/fits'
 
   include ApplicationHelper
 
@@ -31,12 +32,12 @@ class StoredFile < ActiveRecord::Base
   acts_as_authorization_object
 
   acts_as_taggable
-  acts_as_taggable_on :publication_types, :collections
+  acts_as_taggable_on :collections
 
-  attr_accessor :wants_thumbnail, :skip_quota, :defer_search_commit
+  attr_accessor :wants_thumbnail, :defer_quota_update, :defer_search_commit
 
   before_save :update_file_size
-  after_create :register_user_stored_file, :unless => :skip_quota
+  after_create :register_user_stored_file, :unless => :defer_quota_update
   after_update :paranoid_action_callback, :if => :deleted_at_changed?
   after_update :destroy_cache
   before_destroy :destroy_cache
@@ -44,57 +45,30 @@ class StoredFile < ActiveRecord::Base
   # Only unregister this stored file if it was not already soft-deleted
   before_destroy :unregister_user_stored_file, :if => "deleted_at.nil?"
 
-  validates_presence_of :user_id, :access_level_id
+  validates_presence_of :user_id, :access_level_id, :license_id
+
+  mount_uploader :file, FileUploader, :mount_on => :file
 
   ALWAYS_ACCESSIBLE_ATTRIBUTES = [:flaggings_attributes, :comments_attributes].freeze
 
-  ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office,
-    :description, :title, :copyright_holder, :allow_tags, :allow_notes,
-    :license_id, :publication_type_list, :groups_stored_files_attributes,
-    :access_level_id, :original_date].freeze
+  ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office, :description,
+                             :title, :copyright_holder, :allow_tags, :allow_notes,
+                             :license_id, :groups_stored_files_attributes, :access_level_id,
+                             :original_date, :complete].freeze
 
   CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file, :batch_id] + ALLOW_MANAGE_ATTRIBUTES).freeze
 
   FITS_ATTRIBUTES = [:file_size, :md5, :format_version, :mime_type].freeze
 
-  mount_uploader :file, FileUploader, :mount_on => :file
-
   searchable(:include => [:tags, :collections, :mime_type, :mime_type_category, :flags, :license, :user], :auto_index => false) do
-    # Note: Both text and string fields needed. Solr searches text in fulltext
-    # queries, but string is also needed for using Sunspot's "with" in search.
-    text :author
+    text :author, :stored => true
+    text :contributor_name, :stored => true
+    text :copyright_holder, :stored => true
     text :office
-    text :title
-    text :copyright_holder
-    text :original_filename, :description
-    text :contributor_name
-    text :license_name, :stored => true
     text :display_name, :stored => true
-
-    string :author, :stored => true
-    string :office
-    string :title
-    string :copyright_holder 
-    string :contributor_name, :stored => true
-    string :display_name, :stored => true
-
-    # Original tags and collections. Used for hit display
-    string :indexed_tag_list, :stored => true, :multiple => true
-    string :indexed_collection_list, :stored => true, :multiple => true
-
-    # Case insensitive tags and collections. Used for queries.
-    # See lib/zone1/sunspot_search.rb for corresponding facet handling
-    string :indexed_tag_list_downcase, :multiple => true do
-      self.indexed_tag_list.map {|t| t.name.downcase}
-    end
-    string :indexed_collection_list_downcase, :multiple => true do
-      self.indexed_collection_list.map {|t| t.name.downcase}
-    end
-
-    # Used for mime hierarchy reference on search. Minimizes hierarchy lookup.
-    string :mime_hierarchy do
-      "#{self.mime_type_category_id}-#{self.mime_type_id}"
-    end
+    text :original_filename
+    text :description
+    text :license_name, :stored => true
 
     integer :id, :stored => true
     integer :batch_id, :stored => true
@@ -111,6 +85,26 @@ class StoredFile < ActiveRecord::Base
     time :deleted_at, :stored => true
 
     boolean :has_thumbnail, :stored => true
+    boolean :complete
+
+    # Original tags and collections. Used for hit *display*
+    string :indexed_tag_list, :stored => true, :multiple => true
+    string :indexed_collection_list, :stored => true, :multiple => true
+
+    # Case insensitive tags and collections. Used for queries, not display.
+    # See lib/zone1/sunspot_search.rb for corresponding facet handling
+    string :indexed_tag_list_downcase, :multiple => true do
+      self.indexed_tag_list.map {|t| t.name.downcase}
+    end
+    string :indexed_collection_list_downcase, :multiple => true do
+      self.indexed_collection_list.map {|t| t.name.downcase}
+    end
+
+    # Used for mime hierarchy reference on search. Minimizes hierarchy lookup.
+    string :mime_hierarchy do
+      "#{self.mime_type_category_id}-#{self.mime_type_id}"
+    end
+
   end
 
   # Handle hard destroy via the destroy! method. This must come _after_ the searchable
@@ -240,6 +234,22 @@ class StoredFile < ActiveRecord::Base
     params[:flaggings_attributes] = attrs
   end
 
+  def metadata_check?
+    # Does this stored_file have any appreciable user-supplied metadata?
+    # Note: In order to get accurate results during an update action, this must
+    # be called *after* update_attributes such that this method is looking at
+    # the most current version of self.
+
+    attr_list = [:flaggings, :collection_list, :tag_list, :author,
+                 :office, :description, :title, :copyright_holder, 
+                 :allow_tags, :allow_notes, :groups, :original_date]
+    attr_list.each do |attr|
+      value = self.send(attr)
+      return true if !value.blank? && value != [] && value != false
+    end
+    false
+  end
+
   def custom_save(file_params, user)
     # Note: Calling Sunspot.commit is an exercise left to the user of this model. This
     # enables bulk imports (see remote_file_importer.rb) and updates (bulk_edits_controller)
@@ -260,13 +270,14 @@ class StoredFile < ActiveRecord::Base
     prepare_comment_params(params, user)
 
     # Use strings instead of symbols so this will work when called via a Resque job, too.
-    # Delete these to lists from params because update_attributes can't handle them
+    # Delete these two lists from params because update_attributes can't handle them
     tag_list = params.delete("tag_list")
     collection_list = params.delete("collection_list")
-
+    
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
       update_tags(collection_list, :collections, user) if collection_list
+      update_column(:complete, metadata_check?)
       self.index
     else
       raise self.errors.full_messages.join(', ')
@@ -430,7 +441,7 @@ class StoredFile < ActiveRecord::Base
 
       return true
     rescue Exception => e
-      log_exception e, "Warning: set_fits_attributes caught exception"
+      log_exception e
     end
     return false
   end

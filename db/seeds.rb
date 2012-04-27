@@ -1,20 +1,17 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
-#
-# Examples:
-#
-#   cities = City.create([{ :name => 'Chicago' }, { :name => 'Copenhagen' }])
-#   Mayor.create(:name => 'Emanuel', :city => cities.first)
 
 User.transaction do
 
   puts "Generating preferences"
-  Preference.create([{:name => "Default User Upload Quota", :value => "10485760" }])
-  Preference.create([{:name => "Retention Period", :value => "1825" }])
-  Preference.create([{:name => "Max Web Upload Filesize", :value => "10mb" }])
-  Preference.create :name => "Default License", :value => "CC BY"
-  Preference.create :name => "Group Invite Email From Address", :value => "group_invites@zoneone.domain"
-  Preference.create :name => "Retention Period in Days for Deleted Files", :value => "360"
+  Preference.create :name => "default_user_upload_quota", :label => "Default User Upload Quota (Bytes)", :value => "10485760"
+  Preference.create :name => "soft_delete_retention_period", :label => "Retention Period (Days)", :value => "1825"
+  Preference.create :name => "max_web_upload_filesize", :label => "Max Web Upload Filesize (with units)", :value => "10mb"
+  Preference.create :name => "default_license", :label => "Default License Name", :value => "CC BY"
+  Preference.create :name => "group_invite_from_address", :label => "Group Invite Email From Address", :value => "group_invites@zoneone.domain"
+  Preference.create :name => "group_invite_pending_duration", :label => "Group Invite Pending Invite Expiration (Days)", :value => "90"
+  Preference.create :name => "sftp_user_home_directory_root", :label => "SFTP User Home Directory Root (Absolute Path)", :value => "/home/sftp/uploads"
+  Preference.create :name => "fits_script_path", :label => "FITS script Full Path", :value => "#{Rails.root}/bin/fits-0.6.0/fits.sh"
 
   puts "Generating MimeTypeCategories"
   #http://www.iana.org/assignments/media-types/index.html
@@ -22,7 +19,6 @@ User.transaction do
     MimeTypeCategory.create(:name => category_name)
   end
   (application, audio, image, text, video, document, uncategorized) = MimeTypeCategory.all
-
 
   puts "Generating MimeTypeBlacklist"
   MimeType.create(:name => "DOS executable", :mime_type => "application/x-dosexec", :blacklist => true, :extension => ".com", :mime_type_category_id => application.id)
@@ -113,8 +109,8 @@ User.transaction do
     { :name => "user" }])
   (role_admin, role_steward, role_records_manager, role_user) = Role.all
 
+  puts "Generating Admin user"
   admin_user = User.create :email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin'
-
   admin_user.roles << role_admin
 
   puts "Generating rights"

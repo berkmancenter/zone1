@@ -14,7 +14,7 @@ class RemoteFileImporter
         params[:original_filename] = File.basename(file_path)
         params[:file] = File.open(file_path)
         stored_file = StoredFile.new
-        stored_file.skip_quota = true
+        stored_file.defer_quota_update = true
         stored_file.custom_save(params, sftp_user.user)
         stored_file.post_process
         bytes_used += stored_file.file.size
@@ -39,7 +39,7 @@ class RemoteFileImporter
       end
     end
 
-    # skip_quota was in effect (see above), so debit this user's quota once for total bytes used
+    # defer_quota_update was in effect (see above), so debit this user's quota once for total bytes used
     sftp_user.user.decrease_available_quota!(bytes_used)
     sftp_user.destroy
   end

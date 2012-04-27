@@ -3,13 +3,11 @@ class StoredFilesController < ApplicationController
   include ApplicationHelper
 
   access_control do
-    allow logged_in, :to => [:new, :create, :bulk_edit, :bulk_destroy, :download_set]
-
-    #TODO: I think edit should be removed, but how can anonymous add comments then?
     allow all, :to => [:thumbnail, :edit, :download, :show], :if => :allow_show?
 
-    #TODO: Do we need this line if it's the same as the 'allow all' line, and :allow_show? handles the logic?
-    allow logged_in, :to => [:thumbnail, :edit, :update, :download, :show], :if => :allow_show?
+    allow logged_in, :to => [:update], :if => :allow_show?
+
+    allow logged_in, :to => [:new, :create, :bulk_edit, :bulk_destroy, :download_set]
 
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
   end
@@ -142,7 +140,7 @@ class StoredFilesController < ApplicationController
     # TODO: Possibly clean up later, but low priority
     @stored_file.user = current_user
     @stored_file.access_level = AccessLevel.default
-    @stored_file.license = Preference.default_license
+    @stored_file.license = License.find_by_name(Preference.default_license)
     @max_web_upload_file_size = Preference.max_web_upload_filesize
     @max_web_upload_file_size ||= '100mb' #arbitrary default. (standard 'mb', 'kb', 'b' units required)
 
