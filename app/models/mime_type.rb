@@ -9,8 +9,8 @@ class MimeType < ActiveRecord::Base
   before_create :downcase_extension
   before_create :set_default_category
 
-  after_save :delete_cache
-  after_destroy :delete_cache
+  after_save :destroy_cache
+  after_destroy :destroy_cache
 
   def self.all
     Rails.cache.fetch("mime_types") do
@@ -28,7 +28,7 @@ class MimeType < ActiveRecord::Base
 
   def self.blacklisted_extensions
     Rails.cache.fetch("file_extension_blacklist") do
-      MimeType.where(:blacklist => true).collect{ |mime_type| mime_type.extension }
+      MimeType.where(:blacklist => true).map(&:extension)
     end
   end
 
@@ -67,9 +67,8 @@ class MimeType < ActiveRecord::Base
     self.extension.try(:downcase!)
   end
 
-  def delete_cache
+  def destroy_cache
     Rails.cache.delete("file_extension_blacklist") 
     Rails.cache.delete("mime_types")
-    #TODO: Why not warm cache right here?
   end 
 end

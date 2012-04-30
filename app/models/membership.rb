@@ -15,8 +15,8 @@ class Membership < ActiveRecord::Base
   after_update :validate_group_has_owner
   after_destroy :validate_group_has_owner
 
-  after_save :destroy_member_cache
-  after_destroy :destroy_member_cache
+  after_save :destroy_cache
+  after_destroy :destroy_cache
   
   def accept
     touch(:joined_at)
@@ -82,7 +82,6 @@ class Membership < ActiveRecord::Base
   end
 
   def self.create_with_options(users, groups, options)
-
     new_memberships = []
 
     Membership.transaction do
@@ -97,10 +96,9 @@ class Membership < ActiveRecord::Base
     new_memberships
   end
 
-  def destroy_member_cache
+  def destroy_cache
     Rails.cache.delete("user-rights-#{user.id}")
     Rails.cache.delete("groups-viewable-users-#{group.id}")
-    stored_file_ids = group.stored_files.collect{ |stored_file| stored_file.id }.sort
-    Rails.cache.delete_matched(%r{stored-file-#{stored_file_ids}-viewable-users}) if stored_file_ids.present?
+    #Rails.cache.delete("stored-file-#{ group.stored_files.map(&:id).sort }-viewable-users")
   end
 end

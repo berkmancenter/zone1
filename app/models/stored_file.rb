@@ -155,6 +155,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def self.tag_list
+    # TODO: Move this to Tag model, along with cache clearer
     Rails.cache.fetch("tag-list") do
       Tag.find_by_sql("SELECT ts.tag_id AS id, t.name
         FROM taggings ts
@@ -317,7 +318,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def flag_ids
-    self.flags.collect { |f| f.id }
+    self.flags.map(&:id)
   end
 
   def has_preserved_flag?
@@ -333,7 +334,7 @@ class StoredFile < ActiveRecord::Base
   def users_via_groups
     if self.access_level != AccessLevel.dark
       # TODO: Add performance improvements here (possibly via low level caching, raw SQL)
-      return self.groups.collect { |g| g.confirmed_members }.flatten.uniq.collect { |u| u.id }
+      return self.groups.map(&:confirmed_members).flatten.uniq.map(&:id)
     end
     return []
   end
@@ -351,7 +352,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def anonymous_tag_list(context)
-    self.owner_tags_on(nil, context).collect { |t| t.name }.join(', ')
+    self.owner_tags_on(nil, context).map(&:name).join(', ')
   end
 
   def update_tags(param, context, user)
@@ -362,7 +363,7 @@ class StoredFile < ActiveRecord::Base
       removed_tags = existing_tags - (existing_tags & submitted_tags)
 
       # Figure out which tags user is adding, and add
-      user_tags = self.owner_tags_on(user, context).collect { |b| b.name }
+      user_tags = self.owner_tags_on(user, context).map(&:name)
       updated_tags = user_tags + (submitted_tags - existing_tags) - removed_tags
       user.tag(self, :with => updated_tags.join(","), :on => context)
 
@@ -448,7 +449,7 @@ class StoredFile < ActiveRecord::Base
 
   def generate_thumbnail
     @wants_thumbnail = true
-    self.file.recreate_versions! rescue failed_thumbnail_cleanup
+    self.file.recreate_versions! rescue cleanup_failed_thumbnail
     @wants_thumbnail = false
 
     if self.file.has_thumbnail?
@@ -508,7 +509,6 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
-
   def unregister_user_stored_file
     user.increase_available_quota!(file_size)
   end
@@ -517,8 +517,7 @@ class StoredFile < ActiveRecord::Base
     user.decrease_available_quota!(file_size)
   end
 
-
-  def failed_thumbnail_cleanup
+  def cleanup_failed_thumbnail
     # Delete cached files that have been orphaned in their cache directory.
     # Note that cache_dir is always going to be specific to this stored_file
     # instance, but we are still explicit about what files we try to delete,

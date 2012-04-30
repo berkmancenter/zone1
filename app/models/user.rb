@@ -6,10 +6,8 @@ class User < ActiveRecord::Base
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_users
   acts_as_tagger
 
-  #TODO: Convert these to symbols and update method
-  after_update { |record| User.destroy_viewable_users_cache(record) }
-  after_destroy { |record| User.destroy_viewable_users_cache(record) }
-  after_create { |record| User.destroy_viewable_users_cache(record) }
+  after_save :destroy_cache
+  after_destroy :destroy_cache
 
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
     :quota_used, :quota_max, :role_ids, :right_ids
@@ -165,10 +163,13 @@ class User < ActiveRecord::Base
     end
   end
 
+  
+  private
+
   # Note: When a user is added to a group, role, or assigned a right,
   # all of these caches need to be invalidated.
-  def self.destroy_viewable_users_cache(record)
-    Rails.cache.delete("user-rights-#{record.id}")
+  def destroy_cache
+    Rails.cache.delete("user-rights-#{self.id}")
     Rails.cache.delete("users")
     Rails.cache.delete_matched(%r{users-viewable-users-*})
     Rails.cache.delete_matched(%r{roles-viewable-users-*})

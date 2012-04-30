@@ -5,8 +5,8 @@ class AccessLevel < ActiveRecord::Base
 
   attr_accessible :name, :label
 
-  after_save :destroy_access_levels_cache
-  after_destroy :destroy_access_levels_cache
+  after_save :destroy_cache
+  after_destroy :destroy_cache
 
   def self.open
     AccessLevel.find_by_label("Open")
@@ -29,7 +29,7 @@ class AccessLevel < ActiveRecord::Base
 
   private
   
-  def destroy_access_levels_cache
+  def destroy_cache
     Rails.cache.delete("access-levels") 
   end 
 
