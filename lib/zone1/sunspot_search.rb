@@ -91,7 +91,7 @@ module Zone1
       @facets = {}
 
       # indexed tag list
-      links = StoredFile.tag_list.inject([]) do |arr, tag|
+      links = Tag.tag_list.inject([]) do |arr, tag|
         if !params[:indexed_tag_list] || !params[:indexed_tag_list].include?(tag.name)
           params[:indexed_tag_list] ||= []
           arr.push({
