@@ -4,8 +4,11 @@ class SftpUser < ActiveRecord::Base
   require 'fileutils'
 
   belongs_to :user
+
   validates_presence_of :user_id
+
   after_destroy :delete_homedir
+
   attr_accessible :user_id, :homedir
   attr_reader :raw_password
 
@@ -22,6 +25,10 @@ class SftpUser < ActiveRecord::Base
     self.uploaded_files.size > 0
   end
 
+  def sftp_url
+    server_name = Preference.sftp_server_name || 'no_sftp_server_name_configured'
+    self.username + '@' + server_name
+  end
 
   private
 
@@ -36,7 +43,7 @@ class SftpUser < ActiveRecord::Base
   end
 
   def delete_homedir
-    FileUtils.rm_rf self.homedir if File.directory? self.homedir
+    FileUtils.rm_rf(self.homedir) if File.directory?(self.homedir)
   end
 
   def generate_username

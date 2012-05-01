@@ -136,23 +136,20 @@ $(function() {
 		$(iconDivId).removeClass('ui-icon-circle-check').addClass('ui-icon-alert');
 	};
 
-	var SFTP_INITIALIZED = false;
-	var SFTP_DONE = false;
+	var SFTP_INITIALIZED = SFTP_DONE = false;
+	var sftp_url_id = '#sftp_url';
 	var username_id = '#sftp_username';
 	var password_id = '#sftp_password';
 
 	// prevent lazy firefox reload from leaving old credentials visible
-	$(username_id).val('');
-	$(password_id).val('');
-	$(username_id).focus(function() {this.select();});
+	$(sftp_url_id).val('loading...');
+	$(password_id).val('loading...');
+	$(sftp_url_id).focus(function() {this.select();});
 	$(password_id).focus(function() {this.select();});
 
-	$('#sftp_toggler').click(function() {
-		$('#sftp').slideDown('fast', function() {
-			if (! SFTP_INITIALIZED) {
-				init_sftp();
-			}
-		});
+	$('#sftp_init_button').click(function() {
+        init_sftp();
+        return false;
 	});
 
     var conditional_sftp_post = function(uploader) {
@@ -171,9 +168,9 @@ $(function() {
 	var init_sftp = function() {
 		if (SFTP_INITIALIZED) {return;}
 		SFTP_INITIALIZED = true;
-
-        $('#sftp_toggler').html('SFTP Upload Instructions');        
-		$('#sftp').slideDown('fast');
+		$('#sftp_init_button').hide();
+		$('#sftp_container').removeClass('centered');
+		$('#sftp_credentials').show('slide', {}, 700 );
 
 		$.post(
 			'/sftp_users', 
@@ -189,6 +186,7 @@ $(function() {
 	};
 
 	var display_sftp_credentials = function(credentials) {
+		$(sftp_url_id).val(credentials['sftp_url']);
 		$(username_id).val(credentials['u']);
 		$(password_id).val(credentials['p']);
 	}

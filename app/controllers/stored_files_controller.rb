@@ -176,7 +176,7 @@ class StoredFilesController < ApplicationController
 
     if params[:sftp_username].present?
       begin
-        sftp_user = SftpUser.find_by_username(params[:sftp_username]) 
+        sftp_user = SftpUser.find_by_username(params[:sftp_username])
         if needs_remote_file_import?(sftp_user, params[:temp_batch_id])
           remote_file_count = sftp_user.uploaded_files.size
           enqueue_remote_file_import(params, sftp_user.username)
