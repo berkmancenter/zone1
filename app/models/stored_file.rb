@@ -31,8 +31,7 @@ class StoredFile < ActiveRecord::Base
 
   acts_as_authorization_object
 
-  acts_as_taggable
-  acts_as_taggable_on :collections
+  acts_as_taggable_on :tags, :collections
 
   attr_accessor :wants_thumbnail, :defer_quota_update, :defer_search_commit
 
@@ -60,7 +59,7 @@ class StoredFile < ActiveRecord::Base
 
   FITS_ATTRIBUTES = [:file_size, :md5, :format_version, :mime_type].freeze
 
-  searchable(:include => [:tags, :collections, :mime_type, :mime_type_category, :flags, :license, :user], :auto_index => false) do
+  searchable(:include => [:mime_type, :mime_type_category, :flags, :license, :user], :auto_index => false) do
     text :author, :stored => true
     text :contributor_name, :stored => true
     text :copyright_holder, :stored => true
@@ -204,8 +203,6 @@ class StoredFile < ActiveRecord::Base
       # might return nil, which means this flag was never set for the stored file
       return id_array.first
     else
-      logger.debug "self.flaggings.inspect=" + self.flaggings.inspect
-      logger.debug "id_array = " + id_array.inspect
       raise "Something isn't right. StoredFile #{self.id} has #{id_array.count} flaggings. It should have one or none."
     end
   end
@@ -309,12 +306,14 @@ class StoredFile < ActiveRecord::Base
 
   def collection_list
     #so form value does not have to be manually set
-    @collection_list ||= self.anonymous_tag_list(:collections)
+    # do not name this instance variable @collection_list b/c it conflicts with acts-as-taggable-on internally
+    @anonymous_collection_list ||= self.anonymous_tag_list(:collections)
   end
   
   def tag_list
     #so form value does not have to be manually set
-    @tag_list ||= self.anonymous_tag_list(:tags)
+    # do not name this instance variable @tag_list b/c it conflicts with acts-as-taggable-on internally
+    @anonymous_tag_list ||= self.anonymous_tag_list(:tags)
   end
 
   def flag_ids
