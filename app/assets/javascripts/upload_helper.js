@@ -176,6 +176,7 @@ $(function() {
 			'/sftp_users', 
 			function(data) { 
 				display_sftp_credentials(data);
+                $(sftp_url_id).select();
                 enable_upload_button();
 			}
 		).error( function(data) {
