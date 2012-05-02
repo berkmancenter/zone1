@@ -32,8 +32,8 @@ class SftpUser < ActiveRecord::Base
 
   private
 
-  def initialize(params = nil)
-    super
+  def initialize(*args)
+    super(*args)
 
     self.username = generate_username
     @raw_password = generate_password
