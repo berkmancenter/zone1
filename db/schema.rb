@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120430055947) do
+ActiveRecord::Schema.define(:version => 20120501054026) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -226,6 +226,7 @@ ActiveRecord::Schema.define(:version => 20120430055947) do
     t.boolean  "has_thumbnail",     :default => false
     t.datetime "deleted_at"
     t.boolean  "complete",          :default => false
+    t.string   "source"
   end
 
   add_index "stored_files", ["access_level_id"], :name => "index_stored_files_on_access_level_id"
