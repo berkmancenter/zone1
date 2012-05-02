@@ -294,13 +294,13 @@ class StoredFile < ActiveRecord::Base
 
   def collection_list
     #so form value does not have to be manually set
-    # do not name this instance variable @collection_list b/c it conflicts with acts-as-taggable-on internally
+    # Do not name this instance variable @collection_list b/c it conflicts with acts-as-taggable-on internally
     @anonymous_collection_list ||= self.anonymous_tag_list(:collections)
   end
   
   def tag_list
+    # Do not name this instance variable @tag_list b/c it conflicts with acts-as-taggable-on internally
     #so form value does not have to be manually set
-    # do not name this instance variable @tag_list b/c it conflicts with acts-as-taggable-on internally
     @anonymous_tag_list ||= self.anonymous_tag_list(:tags)
   end
 
