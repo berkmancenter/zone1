@@ -3,7 +3,7 @@ source 'http://rubygems.org'
 gem 'rails', '3.1.3'
 gem 'pg', :require => 'pg'
 gem 'json'
-gem 'will_paginate', '3.0.2'
+gem 'will_paginate', '~> 3.0.2'
 gem 'jquery-rails'
 gem 'devise'
 gem 'acts-as-taggable-on'
@@ -28,8 +28,8 @@ group :assets do
 end
 
 group :test, :development do
-  gem 'rspec' 
-  gem 'rspec-rails', '~> 2.7.0'
+  gem 'rspec'
+  gem 'rspec-rails', '~> 2.9.0'
   gem 'factory_girl_rails'
   gem 'shoulda', :require => false
   gem 'simplecov', :require => false
@@ -37,7 +37,4 @@ group :test, :development do
   gem 'database_cleaner'
   gem 'remarkable', "~> 4.0.0.alpha4"
   gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
-# these two commented out during ruby 1.9.3 upgrade
-#  gem 'rails_best_practices'
-#  gem 'ripper' #required by rails_best_practices, run sudo yum install bison first
 end
