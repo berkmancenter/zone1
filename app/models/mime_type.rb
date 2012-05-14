@@ -60,7 +60,7 @@ class MimeType < ActiveRecord::Base
   private
 
   def set_default_category
-    self.mime_type_category ||= MimeTypeCategory.find_by_name("Uncategorized") 
+    self.mime_type_category ||= MimeTypeCategory.default
   end
 
   def downcase_extension

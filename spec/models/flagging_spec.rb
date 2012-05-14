@@ -20,13 +20,13 @@ describe Flagging do
   end
 
   context "when flagging is existing record" do
-    subject { Factory(:flagging) }
+    subject { FactoryGirl.create(:flagging) }
     it { should validate_presence_of :stored_file_id }
   end
 
   describe "#checked=" do
     context "when called an existing record" do
-      subject { Factory(:flagging) }
+      subject { FactoryGirl.create(:flagging) }
       it { should raise_error }
     end
     context "when passed false" do
@@ -51,7 +51,7 @@ describe Flagging do
       end
     end
     context "when an existing record" do
-      subject { Factory(:flagging) }
+      subject { FactoryGirl.create(:flagging) }
       it "should return false" do
         subject.checked? == false
       end

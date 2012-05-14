@@ -1,67 +1,106 @@
 require "spec_helper"
 
 describe "Fits" do
+
   describe ".analyze(file_url)" do
 
     let(:file_url) { __FILE__.to_s }  #have FITS analyze this spec by default
 
     context "when the file_url does not exist" do
-      before do
-        Fits.should_receive(:test).with(?f, file_url).and_return(false)
-      end
       it "should raise an error" do
         assert_raise RuntimeError do
-          Fits.analyze(file_url)
+          Fits.get_fits_output(file_url + " -1 @&@#$@$#")
         end
       end    
     end
 
-    context "when FITs is unable to read the file" do
+    context "when Fits can't get the fits_script_path Preference" do
       before do
-        Fits.should_receive(:open).with("|/usr/local/bin/fits/fits.sh -i #{file_url}").and_return('')
+        Preference.should_receive(:fits_script_path).and_return(nil)
       end
       it "should raise an error" do
         assert_raise RuntimeError do
-          Fits.analyze(file_url)
+          Fits.get_fits_output(file_url)
         end
+      end
+    end
+
+    context "when the fits_script_path Preference is is bogus " do
+      context "because its not executable" do
+        before do
+          File.stub(:executable?).and_return(false)
+        end
+
+        it "should raise an error" do
+          assert_raise RuntimeError do
+            Fits.validate_fits_script_path('/dev/null/fits.sh')
+          end
+        end
+      end
+
+      context "because it doesn't end in fits.sh" do
+        before do
+          File.stub(:executable?).and_return(true)
+        end
+        it "should raise an error" do
+          assert_raise RuntimeError do
+            Fits.validate_fits_script_path('/dev/null/fits.sh;hackedlol.sh')
+          end
+        end
+      end
+    end
+
+    context "when FITs is unable to read the file" do
+      let(:file_url) { "/dev/null/fake/file" }
+      before do
+        Fits.stub(:get_fits_output).and_return('')
+      end
+      it "should raise an error" do
+        expect {
+          Fits.analyze(file_url)
+        }.to raise_error(RuntimeError, /FITS call returned nothing/)
       end
     end
 
     context "when FITs is able to read the file" do
 
+      def get_fits_output_xml
+        return open(File.expand_path("../fits_spec-analysis-results.xml", __FILE__), "r") {|f| f.read}
+      end
+
       before :all do
+        Fits.stub(:get_fits_output).and_return( get_fits_output_xml() )
         @results = Fits.analyze(file_url)
       end
 
       it "should return a hash" do
-        assert @results.is_a?(Hash)
+        @results.class.should == Hash
       end
 
-      it "should return a hash with fits_mime_type as a key" do
-        assert @results.has_key?(:fits_mime_type)
+      it "should return a hash with the correct :file_extension" do
+        @results[:file_extension].should == ".rb"
       end
 
-      it "should return a hash with a key fits_mime_type with a value which is a hash" do
-        assert @results[:fits_mime_type].is_a?(Hash)
+      it "should return a hash with the correct :format_name" do
+        @results[:format_name].should == "Plain text"
       end
 
-      it "should return a hash with a key fits_mime_type with a value which is a hash and has a key of format_name" do
-        assert @results[:fits_mime_type].has_key?(:format_name)
+      it "should return a hash with the correct :mime_type" do
+        @results[:mime_type].should == "text/plain"
       end
 
-      it "should return a hash with a key fits_mime_type with a value which is a hash and has a key of mime_type" do
-        assert @results[:fits_mime_type].has_key?(:mime_type)
+      it "should return a hash with the correct :file_size" do
+        @results[:file_size].should == "3095"
       end
 
-      it "should return a hash with a key format_version"
-
-      it "should return a hash with a key file_size" do
-        assert @results.has_key?(:file_size)
+      it "should return a hash with the correct :md5" do
+        @results[:md5].should == "471f3b7b23fbaea4acabe4605163b894"
       end
 
-      it "should return a hash with a key md5" do
-        assert @results.has_key?(:md5)
+      it "should not return an empty format_version value when it can't produce one" do
+        @results.should_not have_key :format_version
       end
+
     end
 
   end

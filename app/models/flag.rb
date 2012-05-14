@@ -57,7 +57,8 @@ class Flag < ActiveRecord::Base
     # files and prevents an app error. We try to use lightweight methods here, as
     # this could involve a lot of heavy lifting for a popular flag. (The entire
     # destroy job could be done in a Resque job if this got too slow.)
-    stored_file_ids = self.connection.select_all("SELECT stored_file_id
+    stored_file_ids = self.connection.select_all(
+      "SELECT stored_file_id
       FROM flaggings
       WHERE flaggings.flag_id = '#{self.id}'").collect {|row| row['stored_file_id'].to_i}
 

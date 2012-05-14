@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fits xmlns="http://hul.harvard.edu/ois/xml/ns/fits/fits_output" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://hul.harvard.edu/ois/xml/ns/fits/fits_output http://hul.harvard.edu/ois/xml/xsd/fits/fits_output.xsd" version="0.5.0" timestamp="5/11/12 3:51 PM">
+  <identification status="SINGLE_RESULT">
+    <identity format="Plain text" mimetype="text/plain">
+      <tool toolname="Jhove" toolversion="1.5" />
+    </identity>
+  </identification>
+  <fileinfo>
+    <size toolname="Jhove" toolversion="1.5">3095</size>
+    <filename toolname="OIS File Information" toolversion="0.1" status="SINGLE_RESULT">spec/lib/fits_spec.rb</filename>
+    <md5checksum toolname="OIS File Information" toolversion="0.1" status="SINGLE_RESULT">471f3b7b23fbaea4acabe4605163b894</md5checksum>
+    <fslastmodified toolname="OIS File Information" toolversion="0.1" status="SINGLE_RESULT">1336765788000</fslastmodified>
+  </fileinfo>
+  <filestatus>
+    <well-formed toolname="Jhove" toolversion="1.5" status="SINGLE_RESULT">true</well-formed>
+    <valid toolname="Jhove" toolversion="1.5" status="SINGLE_RESULT">true</valid>
+  </filestatus>
+  <metadata>
+    <text>
+      <linebreak toolname="Jhove" toolversion="1.5" status="SINGLE_RESULT">LF</linebreak>
+      <charset toolname="Jhove" toolversion="1.5" status="SINGLE_RESULT">US-ASCII</charset>
+    </text>
+  </metadata>
+</fits>
+

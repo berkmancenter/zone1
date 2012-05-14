@@ -4,12 +4,9 @@ module Fits
     # Fields returned must match stored_file attributes or setters such that the
     # return value of this method is suitable to pass to model.update_attribute()
     ::Rails.logger.info "FITS.analyze firing for #{file_url}"
-    raise "File not found: #{file_url}" unless File.exists? file_url
 
-    fits_script_path = Preference.fits_script_path
-    validate_fits_script_path(fits_script_path)
-    fits_output = open("|#{fits_script_path} -i #{file_url}") {|f| f.read}
-    raise "FITS call failed" if fits_output == ''
+    fits_output = self.get_fits_output(file_url)
+    raise "FITS call returned nothing" if fits_output == ''
 
     xml = Nokogiri::XML(fits_output)
     xml.remove_namespaces!
@@ -35,7 +32,16 @@ module Fits
     metadata
   end
 
+  def self.get_fits_output(file_url)
+    raise "File not found: #{file_url}" unless File.exists? file_url
+
+    fits_script_path = Preference.fits_script_path
+    validate_fits_script_path(fits_script_path)
+    return open("|#{fits_script_path} -i #{file_url}") {|f| f.read}
+  end
+
   def self.validate_fits_script_path(fits_script_path)
+    raise "No fits_script_path preference value found" if fits_script_path.nil?
     if !(File.executable?(fits_script_path) && fits_script_path =~ /fits\.sh$/)
       raise "Invalid fits_script_path preference value: #{fits_script_path}"
     end

@@ -6,11 +6,13 @@ class SftpUser < ActiveRecord::Base
   belongs_to :user
 
   validates_presence_of :user_id
+  validates_presence_of :homedir
 
-  after_destroy :delete_homedir
-
-  attr_accessible :user_id, :homedir
+  attr_accessible :user_id
   attr_reader :raw_password
+
+  before_validation :set_homedir, :if => "self.homedir.nil?"
+  after_destroy :delete_homedir
 
   def uploaded_files
     # if homedir exists, but we don't have full access to it (possibly due to
@@ -22,7 +24,7 @@ class SftpUser < ActiveRecord::Base
   end
 
   def uploaded_files?
-    self.uploaded_files.size > 0
+    self.uploaded_files.any?
   end
 
   def sftp_url
@@ -34,16 +36,18 @@ class SftpUser < ActiveRecord::Base
 
   def initialize(*args)
     super(*args)
-
     self.username = generate_username
     @raw_password = generate_password
     # proftpd requires that the attribute be named passwd instead of password. :/
     self.passwd = hash_password(@raw_password)
-    self.homedir = generate_homedir
+    set_homedir 
   end
 
-  def delete_homedir
-    FileUtils.rm_rf(self.homedir) if File.directory?(self.homedir)
+  def set_homedir
+    return if self.user_id.nil?
+    root_dir = Preference.sftp_user_home_directory_root
+    raise "No sftp_user_home_directory_root preference found" if root_dir.nil?
+    self.homedir ||= File.join(root_dir, self.user_id.to_s, self.username) 
   end
 
   def generate_username
@@ -58,8 +62,8 @@ class SftpUser < ActiveRecord::Base
     "{sha1}" + Base64.encode64s(Digest::SHA1.digest(password))
   end
 
-  def generate_homedir
-    File.join(Preference.sftp_user_home_directory_root, self.user_id.to_s, self.username)
+  def delete_homedir
+    FileUtils.rm_rf(self.homedir) if File.directory?(self.homedir)
   end
 
 end

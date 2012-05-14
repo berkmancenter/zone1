@@ -1,6 +1,5 @@
 class User < ActiveRecord::Base
-  # Include default devise modules. Others available are:
-  # :token_authenticatable, :encryptable, :confirmable, :lockable, :timeoutable and :omniauthable
+
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_users
@@ -29,11 +28,6 @@ class User < ActiveRecord::Base
   validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
   validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
 
-  # TODO: Remove conditional here and make sure memberships are removed after group is deleted
-  def owned_groups
-    memberships.owner.includes(:group).inject([]) {|array, m| array << m.group if !m.group.nil?; array}
-  end
-
   def quota_used
     #must use self.quota_used in order to call instance method instead of directly accessing database value
     # TODO: do we need this, especially since we have added a default value of zero to the DB?
@@ -58,7 +52,7 @@ class User < ActiveRecord::Base
   end
 
   def increase_available_quota!(amount)
-    new_quota_used = (self.quota_used - amount.to_i <= 0) ? 0 : self.quota_used - amount.to_i
+    new_quota_used = (self.quota_used - amount.to_i > 0) ? self.quota_used - amount.to_i : 0
     update_attribute(:quota_used, new_quota_used)
   end
 
@@ -113,6 +107,10 @@ class User < ActiveRecord::Base
     return true if (group.owners.include?(self) && rights.include?("#{method}_on_owned"))
 
     false
+  end
+
+  def owned_groups
+    memberships.owner.includes(:group).inject([]) {|array, m| array << m.group; array}
   end
 
   def all_groups

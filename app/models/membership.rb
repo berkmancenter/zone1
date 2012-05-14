@@ -99,6 +99,5 @@ class Membership < ActiveRecord::Base
   def destroy_cache
     Rails.cache.delete("user-rights-#{user.id}")
     Rails.cache.delete("groups-viewable-users-#{group.id}")
-    #Rails.cache.delete("stored-file-#{ group.stored_files.map(&:id).sort }-viewable-users")
   end
 end

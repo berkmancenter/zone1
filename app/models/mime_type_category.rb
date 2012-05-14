@@ -21,6 +21,10 @@ class MimeTypeCategory < ActiveRecord::Base
     self.all.detect { |l| l.id == value.to_i }.name
   end
 
+  def self.default
+    self.find_by_name("Uncategorized")
+  end
+
   private
 
   def destroy_cache

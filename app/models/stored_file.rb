@@ -10,6 +10,7 @@ class StoredFile < ActiveRecord::Base
   belongs_to :user
   belongs_to :access_level
   belongs_to :batch
+  belongs_to :mime_type
 
   has_many :comments, :order => "id", :dependent => :destroy
   has_many :flaggings, :dependent => :destroy
@@ -17,7 +18,6 @@ class StoredFile < ActiveRecord::Base
   has_many :groups_stored_files, :dependent => :destroy
   has_many :groups, :through => :groups_stored_files
   has_one :disposition, :dependent => :destroy
-  belongs_to :mime_type
   has_one :mime_type_category, :through => :mime_type
 
   delegate :name, :to => :user, :prefix => :contributor
@@ -247,7 +247,7 @@ class StoredFile < ActiveRecord::Base
     params = file_params.dup
 
     if self.new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
-      raise MimeType.blacklisted_message(params[:original_filename])
+      raise Exception, MimeType.blacklisted_message(params[:original_filename])
     end
 
     self.accessible = attr_accessible_for(params, user)
@@ -256,18 +256,19 @@ class StoredFile < ActiveRecord::Base
 
     prepare_comment_params(params, user)
 
-    # Use strings instead of symbols so this will work when called via a Resque job, too.
+    # We might get these two keys in params as keys or symbols under different
+    # circumstances (controller, Resque job, etc). That is why we delete both types
     # Delete these two lists from params because update_attributes can't handle them
-    tag_list = params.delete("tag_list")
-    collection_list = params.delete("collection_list")
-    
+    tag_list = params.delete("tag_list") || params.delete(:tag_list)
+    collection_list = params.delete("collection_list") || params.delete(:collection_list)
+
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
       update_tags(collection_list, :collections, user) if collection_list
-      update_column(:complete, metadata_check?)
+      update_column(:complete, metadata_check?) unless self.new_record?
       self.index
     else
-      raise self.errors.full_messages.join(', ')
+      raise Exception, self.errors.full_messages.join(', ')
     end
   end
 
@@ -288,7 +289,7 @@ class StoredFile < ActiveRecord::Base
         valid_attr << :access_level_id
       end
     end
-    valid_attr << :tag_list if self.allow_tags == true && user.present?
+    valid_attr << :tag_list if self.allow_tags && user.present?
     
     valid_attr.uniq
   end
@@ -469,7 +470,6 @@ class StoredFile < ActiveRecord::Base
 
       # This assumes that if the stored file access level is open
       # no global user array is generated.
-
       users = [stored_file.user.id] + stored_file.users_via_groups
 
       if stored_file.has_preserved_flag?
