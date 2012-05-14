@@ -1,5 +1,6 @@
 class Admin::BaseController < ApplicationController
   include ApplicationHelper
+  require 'zone1/fits'
 
   access_control do
     allow logged_in, :to => [:index, :edit, :show, :destroy, :update, :create], :if => :can_view_admin?
@@ -11,9 +12,19 @@ class Admin::BaseController < ApplicationController
 
   def update
     params[:preference].each do |k, v|
-      Preference.find(k).update_attribute(:value, v)
+      #TODO: Validate critical values
+      begin
+        if k == 'fits_script_path'
+          Fits.validate_fits_script_path(v)
+        end
+
+        Preference.find_by_name(k).update_attribute(:value, v)
+      rescue Exception => e
+        flash[:error] = "Not Updated: Invalid value for '#{Preference.find_by_name(k).label}'"
+      end
     end
-    flash[:notice] = "Updated!"
+
+    flash[:notice] = "Preferences updated"
     redirect_to "/admin"
   end
 end

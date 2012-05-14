@@ -47,6 +47,7 @@
 
         <div id="error">
             <%= flash[:error] %>
+            <% if flash[:error] && flash[:notice] -%><br/><% end -%>
             <%= flash[:notice] %>
         </div>
 
