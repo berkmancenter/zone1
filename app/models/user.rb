@@ -40,7 +40,7 @@ class User < ActiveRecord::Base
   end
 
   def default_quota_max
-    Preference.default_user_upload_quota.to_i
+    Preference.default_user_upload_quota.to_i rescue 0
   end
 
   def quota_max=(amount)

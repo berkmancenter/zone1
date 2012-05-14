@@ -13,6 +13,7 @@ describe Membership do
   it { should allow_mass_assignment_of :invited_by }
 
   before do
+    FactoryGirl.create :group_invite_from_address
     @user = FactoryGirl.create(:user, :email => "user@endpoint.com")
     @owner = FactoryGirl.create(:user, :email => "owner@endpoint.com")
     @group = FactoryGirl.create(:group)
@@ -39,7 +40,8 @@ describe Membership do
     end
     context "after_destroy" do
       before do
-        Membership.add_users_to_groups([FactoryGirl.create(:user)], [@group], :is_owner => true)  # must add a new owner to destroy
+        # must add a new owner to destroy
+        Membership.add_users_to_groups([FactoryGirl.create(:user)], [@group], :is_owner => true)
         @membership.should_receive(:destroy_cache)
       end
       it "should destroy_cache" do

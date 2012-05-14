@@ -114,6 +114,11 @@ FactoryGirl.define do
       label "FITS script path label"
       value "/usr/local/bin/fits/fits.sh"
     end
+    factory :group_invite_from_address do
+      name "group_invite_from_address"
+      label "Group Invite Email From Address"
+      value "group_invites@zoneone.domain"
+    end
   end
 
   factory :sftp_user do

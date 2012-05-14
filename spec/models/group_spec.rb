@@ -2,13 +2,14 @@ require 'spec_helper'
 
 describe Group do
   before do
+    FactoryGirl.create :group_invite_from_address
     @invited_user = FactoryGirl.create(:user, :email => "invited@endpoint.com")
     @user = FactoryGirl.create(:user, :email => "user@endpoint.com")
     @owner = FactoryGirl.create(:user, :email => "owner@endpoint.com")
     @group = FactoryGirl.create(:group)
     @owner_membership = Membership.add_users_to_groups [@owner], [@group], :is_owner => true
-    @invited_membership = Membership.invite_users_to_groups [@invited_user], [@group]
     @user_membership = Membership.add_users_to_groups [@user], [@group]
+    @invited_membership = Membership.invite_users_to_groups [@invited_user], [@group]
     @group.reload
   end
   

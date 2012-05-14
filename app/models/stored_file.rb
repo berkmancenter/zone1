@@ -418,7 +418,7 @@ class StoredFile < ActiveRecord::Base
     # Returns: Boolean based on whether or not FITS returned usable metadata
     begin
       metadata = Fits::analyze(self.file_url)
-      if !(metadata.class == Hash && metadata.keys.length > 0)
+      if !(metadata.is_a?(Hash) && metadata.keys.any?)
         ::Rails.logger.warn "Got un-usable metadata from FITS: #{metadata.inspect}"
         return false
       end
@@ -442,10 +442,10 @@ class StoredFile < ActiveRecord::Base
     @wants_thumbnail = false
 
     if self.file.has_thumbnail?
-      # Don't use self.file_url(:thumbnail) in this method because we override it
+      # Don't use self.file_url(:thumbnail) in this method because it is overridden in this class
       current_thumbnail_path = self.file.thumbnail.url
 
-      # If the current thumbnail is not a jpg, replace it with one we create
+      # If the current thumbnail is not a jpg, convert it to a jpg
       if current_thumbnail_path !~ /\.jpg$/i
         jpg_path = thumbnail_path(current_thumbnail_path)
         im = Magick::ImageList.new(current_thumbnail_path).first
