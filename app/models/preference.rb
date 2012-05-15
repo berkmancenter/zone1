@@ -17,7 +17,7 @@ class Preference < ActiveRecord::Base
   end
 
   def self.method_missing(*args)
-    self.find_by_name_cached( args.first.to_s ).try(:value) || super(*args)
+    self.find_by_name_cached( args.first.to_s ).try(:value)
   end
 
 
