@@ -30,7 +30,7 @@ FactoryGirl.define do
   factory :group do
     sequence(:name) {|n| "Group ##{n}" }
     factory :group_with_owner do
-      after_create do |group|
+      after(:create) do |group|
         FactoryGirl.create(:membership_as_owner, :group => group)
         group.reload
       end

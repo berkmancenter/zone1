@@ -1,10 +1,10 @@
 require "spec_helper"
 
 describe User do
-  it { should have_many :memberships }
+  it { should have_many(:memberships).dependent(:destroy) }
   it { should have_many :groups }
   it { should have_and_belong_to_many :roles }
-  it { should have_many :sftp_users }
+  it { should have_many(:sftp_users).dependent(:destroy) }
   it { should have_many :batches }
   it { should have_many :comments }
   it { should have_many :stored_files }

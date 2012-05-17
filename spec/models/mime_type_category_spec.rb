@@ -9,6 +9,8 @@ describe MimeTypeCategory do
   it { should allow_mass_assignment_of(:name) }
   it { should allow_mass_assignment_of(:icon) }
 
+  pending "should return array of MimeTypeCategory objects from cached self.all method"
+
   describe "default MimeTypeCategory" do
     let(:mime_type_category) { FactoryGirl.create(:mime_type_category, :name => "Uncategorized") }
     it "should use name = 'Uncategorized' for self.default MimeTypeCategory" do

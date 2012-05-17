@@ -29,4 +29,13 @@ Zone1::Application.configure do
   config.assets.debug = false
 
   # config.action_dispatch.x_sendfile_header = "X-Sendfile" # for apache
+
+  # Rails 3.2.0 updates
+  # Raise exception on mass assignment protection for Active Record models
+  config.active_record.mass_assignment_sanitizer = :strict
+  
+  # Log the query plan for queries taking more than this (works
+  # with SQLite, MySQL, and PostgreSQL)
+  config.active_record.auto_explain_threshold_in_seconds = 1
+
 end

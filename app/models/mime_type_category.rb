@@ -1,7 +1,8 @@
 class MimeTypeCategory < ActiveRecord::Base
+  require_association 'mime_type'  # Rails 3.2.0 requirement
+
   has_many :mime_types
   has_many :stored_files, :through => :mime_types
-
   attr_accessible :name, :icon
 
   validates_presence_of :name

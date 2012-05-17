@@ -1,6 +1,5 @@
 class SftpUser < ActiveRecord::Base
   require 'digest/sha1'
-  require 'base64'
   require 'fileutils'
 
   belongs_to :user
@@ -59,7 +58,7 @@ class SftpUser < ActiveRecord::Base
   end
 
   def hash_password(password)
-    "{sha1}" + Base64.encode64s(Digest::SHA1.digest(password))
+    "{sha1}" + Base64.encode64(Digest::SHA1.digest(password))
   end
 
   def delete_homedir

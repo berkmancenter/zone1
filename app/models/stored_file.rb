@@ -403,7 +403,7 @@ class StoredFile < ActiveRecord::Base
     thumbnail_ok = generate_thumbnail
     if fits_ok || thumbnail_ok
       self.save! 
-      self.index
+      self.index!
     end
   end
 

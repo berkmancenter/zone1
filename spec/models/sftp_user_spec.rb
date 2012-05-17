@@ -11,4 +11,6 @@ describe SftpUser do
   it { @sftp_user.should belong_to :user }
   it { @sftp_user.should allow_mass_assignment_of :user_id }
 
+  
+
 end

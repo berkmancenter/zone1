@@ -14,7 +14,7 @@ describe Group do
   end
   
   it { should have_many(:memberships) }
-  it { should have_many(:groups_stored_files) }
+  it { should have_many(:groups_stored_files).dependent(:destroy) }
   it { should have_many(:stored_files) }
   it { should have_many(:rights) }
   it { should have_many(:right_assignments) }

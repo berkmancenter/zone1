@@ -11,5 +11,8 @@ describe Role do
   it { should have_many(:rights).through(:right_assignments) }
 
   it { should allow_mass_assignment_of :name} 
-  it { should allow_mass_assignment_of :right_ids} 
+  it { should allow_mass_assignment_of :right_ids}
+
+  pending "should return array of Right objects from cached self.user_rights method"
+
 end

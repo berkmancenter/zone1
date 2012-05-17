@@ -5,12 +5,12 @@ describe StoredFile do
   it { should belong_to :user }
   it { should belong_to :access_level }
   it { should belong_to :batch }
-  it { should have_many :comments }
-  it { should have_many :flaggings }
+  it { should have_many(:comments).dependent(:destroy) }
+  it { should have_many(:flaggings).dependent(:destroy) }
   it { should have_many :flags }
-  it { should have_many :groups_stored_files }
+  it { should have_many(:groups_stored_files).dependent(:destroy) }
   it { should have_many :groups }
-  it { should have_one :disposition }
+  it { should have_one(:disposition).dependent(:destroy) }
   it { should have_one(:mime_type_category).through(:mime_type) }
   it { should belong_to :mime_type }
 
@@ -478,67 +478,12 @@ describe StoredFile do
     end    
   end
 
-  
-  describe "#fits_mime_type=(hash)" do
-    before do
-      @stored_file = FactoryGirl.create(:stored_file, :original_filename => "test.jpg")
-    end
-=begin    
-    context "when hash doesn't have format_name" do
-      it "should raise an error" do
-        assert_raise RuntimeError do
-          @stored_file.fits_mime_type={}
-        end
-      end
-    end
 
-    context "when hash doesn't have mime_type" do
-      it "should raise an error" do
-        assert_raise RuntimeError do
-          @stored_file.fits_mime_type={}
-        end
-      end
-    end
-
-    context "when hash has format_name and mime_type" do
-      let(:new_mime_type) { MimeType.new(:mime_type => "image/jpeg") }
-      let(:mime_type_category) { FactoryGirl.create(:mime_type_category) }
-      let(:params) { {:file_extension => ".jpg", :format_name => "JPEG", :mime_type => "image/jpeg"} }
-     
-      before do
-        MimeType.should_receive(:find_or_initialize_by_extension).with(".jpg").and_return(new_mime_type)
-      end
-
-      after do
-        @stored_file.fits_mime_type=params
-      end
-      
-      context "when it creates a new mime type" do
-        it "should set the name to format_name" do
-          new_mime_type.should_receive("name=").with("JPG")
-        end
-        
-        it "should set the mime type category" do
-          MimeTypeCategory.should_receive(:find_or_create_by_name).with("Image").and_return(mime_type_category)
-          new_mime_type.should_receive("mime_type_category_id=").with(mime_type_category.id)
-        end
-
-        it "should set the mime_type_name" do
-          new_mime_type.should_receive("mime_type_name=").with("JPEG")
-        end
-
-        it "should set the mime_type" do
-          new_mime_type.should_receive("mime_type=").with("image/jpeg")
-        end
-      end
-      
-      it "should set the mimetype" do
-        @stored_file.should_receive("mime_type=").with(new_mime_type)
-      end
-    end
-=end
+  describe "post_process" do
+    pending "should call set_fits_attributes"
+    pending "should call generate_thumbnail"
+    pending "should call save! and index! if set_fits_attributes returns true"
+    pending "should call save! and index! if generate_thumbnail returns true"
   end
-
-  #describe "#flag_map" do
-  #end
+  
 end

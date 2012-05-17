@@ -48,7 +48,11 @@ module Zone1
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
+    # Sprockets logging: Set to false to turn off logging and to nil to default to Rails.logger.
+    config.assets.logger = false
+
     #Require all attributes to be marked as accessible in models
     config.active_record.whitelist_attributes = true
+
   end
 end
