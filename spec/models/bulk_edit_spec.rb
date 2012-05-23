@@ -19,7 +19,6 @@ describe BulkEdit do
 
   describe ".matching_attributes_from" do
 
-
     context "when attributes are matching" do
 
       it "should return hash of attributes with values" do

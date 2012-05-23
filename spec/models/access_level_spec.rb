@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe AccessLevel do
   before(:each) do
-    access_level = Factory(:access_level)
+    access_level = FactoryGirl.create(:access_level)
   end
 
   it { should have_many(:stored_files) }

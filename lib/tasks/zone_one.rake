@@ -1,5 +1,18 @@
 namespace :zone_one do
 
+  desc "Attempt to generate thumbnails for all stored files where has_thumbnail is false"
+  task :create_missing_thumbnails => :environment do
+    needs_commit = false
+    StoredFile.where(:has_thumbnail => false).each do |stored_file|
+      if stored_file.generate_thumbnail && stored_file.save
+        stored_file.index
+        needs_commit = true
+        Rails.logger.info "Rake task zone_one:create_missing_thumbnails created thumbnail OK for StoredFile id: #{stored_file.id}"
+      end
+    end
+    Sunspot.commit if needs_commit
+  end
+
   desc "Clear all low level caches"
   task :clear_cache => :environment do
     Rails.cache.clear

@@ -17,7 +17,6 @@ Notes on Stack, Dependencies
 * Background Jobs: resque + redis
 * Performance: Rails low-level caching to local disk storage
 * Image processing: ImageMagick, RMagick gem
-* rails3_acts_as_paranoid has been forked from a branch which had provided Rails 3.1.x.  Mainline did not support as of this commit.
 
 apache/nginx + passenger
 --------
@@ -52,6 +51,7 @@ You'll want to a cron job to clear the soft-deleted stored files which have expi
 This rake job loads the Rails enviornment, so please execute as a user with appropriate permissions.
 0 0 * * * cd $RAILS_ROOT && bundle exec rake zone_one:hard_delete_expired_stored_files
 
+
 Solr Notes
 ========
 * To restart tomcat, run *service tomcat6 restart* (or whatever version of tomcat is running)
@@ -61,13 +61,12 @@ Solr Notes
 
 Testing
 ========
-* rake db:rebuild RAILS_ENV=test
+* To begin testing, define the test database in config/database.yml
+* rake camp:rebuild RAILS_ENV=test
 * Testing dependencies include rspec, factory_girl, shoulda, database_cleaner,
-  remarkable, rcov 
-* To begin testing, define test database in config/database.yml
+  remarkable, simplecov
 * *rake spec* will run full suite of tests
 * *rspec filename* will run tests from that file
-* *rake rcov:rspec* will generate coverage data with rcov, copy to public, visit http://<root_url>/coverage/index.html)
 
 
 SFTP / Proftpd setup and use

@@ -5,11 +5,14 @@ describe StoredFile do
   it { should belong_to :user }
   it { should belong_to :access_level }
   it { should belong_to :batch }
-  it { should have_many :comments }
-  it { should have_many :flaggings }
+  it { should have_many(:comments).dependent(:destroy) }
+  it { should have_many(:flaggings).dependent(:destroy) }
   it { should have_many :flags }
+  it { should have_many(:groups_stored_files).dependent(:destroy) }
   it { should have_many :groups }
-  it { should have_one :disposition }
+  it { should have_one(:disposition).dependent(:destroy) }
+  it { should have_one(:mime_type_category).through(:mime_type) }
+  it { should belong_to :mime_type }
 
   it { should accept_nested_attributes_for :flaggings }
   it { should accept_nested_attributes_for :disposition }
@@ -19,35 +22,26 @@ describe StoredFile do
   # Examples of double / stub
   #stored_file = double("stored_file")
   #stored_file.stub(:flags).and_return([flag])
-  #flag = Factory(:flag)
-  #Flag.stub!(:preserved).and_return([flag])
+  #flag = FactoryGirl.create(:flag)
+  #flag.stub!(:preserved).and_return([flag])
   #FlagClass = doubleflag.stub(:name).and_return(Flag.PRESERVED_NAMES.first) # set name to PRESERVED
 
   describe "#license_name" do
-    let(:license) { Factory(:license) }
-    let(:stored_file) { Factory(:stored_file, :license_id => license.id) }
-    let(:stored_file2) { Factory(:stored_file) }
+    let(:license) { FactoryGirl.create(:license) }
+    let(:stored_file) { FactoryGirl.create(:stored_file, :license_id => license.id) }
 
-    context "when stored file has license" do
-      it "should return license name" do
-        stored_file.license_name.should == license.name
-      end
-    end
-
-    context "when stored file has no license" do
-      it "should return nil" do
-        stored_file2.license_name.should == nil
-      end
+    it "should delegate to license.name" do
+      stored_file.license_name.should == license.name
     end
   end
 
   describe "#has_preserved_flag?" do
-    let(:stored_file) { Factory(:stored_file) }
+    let(:stored_file) { FactoryGirl.create(:stored_file) }
 
     context "when stored file has a preserved flag" do
       before(:each) do
-        flag = Factory(:preserved_flag)
-        flagging = Factory(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
+        flag = FactoryGirl.create(:preserved_flag)
+        flagging = FactoryGirl.create(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
       end
       it "should return true" do
         stored_file.has_preserved_flag?.should == true
@@ -55,8 +49,8 @@ describe StoredFile do
     end
     context "when stored file does not have a preserved flag" do
       before(:each) do
-        flag = Factory(:flag)
-        flagging = Factory(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
+        flag = FactoryGirl.create(:flag)
+        flagging = FactoryGirl.create(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
       end
       it "should return false" do
         stored_file.has_preserved_flag?.should == false
@@ -65,12 +59,12 @@ describe StoredFile do
   end
 
   describe "#has_preserved_or_record_flag?" do
-    let(:stored_file) { Factory(:stored_file) }
+    let(:stored_file) { FactoryGirl.create(:stored_file) }
 
     context "when stored file has a selected flag" do
       before(:each) do
-        flag = Factory(:selected_flag)
-        flagging = Factory(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
+        flag = FactoryGirl.create(:selected_flag)
+        flagging = FactoryGirl.create(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
       end
       it "should return true" do
         stored_file.has_preserved_or_record_flag?.should == true
@@ -78,8 +72,8 @@ describe StoredFile do
     end
     context "when stored file does not have a selected flag" do
       before(:each) do
-        flag = Factory(:flag)
-        flagging = Factory(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
+        flag = FactoryGirl.create(:flag)
+        flagging = FactoryGirl.create(:flagging, :flag_id => flag.id, :stored_file_id => stored_file.id)
       end
       it "should return false" do
         stored_file.has_preserved_or_record_flag?.should == false
@@ -89,12 +83,12 @@ describe StoredFile do
 
 
   describe "#update_tags" do
-    let(:stored_file) { Factory(:stored_file) }
+    let(:stored_file) { FactoryGirl.create(:stored_file) }
     let(:new_tags) { ["test1", "test2"] }
     let(:new_tags2) { ["test3", "test4"] }
     let(:new_tags3) { ["test2", "test3"] }
-    let(:user) { Factory(:user) }
-    let(:user2) { Factory(:user) }
+    let(:user) { FactoryGirl.create(:user) }
+    let(:user2) { FactoryGirl.create(:user) }
 
     context "when new tags are introduced" do
       before(:each) do
@@ -138,38 +132,37 @@ describe StoredFile do
       end
 
       it "stored file should have no tags" do
-        stored_file.owner_tags_on(nil, :tags).collect { |t| t.name }.should ==
-          []
+        stored_file.owner_tags_on(nil, :tags).collect { |t| t.name }.should == []
       end
     end
   end
 
   describe "#users_via_groups" do
-    let(:stored_file) { Factory(:stored_file) }
-    let(:user) { Factory(:user) }
-    let(:user2) { Factory(:user) }
-    let(:user3) { Factory(:user) }
-    let(:group) { Factory(:group) }
+    let(:stored_file) { FactoryGirl.create(:stored_file) }
+    let(:user) { FactoryGirl.create(:user) }
+    let(:user2) { FactoryGirl.create(:user) }
+    let(:user3) { FactoryGirl.create(:user) }
+    let(:group) { FactoryGirl.create(:group) }
 
     context "when stored file has group and group has users" do
       before(:each) do
         stored_file.groups << group
-        group.users = [user, user2, user3]
+        Membership.add_users_to_groups([user, user2, user3], [group])
       end
       it "stored file users_via_groups should map to users" do
-        stored_file.users_via_groups.should == [user.id, user2.id, user3.id]
+        Set.new(stored_file.users_via_groups).should == Set.new([user.id, user2.id, user3.id])
       end
     end
   end
 
   describe "#can_user_destroy?" do
-    let(:user1) { Factory(:user) }
-    let(:stored_file1) { Factory(:stored_file, :user_id => user1.id) }
-    let(:user2) { Factory(:user) }
-    let(:stored_file2) { Factory(:stored_file, :user_id => user2.id) }
-    let(:stored_file3) { Factory(:stored_file, :user_id => user2.id) }
-    let(:right) { Factory(:right, :action => "delete_items") }
-    let(:user3) { Factory(:user) }
+    let(:user1) { FactoryGirl.create(:user) }
+    let(:user2) { FactoryGirl.create(:user) }
+    let(:user3) { FactoryGirl.create(:user) }
+    let(:stored_file1) { FactoryGirl.create(:stored_file, :user_id => user1.id) }
+    let(:stored_file2) { FactoryGirl.create(:stored_file, :user_id => user2.id) }
+    let(:stored_file3) { FactoryGirl.create(:stored_file, :user_id => user2.id) }
+    let(:right) { FactoryGirl.create(:right, :action => "delete_items") }
     
     context "when user has global delete_right and does not own stored file" do
       before(:each) do
@@ -181,7 +174,7 @@ describe StoredFile do
     end 
     context "when user owns stored file and is contributor and stored file has preserved, record flag" do
       before(:each) do
-        flag = Factory(:preserved_flag)
+        flag = FactoryGirl.create(:preserved_flag)
         Flagging.create(:flag_id => flag.id, :user_id => user2.id, :stored_file_id => stored_file2.id)
       end
       it "should allow delete on stored file" do
@@ -203,13 +196,15 @@ describe StoredFile do
   describe "#custom_save" do
    
     before :all do
-     @user = Factory(:user)  #only initialize the user once, instead of each time
+     @user = FactoryGirl.create(:user)  #only initialize the user once, instead of each time
     end
 
+    
     let(:stored_file) do
       sf=StoredFile.new
       sf.user = @user
-      sf.access_level = Factory(:access_level)
+      sf.access_level = FactoryGirl.create(:access_level)
+      sf.license = FactoryGirl.create(:license)
       sf
     end
 
@@ -217,7 +212,7 @@ describe StoredFile do
 
     context "when the uploaded file's extension is blacklisted and this is a new record" do
       it "should raise an error" do
-        Factory(:mime_type, :blacklist => true, :extension => ".exe")
+        FactoryGirl.create(:mime_type, :blacklist => true, :extension => ".exe")
         assert_raise Exception do
           stored_file.custom_save({:original_filename => "virus.exe"}, @user)
         end
@@ -244,7 +239,7 @@ describe StoredFile do
     context "when update_attributes returns true" do
 
       before :each do
-        stored_file.should_receive(:update_attributes).with(params).and_return(true)
+        stored_file.should_receive(:update_attributes).and_return(true)
       end
 
       after :each do
@@ -252,35 +247,33 @@ describe StoredFile do
       end
 
       context "when tag_list is present in params" do
-
         before :all do
           @tag_list = "tag1,tag2,tag3"
-          params.merge!({:tag_list => @tag_list})
+          params.merge!({"tag_list" => @tag_list})
         end
 
         it "should update tags" do
           stored_file.should_receive(:update_tags).with(@tag_list, :tags, @user)
         end 
 
-        it "should remove tag_list from params" do
-          params.has_key?(:tag_list).should_not == true
+        it "should not modify params by removing tag_list" do
+          params.has_key?("tag_list").should == true
         end
       end
 
       context "when collection_list is present in params" do
         before :all do
           @collection_list = "collection1,collection2"
-          params.merge! :collection_list => @collection_list
+          params.merge!({"collection_list" => @collection_list})
         end
         it "should update tags" do
           stored_file.should_receive(:update_tags).with(@collection_list, :collections, @user)
         end
-        it "should remove collection_list from params" do
-          params.has_key?(:collection_list).should_not == true
+        it "should not modify params by removing collection_list" do
+          params.has_key?("collection_list").should == true
         end
       end 
     end
-
 
 
     context "when update_attributes returns false" do
@@ -295,43 +288,37 @@ describe StoredFile do
   end
 
   describe ".cached_viewable_users" do
-    let(:user1) { Factory(:user) }
-    let(:user2) { Factory(:user) }
-    let(:user3) { Factory(:user) }
-    let(:group) { Factory(:group) }
-    let(:role) { Factory(:role) }
-    let(:stored_file) { Factory(:stored_file, :user_id => user2.id) }
-    let(:flag) { Factory(:preserved_flag) }
+    let(:user1) { FactoryGirl.create(:user) }
+    let(:user2) { FactoryGirl.create(:user) }
+    let(:user3) { FactoryGirl.create(:user) }
+    let(:group) { FactoryGirl.create(:group) }
+    let(:role) { FactoryGirl.create(:role) }
+    let(:stored_file) { FactoryGirl.create(:stored_file, :user_id => user2.id) }
+    let(:flag) { FactoryGirl.create(:preserved_flag) }
 
     context "stored file that is open" do
       before :each do
         stored_file.access_level.update_attribute(:name, "open")
-        user1.inspect
       end
     end
 
-    context "stored file that is partially open" do
+    context "stored file that is partially open to only its owner" do
       before :each do
         stored_file.access_level.update_attribute(:name, "partially_open")
-        user1.inspect
       end
-      it "should be accessible to owner" do
-        StoredFile.cached_viewable_users(stored_file.id).include?(user1.id).should == false
-      end
-      it "should not be accessible to non-owner" do
-        StoredFile.cached_viewable_users(stored_file.id).include?(user2.id).should == true    
+      it "should be accessible only to owner" do
+        StoredFile.cached_viewable_users(stored_file.id).should == [user2.id]
       end
     end
 
-    context "stored file that is partially open" do
+    context "stored file that is partially open to a group" do
       before :each do
         stored_file.access_level.update_attribute(:name, "partially_open")
-        group.users << user3
+        Membership.add_users_to_groups([user3], [group])
         stored_file.groups << group
-        user1.inspect
       end
       it "should be accessible to member of group assigned to stored file" do
-        StoredFile.cached_viewable_users(stored_file.id).include?(user3.id).should == true
+        StoredFile.cached_viewable_users(stored_file.id).should include(user3.id)
       end
     end
 
@@ -339,29 +326,30 @@ describe StoredFile do
       before :each do
         stored_file.access_level.update_attribute(:name, "dark")
         role.users << user3
-        role.rights << Factory(:right, :action => "view_preserved_flag_content")
+        role.rights << FactoryGirl.create(:right, :action => "view_preserved_flag_content")
         Flagging.create(:flag_id => flag.id, :user_id => user2.id, :stored_file_id => stored_file.id)
       end
       it "should be accessible to user with view_preserved_flag_content right" do
-        StoredFile.cached_viewable_users(stored_file.id).include?(user3.id).should == true
+        StoredFile.cached_viewable_users(stored_file.id).should include(user3.id)
       end
       it "should not be accessible to non-member of group assigned to stored file" do
-        StoredFile.cached_viewable_users(stored_file.id).include?(user1.id).should == false
+        StoredFile.cached_viewable_users(stored_file.id).should_not include(user1.id)
       end
     end
 
     context "cache on this method" do
       it "should exist after called" do
-        result = StoredFile.cached_viewable_users(stored_file.id).include?(user1.id)
+        Rails.cache.clear
+        StoredFile.cached_viewable_users(stored_file.id)
         Rails.cache.exist?("stored-file-#{stored_file.id}-viewable-users").should == true
       end
       it "should expire after stored file is updated" do
-        result = StoredFile.cached_viewable_users(stored_file.id).include?(user1.id)
+        StoredFile.cached_viewable_users(stored_file.id)
         stored_file.update_attribute(:original_filename, "original.txt")
         Rails.cache.exist?("stored-file-#{stored_file.id}-viewable-users").should == false
       end
       it "should expire after stored file is destroyed" do
-        result = StoredFile.cached_viewable_users(stored_file.id).include?(user1.id)
+        StoredFile.cached_viewable_users(stored_file.id)
         stored_file.destroy
         Rails.cache.exist?("stored-file-#{stored_file.id}-viewable-users").should == false
       end
@@ -371,9 +359,9 @@ describe StoredFile do
   describe "#attr_accessible_for(params,user)" do
    
     before :each do
-      @stored_file = Factory(:stored_file)
+      @stored_file = FactoryGirl.create(:stored_file)
       @params = {}
-      @user = Factory(:user)
+      @user = FactoryGirl.create(:user)
     end
    
     it "should include ALWAYS_ACCESSIBLE_ATTRIBUTES" do
@@ -410,7 +398,7 @@ describe StoredFile do
 
       context "when new access_level_id is set" do
         before :each do
-          @access_level = Factory(:access_level)
+          @access_level = FactoryGirl.create(:access_level)
           @params = {:access_level_id => @access_level.id }
         end
         
@@ -459,9 +447,9 @@ describe StoredFile do
   describe "#mime_type_category_id" do
     context "when a mime type is present and a mime type category is present" do
       before do
-        @mime_type_category = Factory(:mime_type_category)
-        @mime_type = Factory(:mime_type, :mime_type_category => @mime_type_category)
-        @stored_file = Factory(:stored_file, :mime_type => @mime_type)
+        @mime_type_category = FactoryGirl.create(:mime_type_category)
+        @mime_type = FactoryGirl.create(:mime_type, :mime_type_category => @mime_type_category)
+        @stored_file = FactoryGirl.create(:stored_file, :mime_type => @mime_type)
       end
       it "should return the mime type category id" do
         @stored_file.mime_type_category_id.should == @mime_type_category.id
@@ -470,7 +458,7 @@ describe StoredFile do
 
     context "when no mime type is assigned" do
       before do
-        @stored_file = Factory(:stored_file)
+        @stored_file = FactoryGirl.create(:stored_file)
         @stored_file.mime_type = nil
       end
       it "should return nil" do
@@ -480,9 +468,9 @@ describe StoredFile do
 
     context "when a mime type is present without a mime type category" do
       before do
-        @mime_type = Factory(:mime_type)
+        @mime_type = FactoryGirl.create(:mime_type)
         @mime_type.mime_type_category = nil
-        @stored_file = Factory(:stored_file, :mime_type => @mime_type)
+        @stored_file = FactoryGirl.create(:stored_file, :mime_type => @mime_type)
       end
       it "should return nil" do
         assert_nil @stored_file.mime_type_category_id
@@ -490,66 +478,12 @@ describe StoredFile do
     end    
   end
 
-  describe "#fits_mime_type=(hash)" do
-    before do
-      @stored_file = Factory(:stored_file, :original_filename => "test.jpg")
-    end
-    
-    context "when hash doesn't have format_name" do
-      it "should raise an error" do
-        assert_raise RuntimeError do
-          @stored_file.fits_mime_type={}
-        end
-      end
-    end
 
-    context "when hash doesn't have mime_type" do
-      it "should raise an error" do
-        assert_raise RuntimeError do
-          @stored_file.fits_mime_type={}
-        end
-      end
-    end
-
-    context "when hash has format_name and mime_type" do
-
-      let(:new_mime_type) { MimeType.new(:mime_type => "image/jpeg") }
-      let(:mime_type_category) { Factory(:mime_type_category) }
-      let(:params) { {:file_extension => ".jpg", :format_name => "JPEG", :mime_type => "image/jpeg"} }
-     
-      before do
-        MimeType.should_receive(:find_or_initialize_by_extension).with(".jpg").and_return(new_mime_type)
-      end
-
-      after do
-        @stored_file.fits_mime_type=params
-      end
-      
-      context "when it creates a new mime type" do
-        it "should set the name to format_name" do
-          new_mime_type.should_receive("name=").with("JPG")
-        end
-        
-        it "should set the mime type category" do
-          MimeTypeCategory.should_receive(:find_or_create_by_name).with("Image").and_return(mime_type_category)
-          new_mime_type.should_receive("mime_type_category_id=").with(mime_type_category.id)
-        end
-
-        it "should set the mime_type_name" do
-          new_mime_type.should_receive("mime_type_name=").with("JPEG")
-        end
-
-        it "should set the mime_type" do
-          new_mime_type.should_receive("mime_type=").with("image/jpeg")
-        end
-      end
-      
-      it "should set the mimetype" do
-        @stored_file.should_receive("mime_type=").with(new_mime_type)
-      end
-    end
+  describe "post_process" do
+    pending "should call set_fits_attributes"
+    pending "should call generate_thumbnail"
+    pending "should call save! and index! if set_fits_attributes returns true"
+    pending "should call save! and index! if generate_thumbnail returns true"
   end
-
-  #describe "#flag_map" do
-  #end
+  
 end

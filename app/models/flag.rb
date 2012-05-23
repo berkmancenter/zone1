@@ -9,9 +9,8 @@ class Flag < ActiveRecord::Base
   PRESERVED = ["NOMINATED_FOR_PRESERVATION", "PRESERVED", "SELECTED_FOR_PRESERVATION"]
   SELECTED = ["SELECTED_FOR_PRESERVATION", "UNIVERSITY_RECORD"]
 
-  # Caching related callbacks
   after_save :destroy_cache
-  before_destroy { |record| Flag.reindex_flagged_stored_files(record) }
+  before_destroy :reindex_flagged_stored_files
   after_destroy :destroy_cache
 
   def self.preserved
@@ -49,27 +48,28 @@ class Flag < ActiveRecord::Base
     Flag.find_all_by_name(SELECTED)
   end
 
-  def self.reindex_flagged_stored_files(flag)
+
+  private
+
+  def reindex_flagged_stored_files
     # Remove this flag's flaggings from flagged stored_files and reindex those
     # stored_files. This updates Solr's indexed flag data for just the relevant
     # files and prevents an app error. We try to use lightweight methods here, as
     # this could involve a lot of heavy lifting for a popular flag. (The entire
     # destroy job could be done in a Resque job if this got too slow.)
-    stored_file_ids = self.connection.select_all("SELECT stored_file_id
+    stored_file_ids = self.connection.select_all(
+      "SELECT stored_file_id
       FROM flaggings
-      WHERE flaggings.flag_id = '#{flag.id}'").collect {|row| row['stored_file_id'].to_i}
+      WHERE flaggings.flag_id = '#{self.id}'").collect {|row| row['stored_file_id'].to_i}
 
-    if !stored_file_ids.empty?
-      Flagging.delete_all(:stored_file_id => stored_file_ids, :flag_id => flag.id)
+    if stored_file_ids.any?
+      Flagging.delete_all(:stored_file_id => stored_file_ids, :flag_id => self.id)
       StoredFile.find(stored_file_ids).each(&:index)
       Sunspot.commit
     end
 
     true
   end
-
-
-  private
 
   def destroy_cache
     Rails.cache.delete("flags")

@@ -164,7 +164,9 @@ class StoredFilesController < ApplicationController
     if !is_sftp_only
       begin
         # custom_save gets its own exception handling because we might still
-        # need to enqueue a RemoteFileImporter job if custom_save were to barf
+        # need to enqueue a RemoteFileImporter job if custom_save raises an exception
+        params[:stored_file][:source] = 'basic'
+
         stored_file = StoredFile.new
         stored_file.custom_save(params[:stored_file], current_user)
         Resque.enqueue(PostProcessor, stored_file.id)
@@ -176,9 +178,11 @@ class StoredFilesController < ApplicationController
 
     if params[:sftp_username].present?
       begin
-        sftp_user = SftpUser.find_by_username(params[:sftp_username]) 
+        sftp_user = SftpUser.find_by_username(params[:sftp_username])
         if needs_remote_file_import?(sftp_user, params[:temp_batch_id])
           remote_file_count = sftp_user.uploaded_files.size
+          
+          params[:stored_file][:source] = 'ftp'
           enqueue_remote_file_import(params, sftp_user.username)
         end
       rescue Exception => e
@@ -199,8 +203,9 @@ class StoredFilesController < ApplicationController
 
   end
 
-  def enqueue_remote_file_import(file_params, sftp_username)
+  def enqueue_remote_file_import(params, sftp_username)
     # Only enqueue job once for this temp_batch_id
+    file_params = params.dup
     session[:upload_batches][file_params[:temp_batch_id]][:remote_import_done] = true
 
     # Remove un-needed and potentially un-serializable fields from file_params

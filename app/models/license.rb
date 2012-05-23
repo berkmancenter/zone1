@@ -1,10 +1,9 @@
 class License < ActiveRecord::Base
+  has_many :stored_files
   attr_accessible :name
 
-  # Caching related callbacks
-  after_update { License.destroy_cache }
-  after_create { License.destroy_cache }
-  after_destroy { License.destroy_cache }
+  after_create :destroy_cache
+  after_destroy :destroy_cache
 
   def self.all
     Rails.cache.fetch("licenses") do
@@ -16,9 +15,10 @@ class License < ActiveRecord::Base
     self.all.detect { |l| l.id == value.to_i }.name
   end
 
+
   private
 
-  def self.destroy_cache
+  def destroy_cache
     Rails.cache.delete("licenses")
   end
 end

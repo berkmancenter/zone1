@@ -13,4 +13,18 @@ describe Comment do
   it { should allow_mass_assignment_of :stored_file_id }
   it { should allow_mass_assignment_of :created_at }
   it { should allow_mass_assignment_of :updated_at }
+
+=begin
+  describe "can_user_delete?" do
+    let(:stored_file) { FactoryGirl.create(:stored_file) }
+    let(:comment) { FactoryGirl.create(:comment) }
+
+    context "when user param is nil" do
+      it "should return false" do
+        comment.can_user_delete?.should == true
+      end
+    end
+  end
+=end
+
 end

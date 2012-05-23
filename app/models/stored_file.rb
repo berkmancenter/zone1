@@ -10,6 +10,7 @@ class StoredFile < ActiveRecord::Base
   belongs_to :user
   belongs_to :access_level
   belongs_to :batch
+  belongs_to :mime_type
 
   has_many :comments, :order => "id", :dependent => :destroy
   has_many :flaggings, :dependent => :destroy
@@ -17,7 +18,6 @@ class StoredFile < ActiveRecord::Base
   has_many :groups_stored_files, :dependent => :destroy
   has_many :groups, :through => :groups_stored_files
   has_one :disposition, :dependent => :destroy
-  belongs_to :mime_type
   has_one :mime_type_category, :through => :mime_type
 
   delegate :name, :to => :user, :prefix => :contributor
@@ -31,8 +31,7 @@ class StoredFile < ActiveRecord::Base
 
   acts_as_authorization_object
 
-  acts_as_taggable
-  acts_as_taggable_on :collections
+  acts_as_taggable_on :tags, :collections
 
   attr_accessor :wants_thumbnail, :defer_quota_update, :defer_search_commit
 
@@ -56,11 +55,12 @@ class StoredFile < ActiveRecord::Base
                              :license_id, :groups_stored_files_attributes, :access_level_id,
                              :original_date, :complete].freeze
 
-  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file, :batch_id] + ALLOW_MANAGE_ATTRIBUTES).freeze
+  CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file, :batch_id, :defer_quota_update, :source] +
+                       ALLOW_MANAGE_ATTRIBUTES).freeze
 
   FITS_ATTRIBUTES = [:file_size, :md5, :format_version, :mime_type].freeze
 
-  searchable(:include => [:tags, :collections, :mime_type, :mime_type_category, :flags, :license, :user], :auto_index => false) do
+  searchable(:include => [:mime_type, :mime_type_category, :flags, :license, :user], :auto_index => false) do
     text :author, :stored => true
     text :contributor_name, :stored => true
     text :copyright_holder, :stored => true
@@ -154,17 +154,6 @@ class StoredFile < ActiveRecord::Base
     self.owner_tags_on(nil, :collections)
   end
 
-  def self.tag_list
-    Rails.cache.fetch("tag-list") do
-      Tag.find_by_sql("SELECT ts.tag_id AS id, t.name
-        FROM taggings ts
-        JOIN tags t ON ts.tag_id = t.id
-        WHERE ts.context = 'tags'
-        GROUP BY ts.tag_id, t.name
-        ORDER BY COUNT(*) DESC LIMIT 10")
-    end
-  end
-
   def flag_set?(flag)
     #must use flaggings here instead of flags, because of bulk edit
     #in bulk edit, flags are not defined, because we're creating a new stored file
@@ -203,8 +192,6 @@ class StoredFile < ActiveRecord::Base
       # might return nil, which means this flag was never set for the stored file
       return id_array.first
     else
-      logger.debug "self.flaggings.inspect=" + self.flaggings.inspect
-      logger.debug "id_array = " + id_array.inspect
       raise "Something isn't right. StoredFile #{self.id} has #{id_array.count} flaggings. It should have one or none."
     end
   end
@@ -260,7 +247,7 @@ class StoredFile < ActiveRecord::Base
     params = file_params.dup
 
     if self.new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
-      raise MimeType.blacklisted_message(params[:original_filename])
+      raise Exception, MimeType.blacklisted_message(params[:original_filename])
     end
 
     self.accessible = attr_accessible_for(params, user)
@@ -269,18 +256,19 @@ class StoredFile < ActiveRecord::Base
 
     prepare_comment_params(params, user)
 
-    # Use strings instead of symbols so this will work when called via a Resque job, too.
+    # We might get these two keys in params as keys or symbols under different
+    # circumstances (controller, Resque job, etc). That is why we delete both types
     # Delete these two lists from params because update_attributes can't handle them
-    tag_list = params.delete("tag_list")
-    collection_list = params.delete("collection_list")
-    
+    tag_list = params.delete("tag_list") || params.delete(:tag_list)
+    collection_list = params.delete("collection_list") || params.delete(:collection_list)
+
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
       update_tags(collection_list, :collections, user) if collection_list
-      update_column(:complete, metadata_check?)
+      update_column(:complete, metadata_check?) unless self.new_record?
       self.index
     else
-      raise self.errors.full_messages.join(', ')
+      raise Exception, self.errors.full_messages.join(', ')
     end
   end
 
@@ -301,23 +289,25 @@ class StoredFile < ActiveRecord::Base
         valid_attr << :access_level_id
       end
     end
-    valid_attr << :tag_list if self.allow_tags == true && user.present?
+    valid_attr << :tag_list if self.allow_tags && user.present?
     
     valid_attr.uniq
   end
 
   def collection_list
     #so form value does not have to be manually set
-    @collection_list ||= self.anonymous_tag_list(:collections)
+    # Do not name this instance variable @collection_list b/c it conflicts with acts-as-taggable-on internally
+    @anonymous_collection_list ||= self.anonymous_tag_list(:collections)
   end
   
   def tag_list
+    # Do not name this instance variable @tag_list b/c it conflicts with acts-as-taggable-on internally
     #so form value does not have to be manually set
-    @tag_list ||= self.anonymous_tag_list(:tags)
+    @anonymous_tag_list ||= self.anonymous_tag_list(:tags)
   end
 
   def flag_ids
-    self.flags.collect { |f| f.id }
+    self.flags.map(&:id)
   end
 
   def has_preserved_flag?
@@ -333,7 +323,7 @@ class StoredFile < ActiveRecord::Base
   def users_via_groups
     if self.access_level != AccessLevel.dark
       # TODO: Add performance improvements here (possibly via low level caching, raw SQL)
-      return self.groups.collect { |g| g.confirmed_members }.flatten.uniq.collect { |u| u.id }
+      return self.groups.map(&:confirmed_members).flatten.uniq.map(&:id)
     end
     return []
   end
@@ -351,7 +341,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def anonymous_tag_list(context)
-    self.owner_tags_on(nil, context).collect { |t| t.name }.join(', ')
+    self.owner_tags_on(nil, context).map(&:name).join(', ')
   end
 
   def update_tags(param, context, user)
@@ -362,7 +352,7 @@ class StoredFile < ActiveRecord::Base
       removed_tags = existing_tags - (existing_tags & submitted_tags)
 
       # Figure out which tags user is adding, and add
-      user_tags = self.owner_tags_on(user, context).collect { |b| b.name }
+      user_tags = self.owner_tags_on(user, context).map(&:name)
       updated_tags = user_tags + (submitted_tags - existing_tags) - removed_tags
       user.tag(self, :with => updated_tags.join(","), :on => context)
 
@@ -413,7 +403,7 @@ class StoredFile < ActiveRecord::Base
     thumbnail_ok = generate_thumbnail
     if fits_ok || thumbnail_ok
       self.save! 
-      self.index
+      self.index!
     end
   end
 
@@ -428,7 +418,7 @@ class StoredFile < ActiveRecord::Base
     # Returns: Boolean based on whether or not FITS returned usable metadata
     begin
       metadata = Fits::analyze(self.file_url)
-      if !(metadata.class == Hash && metadata.keys.length > 0)
+      if !(metadata.is_a?(Hash) && metadata.keys.any?)
         ::Rails.logger.warn "Got un-usable metadata from FITS: #{metadata.inspect}"
         return false
       end
@@ -448,14 +438,14 @@ class StoredFile < ActiveRecord::Base
 
   def generate_thumbnail
     @wants_thumbnail = true
-    self.file.recreate_versions! rescue failed_thumbnail_cleanup
+    self.file.recreate_versions! rescue cleanup_failed_thumbnail
     @wants_thumbnail = false
 
     if self.file.has_thumbnail?
-      # Don't use self.file_url(:thumbnail) in this method because we override it
+      # Don't use self.file_url(:thumbnail) in this method because it is overridden in this class
       current_thumbnail_path = self.file.thumbnail.url
 
-      # If the current thumbnail is not a jpg, replace it with one we create
+      # If the current thumbnail is not a jpg, convert it to a jpg
       if current_thumbnail_path !~ /\.jpg$/i
         jpg_path = thumbnail_path(current_thumbnail_path)
         im = Magick::ImageList.new(current_thumbnail_path).first
@@ -480,7 +470,6 @@ class StoredFile < ActiveRecord::Base
 
       # This assumes that if the stored file access level is open
       # no global user array is generated.
-
       users = [stored_file.user.id] + stored_file.users_via_groups
 
       if stored_file.has_preserved_flag?
@@ -508,7 +497,6 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
-
   def unregister_user_stored_file
     user.increase_available_quota!(file_size)
   end
@@ -517,8 +505,7 @@ class StoredFile < ActiveRecord::Base
     user.decrease_available_quota!(file_size)
   end
 
-
-  def failed_thumbnail_cleanup
+  def cleanup_failed_thumbnail
     # Delete cached files that have been orphaned in their cache directory.
     # Note that cache_dir is always going to be specific to this stored_file
     # instance, but we are still explicit about what files we try to delete,

@@ -16,7 +16,7 @@
 			</p>
 			<p>
 				<label>Collection:</label>
-				<span><%= @stored_file.anonymous_tag_list(:collections) %></span>
+				<span><%= @stored_file.collection_list %></span>
 			</p>
 			<p>
 				<label>Office:</label>
@@ -34,7 +34,7 @@
 		<td>
 			<p>
 				<label>Tags:</label>
-				<span><%= search_by_tags(@stored_file.anonymous_tag_list(:tags)) %></span>
+				<span><%= search_by_tags(@stored_file.tag_list) %></span>
 			</p>
 			<p>
 				<label>Attributes:</label>

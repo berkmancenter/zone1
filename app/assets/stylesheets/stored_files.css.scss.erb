@@ -59,10 +59,6 @@
     display: none; 
   }
 
-  #sftp { 
-    display: none; 
-  }
-
   .plupload_header { 
     display: none; 
   }
@@ -73,12 +69,13 @@
   }
 
   #upload_table_left {
+    vertical-align: top;
     width: 70%;
     padding-right: 5px;
   }
 
   #upload_table_right {
-    border-left: black 1px dashed;
+    vertical-align: top;
     padding-left: 5px;
   }
 
@@ -93,14 +90,30 @@
     color: #336699;
   }
 
-  #sftp_instructions {
-    margin-top: 0px;
-    padding-left: 30px;
+  .centered {    
+    text-align: center;
   }
 
-  #sftp_username, #sftp_password {
-    width: 140px;
-    display: inline;
+  #sftp_container {
+    height: 280px;
+    #sftp_init_button {
+      top: 130px;
+    }
+    #sftp_credentials { 
+      display: none; 
+      #sftp_instructions {
+        margin-top: 0px;
+        padding-left: 30px;
+      }
+      #sftp_url {
+        width: 185px;
+        display: inline;
+      }
+      #sftp_password {
+        width: 185px;
+        display: inline;
+      }
+    }
   }
 
 }

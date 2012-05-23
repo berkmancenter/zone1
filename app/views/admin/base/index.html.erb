@@ -8,7 +8,7 @@
   <% @preferences.each do |preference| -%>
     <tr>
     <td><label><%= preference.label %></label> </td>
-    <td><%= text_field :preference, preference.id, { :value => preference.value } %> </td>
+    <td><%= text_field :preference, preference.name, { :value => preference.value } %> </td>
     </tr>
   <% end -%>
 <tr>

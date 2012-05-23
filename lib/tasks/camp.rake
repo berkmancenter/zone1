@@ -9,7 +9,7 @@ namespace :camp do
     'db:create',
     'db:migrate',
     'db:seed',
-    'sunspot:reindex',
+#    'sunspot:reindex',
     'tmp:clear',
     'camp:restart'
   ]

@@ -1,7 +1,8 @@
 class MimeTypeCategory < ActiveRecord::Base
+  require_association 'mime_type'  # Rails 3.2.0 requirement
+
   has_many :mime_types
   has_many :stored_files, :through => :mime_types
-
   attr_accessible :name, :icon
 
   validates_presence_of :name
@@ -19,6 +20,10 @@ class MimeTypeCategory < ActiveRecord::Base
 
   def self.facet_label(value)
     self.all.detect { |l| l.id == value.to_i }.name
+  end
+
+  def self.default
+    self.find_by_name("Uncategorized")
   end
 
   private

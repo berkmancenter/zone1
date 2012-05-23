@@ -114,7 +114,7 @@
 					<%= link_to raw('<span></span>'), edit_stored_file_path(hit.stored(:id)), :class => 'edit-single' %>
 				</span>
 				<span class="name">
-					<%= link_to hit.stored(:display_name).first, edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link" %>
+					<%= link_to (hit.stored(:display_name).first.length > 15 ? hit.stored(:display_name).first[0..15] + "..." : hit.stored(:display_name).first), edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link", :title => hit.stored(:display_name).first %>
 				</span>
 			</span>
 			<span class="size"><%= number_to_human_size(hit.stored(:file_size), :precision => 2) %></span>

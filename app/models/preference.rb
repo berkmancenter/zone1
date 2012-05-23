@@ -16,17 +16,10 @@ class Preference < ActiveRecord::Base
     self.all.detect { |p| p.name == name }
   end
 
-  def self.define_preference_methods
-    # Convenience method that defines the recommended API for this model: one class
-    # method for each preference.name value out of the database
-    self.all.each do |pref|
-      pref_symbol = :"#{pref.name}"
-      next if self.respond_to? :pref_symbol
-      self.define_singleton_method(pref_symbol) { self.find_by_name_cached( pref_symbol.to_s ).try(:value) }
-    end
+  def self.method_missing(*args)
+    self.find_by_name_cached( args.first.to_s ).try(:value)
   end
 
-  define_preference_methods
 
   private
 

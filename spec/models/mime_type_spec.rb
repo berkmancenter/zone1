@@ -6,7 +6,6 @@ describe MimeType do
 
   it { should validate_presence_of(:name) }
   it { should validate_presence_of(:mime_type) }
-  it { should validate_presence_of(:extension) }
 
   it { should allow_mass_assignment_of(:name) }
   it { should allow_mass_assignment_of(:mime_type) }
@@ -17,30 +16,39 @@ describe MimeType do
   describe "before_create" do
 
     describe "downcase_extension" do
-      let(:mime_type) { Factory(:mime_type, :extension => ".JPG") }
+      let(:mime_type) { FactoryGirl.create(:mime_type, :extension => ".JPG") }
       it "should downcase the extension" do
         mime_type.extension.should == ".jpg"
       end
     end
 
     describe "set default category" do
-      it "sets the MimeTypeCategorty to 'Uncategorized'" do
-        subject { Factory(:mime_type) }
-        subject.mime_type_category.should == MimeTypeCategory.find_by_name("Uncategorized")
+      it "sets the MimeTypeCategory to 'Uncategorized'" do
+        subject { FactoryGirl.create(:mime_type) }
+        subject.mime_type_category.should == MimeTypeCategory.default
       end
     end
   end
 
-  describe "destroy_blacklisted_extensions_cache" do
-    let(:mime_type) { Factory(:mime_type) }
+  describe "new_from_attributes" do
+    it "should handle empty file extension"
+    it "should return a MimeType MT instance"
+    it "should not save new MimeType instance"
+  end
+
+  describe "blacklist and mime_types caches" do
+    let(:mime_type) { FactoryGirl.create(:mime_type) }
 
     before do
       MimeType.blacklisted_extensions
+      MimeType.all
       assert Rails.cache.exist?("file_extension_blacklist")
+      assert Rails.cache.exist?("mime_types")
     end
 
     after do
       assert !Rails.cache.exist?("file_extension_blacklist")
+      assert !Rails.cache.exist?("mime_types")
     end
 
     it "should be destroyed after_update" do
@@ -48,7 +56,7 @@ describe MimeType do
     end
 
     it "should be destroyed after_create" do
-      Factory(:mime_type)
+      FactoryGirl.create(:mime_type)
     end
 
     it "should be destroyed after_destroyed" do
@@ -58,8 +66,8 @@ describe MimeType do
 
   describe ".blacklisted_extensions" do
     it "should return an array of extensions marked as blacklisted" do
-      Factory(:mime_type, :blacklist => true, :extension => ".exe")
-      Factory(:mime_type, :blacklist => false, :extension => ".jpg")
+      FactoryGirl.create(:mime_type, :blacklist => true, :extension => ".exe")
+      FactoryGirl.create(:mime_type, :blacklist => false, :extension => ".jpg")
       MimeType.blacklisted_extensions.should == [".exe"]
     end
   end
@@ -76,10 +84,19 @@ describe MimeType do
 
     context "when the extension is not blacklisted" do
       before do
-        MimeType.should_receive(:blacklisted_extensions).and_return([])
+        MimeType.should_receive(:blacklisted_extensions).and_return([".exe"])
       end
-      it "should call backlisted_extensions" do
-        assert !MimeType.file_extension_blacklisted?("virus.exe")
+      it "should return false" do
+        assert !MimeType.file_extension_blacklisted?("file.jpg")
+      end
+    end
+
+    context "when the extension is empty" do
+      before do
+        MimeType.should_receive(:blacklisted_extensions).and_return([".exe"])
+      end
+      it "should return false" do
+        assert !MimeType.file_extension_blacklisted?("file")
       end
     end
   end

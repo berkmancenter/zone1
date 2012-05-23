@@ -12,6 +12,7 @@ User.transaction do
   Preference.create :name => "group_invite_pending_duration", :label => "Group Invite Pending Invite Expiration (Days)", :value => "90"
   Preference.create :name => "sftp_user_home_directory_root", :label => "SFTP User Home Directory Root (Absolute Path)", :value => "/home/sftp/uploads"
   Preference.create :name => "fits_script_path", :label => "FITS script Full Path", :value => "#{Rails.root}/bin/fits-0.6.0/fits.sh"
+  Preference.create :name => "sftp_server_name", :label => "SFTP Full Hostname or IP address", :value => "174.37.104.41"
 
   puts "Generating MimeTypeCategories"
   #http://www.iana.org/assignments/media-types/index.html
@@ -99,15 +100,16 @@ User.transaction do
               { :name => 'MAY_BE_UNIVERSITY_RECORD', :label => 'May be University Record' },
               { :name => 'UNIVERSITY_RECORD', :label => 'University Record' }])
 
-  #Roles are needed before users because
-  #user role is automatically added to
-  #new users
+  #Roles are needed before users because user role is automatically added to new users
   puts "Generating roles"
   Role.create([{ :name => "admin" },
     { :name => "steward" },
     { :name => "records_manager" },
     { :name => "user" }])
   (role_admin, role_steward, role_records_manager, role_user) = Role.all
+
+  # Make sure Preference model is initialized
+  foo = Preference.all.inspect
 
   puts "Generating Admin user"
   admin_user = User.create :email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin'

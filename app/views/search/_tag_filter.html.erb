@@ -5,7 +5,7 @@
    		<%= link_to tag[:label], tag[:url] %>
 	<% end -%>
 <% else -%>
-	<% StoredFile.tag_list.each do |tag| %>
+	<% Tag.tag_list.each do |tag| %>
 	<%= link_to tag.name, search_path("indexed_tag_list[]" => tag.name) %>
 	<% end -%>
 <% end -%>

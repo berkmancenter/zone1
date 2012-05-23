@@ -1,15 +1,12 @@
 class User < ActiveRecord::Base
-  # Include default devise modules. Others available are:
-  # :token_authenticatable, :encryptable, :confirmable, :lockable, :timeoutable and :omniauthable
+
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_users
   acts_as_tagger
 
-  #TODO: Convert these to symbols and update method
-  after_update { |record| User.destroy_viewable_users_cache(record) }
-  after_destroy { |record| User.destroy_viewable_users_cache(record) }
-  after_create { |record| User.destroy_viewable_users_cache(record) }
+  after_save :destroy_cache
+  after_destroy :destroy_cache
 
   attr_accessible :email, :password, :password_confirmation, :remember_me, :name,
     :quota_used, :quota_max, :role_ids, :right_ids
@@ -31,11 +28,6 @@ class User < ActiveRecord::Base
   validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
   validates :quota_used, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
 
-  # TODO: Remove conditional here and make sure memberships are removed after group is deleted
-  def owned_groups
-    memberships.owner.includes(:group).inject([]) {|array, m| array << m.group if !m.group.nil?; array}
-  end
-
   def quota_used
     #must use self.quota_used in order to call instance method instead of directly accessing database value
     # TODO: do we need this, especially since we have added a default value of zero to the DB?
@@ -48,7 +40,7 @@ class User < ActiveRecord::Base
   end
 
   def default_quota_max
-    Preference.default_user_upload_quota.to_i
+    Preference.default_user_upload_quota.to_i rescue 0
   end
 
   def quota_max=(amount)
@@ -60,7 +52,7 @@ class User < ActiveRecord::Base
   end
 
   def increase_available_quota!(amount)
-    new_quota_used = (self.quota_used - amount.to_i <= 0) ? 0 : self.quota_used - amount.to_i
+    new_quota_used = (self.quota_used - amount.to_i > 0) ? self.quota_used - amount.to_i : 0
     update_attribute(:quota_used, new_quota_used)
   end
 
@@ -117,6 +109,10 @@ class User < ActiveRecord::Base
     false
   end
 
+  def owned_groups
+    memberships.owner.includes(:group).inject([]) {|array, m| array << m.group; array}
+  end
+
   def all_groups
     self.all_rights.include?("edit_groups") ? Group.all : [self.owned_groups, self.groups].flatten.uniq
   end
@@ -165,10 +161,13 @@ class User < ActiveRecord::Base
     end
   end
 
+  
+  private
+
   # Note: When a user is added to a group, role, or assigned a right,
   # all of these caches need to be invalidated.
-  def self.destroy_viewable_users_cache(record)
-    Rails.cache.delete("user-rights-#{record.id}")
+  def destroy_cache
+    Rails.cache.delete("user-rights-#{self.id}")
     Rails.cache.delete("users")
     Rails.cache.delete_matched(%r{users-viewable-users-*})
     Rails.cache.delete_matched(%r{roles-viewable-users-*})

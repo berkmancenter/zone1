@@ -19,9 +19,8 @@ class Group < ActiveRecord::Base
 
   accepts_nested_attributes_for :memberships, :allow_destroy => true
 
-  # Caching related callbacks
-  after_save :destroy_viewable_users_cache
-  after_destroy :destroy_viewable_users_cache
+  after_save :destroy_cache
+  after_destroy :destroy_cache
 
   # Instead of using the typical :dependent => :destroy option
   # We create our own callback to clean up memberships
@@ -61,26 +60,24 @@ class Group < ActiveRecord::Base
 
   # Convenience methods which scope according to their name. 
   # All these methods return an array of users. 
-  # The has_many :memberships includes users so
-  # the SQL for this collection is efficent and NOT N+1
   def members
-    memberships.collect { |m| m.user }
+    memberships.map(&:user)
   end
   
   def invited_members
-    memberships.invited.collect{ |m| m.user }
+    memberships.invited.map(&:user)
   end
 
   def confirmed_members
-    memberships.confirmed.collect { |m| m.user }
+    memberships.confirmed.map(&:user)
   end
 
   def owners
-    memberships.owner.collect { |m| m.user }
+    memberships.owner.map(&:user)
   end
 
   def users
-    memberships.user.collect { |m| m.user }
+    memberships.user.map(&:user)
   end
 
 
@@ -97,10 +94,9 @@ class Group < ActiveRecord::Base
     raise "Group must have at least one owner." if owners.empty? 
   end
 
-  def destroy_viewable_users_cache
+  def destroy_cache
     Rails.cache.delete_matched(%r{user-rights-*})
     Rails.cache.delete_matched(%r{groups-viewable-users-*})
-    stored_file_ids = stored_files.collect{ |stored_file| stored_file.id }
-    Rails.cache.delete_matched(%r{stored-file-#{stored_file_ids}-viewable-users}) if stored_file_ids.present?
+    #Rails.cache.delete("stored-file-#{ stored_files.map(&:id).sort }-viewable-users")
   end
 end
