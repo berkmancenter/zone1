@@ -70,17 +70,16 @@ class User < ActiveRecord::Base
   end
 
   def all_rights
-    # A users rights includese all rights assigned through
+    # A user's rights includes all rights assigned through
     # groups, roles, and directly to rights, through the 
     # polymorphic right_assignments table
     Rails.cache.fetch("user-rights-#{self.id}") do
-      rights = [
-                Role.user_rights +
-                self.rights +
-                self.groups.collect { |g| g.allowed_rights } +
-                self.roles.collect { |r| r.rights }
-               ].flatten.uniq.collect { |r| r.action }
-      rights.presence || []
+      [
+       Role.user_rights +
+       self.rights +
+       self.groups.map(&:allowed_rights) +
+       self.roles.map(&:rights)
+      ].flatten.uniq.map(&:action)
     end
   end
 
@@ -88,25 +87,29 @@ class User < ActiveRecord::Base
     self.all_rights.include?(method)
   end
 
-  # stored_file can be an id or it can be a StoredFile
   def can_do_method?(stored_file, method)
-    rights = self.all_rights
-    return true if rights.include?(method)
+    # stored_file can be an id or a StoredFile instance
+    return true if can_do_global_method?(method)
 
-    stored_file = stored_file.is_a?(StoredFile) ? stored_file : StoredFile.find(stored_file)
-    return true if (stored_file.user == self && rights.include?("#{method}_on_owned"))
+    if stored_file.is_a?(StoredFile)
+      user_id = stored_file.user_id
+    else
+      # We use select_all to avoid object instantiation
+      user_id = self.connection.select_all(
+        "SELECT user_id FROM stored_files WHERE id = #{stored_file} LIMIT 1"
+      ).first['user_id'].to_i
+    end
 
-    false
+    return (user_id == self.id && can_do_global_method?("#{method}_on_owned"))
   end
 
   def can_do_group_method?(group, method)
-    rights = self.all_rights
-    return true if rights.include?(method)
+    # group can be an id or a Group instance
+    #TODO: give this the same select all treatment that can_do_method? got
+    return true if can_do_global_method?(method)
 
     group = group.is_a?(Group) ? group : Group.find(group)
-    return true if (group.owners.include?(self) && rights.include?("#{method}_on_owned"))
-
-    false
+    return (group.owners.include?(self) && can_do_global_method?("#{method}_on_owned"))
   end
 
   def owned_groups
@@ -114,7 +117,7 @@ class User < ActiveRecord::Base
   end
 
   def all_groups
-    self.all_rights.include?("edit_groups") ? Group.all : [self.owned_groups, self.groups].flatten.uniq
+    can_do_global_method?("edit_groups") ? Group.all : [self.owned_groups, self.groups].flatten.uniq
   end
 
   def can_flag?(flag)
@@ -152,7 +155,7 @@ class User < ActiveRecord::Base
   def can_view_cached?(stored_file_id)
     users = StoredFile.cached_viewable_users(stored_file_id)
     users += User.users_with_right("view_items")
-    users.uniq.include?(self.id)
+    users.include?(self.id)
   end
 
   def self.all

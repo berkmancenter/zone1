@@ -1,5 +1,8 @@
 class Role < ActiveRecord::Base
-  require_association 'right'  # Rails 3.2.0 requirement
+  
+  # Silly Rails 3.2.0 requirement
+  require_association 'right'
+  require_association 'right_assignment'
 
   acts_as_authorization_role :join_table_name => :roles_users
   validates_presence_of :name
@@ -7,8 +10,7 @@ class Role < ActiveRecord::Base
 
   has_many :right_assignments, :as => :subject
   has_many :rights, :through => :right_assignments
-  
-  
+
   attr_accessible :name, :right_ids
 
   after_save :destroy_cache
