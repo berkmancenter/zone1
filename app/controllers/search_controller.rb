@@ -11,8 +11,17 @@ class SearchController < ApplicationController
     @all_hits = filter_search_results(@search)
     @hits = @all_hits.paginate(:page => params[:page], :per_page => per_page)
     @hit_ids_on_other_pages = (@all_hits.collect { |hit| hit.stored(:id) }) - (@hits.collect { |hit| hit.stored(:id) })
-
+    @export_dash_collections = dash_export_collections
+    
     build_removable_facets(params)
     build_searchable_facets(params, @search)
   end
+
+
+  private
+  
+  def dash_export_collections
+    Array.wrap(current_user ? Dash.collections_by_user_id(current_user.id) : nil)
+  end
+
 end

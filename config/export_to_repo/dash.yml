@@ -1,0 +1,6 @@
+development:
+  service_document_url: http://bachman.hul.harvard.edu:9034/sword/servicedocument
+test:
+  service_document_url: http://bachman.hul.harvard.edu:9034/sword/servicedocument
+production:
+  service_document_url: http://bachman.hul.harvard.edu:9034/sword/servicedocument

@@ -8,4 +8,9 @@ class UserMailer < ActionMailer::Base
     @url = accept_membership_url(:membership_code => membership.membership_code)
     mail(:to => @user.email, :subject => "You've been invited to join a Zone One group")
   end
+
+  def export_to_repo_confirmation(user, export_results)
+    @export_results = export_results
+    mail(:to => user.email, :subject => "Export To DASH Results")
+  end
 end

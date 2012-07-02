@@ -9,6 +9,8 @@ Zone1::Application.routes.draw do
   resources :stored_files, :as => :stored_file do
     collection do
       post :download_set
+      post :export_to_repo
+      post :export_refresh_collections
       post :bulk_edit
       delete :bulk_destroy
     end
@@ -19,8 +21,12 @@ Zone1::Application.routes.draw do
     end
     resources :comments
   end
-  
+
   resources :groups, :only => [:new, :create, :edit, :update, :destroy, :index]
+  resources :sftp_users, :only => :create
+
+  match 'upload' => 'stored_files#new', :as => :upload
+  match 'search' => 'search#index', :as => :search
 
   match 'memberships/:membership_code/accept' => 'memberships#accept', :as => :accept_membership
   match 'memberships/:group_id/group_accept' => 'memberships#group_accept', :as => :group_accept
@@ -37,10 +43,6 @@ Zone1::Application.routes.draw do
   match '/admin' => 'admin::Base#index'
   match '/admin/update' => 'admin::Base#update'
 
-  match 'upload' => 'stored_files#new', :as => :upload
-  match 'search' => 'search#index', :as => :search
-
-  resources :sftp_users, :only => :create
   mount Resque::Server, :at => '/resque'
 
 end

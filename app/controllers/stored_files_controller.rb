@@ -7,7 +7,7 @@ class StoredFilesController < ApplicationController
 
     allow logged_in, :to => [:update], :if => :allow_show?
 
-    allow logged_in, :to => [:new, :create, :bulk_edit, :bulk_destroy, :download_set]
+    allow logged_in, :to => [:new, :create, :bulk_edit, :bulk_destroy, :download_set, :export_refresh_collections, :export_to_repo]
 
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
   end
@@ -230,9 +230,32 @@ class StoredFilesController < ApplicationController
     set = DownloadSet.new(stored_files)
     send_file set.path, :x_sendfile => true
 
-    File.delete(set.path) if File.file?(set.path)
+    File.delete(set.path) rescue nil
   end
 
+  def export_to_repo
+    export_params = {
+      :user_id => current_user.id,
+      :stored_file_ids => params[:stored_file].keys,
+      :username => params[:username],
+      :password => params[:password],
+      :collection => params[:collection]
+    }
+    Resque.enqueue(RemoteExporter, params[:repo_name], export_params)
+    head :ok
+  end
+
+  def export_refresh_collections
+    begin
+      collections = Dash.export_force_refresh(params[:username], params[:password], current_user.try(:id))
+      render :json => {:collections => collections}
+    rescue ExportToRepo::Unauthorized
+      head :unauthorized
+    rescue Exception => e
+      render :status => 500, :text => e.message
+      log_exception e
+    end
+  end
 
   private
 
@@ -240,8 +263,7 @@ class StoredFilesController < ApplicationController
     return @needs_remote_file_import = false if sftp_user.nil?
 
     if @needs_remote_file_import.nil? 
-      @needs_remote_file_import = !session[:upload_batches][temp_batch_id][:remote_import_done] &&
-        sftp_user.uploaded_files?
+      @needs_remote_file_import = !session[:upload_batches][temp_batch_id][:remote_import_done] && sftp_user.uploaded_files?
     end
     @needs_remote_file_import
   end

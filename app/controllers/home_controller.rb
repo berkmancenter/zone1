@@ -4,6 +4,7 @@ class HomeController < ApplicationController
 
   def index
     @search = build_stored_file_search
+    
     build_removable_facets(params)
     build_searchable_facets(params, @search)
   end

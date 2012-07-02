@@ -1,0 +1,15 @@
+Hi,
+
+Here are the results of the export to DASH that you performed recently:
+
+<% complete_success = true %>
+<% @export_results.each do |result| %>
+* <%= result[:stored_file].display_name %>: <%= result[:success] ? 'OK' : result[:message]%>
+<%- complete_success = false unless result[:success] -%> 
+<% end %>
+<% if !complete_success %>
+Please note: One or more of the files you flagged for export, failed. This is a bummer.
+<% end -%>
+
+Thanks,
+Zone One

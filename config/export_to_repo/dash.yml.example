@@ -1,0 +1,6 @@
+production:
+  service_document_url: http://production_server/sword/servicedocument
+development:
+  service_document_url: http://development_server/sword/servicedocument
+test:
+  service_document_url: http://test_server/sword/servicedocument
