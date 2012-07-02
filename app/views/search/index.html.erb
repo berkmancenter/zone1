@@ -1,5 +1,5 @@
 <section id="filter">
-<%= render 'filter' %>
+  <%= render 'filter' %>
 </section>
 
 <section id="results" class="list right">
@@ -15,6 +15,8 @@
         <input type="checkbox" id="bulk_select" />
 				<a id="show_set_options" href="#">SELECTED</a>
 				<div id="set_options">
+					<a href="#" id="export-to-repo-submit">Export</a>
+					<hr />
 					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
 						<a href="#" id="download-submit">Download</a>
 					<% end -%>
@@ -121,7 +123,6 @@
 			<span class="date"><%= hit.stored(:created_at).strftime("%m/%d/%Y") %></span>
 			<span class="tags"><%= Array.wrap(hit.stored(:indexed_tag_list)).join(', ') %></span>
 			<span class="flags">
-                <%# this does not support custom flags %>
 				<%= preserved_flag_display(hit.stored(:flag_ids)) %>
 				<%= university_flag_display(hit.stored(:flag_ids)) %>
 			</span>
@@ -138,3 +139,6 @@
 	</hgroup>
   </section>
   <div class="clear"></div>
+
+  <%= render "export_to_repo", :collections => @export_dash_collections %>
+

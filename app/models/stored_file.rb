@@ -87,6 +87,7 @@ class StoredFile < ActiveRecord::Base
     boolean :has_thumbnail, :stored => true
     boolean :complete
 
+    string :display_name, :stored => true
     # Original tags and collections. Used for hit *display*
     string :indexed_tag_list, :stored => true, :multiple => true
     string :indexed_collection_list, :stored => true, :multiple => true

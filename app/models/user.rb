@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
 
+  require_association 'right_assignment'
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_users

@@ -8,6 +8,7 @@ class DownloadSet
   attr_reader :path, :file
 
   def initialize(stored_files)
+    #TODO: Move to Rails.root/tmp/... to keep all transient files in a single parent dir that can be more easily excluded from backups
     download_root = "#{Rails.root}/downloads"
     Dir.mkdir(download_root) unless File.directory?(download_root)
     @path = "#{download_root}/download_#{SecureRandom.hex(8)}.zip"
