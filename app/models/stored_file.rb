@@ -23,6 +23,7 @@ class StoredFile < ActiveRecord::Base
   delegate :name, :to => :user, :prefix => :contributor
   delegate :name, :to => :license, :prefix => :license, :allow_nil => true
   delegate :name, :to => :access_level, :prefix => :access_level, :allow_nil => true
+  delegate :label, :to => :access_level, :prefix => :access_level, :allow_nil => true
 
   accepts_nested_attributes_for :comments
   accepts_nested_attributes_for :flaggings, :allow_destroy => true
@@ -34,7 +35,7 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable_on :tags, :collections
 
   attr_accessor :wants_thumbnail, :defer_quota_update, :defer_search_commit
-
+  
   before_save :update_file_size
   after_create :register_user_stored_file, :unless => :defer_quota_update
   after_update :paranoid_action_callback, :if => :deleted_at_changed?
@@ -50,10 +51,13 @@ class StoredFile < ActiveRecord::Base
 
   ALWAYS_ACCESSIBLE_ATTRIBUTES = [:flaggings_attributes, :comments_attributes].freeze
 
-  ALLOW_MANAGE_ATTRIBUTES = [:collection_list, :tag_list, :author, :office, :description,
-                             :title, :copyright_holder, :allow_tags, :allow_notes,
-                             :license_id, :groups_stored_files_attributes, :access_level_id,
-                             :original_date, :complete].freeze
+  ALLOW_MANAGE_ATTRIBUTES = [:title, :author, :copyright_holder, :tag_list, :collection_list,
+                             :license_id, :license_name, :description, :original_date, :office,
+                             :allow_tags, :allow_notes, :access_level_id, :groups_stored_files_attributes, :complete].freeze
+
+  ALLOW_CSV_ATTRIBUTES = [:title, :author, :copyright_holder, :tag_list, :collection_list,
+                          :license_name, :description, :original_date, :office,
+                          :allow_tags, :allow_notes, :access_level_label].freeze
 
   CREATE_ATTRIBUTES = ([:user_id, :original_filename, :file, :batch_id, :defer_quota_update, :source] +
                        ALLOW_MANAGE_ATTRIBUTES).freeze
@@ -143,8 +147,13 @@ class StoredFile < ActiveRecord::Base
     self.mime_type.try :mime_type_category_id
   end
 
+  def license_name=(name)
+    l = License.find_by_name(name)
+    self.license_id = l.id if l
+  end
+
   def display_name
-    self.title.presence || self.original_filename
+    self.title.presence || self.original_filename || ''
   end
 
   def indexed_tag_list
@@ -154,11 +163,24 @@ class StoredFile < ActiveRecord::Base
   def indexed_collection_list
     self.owner_tags_on(nil, :collections)
   end
+  
+  def csv_headers
+    metadata = ALLOW_CSV_ATTRIBUTES.select {|a| accessible.include?(a)} 
+    flags = Flag.all.sort.map(&:label) 
+    [:id] + metadata + flags 
+  end 
+
+  def to_csv
+    set_flag_ids = self.flaggings.select {|f| f.checked? }.map {|f| f.flag_id} 
+    flags = Flag.all.sort.map {|f| set_flag_ids.include?(f.id)  }
+    metadata = ALLOW_CSV_ATTRIBUTES.select {|a| accessible.include?(a)}.map {|a| send(a) }
+    [id] + metadata + flags
+  end
 
   def flag_set?(flag)
-    #must use flaggings here instead of flags, because of bulk edit
-    #in bulk edit, flags are not defined, because we're creating a new stored file
-    #flaggings are defined for the new bulk_edit stored file
+    # Must use flaggings here instead of flags, because of bulk edit
+    # in bulk edit, flags are not defined, because we're creating a new stored file
+    # flaggings are defined for the new bulk_edit stored file
     set_flag_ids = self.flaggings.inject([]) do |array, flagging|
       array << flagging.flag_id if flagging.checked?
       array
@@ -197,28 +219,33 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
-  def flaggings_server_side_validation(params, user)
-    # This isn't quite as simple as a global attribute to be updated
-    # So, we are checking if the user has add and remove rights.
-    # This directly modifies the params hash argument, so we return nothing 
-    return unless params.has_key?(:flaggings_attributes)
+  def prepare_flagging_params(params, user)
+    # Check if the user has add and remove rights for each flag
+    # Note that this directly modifies the params hash argument
+    return unless params[:flaggings_attributes].try(:any?)
 
     # shorthand
     attrs = params[:flaggings_attributes]
-    
-    # Loops through each flag and see if that flag_id shows up in any of the
-    # checkbox hashes in attrs. If it does, validate it against can_flag?()
+
     Flag.all.each do |flag|
-      flag_id = flag.id.to_s
-      if attrs.any? {|k,v| v['flag_id'] == flag_id}
-        attr_key = attrs.select {|k,v| v['flag_id'] == flag_id}.keys.first
-        if attrs[attr_key].has_key?(:user_id)
+      # We standardized on strings for all hash keys here so CSV edits can be handled
+      # the same as normal web edits.
+      attr_key = attrs.select {|k,v| v['flag_id'].to_s == flag.id.to_s}.keys.first
+      if attr_key
+        if attrs[attr_key]['_destroy'] == "0"
+          # If this user is requesting this flag, delete it unless they have rights
+          # to flag it. Note that entries that have :user_id key AND :_destroy == 1
+          # will not be deleted here, they will pass through.
           attrs.delete(attr_key) unless user.can_flag?(flag)
-        elsif attrs[attr_key][:_destroy] == "1"
+
+          # give this flagging the current_user.id if it is empty, meaning it is being created now
+          attrs[attr_key]['user_id'] ||= user.id if attrs[attr_key]
+        elsif attrs[attr_key]['_destroy'] == "1"
           attrs.delete(attr_key) unless user.can_unflag?(flag)
         end
       end
     end
+
     params[:flaggings_attributes] = attrs
   end
 
@@ -227,10 +254,10 @@ class StoredFile < ActiveRecord::Base
     # Note: In order to get accurate results during an update action, this must
     # be called *after* update_attributes such that this method is looking at
     # the most current version of self.
-
     attr_list = [:flaggings, :collection_list, :tag_list, :author,
                  :office, :description, :title, :copyright_holder, 
                  :allow_tags, :allow_notes, :groups, :original_date]
+
     attr_list.each do |attr|
       value = self.send(attr)
       return true if !value.blank? && value != [] && value != false
@@ -253,7 +280,7 @@ class StoredFile < ActiveRecord::Base
 
     self.accessible = attr_accessible_for(params, user)
 
-    flaggings_server_side_validation(params, user)
+    prepare_flagging_params(params, user)
 
     prepare_comment_params(params, user)
 
@@ -266,44 +293,46 @@ class StoredFile < ActiveRecord::Base
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
       update_tags(collection_list, :collections, user) if collection_list
-      update_column(:complete, metadata_check?) unless self.new_record?
+      update_column(:complete, true) if (!self.new_record? && !self.complete && metadata_check?)
       self.index
     else
       raise Exception, self.errors.full_messages.join(', ')
     end
   end
 
-  # Server side validation updatable attributes
   def attr_accessible_for(params, user)
-
+    # Generate canonical list of attributes that can be changed for this stored file by this user
     valid_attr = ALWAYS_ACCESSIBLE_ATTRIBUTES.dup
 
     if self.new_record?
-      valid_attr = valid_attr + CREATE_ATTRIBUTES
+      valid_attr += CREATE_ATTRIBUTES
     elsif user.present? && user.can_do_method?(self, "edit_items")
-      valid_attr = valid_attr + ALLOW_MANAGE_ATTRIBUTES
+      valid_attr += ALLOW_MANAGE_ATTRIBUTES
     end
 
+    # Validate requested access_level_id for this user
     if params.has_key?(:access_level_id) && access_level_id != params[:access_level_id]
       desired_access_level = AccessLevel.find(params[:access_level_id])
       if desired_access_level && user.can_set_access_level?(self, desired_access_level)
         valid_attr << :access_level_id
       end
     end
+
     valid_attr << :tag_list if self.allow_tags && user.present?
-    
-    valid_attr.uniq
+    valid_attr.uniq.sort
   end
 
   def collection_list
-    #so form value does not have to be manually set
-    # Do not name this instance variable @collection_list b/c it conflicts with acts-as-taggable-on internally
+    # So form value does not have to be manually set.
+    # Do not name this instance variable variable @collection_list because it
+    # conflicts with acts-as-taggable-on internally
     @anonymous_collection_list ||= self.anonymous_tag_list(:collections)
   end
   
   def tag_list
-    # Do not name this instance variable @tag_list b/c it conflicts with acts-as-taggable-on internally
-    #so form value does not have to be manually set
+    # So form value does not have to be manually set.
+    # Do not name this instance variable variable @tag_list because it
+    # conflicts with acts-as-taggable-on internally
     @anonymous_tag_list ||= self.anonymous_tag_list(:tags)
   end
 
@@ -312,12 +341,10 @@ class StoredFile < ActiveRecord::Base
   end
 
   def has_preserved_flag?
-    # TODO: Possibly Add caching here
     (self.flags & Flag.preservation).any?
   end
 
   def has_preserved_or_record_flag?
-    # TODO: Possibly Add caching here
     (self.flags & Flag.selected).any?
   end
 
@@ -360,7 +387,7 @@ class StoredFile < ActiveRecord::Base
       # Figure out which global tags user is removing, and remove
       removed_tags.each do |removed_tag|
         # Note: acts-as-taggable doesn't give you an easy way to delete another user's tags.
-        st = StoredFile.connection.execute("DELETE FROM taggings WHERE taggable_id = '#{self.id}' AND context = '#{context.to_s}' AND tag_id = (SELECT id FROM tags WHERE name = '#{removed_tag}')")
+        StoredFile.connection.execute("DELETE FROM taggings WHERE taggable_id = '#{self.id}' AND context = '#{context.to_s}' AND tag_id = (SELECT id FROM tags WHERE name = '#{removed_tag}')")
       end
     rescue Exception => e
       log_exception e
@@ -368,35 +395,31 @@ class StoredFile < ActiveRecord::Base
   end
 
   def flag_map(user)
-    flag_map = []
-
-    if user.present?
-      Flag.all.each do |flag|
-        flagging = self.flaggings.detect { |f| f.flag_id == flag.id }
-        if flagging
-          flag_map << { :flagging => flagging, :flag => flag }
-        elsif user.can_flag?(flag)
-          flag_map << { :flagging => self.flaggings.build(:flag_id => flag.id), :flag => flag }
-        end
+    return [] unless user.present?
+    
+    Flag.all.inject([]) do |flag_map, flag|
+      flagging = self.flaggings.detect { |f| f.flag_id == flag.id }
+      if flagging
+        flag_map << { :flag => flag, :flagging => flagging }
+      elsif user.can_flag?(flag)
+        flag_map << { :flag => flag, :flagging => self.flaggings.build(:flag_id => flag.id) }
       end
+      flag_map
     end
-
-    flag_map
   end
 
   def group_map(user)
-    group_map = []
+    return [] unless user.present?
 
-    user.owned_groups.each do |group|
+    user.owned_groups.inject([]) do |group_map, group|
       groups_stored_files_entry = self.groups_stored_files.detect { |g| g.group_id == group.id }
       if groups_stored_files_entry
-        group_map << { :groups_stored_files_entry => groups_stored_files_entry, :group => group }
+        group_map << { :group => group, :groups_stored_files_entry => groups_stored_files_entry }
       else 
-        group_map << { :groups_stored_files_entry => self.groups_stored_files.build(:group_id => group.id), :group => group }
+        group_map << { :group => group, :groups_stored_files_entry => self.groups_stored_files.build(:group_id => group.id) }
       end
+      group_map
     end
- 
-    group_map
   end
 
   def post_process
@@ -420,7 +443,7 @@ class StoredFile < ActiveRecord::Base
     begin
       metadata = Fits::analyze(self.file_url)
       if !(metadata.is_a?(Hash) && metadata.keys.any?)
-        ::Rails.logger.warn "Got un-usable metadata from FITS: #{metadata.inspect}"
+        logger.warn "Got un-usable metadata from FITS: #{metadata.inspect}"
         return false
       end
 

@@ -8,7 +8,7 @@
 		<td>
 			<p>
 				<label>Created:</label>
-				<span><%= @stored_file.original_date ? @stored_file.original_date.strftime("%m/%d/%Y") : '' %></span>
+				<span><%= @stored_file.original_date.try(:strftime, "%m/%d/%Y") %></span>
 			</p>
 			<p>
 				<label>Uploaded:</label>
@@ -52,7 +52,7 @@
 	<tr>
 </table>
 
-<% if current_user.present? -%>
+<% if current_user -%>
 	<a href="#" id="quick_edit">Quick Edit<span></span></a>
 
 	<%= form_for @stored_file, :remote => true, :html => { :id => "quick_edit_form" } do |f| %>

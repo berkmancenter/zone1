@@ -25,6 +25,10 @@
 						<a href="#" id="bulk-edit-submit">Full Edit</a>
 					<% end -%>
 					<hr />
+					<%= form_tag(bulk_edit_stored_file_index_path(:format => :csv), :method => "POST", :id => "edit-csv") do %>
+						<a href="#" id="bulk-edit-submit">CSV Edit Export</a>
+					<% end -%>
+					<hr />
 					<%= form_tag(bulk_destroy_stored_file_index_path, :method => "DELETE", :id => "bulk-delete") do %>
 						<a href="#" id="bulk-delete-submit">Delete</a>
 					<% end -%>
@@ -80,7 +84,7 @@
 					<%= sortable "file_size" %>
 					<%= sortable "batch_id" %>
 				</div>
-      </li>
+			</li>
 		</ul>
 		<div class="paginate">
       <%= will_paginate @hits %>
@@ -141,4 +145,3 @@
   <div class="clear"></div>
 
   <%= render "export_to_repo", :collections => @export_dash_collections %>
-

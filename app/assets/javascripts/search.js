@@ -3,7 +3,6 @@ $(function() {
 	zone_one_search.setup_per_page_refresh();
 });
 
-
 var zone_one_search = {
     update_export_repo_collections: function (collections) {
       var first_option = $('#export-collections').children().first();
@@ -79,6 +78,9 @@ var zone_one_search = {
             var dialog_title = 'Export ' + count + ' ' + file_string + ' to DASH';
 
             $('#export-to-repo-dialog').dialog({
+				width: '315',
+				title: dialog_title,
+				modal: true,
 				buttons: [
 					{
 						text: "Export Now",
@@ -95,12 +97,10 @@ var zone_one_search = {
 						}	
 					},
 					{
-						text: "Cancel",
+						text: "Close",
 						click: function() { $(this).dialog('close'); }	
 					}
                 ],
-                width: '315',
-                        title: dialog_title,
 			});
 
             zone_one_base.toggle_header_dropdown( $('#show_set_options')[0] );
@@ -119,8 +119,9 @@ var zone_one_search = {
                 return false;
             }
             $(this).parent().submit();
+			zone_one_base.toggle_header_dropdown( $('#show_set_options')[0] );
+            return false;
 		});
-
 		$('#bulk-delete-submit').click(function() {
 			var bulk_delete = $('#bulk-delete');
 			$(bulk_delete).children('input').remove();
@@ -132,6 +133,7 @@ var zone_one_search = {
 
 			$(bulk_delete).append($('<input>').attr('type', 'hidden').attr('name', 'previous_search').val(location.href));
 			$('<p>').html("Are you sure you want to delete the " + count + " items?").dialog({
+				modal: true,
 				buttons: [
 					{
 						text: "Yes",
@@ -142,7 +144,7 @@ var zone_one_search = {
 						}	
 					},
 					{
-						text: "No",
+						text: "Cancel",
 						click: function() { $(this).dialog('close'); }	
 					}
 				]

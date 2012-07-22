@@ -10,22 +10,38 @@ $(function() {
 	zone_one_base.setup_watermarks();
 });
 
+(function($){
+	//Usage: $('#your-form-id').serializeJSON(); 
+	$.fn.serializeJSON = function() {
+		var json = {};
+		jQuery.map($(this).serializeArray(), function(n, i){
+			json[n['name']] = n['value'];
+		});
+		return json;
+	};
+})( jQuery );
+
 var zone_one_base = {
 	setup_watermarks: function() {
 		$("#people_value").watermark("Enter name");
 	},
 	setup_username: function() {
 		$('#userlinks').hover(function() {
-			$('#userlinks').addClass('hovered');
+			$(this).addClass('hovered');
 		}, function() {
-			$('#userlinks').removeClass('hovered');
+			$(this).removeClass('hovered');
 		});
+		$("#import-csv").click(function(e){
+			e.preventDefault();
+			zone_one_base.display_import_csv_dialog();
+		});
+
 	},
 	setup_admin_username: function() {
 		$('#adminlinks').hover(function() {
-			$('#adminlinks').addClass('hovered');
+			$(this).addClass('hovered');
 		}, function() {
-			$('#adminlinks').removeClass('hovered');
+			$(this).removeClass('hovered');
 		});
 	},
 	setup_accordion: function() {
@@ -51,8 +67,8 @@ var zone_one_base = {
 		});
 	},
 	setup_listgrid: function() {
-        $('#list_view').click( function() { $('#list').click(); } );
-        $('#grid_view').click( function() { $('#grid').click(); } );
+   	    $('#list_view').click( function() { $('#list').click(); } );
+   	    $('#grid_view').click( function() { $('#grid').click(); } );
 		//Toggle between list and thumb
 		$('#list,#grid').click(function() {
 			$.cookie("list_grid", $(this).attr('id'), { path: "/" });
@@ -82,6 +98,7 @@ var zone_one_base = {
 		});
 		$('#quick_edit').live("click", function() {
 			$('#quick_edit_form').slideToggle();
+            return false;
 		});
 		$('.close-quickview').live("click", function() {
 			zone_one_base.close_quickview("");
@@ -89,6 +106,7 @@ var zone_one_base = {
 		$('#quick_edit_form .delete').live("click", function() {
 			$('#fail_response').slideUp();
 			$('<p>').html("Are you sure you want to delete this file?").dialog({
+				modal: true,
 				buttons: [
 					{
 						text: "Yes",
@@ -108,7 +126,14 @@ var zone_one_base = {
 	},
 	setup_search: function() {
 		$('#tips').click(function() {
-			$('#search_tips').dialog({ resizable: false });
+			$('#search_tips').dialog({
+				buttons: [
+					{
+						text: "Close",
+						click: function() { $(this).dialog('close'); }	
+					}
+                ]
+            });
 		});
 		$('#search_form').submit(function() {
 			if($('#people_value').val() != '') {
@@ -122,9 +147,8 @@ var zone_one_base = {
 				$('#end_date').attr('name', date_type + '_end_date');
 			}
 
-			//Hack: To send only fields with values and minimize
-			//crud sent through form
-			//Also tried data and data.param, but doesn't work as easily
+			//Hack: To send only fields with values and minimize unnecessary fields sent 
+			//through form. Also tried data and data.param, but doesn't work as easily
 			//with fields allowing multiple values
 			var new_form = $('#search_form').clone();
 			if($('#search_form #mime_type').val() != '') {
@@ -152,42 +176,43 @@ var zone_one_base = {
 		// across different functions.
 		return $("div#files span." + column_name).toggle();
 	},
-    toggle_header_dropdown: function(menudiv) {
+	    toggle_header_dropdown: function(menudiv) {
 		var par = $(menudiv).parent();
 		$('.displayed').not(par).removeClass('displayed');
 		par.toggleClass('displayed');
-    },
+	    },
 	setup_menu_actions: function() {
 		//UI
 		$.each(['display_options', 'set_options', 'sort_options'], function(i, v) {
-			$('#show_' + v).click(function() {
-                zone_one_base.toggle_header_dropdown(this);
+			$('#show_' + v).click(function(e) {
+				e.preventDefault();
+	    	    	    	    zone_one_base.toggle_header_dropdown(this);
 			});
 		});
 	$("div.list_options input:checkbox.toggle_column").click(function() {
-      var column_name = $(this).data("column-class");
+	      var column_name = $(this).data("column-class");
 			if($(this).attr("checked")=="checked") {
 				zone_one_base.search_result_column(column_name).show();
-        // checked column = clear cookie
-        $.cookie("toggle_column_" + column_name, null);
+	    	    // checked column = clear cookie
+	    	    $.cookie("toggle_column_" + column_name, null);
 			} else {
 				zone_one_base.search_result_column(column_name).hide();
-        //record checkbox ids which need to be unchecked
-        $.cookie("toggle_column_" + column_name, $(this).attr('id'), { path: "/" });
+	    	    //record checkbox ids which need to be unchecked
+	    	    $.cookie("toggle_column_" + column_name, $(this).attr('id'), { path: "/" });
 			}
 		});
 
-    // Show all columns by default
-    // Loop through all columns, use name to check cookies
-    // If cookie is present, uncheck box, hide column
-    $("div.list_options input:checkbox.toggle_column").each(function () {
-      var column_name = $(this).data("column-class");
-      if($.cookie("toggle_column_" + column_name)) {
-        //cookie exists = hide column
-        $(this).attr('checked', null)
-        zone_one_base.search_result_column(column_name).hide();
-      }
-    });
+	    // Show all columns by default
+	    // Loop through all columns, use name to check cookies
+	    // If cookie is present, uncheck box, hide column
+	    $("div.list_options input:checkbox.toggle_column").each(function () {
+	      var column_name = $(this).data("column-class");
+	      if($.cookie("toggle_column_" + column_name)) {
+	    	    //cookie exists = hide column
+	    	    $(this).attr('checked', null)
+	    	    zone_one_base.search_result_column(column_name).hide();
+	      }
+	    });
 	},
 	setup_datepickers: function() {
 		//Calendar Datepicker	
@@ -220,5 +245,126 @@ var zone_one_base = {
 		}
 		$('#quick_edit_panel').parent().remove();
 		$('#quick_edit_panel').remove();
-	}
+	},
+    display_import_csv_dialog: function() {
+		$("#import-csv-dialog").dialog({
+			modal: true,
+			width: 'auto',
+			dialogClass: 'import-csv-dialog',
+			title: 'CSV Edit Import',
+			buttons: [
+				{
+					text: "Close",
+					click: function() { $(this).dialog('close'); }
+				}
+			]
+		});
+        zone_one_base.init_csv_edit_uploader();
+    },
+    get_uploader: function() {
+        // This method is implemented in multiple namespaces for other uploaders as well
+        var uploader = $('#csv_edit_uploader').plupload('getUploader');
+        return uploader.state == undefined ? undefined : uploader;
+    },
+	init_csv_edit_uploader: function() {
+   	    // You could use $("#csv_edit_uploader").plupload('notify', 'error', 'lol') if .plupload_header was displayed.
+        //zone_one_base.reset_ui_labels();
+        
+        var uploader = zone_one_base.get_uploader();
+        if (uploader) {
+            // Reset existing csv edit upload widget and return 
+            uploader.splice();
+            //uploader.reset_ui_labels();
+            return;
+        }
+
+		uploader = $('#csv_edit_uploader').plupload({
+			runtimes : 'html5,html4', //flash does not play nicely with sessions in Rails
+    	    buttons : { stop: false },
+			url : $('#csv-edit-upload').attr('action'),
+	   	    multipart_params: $('#csv-edit-upload').serializeJSON(),
+			multiple_queues : true,
+			filters : [ {title : "CSV Format", extensions : "csv"} ],
+			preinit : {
+	    		// PreInit events, bound before any internal events
+				Init: function(up, info) {
+					$('#csv_edit_uploader_container').removeAttr('title');
+				},
+				FileUploaded: function(up, file, server_response) {
+					// Called when a single file has finished uploading. This has to
+					// be inside preinit so the 'return false' below works correctly.
+					var response = $.parseJSON(server_response.response);
+
+					if (! response.success) {
+                        var message = "Error for file ID: " + response.stored_file_id + ": " + response.message;
+    					alert('None of your CSV edits were applied because:\n\n' + message);
+						zone_one_base.set_plupload_file_failed(up, file, message);
+                    }
+					up.reset_ui_labels();
+                },
+                PostInit: function(uploader) {
+                    // Fix for html5 runtime on Google Chrome
+                    $('#' + uploader.id + '_html5_container').click( function(e) {
+                        e.stopPropagation();
+                    });
+                    // Add any uploader specific data we want to store, rather than putting it in page space
+                    // All uploaders should have a reset_ui_labels() that points to external function
+                    plupload.extend(uploader, {
+                        last_upload_successful: true,
+                        reset_ui_labels: zone_one_base.reset_ui_labels_csv_edit
+                    });
+                    uploader.reset_ui_labels();
+                }
+			},
+			init : {
+	    		// Post init events, bound after the internal events
+                QueueChanged: function(up) {
+					up.reset_ui_labels();
+                },
+                FilesRemoved: function(up, files) {
+                    up.reset_ui_labels();
+                },
+                UploadComplete: function(up, files) {
+					up.reset_ui_labels();
+					if (up.last_upload_successful) {
+						alert('Success: All your CSV edits have been applied');
+					}
+					up.last_upload_successful = true;  //reset
+				},
+				Error: function(up, error) {
+					// Only used for plupload-internal errors, not server errors
+					up.reset_ui_labels();
+					if (error.code == plupload.FILE_EXTENSION_ERROR) {
+						alert('Error: Only .CSV files can be imported for CSV Edits.');
+					}
+                },
+            },
+		});
+        //var uploader = $('#csv_edit_uploader').plupload('getUploader');
+	},
+	reset_ui_labels_csv_edit: function() {
+		// Customize widget CSS and text labels. We use this a lot because PLupload redraws its
+        // buttons a lot, and we cannot use plupload.addI18n() because that would be global to 
+        // all PLupload widgets on the page.
+        setTimeout(function() {
+			var browse_text = 'Add CSV Edit File';
+			$('#import-csv-dialog #csv_edit_uploader_browse .ui-button-text').html(browse_text);
+			$('#import-csv-dialog .plupload_droptext').html('Drag your CSV Edit file here or click "' + browse_text + '"');
+			$('#import-csv-dialog #csv_edit_uploader_start .ui-button-text').html('Apply Edits');
+		}, 25);
+	},
+    set_plupload_file_failed: function(uploader, file, message) {
+        uploader.last_upload_successful = false;
+
+        $(document).on( 'click', '#' + file.id + ' .plupload_file_action', function() {
+            uploader.removeFile( file );
+            uploader.reset_ui_labels();
+        } );
+
+        setTimeout( function() {
+            $('#' + file.id).attr('title', 'Error: ' + message);
+            file.status = plupload.FAILED; 
+            uploader.trigger('UploadProgress', file);
+        }, 25);
+    }
 };

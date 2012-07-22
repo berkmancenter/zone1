@@ -1,0 +1,6 @@
+<%= raw (CSV.generate(:col_sep => ",", :headers => true) { |row|
+  row << @stored_files.first.csv_headers
+  @stored_files.each { |f| 
+    row << f.to_csv
+  }
+}) %>

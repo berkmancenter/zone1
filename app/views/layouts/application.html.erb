@@ -7,9 +7,11 @@
 	<%= javascript_include_tag "application" %>
 	<%= csrf_meta_tags %>
 	<%= yield :head %>
+
 </head>
 
 <body id="<%= params[:controller] %>_body">
+
 	<div id="wrapper">
 		<header>
 			<a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>
@@ -35,6 +37,7 @@
 				<div>
 					<%= link_to "Manage Files", search_path(:user_id => current_user.id), :id => 'manage_files' %>
 					<%= link_to "Manage Groups", groups_path %>
+					<%= link_to "CSV Edit Import", "#", :id => "import-csv" %>
 				</div>
 			</li>
 			<li><%= link_to 'LOGOUT', destroy_user_session_path, :method => :delete, :class => "last" %></li>
@@ -53,9 +56,18 @@
 
 		<%= yield %>
 
-        <div id="footer" style="clear: both;">
+        <div id="footer">
           Zone One v<%= Zone1::VERSION %>
         </div>
 	</div>
+
+  <div id="import-csv-dialog">
+	<%= form_tag('/bulk_edits/csv_edit.json', :method => 'POST', :id => 'csv-edit-upload') do %>
+	<div id="csv_edit_uploader">
+	 	<p>Could not start the CSV Edit Import tool.</p>
+	 </div>
+	<% end %>	
+  </div>
+
 </body>
 </html>

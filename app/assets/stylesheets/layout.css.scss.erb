@@ -318,9 +318,27 @@ header {
   }
 }
 
+/* for all plupload widgets */
+.plupload_header { display: none; }
+
+#csv_edit_uploader {
+  heightXX: 300px;
+widghtXX: 300px;
+  .plupload_filelist_header, .plupload_file_size, .plupload_file_status {display: none;}
+  .plupload_cell .plupload_upload_status {display: none;}
+}
+
+#import-csv-dialog {
+  display: none;
+  width: 360px; 
+  height: 240px;
+  .plupload_progress {display: none;}
+}
+
 #footer {
   text-align: right;
   color: #AAAAAA;
-
+  margin-top: 10px;
+  clear: both;
 }
 

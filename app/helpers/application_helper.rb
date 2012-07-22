@@ -24,5 +24,4 @@ module ApplicationHelper
   def can_view_admin?
     current_user.try :can_do_global_method?, "view_admin"
   end
-
 end

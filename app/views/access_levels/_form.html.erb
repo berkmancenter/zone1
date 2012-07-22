@@ -1,17 +1,16 @@
+<%= f.label "Permissions:" %>
 <% if attrs.include?(:access_level_id) %>
-<%= bulk_edit :access_level_id %>
-<%= f.label "Permissions:" %>
-<select name="stored_file[access_level_id]">
-<% AccessLevel.all.each do |access_level| %>
-  <% if current_user.can_set_access_level?(@stored_file, access_level) %>
-    <option value="<%= access_level.id %>" <%= raw 'selected="selected"' if @stored_file.access_level_id == access_level.id %>>
-	<%= access_level.label %>
-	</option>
-  <% end %>
-<% end %>
-</select>
+  <%= bulk_edit :access_level_id %>
+  <select name="stored_file[access_level_id]">
+    <% AccessLevel.all.each do |access_level| %>
+      <% if current_user.can_set_access_level?(@stored_file, access_level) %>
+        <option value="<%= access_level.id %>" <%= raw 'selected="selected"' if @stored_file.access_level_id == access_level.id %>>
+    	<%= access_level.label %>
+    	</option>
+      <% end %>
+    <% end %>
+  </select>
 <% else -%>
-<%= f.label "Permissions:" %>
-<%= @stored_file.access_level_name.to_s.humanize %>
+  <%= @stored_file.access_level_label %>
 <% end -%>
 <br />

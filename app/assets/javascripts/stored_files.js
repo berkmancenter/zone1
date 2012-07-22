@@ -1,7 +1,8 @@
 $(function() {
 	zone_one_single.setup_datepickers();
 	zone_one_single.setup_delete_listener();
-    zone_one_single.setup_comment_delete_listener();
+	zone_one_single.setup_comment_delete_listener();
+	zone_one_single.setup_toggle_flag_note_listener();
 });
 
 var zone_one_single = {
@@ -20,17 +21,22 @@ var zone_one_single = {
         $(document).on('ajax:success', '.delete-comment', function() {
             $(this).parent().slideUp();
         });
+    },
+    setup_toggle_flag_note_listener: function() {
+        $('.flagging .flag').click( function() {
+            zone_one_single.toggle_flag_note(this);
+        }); 
+    },
+    toggle_flag_note: function(checkbox) {
+        var textarea_id = '#' + checkbox.id.replace('_destroy', '') + 'note';
+        if (checkbox.checked) {
+            $(textarea_id).slideDown('fast');
+        }
+        else {
+            $(textarea_id).slideUp('fast');
+        }
     }
 };
 
-function toggle_flag_note(checkbox) {
-    var checkbox_id = checkbox.id;
-    var textarea_id = '#' + checkbox_id.replace('_destroy', '') + 'note';
-    if (checkbox.checked) {
-        $(textarea_id).slideDown('fast');
-    }
-    else {
-        $(textarea_id).slideUp('fast');
-    }
-};
+
 
