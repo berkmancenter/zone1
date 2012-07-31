@@ -225,8 +225,8 @@ describe StoredFile do
       stored_file.custom_save(params, @user)
     end
 
-    it "should call flaggings_server_side_validation" do
-      stored_file.should_receive(:flaggings_server_side_validation).with(params, @user)
+    it "should call prepare_flagging_params" do
+      stored_file.should_receive(:prepare_flagging_params).with(params, @user)
       stored_file.custom_save(params, @user)
     end
 
@@ -365,13 +365,13 @@ describe StoredFile do
     end
    
     it "should include ALWAYS_ACCESSIBLE_ATTRIBUTES" do
-      (@stored_file.attr_accessible_for(@params, @user) & StoredFile::ALWAYS_ACCESSIBLE_ATTRIBUTES).should == StoredFile::ALWAYS_ACCESSIBLE_ATTRIBUTES
+      (@stored_file.attr_accessible_for(@params, @user) & StoredFile::ALWAYS_ACCESSIBLE_ATTRIBUTES).sort.should == StoredFile::ALWAYS_ACCESSIBLE_ATTRIBUTES.sort
     end
     
     context "when a new record" do
       it "should include CREATE_ATTRIBUTES" do
         @stored_file = StoredFile.new
-        (@stored_file.attr_accessible_for(@params, @user) & StoredFile::CREATE_ATTRIBUTES).should == StoredFile::CREATE_ATTRIBUTES
+        (@stored_file.attr_accessible_for(@params, @user) & StoredFile::CREATE_ATTRIBUTES).sort.should == StoredFile::CREATE_ATTRIBUTES.sort
       end
     end
 
@@ -384,7 +384,7 @@ describe StoredFile do
       context "user can do method 'edit_items'" do
         it "should include ALLOW_MANAGE_ATTRIBUTES" do
           @user.should_receive("can_do_method?").with(@stored_file, "edit_items").and_return(true)
-          (@stored_file.attr_accessible_for(@params, @user) & StoredFile::ALLOW_MANAGE_ATTRIBUTES).should == StoredFile::ALLOW_MANAGE_ATTRIBUTES
+          (@stored_file.attr_accessible_for(@params, @user) & StoredFile::ALLOW_MANAGE_ATTRIBUTES).sort.should == StoredFile::ALLOW_MANAGE_ATTRIBUTES.sort
         end
       end
 

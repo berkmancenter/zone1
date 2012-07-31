@@ -18,8 +18,24 @@ class MimeTypeCategory < ActiveRecord::Base
     end
   end
 
+  def self.cached_mime_type_tree
+    Rails.cache.fetch("cached_mime_type_tree") do
+      self.all.sort_by {|m| m.name}.inject([]) do |array, mtc|
+        array << mtc
+        mtc.mime_types.sort_by {|m| m.extension}.each do |mt|
+          array << mt
+        end
+        array
+      end
+    end
+  end
+
+  def to_title
+    ''
+  end
+
   def self.facet_label(value)
-    self.all.detect { |l| l.id == value.to_i }.name
+    self.all.detect { |l| l.id == value.to_i }.try(:name)
   end
 
   def self.default
@@ -30,5 +46,7 @@ class MimeTypeCategory < ActiveRecord::Base
 
   def destroy_cache
     Rails.cache.delete("mime_type_categories")
+    Rails.cache.delete("cached_mime_type_tree")
   end
+
 end

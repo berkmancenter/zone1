@@ -41,6 +41,7 @@ Zone1::Application.routes.draw do
     resources :flags, :only => [:show, :create, :edit, :update, :destroy, :index]
     resources :roles, :only => [:show, :create, :edit, :update, :destroy, :index]
     resources :rights, :only => [:show, :create, :edit, :update, :destroy, :index]
+    resources :mime_types
     resources :mime_type_categories, :only => [:show, :create, :edit, :update, :destroy, :index]
   end
   match '/admin' => 'admin::Base#index'

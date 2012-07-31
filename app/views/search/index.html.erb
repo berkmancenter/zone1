@@ -87,7 +87,7 @@
 			</li>
 		</ul>
 		<div class="paginate">
-      <%= will_paginate @hits %>
+      <%= will_paginate @hits, :inner_window => 1 %>
     </div>
     <div class="clear"></div>
     <div class="multi_page_selection_helper">
@@ -138,7 +138,7 @@
 	<% end %>
 	</div>
 	<hgroup class="results_options">
-		<%= will_paginate @hits %>
+		<%= will_paginate @hits, :inner_window => 1 %>
 		<div class="clear"></div>
 	</hgroup>
   </section>
