@@ -1,27 +1,90 @@
+require 'csv'
+
 class BulkEditsController < ApplicationController
 
   include ApplicationHelper
 
   def new
-    if params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length > 1
+    if !params[:stored_file_ids].is_a?(Array)
+      redirect_to search_path
+    end
+
+    # This wonky looking logic supports the CSV Edit feature and the normal bulk edit feature
+    respond_to do |format|
+      format.html do
+        if params[:stored_file_ids].length > 1
+          prepare_bulk_edits
+        elsif params[:stored_file_ids].length == 1
+          redirect_to edit_stored_file_path(params[:stored_file_ids].first)
+        end
+      end
+      format.csv do
+        @stored_files = StoredFile.find(params[:stored_file_ids])
+        @stored_files.each {|f| f.accessible = StoredFile::ALLOW_CSV_ATTRIBUTES}
+      end
+    end
+  end
+
+  def prepare_bulk_edits
       @stored_files = StoredFile.find(params[:stored_file_ids])
 
       @attr_accessible = BulkEdit.bulk_editable_attributes(@stored_files, current_user)
- 
-      matching_attributes = BulkEdit.matching_attributes_from(@stored_files)
-      
+      matching_attributes = BulkEdit.matching_attributes_from(@stored_files)      
+      matching_attributes =  matching_attributes.select {|k, v| @attr_accessible.include?(k.to_sym) }   
+    
       @stored_file = StoredFile.new
-      @stored_file.accessible = @attr_accessible + [:user_id, :batch_id]  #must define accessible before setting attributes
+      #must define accessible before setting attributes
+      @stored_file.accessible = @attr_accessible + [:user_id, :batch_id]
       @stored_file.attributes = matching_attributes
       @stored_file.build_bulk_flaggings_for(@stored_files, current_user)
       @stored_file.build_bulk_groups_for(@stored_files, current_user)
 
       @licenses = License.all
-    
-    elsif params[:stored_file_ids].is_a?(Array) && params[:stored_file_ids].length == 1
-      redirect_to edit_stored_file_path(params[:stored_file_ids].first)
-    else
-      redirect_to search_path
+  end
+
+  def csv_edit
+    begin
+      entries = {}
+      CSV.foreach(params[:file].tempfile.path, :col_sep => ',', :headers => true) do |row|
+        attributes = row.to_hash
+        entries[ attributes['id'] ] = attributes
+      end
+
+      stored_files = StoredFile.find(entries.keys)
+      stored_file_id = nil
+      StoredFile.transaction do
+        stored_files.each do |stored_file|
+          stored_file_id = stored_file.id.to_s
+          file_params = entries[stored_file_id]
+
+          # access_level_label and flaggings get special handling/validation
+          access_level_label = file_params.delete 'access_level_label'
+          if access_level_label
+            access_level_id = AccessLevel.find_by_label(access_level_label).try(:id)
+            file_params[:access_level_id] = access_level_id if access_level_id
+          end
+
+          file_params[:flaggings_attributes] = merge_flaggings_attributes(stored_file, file_params)
+
+          # Build list of accessible attributes for this stored file to avoid sending
+          # any disallowed params and raising an exception
+          attr_accessible = stored_file.attr_accessible_for(file_params, current_user)
+          allowed_attrs = StoredFile::ALWAYS_ACCESSIBLE_ATTRIBUTES.dup
+          allowed_attrs += (StoredFile::ALLOW_CSV_ATTRIBUTES & attr_accessible)
+
+          # ALLOW_CSV_ATTRIBUTES will never have :access_level_id (for CSV export reasons) but it is 
+          # allowed here if it is present in attr_accessible (as we would always expect it to be.)
+          allowed_attrs += [:access_level_id] if attr_accessible.include?(:access_level_id)
+
+          attributes = file_params.select {|k, v| allowed_attrs.include?(k.to_sym)}
+          stored_file.custom_save(attributes, current_user)
+        end
+      end
+
+      render :json => { :success => true }
+    rescue Exception => e
+      render :json => { :success => false, :message => e.to_s, :stored_file_id => stored_file_id }
+      log_exception e
     end
   end
 
@@ -66,6 +129,26 @@ class BulkEditsController < ApplicationController
         end
       end
     end
+  end
+
+  def merge_flaggings_attributes(stored_file, file_params)
+    @flag_hash ||= Flag.all.inject({}) { |memo, f| memo[f.label] = f; memo }
+
+    current_flaggings = stored_file.flaggings.inject({}) do |array, flagging|
+      array[flagging.flag_id.to_s] = flagging.attributes
+      array
+    end
+    # Build flaggings hash for each flag to generate the same hash that custom_save
+    # sees when flag_hash are modified through the web edit UI
+    flag_hash.each do |label, flag|
+      flag_id = flag.id.to_s
+      flag_value = file_params[label].downcase.strip
+
+      current_flaggings[flag_id] ||= {'flag_id' => flag_id, 'user_id' => current_user.id.to_s}
+      current_flaggings[flag_id]['_destroy'] = flag_value == 'true' ? '0' : '1'
+    end
+
+    current_flaggings
   end
 
   def flaggings_attributes_for(stored_file)

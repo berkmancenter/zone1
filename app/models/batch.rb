@@ -5,7 +5,7 @@ class Batch < ActiveRecord::Base
 
   def self.new_temp_batch_id
     # just some small-ish string with 'good enough' randomness
-    SecureRandom.hex(4)
+    SecureRandom.hex(2)
   end
 
 end

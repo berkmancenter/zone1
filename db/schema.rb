@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120620141824) do
+ActiveRecord::Schema.define(:version => 20120724210018) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -28,8 +28,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.text     "content"
     t.integer  "user_id"
     t.integer  "stored_file_id"
-    t.datetime "created_at",     :null => false
-    t.datetime "updated_at",     :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.datetime "deleted_at"
   end
 
@@ -53,11 +53,10 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
   add_index "dispositions", ["stored_file_id"], :name => "index_dispositions_on_stored_file_id"
 
   create_table "flaggings", :force => true do |t|
-    t.integer  "flag_id"
-    t.integer  "stored_file_id"
-    t.integer  "user_id"
-    t.text     "note"
-    t.datetime "deleted_at"
+    t.integer "flag_id"
+    t.integer "stored_file_id"
+    t.integer "user_id"
+    t.text    "note"
   end
 
   add_index "flaggings", ["flag_id"], :name => "index_flaggings_on_flag_id"
@@ -71,8 +70,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
 
   create_table "groups", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at",                           :null => false
-    t.datetime "updated_at",                           :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.boolean  "assignable_rights", :default => false
   end
 
@@ -86,8 +85,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
 
   create_table "licenses", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "memberships", :force => true do |t|
@@ -97,8 +96,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.datetime "joined_at"
     t.integer  "invited_by"
     t.string   "membership_code"
-    t.datetime "created_at",                         :null => false
-    t.datetime "updated_at",                         :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "memberships", ["group_id"], :name => "index_memberships_on_group_id"
@@ -107,8 +106,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
 
   create_table "mime_type_categories", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "icon"
   end
 
@@ -118,8 +117,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.string   "mime_type"
     t.integer  "mime_type_category_id"
     t.boolean  "blacklist"
-    t.datetime "created_at",            :null => false
-    t.datetime "updated_at",            :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "mime_types", ["mime_type"], :name => "index_mime_types_on_mime_type"
@@ -128,8 +127,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
   create_table "preferences", :force => true do |t|
     t.string   "label"
     t.string   "value"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "name"
   end
 
@@ -151,8 +150,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.string   "name",              :limit => 40
     t.integer  "authorizable_id"
     t.string   "authorizable_type"
-    t.datetime "created_at",                      :null => false
-    t.datetime "updated_at",                      :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "roles", ["authorizable_id", "authorizable_type"], :name => "index_roles_on_authorizable_id_and_authorizable_type"
@@ -160,8 +159,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
   create_table "roles_groups", :id => false, :force => true do |t|
     t.integer  "group_id"
     t.integer  "role_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "roles_groups", ["group_id"], :name => "index_roles_groups_on_group_id"
@@ -170,8 +169,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
   create_table "roles_users", :id => false, :force => true do |t|
     t.integer  "user_id"
     t.integer  "role_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"
@@ -181,8 +180,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.integer  "id",         :null => false
     t.string   "name"
     t.text     "members"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "sftp_users", :force => true do |t|
@@ -193,8 +192,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.integer  "sftp_group_id"
     t.string   "homedir"
     t.string   "shell"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   add_index "sftp_users", ["passwd"], :name => "index_sftp_users_on_passwd"
@@ -212,8 +211,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.integer  "file_size"
     t.text     "description"
     t.text     "copyright_holder"
-    t.datetime "created_at",                           :null => false
-    t.datetime "updated_at",                           :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "file"
     t.string   "author"
     t.integer  "license_id"
@@ -258,7 +257,6 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.string   "encrypted_password",     :limit => 128, :default => "", :null => false
     t.string   "reset_password_token"
     t.datetime "reset_password_sent_at"
-    t.string   "remember_token"
     t.datetime "remember_created_at"
     t.integer  "sign_in_count",                         :default => 0
     t.datetime "current_sign_in_at"
@@ -267,8 +265,8 @@ ActiveRecord::Schema.define(:version => 20120620141824) do
     t.string   "last_sign_in_ip"
     t.string   "name",                                                  :null => false
     t.string   "affiliation"
-    t.datetime "created_at",                                            :null => false
-    t.datetime "updated_at",                                            :null => false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.integer  "quota_used",                            :default => 0
     t.integer  "quota_max"
   end

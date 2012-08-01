@@ -116,34 +116,46 @@ module Zone1
       @facets[:license_id] = links unless links.empty?
 
       # mime type hierarchy
-      if !params.has_key?(:mime_type_id) 
-        @mime_categories = []
-        links = []
-        
-        mime_pairs = search.facet(:mime_hierarchy).rows.collect {|row| row.value}
-        # Sort the strings to group mime_types by their mime_type_category
-        mime_pairs.sort.each do |pair|
-          (mime_type_category_id, mime_type_id) = pair.split('-')
+      facet_mime_types(params, search)
+    end
 
+    def facet_mime_types(params, search)
+      # Refactored from original implementation to use the cached mime type list
+      # and to create a simplified data structure (all zone1 objects) for the view. 
+      # This type of refactoring could be done elsewhere as well, but it is a low
+      # priority.
+      # Note that there is some quirkiness with how Zone1 decides to show all known
+      # file types in the File Type search box, versus just the files types it has
+      # content for. More testing is probably required to help figure out what the
+      # user expects to see in those situations.
+      show_all = params.has_key?(:mime_type_id)  #what was this supposed to do?
+
+      mtc_facets = {}
+      mt_facets = {}
+      # Build list of mtc and mt IDs from the search facets
+      if !show_all
+        mime_pairs = search.facet(:mime_hierarchy).rows.map(&:value)
+        mime_pairs.each do |pair|
+          (mime_type_category_id, mime_type_id) = pair.split('-')
           next if mime_type_category_id.nil? || mime_type_id.nil?
 
-          if !params.has_key?(:mime_type_category_id) && !@mime_categories.include?(mime_type_category_id)
-            links.push({
-              :label => MimeTypeCategory.facet_label(mime_type_category_id),
-              :id => mime_type_category_id,
-              :class => "mime_type_category_id"
-            })
-            @mime_categories << mime_type_category_id 
-          end
-
-          links.push({
-            :label => "&nbsp;&nbsp;" + MimeType.facet_label(mime_type_id),
-            :id => mime_type_id,
-            :class => "mime_type_id"
-          })
+          mtc_facets[mime_type_category_id.to_i] = true
+          mt_facets[mime_type_id.to_i] = true
         end
-        @facets[:mime_hierarchy] = links unless links.empty?
       end
+
+      links = []
+      # Build list of MimeTypeCategory and MimeType objects, possibly filtering them
+      # down to the ones the current search facet wants to see.
+      MimeTypeCategory.cached_mime_type_tree.each do |obj|
+        if obj.is_a?(MimeTypeCategory) && !params.has_key?(:mime_type_category_id)
+          links << obj if show_all || mtc_facets[obj.id]
+        elsif obj.is_a? MimeType
+          links << obj if show_all || mt_facets[obj.id]
+        end
+      end
+
+      @facets[:mime_hierarchy] = links unless links.empty?
     end
 
     def build_removable_facets(params)

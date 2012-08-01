@@ -23,7 +23,12 @@ describe MimeType do
     end
 
     describe "set default category" do
-      it "sets the MimeTypeCategory to 'Uncategorized'" do
+      it "auto-detects the MimeTypeCategory" do
+        subject { FactoryGirl.create(:mime_type, :mime_type => "application/test") }
+        subject.mime_type_category.should == MimeTypeCategory.find_by_name("Application")
+      end
+
+      it "sets the MimeTypeCategory to 'Uncategorized' if not auto-detected" do
         subject { FactoryGirl.create(:mime_type) }
         subject.mime_type_category.should == MimeTypeCategory.default
       end

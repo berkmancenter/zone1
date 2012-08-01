@@ -104,7 +104,7 @@
 						<%= render "search/flag_filter" %>
 					</td>
 					<td valign="top" id="mime">
-						<%= render "search/mime_filter" %>
+						<%= render "search/mime_type_filter" %>
                 		<div id="license">
                 			<%= render "search/license_filter" %>
                 		</div>
@@ -114,7 +114,7 @@
 					<td colspan="2">
                         <br/>
                         <label>Metadata Status</label> <br/>
-                        <%= check_box_tag "complete", 0, params[:complete] == "0"%> Incomplete Files Only?
+                        <%= check_box_tag "complete", 0, params[:complete] == "0" %> Incomplete Files Only?
 					</td>
 				</tr>
 

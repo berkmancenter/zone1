@@ -18,12 +18,12 @@ class MimeType < ActiveRecord::Base
     end
   end
 
+  def to_title
+    "#{self.name} (#{self.mime_type})"
+  end
+  
   def self.facet_label(value)
-    begin
-      self.all.detect { |l| l.id == value.to_i }.name
-    rescue
-      "Unknown"
-    end
+    self.all.detect { |l| l.id == value.to_i }.extension rescue 'Unknown'
   end
 
   def self.blacklisted_extensions
@@ -60,7 +60,8 @@ class MimeType < ActiveRecord::Base
   private
 
   def set_default_category
-    self.mime_type_category ||= MimeTypeCategory.default
+    c = MimeTypeCategory.find_by_name(mime_type.split("/").first.capitalize)
+    self.mime_type_category ||= c || MimeTypeCategory.default
   end
 
   def downcase_extension
@@ -70,5 +71,8 @@ class MimeType < ActiveRecord::Base
   def destroy_cache
     Rails.cache.delete("file_extension_blacklist") 
     Rails.cache.delete("mime_types")
+    Rails.cache.delete("cached_mime_type_tree")
+    # If this mime_type got moved to a diferent mime_type_category, delete that cache too
+    Rails.cache.delete("mime_type_categories") if mime_type_category_id_changed?
   end 
 end

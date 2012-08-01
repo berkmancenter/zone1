@@ -18,7 +18,7 @@ describe Dash::Translator do
       @rendered_xml = stub
       ActionController::Base.any_instance.should_receive(:render_to_string).with(
         'stored_files/export_to_repo/_package.mets',
-        :locals => {:stored_files => [@stored_file]}
+        :locals => {:stored_file => @stored_file}
       ).and_return(@rendered_xml)
 
       Dash::Translator.build_metadata(@stored_file).should == @rendered_xml

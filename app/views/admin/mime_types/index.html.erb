@@ -1,0 +1,23 @@
+<section id="results">
+<div id="panel">	 
+<h3>Mime Type Assignment</h3>
+<form method="post" class="mime-types" action="/admin/mime_types">
+ <div class="message"></div>
+  <% @mime_type_categories.each do |mtc| %>
+    <div class="mime-type-category droppable" data-id="<%= mtc.id %>">
+      <p>
+       <%= image_tag(mtc.icon_url, :size => "16x16") %>
+       <%= link_to mtc.name, edit_admin_mime_type_category_path(mtc), :class => 'mime-type-category-title' %>
+      </p>
+      <div>
+        <% mtc.mime_types.sort_by {|m| m.extension}.each do |mt| %>
+          <a class="mime-type draggable" href="#" data-id="<%= mt.id %>"
+            title="<%= mt.to_title %>"><%= mt.extension.upcase.presence || '(none)' %></a>
+        <% end %>
+      </div>
+    </div>
+  <% end -%>
+ <br style="clear:both" />
+</form>
+</div>
+</section>

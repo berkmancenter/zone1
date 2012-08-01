@@ -5,11 +5,9 @@ namespace :camp do
     'environment',
     'no_production_check',
     'camp:restart',
-    'db:drop',
-    'db:create',
-    'db:migrate',
+    'db:reset',
     'db:seed',
-#    'sunspot:reindex',
+    'sunspot:solr:reindex',
     'tmp:clear',
     'camp:restart'
   ]

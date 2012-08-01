@@ -1,9 +1,13 @@
 .readonly { background: #d3d3d3; }
 
-#stored_file { 
+.info td {
+  vertical-align: top;
+}
+
+#stored_file {
   background: #EFEFEF; 
   padding: 2px; 
-  margin-bottom: 50px; 
+  margin-bottom: 1px; 
   fieldset {
     border: none; 
     padding: 0px;
@@ -55,12 +59,9 @@
     }
   }
 
-  #flags_container textarea { 
+  .flagging textarea { 
     display: none; 
-  }
-
-  .plupload_header { 
-    display: none; 
+    font-size: 11px;
   }
 
   #upload_table {
@@ -95,7 +96,6 @@
   }
 
   #sftp_container {
-    height: 280px;
     #sftp_init_button {
       top: 130px;
     }

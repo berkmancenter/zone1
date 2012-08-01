@@ -17,6 +17,8 @@ class StoredFilesController < ApplicationController
   end
 
   def allow_show?
+    #TODO: reverse these two conditionals because the access_level_name check will almost always be false
+    #TODO: also skinny-ify the find to only return the access_level_name string
     if StoredFile.find(params[:id]).access_level_name == "open"
       return true
     elsif current_user.present?
@@ -97,7 +99,7 @@ class StoredFilesController < ApplicationController
   end
 
   def bulk_edit
-    redirect_to new_bulk_edit_path(:stored_file_ids => params[:stored_file].keys)
+    redirect_to new_bulk_edit_path(:stored_file_ids => params[:stored_file].keys, :format => params[:format])
   end 
 
   def update
@@ -109,8 +111,8 @@ class StoredFilesController < ApplicationController
       respond_to do |format|
         format.js
         format.html do
-          flash[:notice] = "File has been updated."
-          redirect_to edit_stored_file_path(@stored_file)
+          flash[:notice] = "File #{@stored_file.original_filename} has been updated."
+          redirect_to search_path
         end
       end
     rescue Exception => e
@@ -148,20 +150,26 @@ class StoredFilesController < ApplicationController
   end
  
   def create
-    is_web_upload = params.has_key?(:name) && params.has_key?(:file)
-    is_sftp_only = params[:sftp_only] == '1'
-
-    # Note: This is done because the custom_save handles accepted attributes
-    params[:stored_file].merge!({ :user_id => current_user.id,
-      :original_filename => params.delete(:name),
-      :file => params.delete(:file)
-    })
-
-    # Update params with existing (or new) batch_id because the client never provides it in params
-    params[:stored_file][:batch_id] = update_batch(params[:temp_batch_id])
-
     exceptions = []
+
+    begin
+      is_web_upload = params.has_key?(:name) && params.has_key?(:file)
+      is_sftp_only = params[:sftp_only] == '1'
+
+      # Note: This is done because the custom_save handles accepted attributes
+      params[:stored_file].merge!({ :user_id => current_user.id,
+                                    :original_filename => params.delete(:name),
+                                    :file => params.delete(:file)
+                                  })
+
+      # Update params with existing (or new) batch_id because the client never provides it in params
+      params[:stored_file][:batch_id] = update_batch(params[:temp_batch_id])
+    rescue Exception => e
+      exceptions << e
+    end          
+
     if !is_sftp_only
+      # This is a web-only or web+sftp upload
       begin
         # custom_save gets its own exception handling because we might still
         # need to enqueue a RemoteFileImporter job if custom_save raises an exception
@@ -177,6 +185,7 @@ class StoredFilesController < ApplicationController
     end
 
     if params[:sftp_username].present?
+      # Possible SFTP upload
       begin
         sftp_user = SftpUser.find_by_username(params[:sftp_username])
         if needs_remote_file_import?(sftp_user, params[:temp_batch_id])
@@ -200,7 +209,6 @@ class StoredFilesController < ApplicationController
         end
       end
     end
-
   end
 
   def enqueue_remote_file_import(params, sftp_username)
@@ -215,8 +223,9 @@ class StoredFilesController < ApplicationController
   end
 
   def thumbnail
+    # TODO: create StoredFile class method to cache file_url(:thumbnail) by stored_file.id
     stored_file = StoredFile.find(params[:id])
-    send_file stored_file.file_url(:thumbnail), :disposition => 'inline', :type => 'image/jpg', :x_sendfile => true
+    send_file stored_file.file_url(:thumbnail), :disposition => 'inline', :type => 'image/jpeg', :x_sendfile => true
   end
 
   def download
@@ -252,10 +261,11 @@ class StoredFilesController < ApplicationController
     rescue ExportToRepo::Unauthorized
       head :unauthorized
     rescue Exception => e
-      render :status => 500, :text => e.message
+      render :status => :internal_server_error, :text => e.message
       log_exception e
     end
   end
+
 
   private
 
@@ -270,7 +280,7 @@ class StoredFilesController < ApplicationController
 
   def update_batch(temp_batch_id)
     # Get batch from session
-    if session[:upload_batches][temp_batch_id][:system_batch_id].present?
+    if session[:upload_batches].has_key? temp_batch_id && session[:upload_batches][temp_batch_id][:system_batch_id].present?
       remote_import_done = session[:upload_batches][temp_batch_id][:remote_import_done]
       batch = Batch.find(session[:upload_batches][temp_batch_id][:system_batch_id].to_i)
     else

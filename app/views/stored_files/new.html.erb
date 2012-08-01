@@ -1,7 +1,7 @@
 <div id="stored_file">
 	   <h3>Upload</h3>
 	
-		<%= form_for @stored_file, :url => "/stored_files.json", :html => {:id => :upload_data} do |f| %>
+		<%= form_for @stored_file, :url => "/stored_files.json", :html => {:id => 'stored-file-upload'} do |f| %>
 			<%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
 			<%= hidden_field_tag 'max_web_upload_file_size', @max_web_upload_file_size %>
 
@@ -13,7 +13,7 @@
             		<td id="upload_table_left">
             			<h4>Upload Files</h4>
             
-            	        <div id="uploader">
+            	        <div id="stored_files_uploader">
             		    	<p>Failed to initialize the upload tool. Not to point fingers, but
             	               perhaps you are using a very old browser that is unsupported?</p>
             		    </div>
@@ -23,7 +23,7 @@
             		</td>
             	</tr>
             	<tr>
-            		<td valign="top" align="center">
+            		<td id="upload_table_left" align="center">
                         <div id="upload_table_status"></div>
                     </td>
                     <td></td>
@@ -33,3 +33,4 @@
 		<% end %>
 	
 </div>
+<div class="clear"></div>

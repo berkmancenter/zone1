@@ -16,7 +16,7 @@ class MimeTypeCategoryIconUploader < CarrierWave::Uploader::Base
   end
 
   def default_url
-    "/mime_type_cat_icons/default_mime_type_cat_icon.jpg"
+    "/assets/mime_type_cat_icons/default_mime_type_cat_icon.png"
   end
 
   def store_dir

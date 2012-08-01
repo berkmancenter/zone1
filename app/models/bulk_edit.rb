@@ -12,16 +12,17 @@ class BulkEdit
   end
 
   def self.matching_attributes_from(stored_files)
-    matching = {}
     attributes_to_match = StoredFile.new.attribute_names + ["tag_list", "collection_list"]
 
+    matching = {}
     stored_files.each do |stored_file|
       attributes_to_match.each do |attribute|
-        value = stored_file.__send__(attribute)  #must use send in order to call tag_list, collection_list methods
+        value = stored_file.send(attribute)
 
         if matching[attribute].nil?
           matching[attribute] = value
-        elsif matching[attribute] != value #on any mis-match
+        elsif matching[attribute] != value
+          #on any mis-match
           matching[attribute] = ""
         end
       end

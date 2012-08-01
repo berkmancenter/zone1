@@ -31,6 +31,11 @@ class SftpUser < ActiveRecord::Base
     self.username + '@' + server_name
   end
 
+  def hash_password(password)
+    "{sha1}" + Base64.strict_encode64(Digest::SHA1.digest(password))
+  end
+
+
   private
 
   def initialize(*args)
@@ -55,10 +60,6 @@ class SftpUser < ActiveRecord::Base
 
   def generate_password
     SecureRandom.hex(8).downcase
-  end
-
-  def hash_password(password)
-    "{sha1}" + Base64.encode64(Digest::SHA1.digest(password))
   end
 
   def delete_homedir

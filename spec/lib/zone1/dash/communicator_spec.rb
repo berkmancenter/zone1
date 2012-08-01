@@ -27,7 +27,8 @@ describe Dash::Communicator do
       collection_stub.should_receive(:post_media!).with(
                                                         :filepath => @export_package.path,
                                                         :content_type => 'application/zip',
-                                                        :packaging => 'http://purl.org/net/sword-types/METSDSpaceSIP'
+                                                        :packaging => 'http://purl.org/net/sword-types/METSDSpaceSIP',
+                                                        :no_op => false
                                                         )
       @communicator.export_to_repo(@export_package, collection_stub)
     end
