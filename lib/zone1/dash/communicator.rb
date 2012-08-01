@@ -15,7 +15,6 @@ module Dash
       collection.post_media!(:filepath => export_package.path,
                              :content_type => 'application/zip',
                              :packaging => 'http://purl.org/net/sword-types/METSDSpaceSIP',
-                             :on_behalf_of => nil,  #useful? not sure yet.
                              :no_op => false,
                              )
     end
