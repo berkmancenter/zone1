@@ -57,10 +57,10 @@ class Flag < ActiveRecord::Base
     # files and prevents an app error. We try to use lightweight methods here, as
     # this could involve a lot of heavy lifting for a popular flag. (The entire
     # destroy job could be done in a Resque job if this got too slow.)
-    stored_file_ids = self.connection.select_all(
+    stored_file_ids = self.connection.select_values(
       "SELECT stored_file_id
       FROM flaggings
-      WHERE flaggings.flag_id = '#{self.id}'").collect {|row| row['stored_file_id'].to_i}
+      WHERE flaggings.flag_id = '#{self.id}'").map(&:to_i)
 
     if stored_file_ids.any?
       Flagging.delete_all(:stored_file_id => stored_file_ids, :flag_id => self.id)

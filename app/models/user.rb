@@ -63,11 +63,11 @@ class User < ActiveRecord::Base
 
   def role_rights
     # TODO: Low level caching on this later
-    self.roles.collect { |r| r.rights }.flatten.uniq.collect { |r| r.action }
+    self.roles.map(&:rights).flatten.uniq.map(&:action)
   end
 
   def group_rights
-    self.groups.collect { |g| g.allowed_rights }.flatten.uniq.collect { |r| r.action }
+    self.groups.map(&:allowed_rights).flatten.uniq.map(&:action)
   end
 
   def all_rights
@@ -95,10 +95,10 @@ class User < ActiveRecord::Base
     if stored_file.is_a?(StoredFile)
       user_id = stored_file.user_id
     else
-      # We use select_all to avoid object instantiation
-      user_id = self.connection.select_all(
+      # We use select_value because it is lightweight
+      user_id = self.connection.select_value(
         "SELECT user_id FROM stored_files WHERE id = #{stored_file} LIMIT 1"
-      ).first['user_id'].to_i
+      ).try(:to_i)
     end
 
     return (user_id == self.id && can_do_global_method?("#{method}_on_owned"))
@@ -114,7 +114,7 @@ class User < ActiveRecord::Base
   end
 
   def owned_groups
-    memberships.owner.includes(:group).inject([]) {|array, m| array << m.group; array}
+    memberships.owner.includes(:group).map(&:group)
   end
 
   def all_groups
@@ -142,21 +142,22 @@ class User < ActiveRecord::Base
 
   def self.cached_viewable_users(right)
     Rails.cache.fetch("users-viewable-users-#{right}") do
-      self.connection.select_all("SELECT u.id
+      self.connection.select_values("SELECT u.id
         FROM users u
         JOIN right_assignments ra ON ra.subject_id = u.id
         JOIN rights r ON r.id = ra.right_id
         WHERE ra.subject_type = 'User'
-        AND r.action = '#{right}'").collect {|user| user['id'].to_i}
+        AND r.action = '#{right}'").map(&:to_i)
     end
   end
 
   # Note: This assumes that open files are checked prior
   # to this call (ie it ignores access level)
   def can_view_cached?(stored_file_id)
-    users = StoredFile.cached_viewable_users(stored_file_id)
-    users += User.users_with_right("view_items")
-    users.include?(self.id)
+    [
+     StoredFile.cached_viewable_users(stored_file_id),
+     User.users_with_right("view_items")
+    ].any? {|users| users.include?(self.id)}
   end
 
   def self.all

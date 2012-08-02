@@ -7,9 +7,10 @@ class StoredFilesController < ApplicationController
 
     allow logged_in, :to => [:update], :if => :allow_show?
 
-    allow logged_in, :to => [:new, :create, :bulk_edit, :bulk_destroy, :download_set, :export_refresh_collections, :export_to_repo]
-
     allow logged_in, :to => [:destroy], :if => :allow_destroy?
+
+    allow logged_in, :to => [:new, :create, :bulk_edit, :bulk_destroy, :download_set,
+                             :export_refresh_collections, :export_to_repo]
   end
 
   def allow_destroy?
@@ -17,12 +18,10 @@ class StoredFilesController < ApplicationController
   end
 
   def allow_show?
-    #TODO: reverse these two conditionals because the access_level_name check will almost always be false
-    #TODO: also skinny-ify the find to only return the access_level_name string
-    if StoredFile.find(params[:id]).access_level_name == "open"
-      return true
-    elsif current_user.present?
+    if current_user
       return current_user.can_view_cached?(params[:id])
+    elsif StoredFile.find(params[:id]).access_level_name == "open"
+      return true
     end
     false
   end
@@ -70,7 +69,7 @@ class StoredFilesController < ApplicationController
         end
         format.html do
           flash[:error] = "Problem deleting file: #{e}"
-          ::Rails.logger.warn "Warning: stored_files_controller.delete got exception: #{e}"
+          logger.warn "Warning: stored_files_controller.destroy got exception: #{e}"
           @stored_file = StoredFile.find(params[:id])
           redirect_to edit_stored_file_path(@stored_file)
         end
@@ -224,8 +223,8 @@ class StoredFilesController < ApplicationController
 
   def thumbnail
     # TODO: create StoredFile class method to cache file_url(:thumbnail) by stored_file.id
-    stored_file = StoredFile.find(params[:id])
-    send_file stored_file.file_url(:thumbnail), :disposition => 'inline', :type => 'image/jpeg', :x_sendfile => true
+    url = StoredFile.cached_thumbnail_path(params[:id])
+    send_file url, :disposition => 'inline', :type => 'image/jpeg', :x_sendfile => true
   end
 
   def download

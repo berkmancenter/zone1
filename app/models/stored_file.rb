@@ -504,6 +504,12 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
+  def self.cached_thumbnail_path(stored_file_id)
+    Rails.cache.fetch("thumbnail-url-#{stored_file_id}") do
+      find(stored_file_id).file_url(:thumbnail)
+    end
+  end
+
 
   private
 
@@ -566,10 +572,9 @@ class StoredFile < ActiveRecord::Base
   end
 
   def destroy_cache
-    raise Exception.new("no self.id found in destroy_cache") unless self.id.present?
-    Rails.cache.delete("tag-list")
+    Rails.cache.delete("tag-list")  #TODO: only do this if tags changed, but custom_save makes that tough
     Rails.cache.delete("stored-file-#{self.id}-viewable-users")
+    Rails.cache.delete("thumbnail-url-#{self.id}")
   end
-
 
 end

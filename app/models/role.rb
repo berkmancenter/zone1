@@ -24,13 +24,13 @@ class Role < ActiveRecord::Base
 
   def self.cached_viewable_users(right)
     Rails.cache.fetch("roles-viewable-users-#{right}") do
-      self.connection.select_all("SELECT u.id
+      self.connection.select_values("SELECT u.id
         FROM users u
         JOIN roles_users gu ON u.id = gu.user_id
         JOIN right_assignments ra ON ra.subject_id = gu.role_id
         JOIN rights r ON r.id = ra.right_id
         WHERE ra.subject_type = 'Role'
-        AND r.action = '#{right}'").collect {|user| user['id'].to_i}
+        AND r.action = '#{right}'").map(&:to_i)
     end
   end
 
