@@ -106,7 +106,6 @@ class User < ActiveRecord::Base
 
   def can_do_group_method?(group, method)
     # group can be an id or a Group instance
-    #TODO: give this the same select all treatment that can_do_method? got
     return true if can_do_global_method?(method)
 
     group = group.is_a?(Group) ? group : Group.find(group)
@@ -154,16 +153,9 @@ class User < ActiveRecord::Base
   # Note: This assumes that open files are checked prior
   # to this call (ie it ignores access level)
   def can_view_cached?(stored_file_id)
-    [
-     StoredFile.cached_viewable_users(stored_file_id),
-     User.users_with_right("view_items")
-    ].any? {|users| users.include?(self.id)}
-  end
-
-  def self.all
-    Rails.cache.fetch("users") do
-      User.find(:all)
-    end
+    # Use more verbose-looking short circuit logic for performance reasons
+    User.users_with_right("view_items").include?(self.id) ||
+      StoredFile.cached_viewable_users(stored_file_id).include?(self.id)      
   end
 
   
@@ -173,7 +165,6 @@ class User < ActiveRecord::Base
   # all of these caches need to be invalidated.
   def destroy_cache
     Rails.cache.delete("user-rights-#{self.id}")
-    Rails.cache.delete("users")
     Rails.cache.delete_matched(%r{users-viewable-users-*})
     Rails.cache.delete_matched(%r{roles-viewable-users-*})
     Rails.cache.delete_matched(%r{groups-viewable-users-*})

@@ -44,15 +44,15 @@ describe User do
   describe "#can_do_global_method?(method)" do
     let(:user) { FactoryGirl.create(:user) }
     context "when user can do method" do
-    it "should return true" do
-      user.should_receive(:all_rights).and_return([:test_method])
-      assert user.can_do_global_method?(:test_method)
-    end
+      it "should return true" do
+        user.should_receive(:all_rights).and_return([:test_method])
+        user.can_do_global_method?(:test_method).should == true
+      end
     end
     context "when user can't do method" do
       it "should return false" do
         user.should_receive(:all_rights).and_return([])
-        assert !user.can_do_global_method?(:test_method)
+        user.can_do_global_method?(:test_method).should == false
       end
     end
   end
@@ -308,8 +308,8 @@ describe User do
         Rails.cache.exist?("users-viewable-users-some_right").should == true 
       end
       it "cache should include correct users" do
-        assert Rails.cache.fetch("users-viewable-users-some_right").include? user1.id
-        assert Rails.cache.fetch("users-viewable-users-some_right").include? user2.id
+        Rails.cache.fetch("users-viewable-users-some_right").include?(user1.id).should == true
+        Rails.cache.fetch("users-viewable-users-some_right").include?(user2.id).should == true
       end
     end
 
@@ -335,7 +335,8 @@ describe User do
     let(:view_right) { FactoryGirl.create(:right, :action => "view_items") }
     let(:group1) { FactoryGirl.create(:group, :assignable_rights => true) }
     let(:role1) { FactoryGirl.create(:role) }
-    let(:stored_file) { FactoryGirl.create(:stored_file, :user_id => user1.id) }
+    let(:access_level) { FactoryGirl.create(:access_level)}
+    let(:stored_file) { FactoryGirl.create(:stored_file, :user_id => user1.id, :access_level => access_level) }
 
     before(:each) do
       group1.rights << view_right
@@ -442,11 +443,4 @@ describe User do
     end
   end
 
-  describe ".all" do
-    it "should use users cache" do
-      assert !Rails.cache.exist?("users")
-      User.all
-      assert Rails.cache.exist?("users")
-    end
-  end
 end

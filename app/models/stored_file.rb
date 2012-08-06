@@ -274,7 +274,7 @@ class StoredFile < ActiveRecord::Base
     # Operate on a copy of file_params
     params = file_params.dup
 
-    if self.new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
+    if self.new_record? && MimeType.extension_blacklisted?(params[:original_filename])
       raise Exception, MimeType.blacklisted_message(params[:original_filename])
     end
 
@@ -349,11 +349,10 @@ class StoredFile < ActiveRecord::Base
   end
 
   def users_via_groups
-    if self.access_level != AccessLevel.dark
-      # TODO: Add performance improvements here (possibly via low level caching, raw SQL)
-      return self.groups.map(&:confirmed_members).flatten.uniq.map(&:id)
-    end
-    return []
+    return [] if self.access_level_id == AccessLevel.dark.try(&:id)
+    
+    # TODO: Cache by stored_file id:  "users-via-groups-#{self.id}
+    self.groups.map(&:confirmed_members).flatten.uniq.map(&:id)
   end
 
   # User can destroy if a) they have global right to delete items or
