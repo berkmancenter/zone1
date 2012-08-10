@@ -21,6 +21,10 @@ class Role < ActiveRecord::Base
       Role.find_by_name("user").try(:rights) || []
     end
   end 
+ 
+  def admin?
+    name == "admin"
+  end
 
   def self.cached_viewable_users(right)
     Rails.cache.fetch("roles-viewable-users-#{right}") do
