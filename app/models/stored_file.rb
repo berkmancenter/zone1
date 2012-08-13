@@ -112,7 +112,7 @@ class StoredFile < ActiveRecord::Base
 
   end
 
-  # Handle hard destroy via the destroy! method. This must come _after_ the searchable
+  # Handle hard destroy via the destroy! method. This MUST come _after_ the searchable
   # block to ensure that the callbacks leave the search index in correct state
   after_destroy :remove_from_index!, :unless => :defer_search_commit
 

@@ -144,13 +144,13 @@ describe User do
     let(:user) { FactoryGirl.create(:user, :quota_used => 100) }
     context "if quota_will_be_zeroed" do
       it "should update quota_used to 0" do
-        user.should_receive(:update_attribute).with(:quota_used, 0)
+        user.should_receive(:update_column).with(:quota_used, 0)
         user.increase_available_quota!(101)
       end
     end
     context "if quota won't be zeroed" do
       it "should subtract the approprate amount from quota_used" do
-        user.should_receive(:update_attribute).with(:quota_used, 1)
+        user.should_receive(:update_column).with(:quota_used, 1)
         user.increase_available_quota!(99)
       end
     end
@@ -320,7 +320,7 @@ describe User do
       end
       it "cache should not exist" do
         users = User.cached_viewable_users("some_right")
-        user1.update_attribute(:name, "Stephie")
+        user1.update_attributes(:name => "Stephie")
         Rails.cache.exist?("users-viewable-users-some_right").should == false
       end
     end

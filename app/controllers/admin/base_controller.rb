@@ -7,18 +7,17 @@ class Admin::BaseController < ApplicationController
   end
 
   def index
-    @preferences = Preference.order('name')
+    @preferences = Preference.all.sort_by(&:name)
   end
 
   def update
     params[:preference].each do |k, v|
-      #TODO: Validate critical values
       begin
         if k == 'fits_script_path'
           Fits.validate_fits_script_path(v)
         end
 
-        Preference.find_by_name(k).update_attribute(:value, v)
+        Preference.cached_find_by_name(k).update_attributes(:value => v)
       rescue Exception => e
         flash[:error] = "Not Updated: Invalid value for '#{Preference.find_by_name(k).label}'"
       end

@@ -54,7 +54,7 @@ class User < ActiveRecord::Base
 
   def increase_available_quota!(amount)
     new_quota_used = (self.quota_used - amount.to_i > 0) ? self.quota_used - amount.to_i : 0
-    update_attribute(:quota_used, new_quota_used)
+    update_column(:quota_used, new_quota_used)
   end
 
   def percent_quota_available

@@ -57,7 +57,7 @@ describe MimeType do
     end
 
     it "should be destroyed after_update" do
-      mime_type.update_attribute(:name, "asdf")
+      mime_type.update_column(:name, "asdf")
     end
 
     it "should be destroyed after_create" do

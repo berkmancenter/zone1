@@ -32,7 +32,7 @@ describe Flag do
     end
     
     it "should be destroyed after_update" do
-      flag.update_attribute(:name, flag.name + "asdf")
+      flag.update_column(:name, flag.name + "asdf")
     end
 
     it "should be destroyed after_create" do
@@ -47,9 +47,9 @@ describe Flag do
 
   #reindex_flagged_stored_files
   describe "#reindex_flagged_stored_files callback" do
-    it "should fire before_destroy and return true" do
+    it "should fire before_destroy" do
       flag = FactoryGirl.create(:flag)
-      flag.should_receive(:reindex_flagged_stored_files).and_return(true)
+      flag.should_receive(:reindex_flagged_stored_files)
       flag.destroy
     end
   end

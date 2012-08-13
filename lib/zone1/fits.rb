@@ -2,7 +2,7 @@ module Fits
 
   def self.analyze(file_url)
     # Fields returned must match stored_file attributes or setters such that the
-    # return value of this method is suitable to pass to model.update_attribute()
+    # return value of this method is suitable to pass to model.update_attributes()
     ::Rails.logger.info "FITS.analyze firing for #{file_url}"
 
     fits_output = self.get_fits_output(file_url)

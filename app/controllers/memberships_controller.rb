@@ -14,11 +14,14 @@ class MembershipsController < ApplicationController
 
     if membership
       if membership.invited_by != current_user.id
-        membership.update_attribute(:invited_by, current_user.id)
+        membership.update_attributes(:invited_by => current_user.id)
+      else
+        # just update membership timestamp
+        membership.touch
       end
       membership.send_invitation_email
     else
-      ::Rails.logger.warn "Failed to find unaccepted invite in resend_invite() for id: #{params[:id]}"
+      logger.warn "Failed to find unaccepted invite in resend_invite() for id: #{params[:id]}"
     end
 
     head :ok

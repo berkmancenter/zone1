@@ -297,13 +297,13 @@ describe StoredFile do
 
     context "stored file that is open" do
       before :each do
-        stored_file.access_level.update_attribute(:name, "open")
+        stored_file.access_level.update_column(:name, "open")
       end
     end
 
     context "stored file that is partially open to only its owner" do
       before :each do
-        stored_file.access_level.update_attribute(:name, "partially_open")
+        stored_file.access_level.update_column(:name, "partially_open")
       end
       it "should be accessible only to owner" do
         StoredFile.cached_viewable_users(stored_file.id).should == [user2.id]
@@ -312,7 +312,7 @@ describe StoredFile do
 
     context "stored file that is partially open to a group" do
       before :each do
-        stored_file.access_level.update_attribute(:name, "partially_open")
+        stored_file.access_level.update_column(:name, "partially_open")
         Membership.add_users_to_groups([user3], [group])
         stored_file.groups << group
       end
@@ -323,7 +323,7 @@ describe StoredFile do
 
     context "stored file that is dark with preserved flag" do
       before :each do
-        stored_file.access_level.update_attribute(:name, "dark")
+        stored_file.access_level.update_column(:name, "dark")
         role.users << user3
         role.rights << FactoryGirl.create(:right, :action => "view_preserved_flag_content")
         Flagging.create(:flag_id => flag.id, :user_id => user2.id, :stored_file_id => stored_file.id)
@@ -344,7 +344,8 @@ describe StoredFile do
       end
       it "should expire after stored file is updated" do
         StoredFile.cached_viewable_users(stored_file.id)
-        stored_file.update_attribute(:original_filename, "original.txt")
+        stored_file.accessible = [:original_filename]
+        stored_file.update_attributes(:original_filename => "original.txt")
         Rails.cache.exist?("stored-file-#{stored_file.id}-viewable-users").should == false
       end
       it "should expire after stored file is destroyed" do

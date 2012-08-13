@@ -22,8 +22,8 @@ class Membership < ActiveRecord::Base
     touch(:joined_at)
   end
 
-  def invited_by_name
-    User.find_by_id(invited_by).try :name
+  def invited_by_name(current_user = nil)
+    current_user.try(:id) == invited_by ? "you" : User.find_by_id(invited_by).try(:name)
   end
 
   def send_invitation_email
@@ -34,7 +34,7 @@ class Membership < ActiveRecord::Base
   end
 
   def generate_membership_code
-    update_attribute(:membership_code, ::SecureRandom.hex)
+    update_column(:membership_code, SecureRandom.hex)
   end
 
   def is_owner?
