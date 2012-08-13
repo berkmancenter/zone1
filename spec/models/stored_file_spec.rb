@@ -27,11 +27,11 @@ describe StoredFile do
   #FlagClass = doubleflag.stub(:name).and_return(Flag.PRESERVED_NAMES.first) # set name to PRESERVED
 
   describe "#license_name" do
-    let(:license) { FactoryGirl.create(:license) }
+    let(:license) { FactoryGirl.create(:license, :name => "to_ill") }
     let(:stored_file) { FactoryGirl.create(:stored_file, :license_id => license.id) }
 
     it "should delegate to license.name" do
-      stored_file.license_name.should == license.name
+      stored_file.license_name.should == "to_ill"
     end
   end
 
@@ -80,7 +80,6 @@ describe StoredFile do
       end
     end
   end
-
 
   describe "#update_tags" do
     let(:stored_file) { FactoryGirl.create(:stored_file) }
@@ -478,12 +477,37 @@ describe StoredFile do
     end    
   end
 
-
   describe "post_process" do
-    pending "should call set_fits_attributes"
-    pending "should call generate_thumbnail"
-    pending "should call save! and index! if set_fits_attributes returns true"
-    pending "should call save! and index! if generate_thumbnail returns true"
+    before :each do
+      @stored_file = FactoryGirl.create(:stored_file)
+    end
+
+    after :each do
+      @stored_file.post_process
+    end
+    
+    it "should call set_fits_attributes and generate_thumbnail" do
+      @stored_file.should_receive :set_fits_attributes
+      @stored_file.should_receive :generate_thumbnail
+      @stored_file.should_not_receive :save!
+    end
+
+    it "should call save!, StoredFile.cached_thumbnail_path(id) and index! if set_fits_attributes returns true" do
+      @stored_file.should_receive(:set_fits_attributes).and_return(true)
+      @stored_file.should_receive(:generate_thumbnail)
+      @stored_file.should_receive(:save!)
+      StoredFile.should_receive(:cached_thumbnail_path).with(@stored_file.id)
+      @stored_file.should_receive(:index!)
+    end
+    
+    it "should call save!, StoredFile.cached_thumbnail_path(id) and index! if generate_thumbnail returns true" do
+      @stored_file.should_receive(:set_fits_attributes)
+      @stored_file.should_receive(:generate_thumbnail).and_return(true)
+      @stored_file.should_receive(:save!)
+      StoredFile.should_receive(:cached_thumbnail_path).with(@stored_file.id)
+      @stored_file.should_receive(:index!)
+    end
+
   end
   
 end

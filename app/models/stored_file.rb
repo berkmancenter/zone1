@@ -425,7 +425,8 @@ class StoredFile < ActiveRecord::Base
     fits_ok = set_fits_attributes
     thumbnail_ok = generate_thumbnail
     if fits_ok || thumbnail_ok
-      self.save! 
+      self.save!
+      StoredFile.cached_thumbnail_path(self.id)  # warm this cache right away
       self.index!
     end
   end
