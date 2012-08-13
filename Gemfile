@@ -1,11 +1,11 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.3'
+gem 'rails', '3.2.8'
 gem 'pg', :require => 'pg'
 gem 'json'
 gem 'will_paginate', '~> 3.0.3'
 gem 'jquery-rails'
-gem 'devise', '2.0.4'
+gem 'devise'
 gem 'acts-as-taggable-on'
 gem 'sunspot_rails'
 gem 'sunspot_solr'
@@ -20,13 +20,13 @@ gem 'therubyracer'
 gem 'rake'
 gem 'paranoia'
 gem 'sword2ruby'
-gem 'htmlentities', "~>4.0.0"
+gem 'htmlentities', "~>4.3.1"
 
 # Gems used only for assets and not required in production environments by default.
 group :assets do
-  gem 'sass-rails',   "~> 3.2.3"
-  gem 'coffee-rails', "~> 3.2.1"
-  gem 'uglifier',     ">= 1.0.3"
+  gem 'sass-rails',   "~> 3.2.5"
+  gem 'coffee-rails', "~> 3.2.2"
+  gem 'uglifier',     ">= 1.2.7"
 end
 
 group :test, :development do
