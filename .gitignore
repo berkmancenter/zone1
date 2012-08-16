@@ -13,7 +13,6 @@ public/coverage
 redis/redis-local.conf
 redis/dump.rdb
 var/
-db/development_structure.sql
 httpd/
 pgsql/
 public/assets/
