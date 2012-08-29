@@ -63,8 +63,7 @@ Testing
 ========
 * To begin testing, define the test database in config/database.yml
 * rake camp:rebuild RAILS_ENV=test
-* Testing dependencies include rspec, factory_girl, shoulda, database_cleaner,
-  remarkable, simplecov
+* Testing dependencies include rspec, factory_girl, shoulda, database_cleaner, remarkable
 * *rake spec* will run full suite of tests
 * *rspec filename* will run tests from that file
 
@@ -79,4 +78,10 @@ Use the same UID and GID as the user running your webserver.  That user needs
 to be able to `cd` into a virtual user's homedir, and run a `ls` there.
 
 For an example please review var/proftpd.conf.
+
+License
+========
+This application is released under a AGPLv3 license.
+
+Copyright President and Fellows of Harvard College, 2012A
 
