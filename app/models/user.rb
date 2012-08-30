@@ -56,6 +56,10 @@ class User < ActiveRecord::Base
     new_quota_used = (self.quota_used - amount.to_i > 0) ? self.quota_used - amount.to_i : 0
     update_column(:quota_used, new_quota_used)
   end
+  
+  def over_quota?
+    self.quota_used.to_f >= self.quota_max.to_f
+  end
 
   def percent_quota_available
     (self.quota_used.to_f / self.quota_max.to_f)*100
