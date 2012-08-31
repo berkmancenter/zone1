@@ -29,7 +29,7 @@
 <tr>
 <td><%= link_to right.action, edit_admin_right_path(right) %></td>
 <td><%= right.description %></td>
-<td><%= link_to 'Delete', admin_right_path(right), :method => "DELETE" %></td>
+<td><%= link_to 'Delete', admin_right_path(right), :confirm => "Are you sure you want to delete the right?", :method => "DELETE" %></td>
 </tr>
 <% end -%>
 </table>

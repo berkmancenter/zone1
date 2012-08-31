@@ -30,7 +30,7 @@
 <tr>
 <td><%= link_to flag.name, edit_admin_flag_path(flag) %></td>
 <td><%= flag.label %></td>
-<td><%= link_to 'Delete', admin_flag_path(flag), :method => "DELETE" %></td>
+<td><%= link_to 'Delete', admin_flag_path(flag), :confirm => "Are you sure you want to delete the flag?", :method => "DELETE" %></td>
 </tr>
 <% end -%>
 </table>
