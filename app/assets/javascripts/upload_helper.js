@@ -112,15 +112,11 @@ $(function() {
 		}
 	});
 
-  if (uploader.settings.over_quota()) {
-          uploader.settings.disable_upload();
-   }
-
-    var mark_sftp_complete = function(remote_file_count) {
-        SFTP_DONE = true;
-        //TODO: Replace the username/pass SFTP credentials with this msg?
-        alert('Successfully queued ' + remote_file_count + ' SFTP files for import');
-    } 
+  var mark_sftp_complete = function(remote_file_count) {
+    SFTP_DONE = true;
+    //TODO: Replace the username/pass SFTP credentials with this msg?
+    alert('Successfully queued ' + remote_file_count + ' SFTP files for import');
+  } 
 
 	var track_upload_result = function(file, info_json) {
 		// Track each upload result so we can inform the user later
