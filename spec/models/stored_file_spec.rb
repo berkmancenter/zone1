@@ -494,17 +494,19 @@ describe StoredFile do
     end
 
     it "should call save!, StoredFile.cached_thumbnail_path(id) and index! if set_fits_attributes returns true" do
-      @stored_file.should_receive(:set_fits_attributes).and_return(true)
-      @stored_file.should_receive(:generate_thumbnail)
+      @stored_file.stub(:set_fits_attributes).and_return(true)
+      @stored_file.stub(:generate_thumbnail)
       @stored_file.should_receive(:save!)
+      Rails.cache.should_receive(:delete).with("thumbnail-url-#{@stored_file.id}")
       StoredFile.should_receive(:cached_thumbnail_path).with(@stored_file.id)
       @stored_file.should_receive(:index!)
     end
     
     it "should call save!, StoredFile.cached_thumbnail_path(id) and index! if generate_thumbnail returns true" do
-      @stored_file.should_receive(:set_fits_attributes)
-      @stored_file.should_receive(:generate_thumbnail).and_return(true)
+      @stored_file.stub(:set_fits_attributes)
+      @stored_file.stub(:generate_thumbnail).and_return(true)
       @stored_file.should_receive(:save!)
+      Rails.cache.should_receive(:delete).with("thumbnail-url-#{@stored_file.id}")
       StoredFile.should_receive(:cached_thumbnail_path).with(@stored_file.id)
       @stored_file.should_receive(:index!)
     end

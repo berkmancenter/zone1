@@ -426,7 +426,12 @@ class StoredFile < ActiveRecord::Base
     thumbnail_ok = generate_thumbnail
     if fits_ok || thumbnail_ok
       self.save!
-      StoredFile.cached_thumbnail_path(self.id)  # warm this cache right away
+
+      # Clear this stored_file's thumbnail cache in case it was populated by a
+      # HTTP request for this thumbnail. Then warm it while we're here.
+      Rails.cache.delete("thumbnail-url-#{self.id}")
+      StoredFile.cached_thumbnail_path(self.id)
+      
       self.index!
     end
   end
@@ -572,7 +577,7 @@ class StoredFile < ActiveRecord::Base
   end
 
   def destroy_cache
-    Rails.cache.delete("tag-list")  #TODO: only do this if tags changed, but custom_save makes that tough
+    Rails.cache.delete("tag-list")
     Rails.cache.delete("stored-file-#{self.id}-viewable-users")
     Rails.cache.delete("thumbnail-url-#{self.id}")
   end
