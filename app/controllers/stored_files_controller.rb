@@ -143,7 +143,7 @@ class StoredFilesController < ApplicationController
     @stored_file.access_level = AccessLevel.default
     @stored_file.license = License.find_by_name(Preference.cached_find_by_name('default_license'))
     @max_web_upload_file_size = Preference.cached_find_by_name('max_web_upload_filesize')
-    @max_web_upload_file_size ||= '100mb' #arbitrary default. (standard 'mb', 'kb', 'b' units required)
+    @max_web_upload_file_size ||= '250mb' #arbitrary default. (standard 'mb', 'kb', 'b' units required)
 
     init_new_batch
   end

@@ -6,7 +6,7 @@ User.transaction do
   puts "Generating preferences"
   Preference.create :name => "default_user_upload_quota", :label => "Default User Upload Quota (Bytes)", :value => "10485760"
   Preference.create :name => "soft_delete_retention_period", :label => "Retention Period (Days)", :value => "1825"
-  Preference.create :name => "max_web_upload_filesize", :label => "Max Web Upload Filesize (with units)", :value => "10mb"
+  Preference.create :name => "max_web_upload_filesize", :label => "Max Web Upload Filesize (with units)", :value => "250mb"
   Preference.create :name => "default_license", :label => "Default License Name", :value => "CC BY"
   Preference.create :name => "group_invite_from_address", :label => "Group Invite Email From Address", :value => "group_invites@zoneone.domain"
   Preference.create :name => "group_invite_pending_duration", :label => "Group Invite Pending Invite Expiration (Days)", :value => "90"
