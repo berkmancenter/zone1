@@ -183,7 +183,25 @@ var zone_one_base = {
 			new_form.submit();
 			return false;
 		});
-	}, 
+	},
+	reset_column_widths: function() {
+		//When visible columns are toggled, their widths are
+		//adjusted to fit across the top, with some larger than others,
+		//based on their pad data attribute
+		var visible = $('#files .menu span:visible');
+		var visible_count = visible.size();
+		var padding_extra = 0;
+		$.each(visible, function(i, j) {
+			padding_extra += $(j).data('pad');
+		});
+		padding_extra += visible_count*8;
+		var base_width = (660-padding_extra)/visible_count;
+		$.each(visible, function(i, j) {
+			var new_width = base_width + $(j).data('pad');
+			$('.file span.' + $(j).data('type')).width(new_width);
+			$(j).resizable('option', 'maxWidth', $(j).width());
+		});
+	},
 	search_result_column: function(column_name) {
 		// Helper function to find the search column consistently
 		// across different functions.
@@ -208,11 +226,34 @@ var zone_one_base = {
 				zone_one_base.search_result_column(column_name).show();
 				// checked column = clear cookie
 				$.cookie("toggle_column_" + column_name, null);
+				zone_one_base.reset_column_widths();
 			} else {
 				zone_one_base.search_result_column(column_name).hide();
 				//record checkbox ids which need to be unchecked
 				$.cookie("toggle_column_" + column_name, $(this).attr('id'), { path: "/" });
+				zone_one_base.reset_column_widths();
 			}
+		});
+		$.each(['filename', 'size', 'date', 'tags', 'flags', 'author', 'license', 'batch'], function(i, v) {
+			$('#files .menu span.' + v).resizable({
+				alsoResize: '.file span.' + v,
+				handles: 'e',
+				containment: 'parent',
+				minWidth: 60,
+				stop: function(event, ui) {
+					//After any item is resized, all other resizable item 
+					//maxWidths are reset to prevent wrapping of columns
+					var visible = $('#files .menu span:visible');
+					var total_width = 0;
+					$.each(visible, function(a, b) {
+						total_width += $(b).width();
+					});
+					var adjust_width = 660 - total_width - visible.size()*8;
+					$.each(visible, function(a, b) {
+						$(b).resizable('option', 'maxWidth', $(b).width() + adjust_width);
+					});
+				}		
+			});
 		});
 
 		// Show all columns by default
@@ -225,6 +266,7 @@ var zone_one_base = {
 				$(this).attr('checked', null)
 				zone_one_base.search_result_column(column_name).hide();
 			}
+			zone_one_base.reset_column_widths();
 		});
 	},
 	setup_datepickers: function() {
