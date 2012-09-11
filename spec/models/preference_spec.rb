@@ -16,30 +16,44 @@ describe Preference do
   end
 
   it "should do after_save and after_destroy caching callbacks"
-  it "should auto-define class methods and pass them to find_by_name_cached"
-  it "should auto-define class methods and successfully find a valid preference by name"
 
+  it "should cache results of .find(:all) finder" do
+    Rails.cache.clear
+    Rails.cache.should_receive(:fetch).with("preferences")
+    Preference.all
+  end
+  
   context "when a given preference exists" do
     before(:each) do
       Rails.cache.clear
-      FactoryGirl.create :preference, :name => 'test_pref_name', :value => 'pref_value'
+      @pref1 = FactoryGirl.create :preference, :name => 'test_pref1', :value => 'pref_value1'
+      @pref2 = FactoryGirl.create :preference, :name => 'test_pref2', :value => 'pref_value2'
     end
 
-    it "should not raise any error" do
-      lambda { Preference.test_pref_name }.should_not raise_error(NoMethodError)
+    it "#all should return all existing Preferences" do
+      Preference.all.map(&:name).sort.should == [@pref1.name, @pref2.name].sort
     end
-    it "should find its value if we call it as a class method" do
-      Preference.test_pref_name.should == 'pref_value'
+
+    it "should cache all preferences under the 'preferences' cache key" do
+      Rails.cache.exist?('preferences').should == false
+      Preference.all
+      Rails.cache.exist?('preferences').should == true
+    end
+    
+    it "cached_find_by_name should delegate to self.all" do 
+      Preference.should_receive(:all) { [@pref1, @pref2] }
+      Preference.cached_find_by_name "test_pref1"
+    end
+    
+    it "should find it via cached_find_by_name" do
+      Preference.cached_find_by_name('test_pref1').should == 'pref_value1'
     end
 
   end
 
   context "when a given preference does not exist" do
-    before do
-      Preference.destroy_all
-    end
     it "should return nil with no errors" do
-      Preference.some_fake_pref.should == nil
+      Preference.cached_find_by_name('some_fake_pref').should == nil
     end
     
   end

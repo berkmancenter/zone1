@@ -30,7 +30,7 @@ namespace :zone_one do
 
   desc "Hard delete expired stored files"
   task :hard_delete_expired_stored_files => :environment do
-    retention_period = Preference.soft_delete_retention_period.to_i
+    retention_period = Preference.cached_find_by_name('soft_delete_retention_period').to_i
     if retention_period != 0
       StoredFile.unscoped.where(["deleted_at <= ?", retention_period.days.ago]).each do |stored_file|
         ::Rails.logger.debug "Hard deleting stored file: #{stored_file.id}"
@@ -44,7 +44,7 @@ namespace :zone_one do
 
   desc "Delete expired pending group invites"
   task :delete_expired_pending_group_invites => :environment do
-    retention_period = Preference.group_invite_pending_duration.to_i
+    retention_period = Preference.cached_find_by_name('group_invite_pending_duration').to_i
     if retention_period != 0
       Membership.where("updated_at <= ? AND joined_at IS NULL" , retention_period.days.ago).destroy_all.inspect
     end

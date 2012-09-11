@@ -35,7 +35,7 @@ module Fits
   def self.get_fits_output(file_url)
     raise "File not found: #{file_url}" unless File.exists? file_url
 
-    fits_script_path = Preference.fits_script_path
+    fits_script_path = Preference.cached_find_by_name('fits_script_path')
     validate_fits_script_path(fits_script_path)
     return open("|#{fits_script_path} -i #{file_url}") {|f| f.read}
   end

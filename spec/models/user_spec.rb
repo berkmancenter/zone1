@@ -104,8 +104,8 @@ describe User do
     let(:user) { FactoryGirl.create(:user) }
 
     it "should lookup the Preference" do
-      #because we're using cached when "value" is called, it seems it seems the cache is hit again!
-      Preference.should_receive(:default_user_upload_quota).twice
+      #because we're using cached when "value" is called, it seems the cache is hit again!
+      Preference.should_receive(:cached_find_by_name).with("default_user_upload_quota").twice
       user.default_quota_max
     end
 

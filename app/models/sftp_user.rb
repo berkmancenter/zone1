@@ -27,7 +27,7 @@ class SftpUser < ActiveRecord::Base
   end
 
   def sftp_url
-    server_name = Preference.sftp_server_name || 'no_sftp_server_name_configured'
+    server_name = Preference.cached_find_by_name('sftp_server_name') || 'no_sftp_server_name_configured'
     self.username + '@' + server_name
   end
 
@@ -49,7 +49,7 @@ class SftpUser < ActiveRecord::Base
 
   def set_homedir
     return if self.user_id.nil?
-    root_dir = Preference.sftp_user_home_directory_root
+    root_dir = Preference.cached_find_by_name('sftp_user_home_directory_root')
     raise "No sftp_user_home_directory_root preference found" if root_dir.nil?
     self.homedir ||= File.join(root_dir, self.user_id.to_s, self.username) 
   end

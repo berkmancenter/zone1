@@ -16,7 +16,7 @@ describe "Fits" do
 
     context "when Fits can't get the fits_script_path Preference" do
       before do
-        Preference.should_receive(:fits_script_path).and_return(nil)
+        Preference.stub(:fits_script_path) { }
       end
       it "should raise an error" do
         assert_raise RuntimeError do

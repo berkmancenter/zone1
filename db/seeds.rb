@@ -108,9 +108,6 @@ User.transaction do
     { :name => "user" }])
   (role_admin, role_steward, role_records_manager, role_user) = Role.all
 
-  # Make sure Preference model is initialized
-  foo = Preference.all.inspect
-
   puts "Generating Admin user"
   admin_user = User.create :email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin'
   admin_user.roles << role_admin
@@ -161,7 +158,6 @@ User.transaction do
   role_records_manager.save
   role_user.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23, ri25] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
   role_user.save
-
 
   puts "Generating licenses"
   License.create([{ :name => 'All Rights Reserved' },
