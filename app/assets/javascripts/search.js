@@ -1,7 +1,7 @@
 $(function() {
 	zone_one_search.setup_bulk_actions();
 	zone_one_search.setup_per_page_refresh();
-  zone_one_search.init_autocomplete();
+    zone_one_search.init_autocomplete();
 });
 
 var zone_one_search = {
@@ -26,31 +26,28 @@ var zone_one_search = {
       }
       $('#export-collections').effect('highlight', {}, 'slow');
     },
-	setup_per_page_refresh: function () {
-
-	cache : {},
-  lastXhr : null,
-  init_autocomplete: function () {
-    $("#tags input").autocomplete({
-      minLength: 2,
-      source: function( request, response ) {
-        var term = request.term;
-        if ( term in zone_one_search.cache ) {
-          response( zone_one_search.cache[ term ] );
-          return;
-        }
-        zone_one_search.lastXhr = $.getJSON( "search/tags", request, 
-          function( data, status, xhr ) {
-            zone_one_search.cache[ term ] = data; 
-            if ( xhr === zone_one_search.lastXhr ) {
-              response( data );
-              }
-            });
-       }
-     }); 
-   },
-
-  setup_per_page_refresh: function () {
+    tag_cache : {},
+    lastXhr : null,
+    init_autocomplete: function () {
+        $("#tags input").autocomplete({
+            minLength: 2,
+            source: function( request, response ) {
+                var term = request.term;
+                if ( term in zone_one_search.tag_cache ) {
+                  response( zone_one_search.tag_cache[ term ] );
+                  return;
+                }
+                zone_one_search.lastXhr = $.getJSON( "search/tags", request, 
+                    function( data, status, xhr ) {
+                      zone_one_search.tag_cache[ term ] = data; 
+                      if ( xhr === zone_one_search.lastXhr ) {
+                        response( data );
+                      }
+                });
+           }
+       }); 
+    },
+    setup_per_page_refresh: function () {
 		// The #per_page_user_input text field is not inside the rest of
         // the search filter form.  Populate hidden field inside form
         // when user clicks refresh.
