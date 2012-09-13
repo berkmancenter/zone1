@@ -30,12 +30,11 @@ group :assets do
 end
 
 group :test, :development do
-  gem 'rspec'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
   gem 'shoulda', :require => false
   gem 'simplecov', :require => false
-  gem 'capybara'
+  #gem 'capybara'
   gem 'database_cleaner'
   gem 'remarkable', "~> 4.0.0.alpha4"
   gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
