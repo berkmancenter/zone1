@@ -13,11 +13,6 @@ namespace :zone_one do
     Sunspot.commit if needs_commit
   end
 
-  desc "Clear all low level caches"
-  task :clear_cache => :environment do
-    Rails.cache.clear
-  end
-
   desc "Create tables, seed database.  Index Solr.  Clear /tmp"
   task :first_run => [
     'environment',
