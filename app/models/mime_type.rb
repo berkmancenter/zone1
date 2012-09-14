@@ -27,12 +27,12 @@ class MimeType < ActiveRecord::Base
   end
 
   def self.blacklisted_extensions
-    Rails.cache.fetch("file_extension_blacklist") do
+    Rails.cache.fetch("extension_blacklist") do
       MimeType.where(:blacklist => true).map(&:extension)
     end
   end
 
-  def self.file_extension_blacklisted?(filename='')
+  def self.extension_blacklisted?(filename='')
     # Note that '' (empty string) is a valid MimeType record and is blacklist-able
     MimeType.blacklisted_extensions.include?(File.extname(filename).downcase) unless filename.nil?
   end
@@ -69,7 +69,7 @@ class MimeType < ActiveRecord::Base
   end
 
   def destroy_cache
-    Rails.cache.delete("file_extension_blacklist") 
+    Rails.cache.delete("extension_blacklist") 
     Rails.cache.delete("mime_types")
     Rails.cache.delete("cached_mime_type_tree")
     # If this mime_type got moved to a diferent mime_type_category, delete that cache too

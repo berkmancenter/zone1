@@ -1,5 +1,5 @@
 class UserMailer < ActionMailer::Base
-  default :from => Proc.new { Preference.group_invite_from_address }
+  default :from => Proc.new { Preference.cached_find_by_name('group_invite_from_address') }
 
   def membership_invitation_email(membership)
     @inviter = User.find_by_id(membership.invited_by)

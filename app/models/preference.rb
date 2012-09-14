@@ -12,12 +12,8 @@ class Preference < ActiveRecord::Base
     end
   end
 
-  def self.find_by_name_cached(name)
-    self.all.detect { |p| p.name == name }
-  end
-
-  def self.method_missing(*args)
-    self.find_by_name_cached( args.first.to_s ).try(:value)
+  def self.cached_find_by_name(name)
+    self.all.detect { |p| p.name == name }.try(:value)
   end
 
 

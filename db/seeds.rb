@@ -6,7 +6,7 @@ User.transaction do
   puts "Generating preferences"
   Preference.create :name => "default_user_upload_quota", :label => "Default User Upload Quota (Bytes)", :value => "10485760"
   Preference.create :name => "soft_delete_retention_period", :label => "Retention Period (Days)", :value => "1825"
-  Preference.create :name => "max_web_upload_filesize", :label => "Max Web Upload Filesize (with units)", :value => "10mb"
+  Preference.create :name => "max_web_upload_filesize", :label => "Max Web Upload Filesize (with units)", :value => "250mb"
   Preference.create :name => "default_license", :label => "Default License Name", :value => "CC BY"
   Preference.create :name => "group_invite_from_address", :label => "Group Invite Email From Address", :value => "group_invites@zoneone.domain"
   Preference.create :name => "group_invite_pending_duration", :label => "Group Invite Pending Invite Expiration (Days)", :value => "90"
@@ -108,9 +108,6 @@ User.transaction do
     { :name => "user" }])
   (role_admin, role_steward, role_records_manager, role_user) = Role.all
 
-  # Make sure Preference model is initialized
-  foo = Preference.all.inspect
-
   puts "Generating Admin user"
   admin_user = User.create :email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin'
   admin_user.roles << role_admin
@@ -161,7 +158,6 @@ User.transaction do
   role_records_manager.save
   role_user.rights = [ri2, ri5, ri9, ri11, ri14, ri16, ri19, ri21, ri23, ri25] #nominate preservation flag, partially open and dark settings, view own content, manage own comments 
   role_user.save
-
 
   puts "Generating licenses"
   License.create([{ :name => 'All Rights Reserved' },

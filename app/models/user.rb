@@ -41,7 +41,7 @@ class User < ActiveRecord::Base
   end
 
   def default_quota_max
-    Preference.default_user_upload_quota.to_i rescue 0
+    Preference.cached_find_by_name('default_user_upload_quota').to_i rescue 0
   end
 
   def quota_max=(amount)
@@ -54,7 +54,11 @@ class User < ActiveRecord::Base
 
   def increase_available_quota!(amount)
     new_quota_used = (self.quota_used - amount.to_i > 0) ? self.quota_used - amount.to_i : 0
-    update_attribute(:quota_used, new_quota_used)
+    update_column(:quota_used, new_quota_used)
+  end
+  
+  def over_quota?
+    self.quota_used.to_f >= self.quota_max.to_f
   end
 
   def percent_quota_available
@@ -63,11 +67,11 @@ class User < ActiveRecord::Base
 
   def role_rights
     # TODO: Low level caching on this later
-    self.roles.collect { |r| r.rights }.flatten.uniq.collect { |r| r.action }
+    self.roles.map(&:rights).flatten.uniq.map(&:action)
   end
 
   def group_rights
-    self.groups.collect { |g| g.allowed_rights }.flatten.uniq.collect { |r| r.action }
+    self.groups.map(&:allowed_rights).flatten.uniq.map(&:action)
   end
 
   def all_rights
@@ -95,10 +99,10 @@ class User < ActiveRecord::Base
     if stored_file.is_a?(StoredFile)
       user_id = stored_file.user_id
     else
-      # We use select_all to avoid object instantiation
-      user_id = self.connection.select_all(
+      # We use select_value because it is lightweight
+      user_id = self.connection.select_value(
         "SELECT user_id FROM stored_files WHERE id = #{stored_file} LIMIT 1"
-      ).first['user_id'].to_i
+      ).try(:to_i)
     end
 
     return (user_id == self.id && can_do_global_method?("#{method}_on_owned"))
@@ -106,7 +110,6 @@ class User < ActiveRecord::Base
 
   def can_do_group_method?(group, method)
     # group can be an id or a Group instance
-    #TODO: give this the same select all treatment that can_do_method? got
     return true if can_do_global_method?(method)
 
     group = group.is_a?(Group) ? group : Group.find(group)
@@ -114,7 +117,7 @@ class User < ActiveRecord::Base
   end
 
   def owned_groups
-    memberships.owner.includes(:group).inject([]) {|array, m| array << m.group; array}
+    memberships.owner.includes(:group).map(&:group)
   end
 
   def all_groups
@@ -142,27 +145,21 @@ class User < ActiveRecord::Base
 
   def self.cached_viewable_users(right)
     Rails.cache.fetch("users-viewable-users-#{right}") do
-      self.connection.select_all("SELECT u.id
+      self.connection.select_values("SELECT u.id
         FROM users u
         JOIN right_assignments ra ON ra.subject_id = u.id
         JOIN rights r ON r.id = ra.right_id
         WHERE ra.subject_type = 'User'
-        AND r.action = '#{right}'").collect {|user| user['id'].to_i}
+        AND r.action = '#{right}'").map(&:to_i)
     end
   end
 
   # Note: This assumes that open files are checked prior
   # to this call (ie it ignores access level)
   def can_view_cached?(stored_file_id)
-    users = StoredFile.cached_viewable_users(stored_file_id)
-    users += User.users_with_right("view_items")
-    users.include?(self.id)
-  end
-
-  def self.all
-    Rails.cache.fetch("users") do
-      User.find(:all)
-    end
+    # Use more verbose-looking short circuit logic for performance reasons
+    User.users_with_right("view_items").include?(self.id) ||
+      StoredFile.cached_viewable_users(stored_file_id).include?(self.id)      
   end
 
   
@@ -172,7 +169,6 @@ class User < ActiveRecord::Base
   # all of these caches need to be invalidated.
   def destroy_cache
     Rails.cache.delete("user-rights-#{self.id}")
-    Rails.cache.delete("users")
     Rails.cache.delete_matched(%r{users-viewable-users-*})
     Rails.cache.delete_matched(%r{roles-viewable-users-*})
     Rails.cache.delete_matched(%r{groups-viewable-users-*})

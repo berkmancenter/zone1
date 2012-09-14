@@ -112,7 +112,7 @@ class StoredFile < ActiveRecord::Base
 
   end
 
-  # Handle hard destroy via the destroy! method. This must come _after_ the searchable
+  # Handle hard destroy via the destroy! method. This MUST come _after_ the searchable
   # block to ensure that the callbacks leave the search index in correct state
   after_destroy :remove_from_index!, :unless => :defer_search_commit
 
@@ -274,7 +274,7 @@ class StoredFile < ActiveRecord::Base
     # Operate on a copy of file_params
     params = file_params.dup
 
-    if self.new_record? && MimeType.file_extension_blacklisted?(params[:original_filename])
+    if self.new_record? && MimeType.extension_blacklisted?(params[:original_filename])
       raise Exception, MimeType.blacklisted_message(params[:original_filename])
     end
 
@@ -349,11 +349,10 @@ class StoredFile < ActiveRecord::Base
   end
 
   def users_via_groups
-    if self.access_level != AccessLevel.dark
-      # TODO: Add performance improvements here (possibly via low level caching, raw SQL)
-      return self.groups.map(&:confirmed_members).flatten.uniq.map(&:id)
-    end
-    return []
+    return [] if self.access_level_id == AccessLevel.dark.try(&:id)
+    
+    # TODO: Cache by stored_file id:  "users-via-groups-#{self.id}
+    self.groups.map(&:confirmed_members).flatten.uniq.map(&:id)
   end
 
   # User can destroy if a) they have global right to delete items or
@@ -426,7 +425,13 @@ class StoredFile < ActiveRecord::Base
     fits_ok = set_fits_attributes
     thumbnail_ok = generate_thumbnail
     if fits_ok || thumbnail_ok
-      self.save! 
+      self.save!
+
+      # Clear this stored_file's thumbnail cache in case it was populated by a
+      # HTTP request for this thumbnail. Then warm it while we're here.
+      Rails.cache.delete("thumbnail-url-#{self.id}")
+      StoredFile.cached_thumbnail_path(self.id)
+      
       self.index!
     end
   end
@@ -504,6 +509,12 @@ class StoredFile < ActiveRecord::Base
     end
   end
 
+  def self.cached_thumbnail_path(stored_file_id)
+    Rails.cache.fetch("thumbnail-url-#{stored_file_id}") do
+      find(stored_file_id).file_url(:thumbnail)
+    end
+  end
+
 
   private
 
@@ -566,10 +577,9 @@ class StoredFile < ActiveRecord::Base
   end
 
   def destroy_cache
-    raise Exception.new("no self.id found in destroy_cache") unless self.id.present?
     Rails.cache.delete("tag-list")
     Rails.cache.delete("stored-file-#{self.id}-viewable-users")
+    Rails.cache.delete("thumbnail-url-#{self.id}")
   end
-
 
 end

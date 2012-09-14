@@ -4,7 +4,7 @@ class Admin::UsersController < Admin::BaseController
   end
 
   def edit
-    @user = User.find(params[:id], :include => :roles)
+    @user = User.find(params[:id], :include => [:roles, :rights])
     @roles = Role.all
     @rights = Right.all
   end
@@ -12,7 +12,10 @@ class Admin::UsersController < Admin::BaseController
   def update
     begin
       user = User.find(params[:id])
+      params[:user][:role_ids] ||= []  
+      params[:user][:right_ids] ||= []
       user.update_attributes(params[:user]) 
+
       flash[:notice] = "updated!"
       redirect_to edit_admin_user_path(user)
     rescue Exception => e

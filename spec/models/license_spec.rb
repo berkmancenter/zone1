@@ -17,7 +17,7 @@ describe License do
     end
     
     it "should be destroyed after_update" do
-      license.update_attribute(:name, "asdf")
+      license.update_column(:name, "asdf")
     end
 
     it "should be destroyed after_create" do

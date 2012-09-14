@@ -96,7 +96,7 @@ module Zone1
           params[:indexed_tag_list] ||= []
           arr.push({
             :label => tag.name,
-            :url => url_for(params.clone.merge({ :indexed_tag_list => params[:indexed_tag_list] + [tag.name], :controller => 'search' }))
+            :url => url_for(params.clone.merge({:page => nil, :indexed_tag_list => params[:indexed_tag_list] + [tag.name], :controller => 'search' }))
           })
         end
         arr
@@ -266,6 +266,7 @@ module Zone1
     def filter_search_results(search)
       open_id = AccessLevel.open.id
 
+      #BOOP: what if we could send can_view_cached? a list of stored_file ids?
       search.hits.select do |hit|
         hit.stored(:access_level_id).to_i == open_id || current_user.try(:can_view_cached?, hit.stored(:id))
       end

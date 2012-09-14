@@ -44,15 +44,15 @@ describe User do
   describe "#can_do_global_method?(method)" do
     let(:user) { FactoryGirl.create(:user) }
     context "when user can do method" do
-    it "should return true" do
-      user.should_receive(:all_rights).and_return([:test_method])
-      assert user.can_do_global_method?(:test_method)
-    end
+      it "should return true" do
+        user.should_receive(:all_rights).and_return([:test_method])
+        user.can_do_global_method?(:test_method).should == true
+      end
     end
     context "when user can't do method" do
       it "should return false" do
         user.should_receive(:all_rights).and_return([])
-        assert !user.can_do_global_method?(:test_method)
+        user.can_do_global_method?(:test_method).should == false
       end
     end
   end
@@ -104,8 +104,8 @@ describe User do
     let(:user) { FactoryGirl.create(:user) }
 
     it "should lookup the Preference" do
-      #because we're using cached when "value" is called, it seems it seems the cache is hit again!
-      Preference.should_receive(:default_user_upload_quota).twice
+      #because we're using cached when "value" is called, it seems the cache is hit again!
+      Preference.should_receive(:cached_find_by_name).with("default_user_upload_quota").twice
       user.default_quota_max
     end
 
@@ -144,13 +144,13 @@ describe User do
     let(:user) { FactoryGirl.create(:user, :quota_used => 100) }
     context "if quota_will_be_zeroed" do
       it "should update quota_used to 0" do
-        user.should_receive(:update_attribute).with(:quota_used, 0)
+        user.should_receive(:update_column).with(:quota_used, 0)
         user.increase_available_quota!(101)
       end
     end
     context "if quota won't be zeroed" do
       it "should subtract the approprate amount from quota_used" do
-        user.should_receive(:update_attribute).with(:quota_used, 1)
+        user.should_receive(:update_column).with(:quota_used, 1)
         user.increase_available_quota!(99)
       end
     end
@@ -308,8 +308,8 @@ describe User do
         Rails.cache.exist?("users-viewable-users-some_right").should == true 
       end
       it "cache should include correct users" do
-        assert Rails.cache.fetch("users-viewable-users-some_right").include? user1.id
-        assert Rails.cache.fetch("users-viewable-users-some_right").include? user2.id
+        Rails.cache.fetch("users-viewable-users-some_right").include?(user1.id).should == true
+        Rails.cache.fetch("users-viewable-users-some_right").include?(user2.id).should == true
       end
     end
 
@@ -320,7 +320,7 @@ describe User do
       end
       it "cache should not exist" do
         users = User.cached_viewable_users("some_right")
-        user1.update_attribute(:name, "Stephie")
+        user1.update_attributes(:name => "Stephie")
         Rails.cache.exist?("users-viewable-users-some_right").should == false
       end
     end
@@ -335,7 +335,8 @@ describe User do
     let(:view_right) { FactoryGirl.create(:right, :action => "view_items") }
     let(:group1) { FactoryGirl.create(:group, :assignable_rights => true) }
     let(:role1) { FactoryGirl.create(:role) }
-    let(:stored_file) { FactoryGirl.create(:stored_file, :user_id => user1.id) }
+    let(:access_level) { FactoryGirl.create(:access_level)}
+    let(:stored_file) { FactoryGirl.create(:stored_file, :user_id => user1.id, :access_level => access_level) }
 
     before(:each) do
       group1.rights << view_right
@@ -442,11 +443,4 @@ describe User do
     end
   end
 
-  describe ".all" do
-    it "should use users cache" do
-      assert !Rails.cache.exist?("users")
-      User.all
-      assert Rails.cache.exist?("users")
-    end
-  end
 end

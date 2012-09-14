@@ -47,17 +47,17 @@ describe MimeType do
     before do
       MimeType.blacklisted_extensions
       MimeType.all
-      assert Rails.cache.exist?("file_extension_blacklist")
+      assert Rails.cache.exist?("extension_blacklist")
       assert Rails.cache.exist?("mime_types")
     end
 
     after do
-      assert !Rails.cache.exist?("file_extension_blacklist")
+      assert !Rails.cache.exist?("extension_blacklist")
       assert !Rails.cache.exist?("mime_types")
     end
 
     it "should be destroyed after_update" do
-      mime_type.update_attribute(:name, "asdf")
+      mime_type.update_column(:name, "asdf")
     end
 
     it "should be destroyed after_create" do
@@ -77,13 +77,13 @@ describe MimeType do
     end
   end
 
-  describe ".file_extension_blacklisted?(filename)" do
+  describe ".extension_blacklisted?(filename)" do
     context "when the extension is blacklisted" do
       before do
         MimeType.should_receive(:blacklisted_extensions).and_return([".exe"])
       end
       it "should return true " do
-        assert MimeType.file_extension_blacklisted?("virus.exe")
+        assert MimeType.extension_blacklisted?("virus.exe")
       end
     end
 
@@ -92,7 +92,7 @@ describe MimeType do
         MimeType.should_receive(:blacklisted_extensions).and_return([".exe"])
       end
       it "should return false" do
-        assert !MimeType.file_extension_blacklisted?("file.jpg")
+        assert !MimeType.extension_blacklisted?("file.jpg")
       end
     end
 
@@ -101,7 +101,7 @@ describe MimeType do
         MimeType.should_receive(:blacklisted_extensions).and_return([".exe"])
       end
       it "should return false" do
-        assert !MimeType.file_extension_blacklisted?("file")
+        assert !MimeType.extension_blacklisted?("file")
       end
     end
   end

@@ -13,20 +13,25 @@ class Flag < ActiveRecord::Base
   before_destroy :reindex_flagged_stored_files
   after_destroy :destroy_cache
 
+  def self.facet_label(value)
+    # Use try() here to prevent stale Solr data from asking for a flag that's been deleted
+    self.all.detect { |l| l.id == value.to_i }.try :label
+  end
+
   def self.preserved
-    Flag.find_by_name("PRESERVED")
+    self.cached_find_by_name("PRESERVED")
   end
   def self.nominated_preservation
-    Flag.find_by_name("NOMINATED_FOR_PRESERVATION")
+    self.cached_find_by_name("NOMINATED_FOR_PRESERVATION")
   end
   def self.selected_preservation
-    Flag.find_by_name("SELECTED_FOR_PRESERVATION")
+    self.cached_find_by_name("SELECTED_FOR_PRESERVATION")
   end
   def self.univ_record
-    Flag.find_by_name("UNIVERSITY_RECORD")
+    self.cached_find_by_name("UNIVERSITY_RECORD")
   end
   def self.may_be_univ_record
-    Flag.find_by_name("MAY_BE_UNIVERSITY_RECORD")
+    self.cached_find_by_name("MAY_BE_UNIVERSITY_RECORD")
   end
 
   def self.all
@@ -35,17 +40,22 @@ class Flag < ActiveRecord::Base
     end
   end
 
-  def self.facet_label(value)
-    # Use try() here to prevent stale Solr data from asking for a flag that's been deleted
-    self.all.detect { |l| l.id == value.to_i }.try :label
-  end
-
   def self.preservation
-    Flag.find_all_by_name(PRESERVED)
+    # Array
+    self.cached_find_by_name(PRESERVED)
   end
 
   def self.selected
-    Flag.find_all_by_name(SELECTED)
+    # Array
+    self.cached_find_by_name(SELECTED)
+  end
+
+  def self.cached_find_by_name(name)
+    if name.is_a?(Array)
+      self.all.select {|flag| name.include?(flag.name)}
+    else
+      self.all.detect {|flag| flag.name == name}
+    end
   end
 
 
@@ -57,10 +67,10 @@ class Flag < ActiveRecord::Base
     # files and prevents an app error. We try to use lightweight methods here, as
     # this could involve a lot of heavy lifting for a popular flag. (The entire
     # destroy job could be done in a Resque job if this got too slow.)
-    stored_file_ids = self.connection.select_all(
+    stored_file_ids = self.connection.select_values(
       "SELECT stored_file_id
       FROM flaggings
-      WHERE flaggings.flag_id = '#{self.id}'").collect {|row| row['stored_file_id'].to_i}
+      WHERE flaggings.flag_id = '#{self.id}'").map(&:to_i)
 
     if stored_file_ids.any?
       Flagging.delete_all(:stored_file_id => stored_file_ids, :flag_id => self.id)
@@ -73,5 +83,7 @@ class Flag < ActiveRecord::Base
 
   def destroy_cache
     Rails.cache.delete("flags")
+    Rails.cache.delete("flags-#{PRESERVED}")
+    Rails.cache.delete("flags-#{SELECTED}")
   end
 end

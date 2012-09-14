@@ -14,8 +14,8 @@
       <li>
         <input type="checkbox" id="bulk_select" />
 				<a id="show_set_options" href="#">SELECTED</a>
-				<div id="set_options">
-					<a href="#" id="export-to-repo-submit">Export</a>
+				<div id="set_options" class="dropdown">
+					<a href="#" id="export-to-repo-submit">Export to DASH</a>
 					<hr />
 					<%= form_tag(download_set_stored_file_index_path, :method => "POST", :id => "download-set") do %>
 						<a href="#" id="download-submit">Download</a>
@@ -36,7 +36,7 @@
 			</li>
 			<li>
 				<a id="show_display_options" href="#">DISPLAY OPTIONS</a>
-        <div id="display_options">
+        <div id="display_options" class="dropdown">
 					<input type="radio" name="list_grid" id="list" checked="true" />
 					<div id="list_view"></div>
 					<input type="radio" name="list_grid" id="grid" />
@@ -77,7 +77,7 @@
 			</li>
 			<li>
 				<a id="show_sort_options" href="#">SORT BY</a>
-				<div id="sort_options">
+				<div id="sort_options" class="dropdown">
 					<%= sortable "display_name", "Name" %>
 					<%= sortable "created_at", "Date" %>
 					<%= sortable "author" %>

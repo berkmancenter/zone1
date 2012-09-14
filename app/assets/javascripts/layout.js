@@ -8,6 +8,7 @@ $(function() {
 	zone_one_base.setup_username();
 	zone_one_base.setup_admin_username();
 	zone_one_base.setup_watermarks();
+  zone_one_base.setup_dropdown();
 });
 
 (function($){
@@ -124,6 +125,18 @@ var zone_one_base = {
 			return false;
 		});
 	},
+  setup_dropdown: function() {
+    var timeout;
+    $('.dropdown').mouseout(function() {
+      var element = $(this);
+      timeout = setTimeout(function(){ 
+        element.parent('li').removeClass('displayed');
+      }, 250 );
+    });
+    $('.dropdown').mouseover(function() {
+      clearTimeout(timeout);
+    });
+  },
 	setup_search: function() {
 		$('#tips').click(function() {
 			$('#search_tips').dialog({

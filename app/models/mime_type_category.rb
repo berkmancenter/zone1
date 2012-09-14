@@ -39,7 +39,7 @@ class MimeTypeCategory < ActiveRecord::Base
   end
 
   def self.default
-    self.find_by_name("Uncategorized")
+    self.all.detect {|mtc| mtc.name == "Uncategorized"}
   end
 
   private

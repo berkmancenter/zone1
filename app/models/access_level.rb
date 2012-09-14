@@ -8,16 +8,17 @@ class AccessLevel < ActiveRecord::Base
   after_save :destroy_cache
   after_destroy :destroy_cache
 
+
   def self.open
-    AccessLevel.find_by_label("Open")
+    self.cached_find_by_name('open')
   end
 
   def self.default
-    AccessLevel.find_by_label("Partially Open")
+    self.cached_find_by_name('partially_open')
   end
 
   def self.dark
-    AccessLevel.find_by_label("Dark")
+    self.cached_find_by_name('dark')
   end
 
   def self.all
@@ -26,6 +27,10 @@ class AccessLevel < ActiveRecord::Base
     end
   end
 
+  def self.cached_find_by_name(name)
+    self.all.detect {|access_level| access_level.name == name}
+  end
+    
 
   private
   

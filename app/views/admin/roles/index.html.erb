@@ -20,7 +20,7 @@
 <% @roles.each do |role| %>
 <tr>
 <td><%= link_to role.name, edit_admin_role_path(role) %></td>
-<td><%= link_to 'Delete',  admin_role_path(role), :method => "DELETE" %></td>
+<td><%= link_to 'Delete',  admin_role_path(role), :confirm => "Are you sure you want to delete the role?", :method => "DELETE" %></td>
 </tr>
 <% end -%>
 </table>

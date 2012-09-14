@@ -30,6 +30,7 @@ Zone1::Application.routes.draw do
 
   match 'upload' => 'stored_files#new', :as => :upload
   match 'search' => 'search#index', :as => :search
+  match 'search/tags' => 'search#tags'
 
   match 'memberships/:membership_code/accept' => 'memberships#accept', :as => :accept_membership
   match 'memberships/:group_id/group_accept' => 'memberships#group_accept', :as => :group_accept

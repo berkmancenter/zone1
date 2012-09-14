@@ -24,4 +24,10 @@ class SearchController < ApplicationController
     Array.wrap(current_user ? Dash.collections_by_user_id(current_user.id) : nil)
   end
 
+  def tags
+    tag_list = Tag.tag_list
+    tag_list = tag_list.select{ |t| t.name.downcase.include?(params[:term].downcase) } if params[:term]
+    render :json => tag_list.map(&:name) 
+  end
+
 end

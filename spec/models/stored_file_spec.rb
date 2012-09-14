@@ -27,11 +27,11 @@ describe StoredFile do
   #FlagClass = doubleflag.stub(:name).and_return(Flag.PRESERVED_NAMES.first) # set name to PRESERVED
 
   describe "#license_name" do
-    let(:license) { FactoryGirl.create(:license) }
+    let(:license) { FactoryGirl.create(:license, :name => "to_ill") }
     let(:stored_file) { FactoryGirl.create(:stored_file, :license_id => license.id) }
 
     it "should delegate to license.name" do
-      stored_file.license_name.should == license.name
+      stored_file.license_name.should == "to_ill"
     end
   end
 
@@ -80,7 +80,6 @@ describe StoredFile do
       end
     end
   end
-
 
   describe "#update_tags" do
     let(:stored_file) { FactoryGirl.create(:stored_file) }
@@ -298,13 +297,13 @@ describe StoredFile do
 
     context "stored file that is open" do
       before :each do
-        stored_file.access_level.update_attribute(:name, "open")
+        stored_file.access_level.update_column(:name, "open")
       end
     end
 
     context "stored file that is partially open to only its owner" do
       before :each do
-        stored_file.access_level.update_attribute(:name, "partially_open")
+        stored_file.access_level.update_column(:name, "partially_open")
       end
       it "should be accessible only to owner" do
         StoredFile.cached_viewable_users(stored_file.id).should == [user2.id]
@@ -313,7 +312,7 @@ describe StoredFile do
 
     context "stored file that is partially open to a group" do
       before :each do
-        stored_file.access_level.update_attribute(:name, "partially_open")
+        stored_file.access_level.update_column(:name, "partially_open")
         Membership.add_users_to_groups([user3], [group])
         stored_file.groups << group
       end
@@ -324,7 +323,7 @@ describe StoredFile do
 
     context "stored file that is dark with preserved flag" do
       before :each do
-        stored_file.access_level.update_attribute(:name, "dark")
+        stored_file.access_level.update_column(:name, "dark")
         role.users << user3
         role.rights << FactoryGirl.create(:right, :action => "view_preserved_flag_content")
         Flagging.create(:flag_id => flag.id, :user_id => user2.id, :stored_file_id => stored_file.id)
@@ -345,7 +344,8 @@ describe StoredFile do
       end
       it "should expire after stored file is updated" do
         StoredFile.cached_viewable_users(stored_file.id)
-        stored_file.update_attribute(:original_filename, "original.txt")
+        stored_file.accessible = [:original_filename]
+        stored_file.update_attributes(:original_filename => "original.txt")
         Rails.cache.exist?("stored-file-#{stored_file.id}-viewable-users").should == false
       end
       it "should expire after stored file is destroyed" do
@@ -478,12 +478,39 @@ describe StoredFile do
     end    
   end
 
-
   describe "post_process" do
-    pending "should call set_fits_attributes"
-    pending "should call generate_thumbnail"
-    pending "should call save! and index! if set_fits_attributes returns true"
-    pending "should call save! and index! if generate_thumbnail returns true"
+    before :each do
+      @stored_file = FactoryGirl.create(:stored_file)
+    end
+
+    after :each do
+      @stored_file.post_process
+    end
+    
+    it "should call set_fits_attributes and generate_thumbnail" do
+      @stored_file.should_receive :set_fits_attributes
+      @stored_file.should_receive :generate_thumbnail
+      @stored_file.should_not_receive :save!
+    end
+
+    it "should call save!, StoredFile.cached_thumbnail_path(id) and index! if set_fits_attributes returns true" do
+      @stored_file.stub(:set_fits_attributes).and_return(true)
+      @stored_file.stub(:generate_thumbnail)
+      @stored_file.should_receive(:save!)
+      Rails.cache.should_receive(:delete).with("thumbnail-url-#{@stored_file.id}")
+      StoredFile.should_receive(:cached_thumbnail_path).with(@stored_file.id)
+      @stored_file.should_receive(:index!)
+    end
+    
+    it "should call save!, StoredFile.cached_thumbnail_path(id) and index! if generate_thumbnail returns true" do
+      @stored_file.stub(:set_fits_attributes)
+      @stored_file.stub(:generate_thumbnail).and_return(true)
+      @stored_file.should_receive(:save!)
+      Rails.cache.should_receive(:delete).with("thumbnail-url-#{@stored_file.id}")
+      StoredFile.should_receive(:cached_thumbnail_path).with(@stored_file.id)
+      @stored_file.should_receive(:index!)
+    end
+
   end
   
 end
