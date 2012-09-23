@@ -1,13 +1,12 @@
 namespace :camp do
   
-  desc "Drop, create, migrate, seed, reindex database"
+  desc "camp:restart, db:reset, db:seed, tmp:clear:, camp:restart database"
   task :rebuild => [
     'environment',
     'no_production_check',
     'camp:restart',
     'db:reset',
     'db:seed',
-    'sunspot:solr:reindex',
     'tmp:clear',
     'camp:restart'
   ]
