@@ -194,8 +194,10 @@ class StoredFile < ActiveRecord::Base
   def build_bulk_flaggings_for(stored_files, user)
     matching_flags = BulkEdit.matching_flags_from(stored_files)
     matching_flags.each do |flag|
+      notes = Flagging.where("stored_file_id in (?) and flag_id = ?", stored_files.map(&:id), flag.id).map(&:note).uniq
+      note = (notes.size == 1) ? notes.first : "" 
       # must explicitly set checked here. It is the only way the form will know that this flagging is set 
-      self.flaggings.build(:flag_id => flag.id, :checked => true)
+      self.flaggings.build(:flag_id => flag.id, :checked => true, :note => note)
     end
   end
 

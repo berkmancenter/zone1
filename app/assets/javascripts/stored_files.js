@@ -23,7 +23,8 @@ var zone_one_single = {
         });
     },
     setup_toggle_flag_note_listener: function() {
-        $('.flagging .flag').click( function() {
+      $(".flagging input:checked").siblings("textarea").show();
+      $('.flagging .flag').click( function() {
             zone_one_single.toggle_flag_note(this);
         }); 
     },
