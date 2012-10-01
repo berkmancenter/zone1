@@ -2,7 +2,7 @@
   <%= render 'filter' %>
 </section>
 
-<section id="results" class="list right">
+<section id="results" class="list">
 	<p id="response"></p>
 	<% if flash[:error] %>
   <div id="form_error"><%= flash[:error] %></div>
@@ -134,6 +134,10 @@
 			<span class="batch"><%= hit.stored(:batch_id) %></span>
 		</div>
 	<% end %>
+  <% if @hits.next_page %>
+    <div class="file"><div class="next-page-icon icon"><%=  will_paginate(@hits, :previous_label => "", :page_links => false) %>
+    </div></div>
+  <% end %>
 	</div>
 	<hgroup class="results_options">
 		<%= will_paginate @hits, :inner_window => 1 %>
