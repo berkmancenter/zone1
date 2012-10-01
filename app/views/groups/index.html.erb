@@ -1,11 +1,9 @@
 <section id="filter">
 <%= render 'search/filter' %>
 </section>
-
-<% flash.each do |key, msg| -%>
-    <div id="form_error"><%= flash[key] %></div>
-<% end -%>
-
+<% if flash[:error] %>
+<div id="form_error"><%= flash[:error] %></div>
+<% end %> 
 <section class="right" id="groups">
 	<p id="response"></p>
 	<hgroup>

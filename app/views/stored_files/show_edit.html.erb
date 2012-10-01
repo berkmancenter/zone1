@@ -5,11 +5,9 @@
 <div class="right" id="stored_file">	
 	<h3><%= @title %></h3>
 	<%= form_for @stored_file, :html => { :id => "edit_stored_file" } do |f| %>
-		<%- flash.each do |key, msg| -%>
-		<div id="form_error">
-		<%= flash[key] %>
-		</div>
-		<% end -%>
+		<% if flash[:error] %>
+      <div id="form_error"><%= flash[:error] %></div>
+    <% end %>
 		<div id="thumbnail">
 			<%= preview @stored_file %>
 		</div>

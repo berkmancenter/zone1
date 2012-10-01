@@ -4,11 +4,9 @@
 
 <section id="results" class="list right">
 	<p id="response"></p>
-	<%- flash.each do |key, msg| -%>
-	<div id="form_error">
-	<%= flash[key] %>
-	</div>
-	<% end -%>
+	<% if flash[:error] %>
+  <div id="form_error"><%= flash[:error] %></div>
+  <% end %>
   <hgroup class="results_options">
 	<ul>
       <li>

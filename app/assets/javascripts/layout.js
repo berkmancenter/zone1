@@ -9,6 +9,7 @@ $(function() {
 	zone_one_base.setup_admin_username();
 	zone_one_base.setup_watermarks();
   zone_one_base.setup_dropdown();
+  zone_one_base.setup_message();
 });
 
 (function($){
@@ -23,7 +24,12 @@ $(function() {
 })( jQuery );
 
 var zone_one_base = {
-	setup_watermarks: function() {
+  setup_message: function() {
+    if($("#message").html() != "") {
+      $("#message").slideDown().delay(5000).slideUp().html();
+    }
+  },
+  setup_watermarks: function() {
 		$("#people_value").watermark("Enter name");
 	},
 	setup_username: function() {
@@ -294,9 +300,8 @@ var zone_one_base = {
 		}
 	},
 	close_quickview: function(message) {
-		$('#response').slideUp();
 		if(message != "") {
-			$('#response').html(message).slideDown();
+			$('#message').html(message).slideDown().delay(5000).slideUp();
 		}
 		$('#quick_edit_panel').parent().remove();
 		$('#quick_edit_panel').remove();
