@@ -487,8 +487,11 @@ class StoredFile < ActiveRecord::Base
       # If the current thumbnail is not a jpg, convert it to a jpg
       if current_thumbnail_path !~ /\.jpg$/i
         jpg_path = thumbnail_path(current_thumbnail_path)
+        base = Magick::Image.read("#{Rails.root}/app/assets/images/white.jpg").first
         im = Magick::ImageList.new(current_thumbnail_path).first
-        im.write(jpg_path)
+        im.background_color = "none"
+        base.composite!(im, 0, 0, Magick::OverCompositeOp)
+        base.write(jpg_path)
 
         # If it was just created correctly, delete the previous, non-jpg one
         if File.exist? jpg_path
