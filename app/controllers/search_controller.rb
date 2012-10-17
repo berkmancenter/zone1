@@ -17,17 +17,15 @@ class SearchController < ApplicationController
     build_searchable_facets(params, @search)
   end
 
+  def tags
+    tag_list = Tag.all
+    tag_list = tag_list.select{ |t| t.name.downcase.include?(params[:term].downcase) } if params[:term]
+    render :json => tag_list.map(&:name) 
+  end
 
   private
   
   def dash_export_collections
     Array.wrap(current_user ? Dash.collections_by_user_id(current_user.id) : nil)
   end
-
-  def tags
-    tag_list = Tag.tag_list
-    tag_list = tag_list.select{ |t| t.name.downcase.include?(params[:term].downcase) } if params[:term]
-    render :json => tag_list.map(&:name) 
-  end
-
 end

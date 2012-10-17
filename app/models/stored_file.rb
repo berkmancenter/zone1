@@ -39,6 +39,8 @@ class StoredFile < ActiveRecord::Base
   before_save :update_file_size
   after_create :register_user_stored_file, :unless => :defer_quota_update
   after_update :paranoid_action_callback, :if => :deleted_at_changed?
+
+  after_create :destroy_cache
   after_update :destroy_cache
   before_destroy :destroy_cache
 
@@ -578,6 +580,7 @@ class StoredFile < ActiveRecord::Base
 
   def destroy_cache
     Rails.cache.delete("tag-list")
+    Rails.cache.delete("tag-list-all")
     Rails.cache.delete("stored-file-#{self.id}-viewable-users")
     Rails.cache.delete("thumbnail-url-#{self.id}")
   end
