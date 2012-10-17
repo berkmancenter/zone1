@@ -53,6 +53,5 @@ module Zone1
 
     #Require all attributes to be marked as accessible in models
     config.active_record.whitelist_attributes = true
-
   end
 end

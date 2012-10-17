@@ -99,17 +99,10 @@ class User < ActiveRecord::Base
     if stored_file.is_a?(StoredFile)
       user_id = stored_file.user_id
     else
-<<<<<<< HEAD
       # We use select_value because it is lightweight
       user_id = self.connection.select_value(
         "SELECT user_id FROM stored_files WHERE id = #{stored_file} LIMIT 1"
       ).try(:to_i)
-=======
-      # We use select_all to avoid object instantiation
-      user_id = self.connection.select_all(
-        "SELECT user_id FROM stored_files WHERE id = #{stored_file} LIMIT 1"
-      ).first['user_id'].to_i
->>>>>>> Fixed the last of the require_association Rails 3.2.0 bugs (redmine #2316)
     end
 
     return (user_id == self.id && can_do_global_method?("#{method}_on_owned"))
@@ -117,10 +110,7 @@ class User < ActiveRecord::Base
 
   def can_do_group_method?(group, method)
     # group can be an id or a Group instance
-<<<<<<< HEAD
-=======
     #TODO: give this the same select all treatment that can_do_method? got
->>>>>>> Fixed the last of the require_association Rails 3.2.0 bugs (redmine #2316)
     return true if can_do_global_method?(method)
 
     group = group.is_a?(Group) ? group : Group.find(group)
@@ -173,6 +163,9 @@ class User < ActiveRecord::Base
       StoredFile.cached_viewable_users(stored_file_id).include?(self.id)      
   end
 
+  def dash_collections
+    Dash.collections_by_user_id(self.id) || []
+  end
   
   private
 

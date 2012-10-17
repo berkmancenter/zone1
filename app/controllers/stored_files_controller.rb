@@ -30,6 +30,7 @@ class StoredFilesController < ApplicationController
     @licenses = License.all
     @stored_file = StoredFile.find(params[:id], :include => [{:comments => :user}])
     @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
+	@export_dash_collections = current_user ? current_user.dash_collections : []
     @title = 'EDIT'
 
     respond_to do |format|
@@ -44,6 +45,7 @@ class StoredFilesController < ApplicationController
     @licenses = License.all
     @stored_file = StoredFile.find(params[:id], :include => [{:comments => :user}])
     @attr_accessible = []
+	@export_dash_collections = current_user ? current_user.dash_collections : []
     @title = 'DETAIL'
 
     render 'show_edit'

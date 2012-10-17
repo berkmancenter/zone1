@@ -3,7 +3,7 @@
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td width="340px" valign="top">
-			<%= editable_field(f, @attr_accessible, :title, {}, :text_field) %>
+			<%= editable_field(f, @attr_accessible, :title, {}, :text_field, nil, :search) %>
 
 			<%= editable_field(f, @attr_accessible, :tag_list, {}, :text_field, "Tags") %>
 
@@ -16,13 +16,13 @@
 			<%= render("comments/form", :stored_file => @stored_file, :attrs => @attr_accessible, :f => f) unless bulk_edit? %>
 		</td>
 		<td valign="top">
-			<%= editable_field(f, @attr_accessible, :author, {}, :text_field, "Creator") %>
+			<%= editable_field(f, @attr_accessible, :author, {}, :text_field, "Creator", :author) %>
 
 			<%= editable_field(f, @attr_accessible, :collection_list, {}, :text_field, "Collections") %>
 
-			<%= editable_field(f, @attr_accessible, :original_date, {}, :text_field) %>
+			<%= editable_field(f, @attr_accessible, :original_date, { :value => @stored_file.original_date }, :text_field) %>
 
-			<%= editable_field(f, @attr_accessible, :office, {}, :text_field) %>
+			<%= editable_field(f, @attr_accessible, :office, {}, :text_field, "Office", :search) %>
 		</td>
 		<% if params[:controller] == "stored_files" && params[:action] == "new"-%>
 		<td valign="top">

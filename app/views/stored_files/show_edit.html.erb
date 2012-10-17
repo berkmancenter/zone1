@@ -14,25 +14,37 @@
 			<%= preview @stored_file %>
 		</div>
 		<h5><%= @stored_file.original_filename %></h5>
-		<%= f.label :contributor %>: <%= @stored_file.user.name %><br />
+		<%= f.label :contributor %>: <%= link_to @stored_file.user.name, search_path(:contributor_name => @stored_file.user.name) %><br />
 		<%= f.label :file_size %>: <%= number_to_human_size(@stored_file.file_size) %><br />
 	    <%= f.label :url %>: <%= link_to stored_file_url(@stored_file), stored_file_path(@stored_file) %><br />
 		<%= f.label "Batch:" %> <%= @stored_file.try :batch_id %><br />
 		<%= f.label "Preserved:" %> <%= preserved_display(@stored_file) %><br />
 		<%= f.label "University Record:" %> <%= university_display(@stored_file) %><br />
-		<%= f.label :ingest_date %>: <%= @stored_file.created_at.strftime("%m-%d-%Y") %><br />
+		<%= f.label :ingest_date %>: <%= @stored_file.created_at %><br />
 	
 		<%= render "form", :f => f %>
-		<% if current_user.present? -%>
 		<div class="submit_buttons">	
+		<%= link_to "DOWNLOAD", download_stored_file_path(@stored_file.id), :class => "submit_link" %>
+		<%= link_to "EXPORT", "#", :id => "export-to-repo-submit", :class => "submit_link" %>
+		<% if params[:action].to_sym == :show -%>
+		<%= link_to "FULL EDIT", edit_stored_file_path(@stored_file.id), :class => "submit_link" %>
+		<% else -%>
+		<%= link_to "DETAIL", stored_file_path(@stored_file.id), :class => "submit_link" %>
+		<% end -%>
+		<% if current_user.present? -%>
 		<%= f.submit "UPDATE", :class => "update" %>
 		<% if @stored_file.can_user_destroy?(current_user) -%>
 		<%= f.submit "DELETE", :class => "delete" %>
-	    <% end -%>
 		</div>
+	    <% end -%>
 		<% end -%>
 	<% end %>
 </div>
 
 <%= form_for @stored_file, :method => :delete, :html => { :id => "stored_file_delete" } do |f| %>
 <% end -%>
+
+<div id="single_dash_export">	
+<input type="checkbox" class="downloadable" checked="checked" data-stored-file-id="<%= @stored_file.id %>" value="1" name="stored_file[<%= @stored_file.id  %>]" />
+</div>
+<%= render "search/export_to_repo", :collections => @export_dash_collections %>

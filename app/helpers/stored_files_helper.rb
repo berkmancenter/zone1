@@ -1,12 +1,13 @@
 module StoredFilesHelper
-  def editable_field(f, attrs, field, options, type, label="")
+  def editable_field(f, attrs, field, options, type, label="", search_link=false)
       render :partial => "stored_files/editable_field",
              :locals => { :form => f,
                :attrs => attrs,
                :field => field,
                :options => options,
                :type => type, 
-               :label => label.presence || field }
+               :label => label.presence || field,
+               :search_link => search_link }
   end
 
   def bulk_edit(attr)
@@ -60,11 +61,10 @@ module StoredFilesHelper
     return image_tag(path, :class => 'thumbnail', :alt => '')
   end
 
-  def search_by_tags(tag_string)
-    # tag_string will come in as "tag1, tag2, tag3"
+  def search_by_tags(stored_file, field)
     output = []
-    tag_array = tag_string.split(", ").each do |tag|
-     output << link_to(tag, search_path(:"indexed_tag_list[]" => tag))
+    tag_array = stored_file.send(field).split(", ").each do |tag|
+     output << link_to(tag, search_path(:"indexed_#{field}[]" => tag))
     end
     output.join(", ").html_safe
   end

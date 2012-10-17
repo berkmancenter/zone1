@@ -292,6 +292,14 @@ class StoredFile < ActiveRecord::Base
     tag_list = params.delete("tag_list") || params.delete(:tag_list)
     collection_list = params.delete("collection_list") || params.delete(:collection_list)
 
+    if params.has_key?("original_date")
+      begin
+        formatted_date = Date.strptime(params["original_date"], "%m/%d/%Y")
+        params["original_date"] = formatted_date.to_formatted_s(:db)
+      rescue
+      end
+    end
+
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
       update_tags(collection_list, :collections, user) if collection_list

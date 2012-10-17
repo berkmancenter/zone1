@@ -18,7 +18,6 @@ module Zone1
     end
 
     def build_stored_file_search
-
       Sunspot.search(StoredFile) do
         if params.has_key?(:search)
           fulltext params[:search] do
@@ -67,13 +66,22 @@ module Zone1
             date_params["#{date_type}_#{p}"] = build_date_from_string_safe(params["#{date_type}_#{p}"])
           end
         end
-        
-        [:original_date, :created_at].each do |date_type|
+       
+        # original date is a date, and created_at is a timestamp
+        [:created_at].each do |date_type|
           if date_params["#{date_type}_start_date"]
             with(date_type).greater_than date_params["#{date_type}_start_date"].beginning_of_day 
           end
           if date_params["#{date_type}_end_date"]
             with(date_type).less_than date_params["#{date_type}_end_date"].end_of_day 
+          end
+        end
+        [:original_date].each do |date_type|
+          if date_params["#{date_type}_start_date"]
+            with(date_type).greater_than date_params["#{date_type}_start_date"]
+          end
+          if date_params["#{date_type}_end_date"]
+            with(date_type).less_than date_params["#{date_type}_end_date"] 
           end
         end
 
