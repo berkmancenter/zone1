@@ -21,9 +21,9 @@ class User < ActiveRecord::Base
   has_many :batches
   has_many :comments
   has_many :stored_files
-  has_many :rights, :through => :right_assignments
-  has_many :right_assignments, :as => :subject
-
+  has_many :rights, :through => :right_assignments, :dependent => :destroy
+  has_many :right_assignments, :as => :subject, :dependent => :destroy
+  
   validates_presence_of :name
 
   validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}

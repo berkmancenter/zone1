@@ -7,20 +7,18 @@ class RightAssignment < ActiveRecord::Base
   after_destroy :destroy_cache
 
   private
-
   def destroy_cache
+    Rails.cache.delete("#{subject_type.tableize}-viewable-users-#{right.action}")
+    if subject.is_a? Role and subject.name == "user"
+      Rails.cache.delete("user-rights")
+      Rails.cache.delete_matched(%r{user-rights-*})
+    end  
     if right.action == "view_preserved_flag_content"
-
-      # Must delete this cache first so when StoredFile.cached_viewable_users 
-      # rebuilds it doesn't build from a stale cache.
-      Rails.cache.delete("#{subject_type.to_s.downcase}s-viewable-users-view_preserved_flag_content")
-    
-      preserved_flag_ids = Flag.preservation.map(&:id)
-
-      # Unscope so that soft-deleted stored files have their caches updated as well
-      StoredFile.unscoped.joins(:flaggings).where(:"flaggings.flag_id" => preserved_flag_ids).each do |stored_file|
-        Rails.logger.debug "PHUNK: SFuj destroying_cache on stored_file: #{stored_file.id}"
-        stored_file.send :destroy_cache
+      puts right.inspect
+      flags = Flag.preservation.map(&:id)
+      StoredFile.unscoped.joins(:flaggings).where(:"flaggings.flag_id" => flags).each do |f|
+        Rails.logger.debug "Destroying_cache on stored_file: #{f.id}"
+        f.send :destroy_cache
       end
     end
   end

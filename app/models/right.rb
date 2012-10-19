@@ -22,6 +22,15 @@ class Right < ActiveRecord::Base
     # Same as role.rb
     Rails.cache.delete_matched(%r{user-rights-*})
     Rails.cache.delete("user-rights")
-    Rails.cache.delete_matched(%r{roles-viewable-users-*})
+    Rails.cache.delete("roles-viewable-users-#{self.action}")
+    Rails.cache.delete("users-viewable-users-#{self.action}")
+    Rails.cache.delete("groups-viewable-users-#{self.action}")
+    if self.action == "view_preserved_flag_content"
+      flags = Flag.preservation.map(&:id)
+      StoredFile.unscoped.joins(:flaggings).where(:"flaggings.flag_id"=> flags).each do |f|
+        Rails.logger.debug "Destroying_cache on stored_file: #{f.id}"
+        f.send :destroy_cache
+      end
+    end   
   end
 end
