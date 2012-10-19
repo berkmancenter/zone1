@@ -14,7 +14,6 @@ class RightAssignment < ActiveRecord::Base
       Rails.cache.delete_matched(%r{user-rights-*})
     end  
     if right.action == "view_preserved_flag_content"
-      puts right.inspect
       flags = Flag.preservation.map(&:id)
       StoredFile.unscoped.joins(:flaggings).where(:"flaggings.flag_id" => flags).each do |f|
         Rails.logger.debug "Destroying_cache on stored_file: #{f.id}"

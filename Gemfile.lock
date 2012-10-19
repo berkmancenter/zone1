@@ -34,6 +34,7 @@ GEM
     arel (3.0.2)
     atom-tools (2.0.5)
     bcrypt-ruby (3.0.1)
+    breadcrumbs_on_rails (2.2.0)
     builder (3.0.3)
     carrierwave (0.6.2)
       activemodel (>= 3.2.0)
@@ -200,6 +201,7 @@ PLATFORMS
 DEPENDENCIES
   acl9
   acts-as-taggable-on
+  breadcrumbs_on_rails
   carrierwave
   coffee-rails (~> 3.2.2)
   database_cleaner
