@@ -1,6 +1,7 @@
 class StoredFilesController < ApplicationController
   protect_from_forgery
   include ApplicationHelper
+  add_breadcrumb "current search", :search_path 
 
   access_control do
     allow all, :to => [:thumbnail, :edit, :download, :show], :if => :allow_show?
@@ -32,7 +33,7 @@ class StoredFilesController < ApplicationController
     @attr_accessible = @stored_file.attr_accessible_for({}, current_user)
 	@export_dash_collections = current_user ? current_user.dash_collections : []
     @title = 'EDIT'
-
+    add_breadcrumb "full edit", stored_file_path(@stored_file)
     respond_to do |format|
       format.html do
         render 'show_edit'
@@ -47,7 +48,7 @@ class StoredFilesController < ApplicationController
     @attr_accessible = []
 	@export_dash_collections = current_user ? current_user.dash_collections : []
     @title = 'DETAIL'
-
+    add_breadcrumb "file detail", stored_file_path(@stored_file)
     render 'show_edit'
   end
 
@@ -146,7 +147,7 @@ class StoredFilesController < ApplicationController
     @stored_file.license = License.find_by_name(Preference.cached_find_by_name('default_license'))
     @max_web_upload_file_size = Preference.cached_find_by_name('max_web_upload_filesize')
     @max_web_upload_file_size ||= '250mb' #arbitrary default. (standard 'mb', 'kb', 'b' units required)
-
+    add_breadcrumb "upload file", new_stored_file_path 
     init_new_batch
   end
  

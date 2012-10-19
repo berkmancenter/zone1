@@ -1,4 +1,5 @@
 class Admin::FlagsController < Admin::BaseController
+  add_breadcrumb "admin: flags", :admin_flags_path
   def index
     @flags = Flag.all
     @flag = Flag.new
@@ -39,6 +40,7 @@ class Admin::FlagsController < Admin::BaseController
   def edit
     @flag = Flag.find(params[:id])
     @right = Right.find_by_action("toggle_#{@flag.name.downcase}")
+    add_breadcrumb "edit #{@flag.name}", edit_admin_flag_path(params[:id])
   end
 
   def destroy

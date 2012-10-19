@@ -1,4 +1,6 @@
 class Admin::RolesController < Admin::BaseController
+  add_breadcrumb "admin: roles", :admin_roles_path 
+
   def index
     @roles = Role.all
     @role = Role.new
@@ -11,6 +13,7 @@ class Admin::RolesController < Admin::BaseController
   def edit
     @role = Role.find(params[:id])
     @rights = Right.all
+    add_breadcrumb "edit #{@role.name}", edit_admin_role_path(params[:id])
   end
 
   def create

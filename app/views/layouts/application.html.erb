@@ -49,14 +49,14 @@
       <div id="message"><%= flash[:notice] %></div>
 
 			<div class="clear"></div>
+      <div id="breadcrumbs"><%= render_breadcrumbs %></div>
 		</header>
 
         <div id="error">
             <%= flash[:error] %>
         </div>
       		<%= yield %>
-
-        <div id="footer">
+        <div id="footer" style="clear: both;">
           Zone One v<%= Zone1::VERSION %>
         </div>
 	</div>

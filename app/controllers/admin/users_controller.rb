@@ -1,4 +1,5 @@
 class Admin::UsersController < Admin::BaseController
+  add_breadcrumb "admin: users", :admin_users_path
   def index
     @users = User.paginate(:page => params[:page], :per_page => 30)
   end
@@ -7,6 +8,7 @@ class Admin::UsersController < Admin::BaseController
     @user = User.find(params[:id], :include => [:roles, :rights])
     @roles = Role.all
     @rights = Right.all
+    add_breadcrumb "edit #{@user.name}", edit_admin_mime_type_category_path(@user)
   end
 
   def update

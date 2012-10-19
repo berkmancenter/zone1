@@ -1,8 +1,8 @@
 require 'csv'
 
 class BulkEditsController < ApplicationController
-
   include ApplicationHelper
+  add_breadcrumb "current search", :search_path
 
   def new
     if !params[:stored_file_ids].is_a?(Array)
@@ -40,6 +40,7 @@ class BulkEditsController < ApplicationController
       @stored_file.build_bulk_groups_for(@stored_files, current_user)
 
       @licenses = License.all
+      add_breadcrumb "edit #{@stored_files.map(&:original_filename).join(", ")}", new_bulk_edit_path(params)
   end
 
   def csv_edit

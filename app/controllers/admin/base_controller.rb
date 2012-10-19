@@ -1,13 +1,14 @@
 class Admin::BaseController < ApplicationController
   include ApplicationHelper
   require 'zone1/fits'
-
+  add_breadcrumb "current search", :search_path
   access_control do
     allow logged_in, :to => [:index, :edit, :show, :destroy, :update, :create], :if => :can_view_admin?
   end
 
   def index
     @preferences = Preference.all.sort_by(&:name)
+    add_breadcrumb "admin: app configuration", :admin_path 
   end
 
   def update

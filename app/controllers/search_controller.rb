@@ -4,7 +4,7 @@ class SearchController < ApplicationController
   include ApplicationHelper
   include Zone1::SunspotSearch
   helper_method :sort_column, :sort_direction, :per_page
-
+  
   def index 
     @search = build_stored_file_search
     @search.execute!
