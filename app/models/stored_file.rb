@@ -39,6 +39,8 @@ class StoredFile < ActiveRecord::Base
   before_save :update_file_size
   after_create :register_user_stored_file, :unless => :defer_quota_update
   after_update :paranoid_action_callback, :if => :deleted_at_changed?
+
+  after_create :destroy_cache
   after_update :destroy_cache
   before_destroy :destroy_cache
 
@@ -192,8 +194,10 @@ class StoredFile < ActiveRecord::Base
   def build_bulk_flaggings_for(stored_files, user)
     matching_flags = BulkEdit.matching_flags_from(stored_files)
     matching_flags.each do |flag|
+      notes = Flagging.where("stored_file_id in (?) and flag_id = ?", stored_files.map(&:id), flag.id).map(&:note).uniq
+      note = (notes.size == 1) ? notes.first : "" 
       # must explicitly set checked here. It is the only way the form will know that this flagging is set 
-      self.flaggings.build(:flag_id => flag.id, :checked => true)
+      self.flaggings.build(:flag_id => flag.id, :checked => true, :note => note)
     end
   end
 
@@ -289,6 +293,14 @@ class StoredFile < ActiveRecord::Base
     # Delete these two lists from params because update_attributes can't handle them
     tag_list = params.delete("tag_list") || params.delete(:tag_list)
     collection_list = params.delete("collection_list") || params.delete(:collection_list)
+
+    if params.has_key?("original_date")
+      begin
+        formatted_date = Date.strptime(params["original_date"], "%m/%d/%Y")
+        params["original_date"] = formatted_date.to_formatted_s(:db)
+      rescue
+      end
+    end
 
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
@@ -477,8 +489,11 @@ class StoredFile < ActiveRecord::Base
       # If the current thumbnail is not a jpg, convert it to a jpg
       if current_thumbnail_path !~ /\.jpg$/i
         jpg_path = thumbnail_path(current_thumbnail_path)
+        base = Magick::Image.read("#{Rails.root}/app/assets/images/white.jpg").first
         im = Magick::ImageList.new(current_thumbnail_path).first
-        im.write(jpg_path)
+        im.background_color = "none"
+        base.composite!(im, 0, 0, Magick::OverCompositeOp)
+        base.write(jpg_path)
 
         # If it was just created correctly, delete the previous, non-jpg one
         if File.exist? jpg_path
@@ -578,6 +593,7 @@ class StoredFile < ActiveRecord::Base
 
   def destroy_cache
     Rails.cache.delete("tag-list")
+    Rails.cache.delete("tag-list-all")
     Rails.cache.delete("stored-file-#{self.id}-viewable-users")
     Rails.cache.delete("thumbnail-url-#{self.id}")
   end

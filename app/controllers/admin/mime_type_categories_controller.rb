@@ -1,4 +1,5 @@
 class Admin::MimeTypeCategoriesController < Admin::BaseController
+  add_breadcrumb "admin: mime type categories", :admin_mime_type_categories_path
   def index
     @mime_type_categories = MimeTypeCategory.all
     @mime_type_category = MimeTypeCategory.new
@@ -42,6 +43,7 @@ class Admin::MimeTypeCategoriesController < Admin::BaseController
 
   def edit
     @mime_type_category = MimeTypeCategory.find(params[:id])
+    add_breadcrumb "edit #{@mime_type_category.name}", edit_admin_mime_type_category_path(params[:id]) 
     @right = Right.find_by_action("toggle_#{@mime_type_category.name.downcase}")
   end
 

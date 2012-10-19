@@ -21,9 +21,9 @@ class User < ActiveRecord::Base
   has_many :batches
   has_many :comments
   has_many :stored_files
-  has_many :rights, :through => :right_assignments
-  has_many :right_assignments, :as => :subject
-
+  has_many :rights, :through => :right_assignments, :dependent => :destroy
+  has_many :right_assignments, :as => :subject, :dependent => :destroy
+  
   validates_presence_of :name
 
   validates :quota_max, :numericality => {:only_integer => true, :greater_than_or_equal_to => 0, :allow_nil => true}
@@ -110,6 +110,7 @@ class User < ActiveRecord::Base
 
   def can_do_group_method?(group, method)
     # group can be an id or a Group instance
+    #TODO: give this the same select all treatment that can_do_method? got
     return true if can_do_global_method?(method)
 
     group = group.is_a?(Group) ? group : Group.find(group)
@@ -162,6 +163,9 @@ class User < ActiveRecord::Base
       StoredFile.cached_viewable_users(stored_file_id).include?(self.id)      
   end
 
+  def dash_collections
+    Dash.collections_by_user_id(self.id) || []
+  end
   
   private
 

@@ -12,6 +12,13 @@
 	<%= form.label "#{label}:" %>
 	<% if type == :check_box %>
 	<%= @stored_file.send(field) ? "Yes" : "No" %><br />
+	<% elsif search_link -%>
+	<%= link_to @stored_file.send(field), search_path(search_link => @stored_file.send(field)) %><br />
+	<% elsif field == :original_date -%>
+	<%= link_to @stored_file.send(field), search_path(:original_date_start_date => @stored_file.original_date, :original_date_end_date => @stored_file.original_date) %><br />
+	<% elsif [:tag_list, :collection_list].include?(field) -%>
+	<%= search_by_tags(@stored_file, field) %>
+	<br />
 	<% else -%>
 	<%= @stored_file.send(field) %><br />
 	<% end -%>

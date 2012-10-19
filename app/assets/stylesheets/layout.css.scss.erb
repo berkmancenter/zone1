@@ -6,6 +6,11 @@ body {
   line-height: 18px; 
 }
 textarea { font-family: Verdana, Arial, Helvetica, Sans-Serif; }
+#search_body #wrapper {
+  margin:0px 8%;
+  width: auto !important;
+}  
+
 #wrapper {
   margin: 0px auto;
   width: 1018px;
@@ -18,6 +23,21 @@ textarea { font-family: Verdana, Arial, Helvetica, Sans-Serif; }
     font-size: 18px;
 }
 
+#message {
+  background-color: #C36969;
+  color: #ffffff;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  font-size: 12px;
+  margin: 22px 0 0 300px;
+  padding: 4px 10px;
+  width:330px;
+  position:absolute;
+  display:none;
+  font-weight:bold;
+}
+
 section, hgroup { display: block; }
 img { border: none; }
 a { text-decoration: none; outline: none; color: #000; }
@@ -28,7 +48,15 @@ a:hover { text-decoration: none; }
 
 header { 
   display: block;
-  margin: 10px 0px; 
+  margin: 10px 0px;
+  #breadcrumbs {
+    a {
+      color: #336699;
+    }
+    text-transform: uppercase;
+    font-size:9px;
+    color: #336699;
+  }
   #nav {
     margin: 0px; 
     padding: 0px;
@@ -63,6 +91,7 @@ header {
         padding: 12px;
         position: absolute;
         background: #cccccc;
+        z-index:1;
         a {
           text-transform: none;
           color: #336699;
@@ -99,6 +128,10 @@ header {
 }
 
 /* Search Filter */
+#search_body #filter {
+  position:absolute;
+}
+
 #filter {
   float: left; 
   width: 344px;
@@ -258,7 +291,7 @@ header {
 /* Shared Buttons */
 .submit_buttons {
   text-align: center;
-  input.update, input.delete {
+  input.update, input.delete, a.submit_link {
     background: url(<%= image_path "submit_button.png" %>) repeat-x;
     border: 1px solid #24568b;
     color: #FFF;
@@ -268,6 +301,10 @@ header {
     font-weight: bold;  
     margin-left: 15px;
     height: 26px; 
+  }
+  a.submit_link {
+    display: inline-block;
+    height: 24px;
   }
   input.update:hover, input.delete:hover {
     cursor: pointer;

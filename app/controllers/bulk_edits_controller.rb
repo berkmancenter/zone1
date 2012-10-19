@@ -1,8 +1,8 @@
 require 'csv'
 
 class BulkEditsController < ApplicationController
-
   include ApplicationHelper
+  add_breadcrumb "current search", :search_path
 
   def new
     if !params[:stored_file_ids].is_a?(Array)
@@ -40,6 +40,7 @@ class BulkEditsController < ApplicationController
       @stored_file.build_bulk_groups_for(@stored_files, current_user)
 
       @licenses = License.all
+      add_breadcrumb "edit #{@stored_files.map(&:original_filename).join(", ")}", new_bulk_edit_path(params)
   end
 
   def csv_edit
@@ -89,6 +90,7 @@ class BulkEditsController < ApplicationController
   end
 
   def create
+
     begin 
       if !params.has_key? :attr_for_bulk_edit
         raise "Please select items to update."
@@ -111,7 +113,6 @@ class BulkEditsController < ApplicationController
           # Customize flaggings and groups per stored file
           stored_file_params.merge! flaggings_attributes_for(stored_file)
           stored_file_params.merge! groups_attributes_for(stored_file)
-
           stored_file.custom_save(stored_file_params, current_user)
         end
 
@@ -216,7 +217,7 @@ class BulkEditsController < ApplicationController
         
         #flagging_id needs to be set to nil if new record, or existing flagging id
         flagging[:id] = flagging_id 
-
+        flagging[:user_id] = current_user.id
         if !(flagging_id.nil? && flagging["_destroy"] == "1")
           eligible_flaggings.merge!({key => flagging})
         end

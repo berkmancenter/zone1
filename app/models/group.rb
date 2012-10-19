@@ -3,8 +3,8 @@ class Group < ActiveRecord::Base
   has_many :memberships, :include => :user
   has_many :groups_stored_files, :dependent => :destroy
   has_many :stored_files, :through => :groups_stored_files
-  has_many :rights, :through => :right_assignments
-  has_many :right_assignments, :as => :subject
+  has_many :rights, :through => :right_assignments, :dependent => :destroy
+  has_many :right_assignments, :as => :subject, :dependent => :destroy
 
   acts_as_authorization_subject :association_name => :roles, :join_table_name => :roles_groups
 

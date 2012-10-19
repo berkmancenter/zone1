@@ -9,6 +9,7 @@ $(function() {
 	zone_one_base.setup_admin_username();
 	zone_one_base.setup_watermarks();
   zone_one_base.setup_dropdown();
+  zone_one_base.setup_message();
 });
 
 (function($){
@@ -23,7 +24,12 @@ $(function() {
 })( jQuery );
 
 var zone_one_base = {
-	setup_watermarks: function() {
+  setup_message: function() {
+    if($("#message").html() != "") {
+      $("#message").slideDown().delay(5000).slideUp().html();
+    }
+  },
+  setup_watermarks: function() {
 		$("#people_value").watermark("Enter name");
 	},
 	setup_username: function() {
@@ -68,8 +74,8 @@ var zone_one_base = {
 		});
 	},
 	setup_listgrid: function() {
-   	    $('#list_view').click( function() { $('#list').click(); } );
-   	    $('#grid_view').click( function() { $('#grid').click(); } );
+   		$('#list_view').click( function() { $('#list').click(); } );
+   		$('#grid_view').click( function() { $('#grid').click(); } );
 		//Toggle between list and thumb
 		$('#list,#grid').click(function() {
 			$.cookie("list_grid", $(this).attr('id'), { path: "/" });
@@ -99,7 +105,7 @@ var zone_one_base = {
 		});
 		$('#quick_edit').live("click", function() {
 			$('#quick_edit_form').slideToggle();
-            return false;
+			return false;
 		});
 		$('.close-quickview').live("click", function() {
 			zone_one_base.close_quickview("");
@@ -145,8 +151,8 @@ var zone_one_base = {
 						text: "Close",
 						click: function() { $(this).dialog('close'); }	
 					}
-                ]
-            });
+				]
+			});
 		});
 		$('#search_form').submit(function() {
 			if($('#people_value').val() != '') {
@@ -183,49 +189,91 @@ var zone_one_base = {
 			new_form.submit();
 			return false;
 		});
-	}, 
+	},
+	reset_column_widths: function() {
+		//When visible columns are toggled, their widths are
+		//adjusted to fit across the top, with some larger than others,
+		//based on their pad data attribute
+		var visible = $('#files .menu span:visible');
+		var visible_count = visible.size();
+		var padding_extra = 0;
+		$.each(visible, function(i, j) {
+			padding_extra += $(j).data('pad');
+		});
+		padding_extra += visible_count*8;
+		var base_width = (660-padding_extra)/visible_count;
+		$.each(visible, function(i, j) {
+			var new_width = base_width + $(j).data('pad');
+			$('.file span.' + $(j).data('type')).width(new_width);
+			$(j).resizable('option', 'maxWidth', $(j).width());
+		});
+	},
 	search_result_column: function(column_name) {
 		// Helper function to find the search column consistently
 		// across different functions.
 		return $("div#files span." + column_name).toggle();
 	},
-	    toggle_header_dropdown: function(menudiv) {
+	toggle_header_dropdown: function(menudiv) {
 		var par = $(menudiv).parent();
 		$('.displayed').not(par).removeClass('displayed');
 		par.toggleClass('displayed');
-	    },
+	},
 	setup_menu_actions: function() {
 		//UI
 		$.each(['display_options', 'set_options', 'sort_options'], function(i, v) {
 			$('#show_' + v).click(function(e) {
 				e.preventDefault();
-	    	    	    	    zone_one_base.toggle_header_dropdown(this);
+				zone_one_base.toggle_header_dropdown(this);
 			});
 		});
-	$("div.list_options input:checkbox.toggle_column").click(function() {
-	      var column_name = $(this).data("column-class");
+		$("div.list_options input:checkbox.toggle_column").click(function() {
+			var column_name = $(this).data("column-class");
 			if($(this).attr("checked")=="checked") {
 				zone_one_base.search_result_column(column_name).show();
-	    	    // checked column = clear cookie
-	    	    $.cookie("toggle_column_" + column_name, null);
+				// checked column = clear cookie
+				$.cookie("toggle_column_" + column_name, null);
+				zone_one_base.reset_column_widths();
 			} else {
 				zone_one_base.search_result_column(column_name).hide();
-	    	    //record checkbox ids which need to be unchecked
-	    	    $.cookie("toggle_column_" + column_name, $(this).attr('id'), { path: "/" });
+				//record checkbox ids which need to be unchecked
+				$.cookie("toggle_column_" + column_name, $(this).attr('id'), { path: "/" });
+				zone_one_base.reset_column_widths();
 			}
 		});
+		$.each(['filename', 'size', 'date', 'tags', 'flags', 'author', 'license', 'batch'], function(i, v) {
+			$('#files .menu span.' + v).resizable({
+				alsoResize: '.file span.' + v,
+				handles: 'e',
+				containment: 'parent',
+				minWidth: 60,
+				stop: function(event, ui) {
+					//After any item is resized, all other resizable item 
+					//maxWidths are reset to prevent wrapping of columns
+					var visible = $('#files .menu span:visible');
+					var total_width = 0;
+					$.each(visible, function(a, b) {
+						total_width += $(b).width();
+					});
+					var adjust_width = 660 - total_width - visible.size()*8;
+					$.each(visible, function(a, b) {
+						$(b).resizable('option', 'maxWidth', $(b).width() + adjust_width);
+					});
+				}		
+			});
+		});
 
-	    // Show all columns by default
-	    // Loop through all columns, use name to check cookies
-	    // If cookie is present, uncheck box, hide column
-	    $("div.list_options input:checkbox.toggle_column").each(function () {
-	      var column_name = $(this).data("column-class");
-	      if($.cookie("toggle_column_" + column_name)) {
-	    	    //cookie exists = hide column
-	    	    $(this).attr('checked', null)
-	    	    zone_one_base.search_result_column(column_name).hide();
-	      }
-	    });
+		// Show all columns by default
+		// Loop through all columns, use name to check cookies
+		// If cookie is present, uncheck box, hide column
+		$("div.list_options input:checkbox.toggle_column").each(function () {
+			var column_name = $(this).data("column-class");
+			if($.cookie("toggle_column_" + column_name)) {
+				//cookie exists = hide column
+				$(this).attr('checked', null)
+				zone_one_base.search_result_column(column_name).hide();
+			}
+			zone_one_base.reset_column_widths();
+		});
 	},
 	setup_datepickers: function() {
 		//Calendar Datepicker	
@@ -252,14 +300,13 @@ var zone_one_base = {
 		}
 	},
 	close_quickview: function(message) {
-		$('#response').slideUp();
 		if(message != "") {
-			$('#response').html(message).slideDown();
+			$('#message').html(message).slideDown().delay(5000).slideUp();
 		}
 		$('#quick_edit_panel').parent().remove();
 		$('#quick_edit_panel').remove();
 	},
-    display_import_csv_dialog: function() {
+	display_import_csv_dialog: function() {
 		$("#import-csv-dialog").dialog({
 			modal: true,
 			width: 'auto',
@@ -272,34 +319,34 @@ var zone_one_base = {
 				}
 			]
 		});
-        zone_one_base.init_csv_edit_uploader();
-    },
-    get_uploader: function() {
-        // This method is implemented in multiple namespaces for other uploaders as well
-        var uploader = $('#csv_edit_uploader').plupload('getUploader');
-        return uploader.state == undefined ? undefined : uploader;
-    },
+		zone_one_base.init_csv_edit_uploader();
+	},
+	get_uploader: function() {
+		// This method is implemented in multiple namespaces for other uploaders as well
+		var uploader = $('#csv_edit_uploader').plupload('getUploader');
+		return uploader.state == undefined ? undefined : uploader;
+	},
 	init_csv_edit_uploader: function() {
-   	    // You could use $("#csv_edit_uploader").plupload('notify', 'error', 'lol') if .plupload_header was displayed.
-        //zone_one_base.reset_ui_labels();
-        
-        var uploader = zone_one_base.get_uploader();
-        if (uploader) {
-            // Reset existing csv edit upload widget and return 
-            uploader.splice();
-            //uploader.reset_ui_labels();
-            return;
-        }
+		// You could use $("#csv_edit_uploader").plupload('notify', 'error', 'lol') if .plupload_header was displayed.
+		//zone_one_base.reset_ui_labels();
+		
+		var uploader = zone_one_base.get_uploader();
+		if (uploader) {
+			// Reset existing csv edit upload widget and return 
+			uploader.splice();
+			//uploader.reset_ui_labels();
+			return;
+		}
 
 		uploader = $('#csv_edit_uploader').plupload({
 			runtimes : 'html5,html4', //flash does not play nicely with sessions in Rails
-    	    buttons : { stop: false },
+			buttons : { stop: false },
 			url : $('#csv-edit-upload').attr('action'),
-	   	    multipart_params: $('#csv-edit-upload').serializeJSON(),
+			multipart_params: $('#csv-edit-upload').serializeJSON(),
 			multiple_queues : true,
 			filters : [ {title : "CSV Format", extensions : "csv"} ],
 			preinit : {
-	    		// PreInit events, bound before any internal events
+				// PreInit events, bound before any internal events
 				Init: function(up, info) {
 					$('#csv_edit_uploader_container').removeAttr('title');
 				},
@@ -309,35 +356,35 @@ var zone_one_base = {
 					var response = $.parseJSON(server_response.response);
 
 					if (! response.success) {
-                        var message = "Error for file ID: " + response.stored_file_id + ": " + response.message;
-    					alert('None of your CSV edits were applied because:\n\n' + message);
+						var message = "Error for file ID: " + response.stored_file_id + ": " + response.message;
+						alert('None of your CSV edits were applied because:\n\n' + message);
 						zone_one_base.set_plupload_file_failed(up, file, message);
-                    }
+					}
 					up.reset_ui_labels();
-                },
-                PostInit: function(uploader) {
-                    // Fix for html5 runtime on Google Chrome
-                    $('#' + uploader.id + '_html5_container').click( function(e) {
-                        e.stopPropagation();
-                    });
-                    // Add any uploader specific data we want to store, rather than putting it in page space
-                    // All uploaders should have a reset_ui_labels() that points to external function
-                    plupload.extend(uploader, {
-                        last_upload_successful: true,
-                        reset_ui_labels: zone_one_base.reset_ui_labels_csv_edit
-                    });
-                    uploader.reset_ui_labels();
-                }
+				},
+				PostInit: function(uploader) {
+					// Fix for html5 runtime on Google Chrome
+					$('#' + uploader.id + '_html5_container').click( function(e) {
+						e.stopPropagation();
+					});
+					// Add any uploader specific data we want to store, rather than putting it in page space
+					// All uploaders should have a reset_ui_labels() that points to external function
+					plupload.extend(uploader, {
+						last_upload_successful: true,
+						reset_ui_labels: zone_one_base.reset_ui_labels_csv_edit
+					});
+					uploader.reset_ui_labels();
+				}
 			},
 			init : {
-	    		// Post init events, bound after the internal events
-                QueueChanged: function(up) {
+				// Post init events, bound after the internal events
+				QueueChanged: function(up) {
 					up.reset_ui_labels();
-                },
-                FilesRemoved: function(up, files) {
-                    up.reset_ui_labels();
-                },
-                UploadComplete: function(up, files) {
+				},
+				FilesRemoved: function(up, files) {
+					up.reset_ui_labels();
+				},
+				UploadComplete: function(up, files) {
 					up.reset_ui_labels();
 					if (up.last_upload_successful) {
 						alert('Success: All your CSV edits have been applied');
@@ -350,34 +397,34 @@ var zone_one_base = {
 					if (error.code == plupload.FILE_EXTENSION_ERROR) {
 						alert('Error: Only .CSV files can be imported for CSV Edits.');
 					}
-                },
-            },
+				},
+			},
 		});
-        //var uploader = $('#csv_edit_uploader').plupload('getUploader');
+		//var uploader = $('#csv_edit_uploader').plupload('getUploader');
 	},
 	reset_ui_labels_csv_edit: function() {
 		// Customize widget CSS and text labels. We use this a lot because PLupload redraws its
-        // buttons a lot, and we cannot use plupload.addI18n() because that would be global to 
-        // all PLupload widgets on the page.
-        setTimeout(function() {
+		// buttons a lot, and we cannot use plupload.addI18n() because that would be global to 
+		// all PLupload widgets on the page.
+		setTimeout(function() {
 			var browse_text = 'Add CSV Edit File';
 			$('#import-csv-dialog #csv_edit_uploader_browse .ui-button-text').html(browse_text);
 			$('#import-csv-dialog .plupload_droptext').html('Drag your CSV Edit file here or click "' + browse_text + '"');
 			$('#import-csv-dialog #csv_edit_uploader_start .ui-button-text').html('Apply Edits');
 		}, 25);
 	},
-    set_plupload_file_failed: function(uploader, file, message) {
-        uploader.last_upload_successful = false;
+	set_plupload_file_failed: function(uploader, file, message) {
+		uploader.last_upload_successful = false;
 
-        $(document).on( 'click', '#' + file.id + ' .plupload_file_action', function() {
-            uploader.removeFile( file );
-            uploader.reset_ui_labels();
-        } );
+		$(document).on( 'click', '#' + file.id + ' .plupload_file_action', function() {
+			uploader.removeFile( file );
+			uploader.reset_ui_labels();
+		} );
 
-        setTimeout( function() {
-            $('#' + file.id).attr('title', 'Error: ' + message);
-            file.status = plupload.FAILED; 
-            uploader.trigger('UploadProgress', file);
-        }, 25);
-    }
+		setTimeout( function() {
+			$('#' + file.id).attr('title', 'Error: ' + message);
+			file.status = plupload.FAILED; 
+			uploader.trigger('UploadProgress', file);
+		}, 25);
+	}
 };

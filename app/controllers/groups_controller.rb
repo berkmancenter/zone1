@@ -1,7 +1,9 @@
 class GroupsController < ApplicationController
   
   before_filter :mailer_set_url_options, :on => [:create, :update]
-  
+  add_breadcrumb "current search", :search_path
+  add_breadcrumb "groups", :groups_path
+   
   access_control do
     allow logged_in, :to => [:index, :new, :create]
 
@@ -26,7 +28,6 @@ class GroupsController < ApplicationController
 
   def edit
     @group = Group.find(params[:id], :include => :memberships)
-
     respond_to do |format|
       format.js
     end

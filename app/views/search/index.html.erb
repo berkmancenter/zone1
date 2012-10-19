@@ -2,13 +2,11 @@
   <%= render 'filter' %>
 </section>
 
-<section id="results" class="list right">
+<section id="results" class="list">
 	<p id="response"></p>
-	<%- flash.each do |key, msg| -%>
-	<div id="form_error">
-	<%= flash[key] %>
-	</div>
-	<% end -%>
+	<% if flash[:error] %>
+  <div id="form_error"><%= flash[:error] %></div>
+  <% end %>
   <hgroup class="results_options">
 	<ul>
       <li>
@@ -97,14 +95,14 @@
 
   <div id="files">
     <div class="file menu">
-      <span class="filename"><%= sortable "display_name", "Name" %></span>
-      <span class="size"><%= sortable "file_size", "Size" %></span>
-      <span class="date"><%= sortable "created_at", "Date" %></span>
-      <span class="tags">Tags</span>
-      <span class="flags">Flags</span>
-      <span class="author"><%= sortable "author" %></span>
-      <span class="license">License</span>
-      <span class="batch"><%= sortable "batch_id" %></span>
+      <span class="filename" data-pad="30" data-type="filename"><%= sortable "display_name", "Name" %></span>
+      <span class="size" data-pad="5" data-type="size"><%= sortable "file_size", "Size" %></span>
+      <span class="date" data-pad="20" data-type="date"><%= sortable "created_at", "Date" %></span>
+      <span class="tags" data-pad="40" data-type="tags">Tags</span>
+      <span class="flags" data-pad="15" data-type="flags">Flags</span>
+      <span class="author" data-pad="0" data-type="author"><%= sortable "author" %></span>
+      <span class="license" data-pad="5" data-type="license">License</span>
+      <span class="batch" data-pad="0" data-type="batch"><%= sortable "batch_id" %></span>
     </div>
 
 	<% @hits.each do |hit| %> 
@@ -136,6 +134,10 @@
 			<span class="batch"><%= hit.stored(:batch_id) %></span>
 		</div>
 	<% end %>
+  <% if @hits.next_page %>
+    <div class="file"><div class="next-page-icon icon"><%=  will_paginate(@hits, :previous_label => "", :page_links => false) %>
+    </div></div>
+  <% end %>
 	</div>
 	<hgroup class="results_options">
 		<%= will_paginate @hits, :inner_window => 1 %>

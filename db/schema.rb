@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120724210018) do
+ActiveRecord::Schema.define(:version => 20121017215909) do
 
   create_table "access_levels", :force => true do |t|
     t.string "name",  :null => false
@@ -167,10 +167,8 @@ ActiveRecord::Schema.define(:version => 20120724210018) do
   add_index "roles_groups", ["role_id"], :name => "index_roles_groups_on_role_id"
 
   create_table "roles_users", :id => false, :force => true do |t|
-    t.integer  "user_id"
-    t.integer  "role_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.integer "user_id"
+    t.integer "role_id"
   end
 
   add_index "roles_users", ["role_id"], :name => "index_roles_users_on_role_id"

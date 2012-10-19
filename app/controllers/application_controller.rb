@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery
   require File.join(Rails.root, 'lib', 'zone1', 'version.rb')
   helper_method :app_version
-
+     
   def app_version
     #@zone1_version ||= Zone1::VERSION
     Zone1::VERSION

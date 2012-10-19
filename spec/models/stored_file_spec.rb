@@ -513,4 +513,16 @@ describe StoredFile do
 
   end
   
+  describe "destroy_cache" do
+    before :each do
+      Tag.all
+      @stored_file = FactoryGirl.create(:stored_file)
+    end
+
+    it "should destroy tag list caches when a file is created" do
+      Rails.cache.exist?("tag-list").should == false
+      Rails.cache.exist?("tag-list-all").should == false
+    end
+  end
+
 end

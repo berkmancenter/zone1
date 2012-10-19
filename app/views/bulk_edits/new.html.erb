@@ -6,11 +6,9 @@
 	<h3>EDIT</h3>
 	<%= form_for @stored_file, :url => "/bulk_edits", :method => "POST" do |f| %>
 		<h5><%= pluralize @stored_files.size, 'File' %> Selected</h5>
-		<%- flash.each do |key, msg| -%>
-		<div id="form_error">
-		<%= flash[key] %>
-		</div>
-		<% end -%>
+		<% if flash[:error] %>
+    <div id="form_error"><%= flash[:error] %></div>
+    <% end %>
 		<%= f.label :contributor %>: <%= @stored_file.user.present? ? @stored_file.user.name : '' %><br />
 		<% if @stored_file.batch_id -%>
 		<%= f.label "Batch:" %> <%= @stored_file.batch_id.to_s %><br />

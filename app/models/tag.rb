@@ -10,5 +10,10 @@ class Tag < ActiveRecord::Base
         ORDER BY COUNT(*) DESC LIMIT 10")
     end
   end
-
+  
+  def self.all
+    Rails.cache.fetch("tag-list-all") do
+      Tag.find(:all)
+    end
+  end
 end

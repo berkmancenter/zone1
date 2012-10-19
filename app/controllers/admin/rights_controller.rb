@@ -1,4 +1,5 @@
 class Admin::RightsController < Admin::BaseController
+  add_breadcrumb "admin: rights", :admin_rights_path
   def index
     @rights = Right.all
     @right = Right.new
@@ -41,6 +42,7 @@ class Admin::RightsController < Admin::BaseController
   def edit
     @roles = Role.all
     @right = Right.find(params[:id])
+    add_breadcrumb "edit #{@right.action}", edit_admin_right_path(params[:id])
   end
 
   def destroy

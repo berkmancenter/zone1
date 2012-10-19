@@ -8,33 +8,37 @@
 		<td>
 			<p>
 				<label>Created:</label>
-				<span><%= @stored_file.original_date.try(:strftime, "%m/%d/%Y") %></span>
+				<span>
+					<%= link_to @stored_file.original_date, search_path(:original_date_start_date => @stored_file.original_date, :original_date_end_date => @stored_file.original_date) %>
+				</span>
 			</p>
 			<p>
 				<label>Uploaded:</label>
-				<span><%= @stored_file.created_at.strftime("%m/%d/%Y") %></span>
+				<span>
+					<%= link_to @stored_file.created_at, search_path(:created_at_start_date => @stored_file.created_at, :created_at_end_date => @stored_file.created_at) %>
+				</span>
 			</p>
 			<p>
 				<label>Collection:</label>
-				<span><%= @stored_file.collection_list %></span>
+				<span><%= search_by_tags(@stored_file, :collection_list) %></span>
 			</p>
 			<p>
 				<label>Office:</label>
-				<span><%= @stored_file.office %></span>
+				<span><%= @stored_file.office ? link_to(@stored_file.office, search_path(:search => @stored_file.office)) : '' %></span>
 			</p>
 			<p>
 				<label>Creator:</label>
-				<span><%= @stored_file.author %></span>
+				<span><%= @stored_file.author ? link_to(@stored_file.author, search_path(:author => @stored_file.author)) : '' %></span>
 			</p>
 			<p>
 				<label>Contributor:</label>
-				<span><%= @stored_file.contributor_name %></span>
+				<span><%= @stored_file.contributor_name ? link_to(@stored_file.contributor_name, search_path(:contributor_name => @stored_file.contributor_name)) : '' %></span>
 			</p>
 		</td>
 		<td>
 			<p>
 				<label>Tags:</label>
-				<span><%= search_by_tags(@stored_file.tag_list) %></span>
+				<span><%= search_by_tags(@stored_file, :tag_list) %></span>
 			</p>
 			<p>
 				<label>Attributes:</label>
