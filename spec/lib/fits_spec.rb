@@ -4,24 +4,25 @@ describe "Fits" do
 
   describe ".analyze(file_url)" do
 
-    let(:file_url) { __FILE__.to_s }  #have FITS analyze this spec by default
-
+    #have FITS analyze this spec by default
+    let(:file_url) { __FILE__.to_s }
+    
     context "when the file_url does not exist" do
       it "should raise an error" do
-        assert_raise RuntimeError do
+        expect {
           Fits.get_fits_output(file_url + " -1 @&@#$@$#")
-        end
+        }.to raise_error /File not found/i
       end    
     end
 
     context "when Fits can't get the fits_script_path Preference" do
       before do
-        Preference.stub(:fits_script_path) { }
+        Preference.stub(:cached_find_by_name) { }
       end
       it "should raise an error" do
-        assert_raise RuntimeError do
+        expect {
           Fits.get_fits_output(file_url)
-        end
+        }.to raise_error /No fits_script_path preference value found/i
       end
     end
 
@@ -32,9 +33,9 @@ describe "Fits" do
         end
 
         it "should raise an error" do
-          assert_raise RuntimeError do
+          expect {
             Fits.validate_fits_script_path('/dev/null/fits.sh')
-          end
+          }.to raise_error /Invalid fits_script_path preference value/i
         end
       end
 
@@ -43,9 +44,9 @@ describe "Fits" do
           File.stub(:executable?).and_return(true)
         end
         it "should raise an error" do
-          assert_raise RuntimeError do
+          expect {
             Fits.validate_fits_script_path('/dev/null/fits.sh;hackedlol.sh')
-          end
+          }.to raise_error /Invalid fits_script_path preference value/i
         end
       end
     end
@@ -58,7 +59,7 @@ describe "Fits" do
       it "should raise an error" do
         expect {
           Fits.analyze(file_url)
-        }.to raise_error(RuntimeError, /FITS call returned nothing/)
+        }.to raise_error /FITS call returned nothing/i
       end
     end
 
