@@ -32,6 +32,16 @@ var zone_one_stored_file_upload = {
     		url : $('#stored-file-upload').attr('action'),
     		max_file_size : $('#max_web_upload_file_size').val(),
     		max_file_count: 200,
+            disable_upload: function() {
+                $("#uploader_browse").button('disable');
+                $("#uploader_browse").unbind('click');
+                $('#sftp_init_button').unbind('click');
+                $('#sftp_init_button').addClass("ui-state-disabled");
+                upload_status("You are over the quota. Upload activity is disabled.");
+            },
+            over_quota: function() {
+                return ($("#uploader").attr("over-quota") == "true");  
+            },
     		preinit : {
                 // PreInit events, bound before any internal events
     			Init: function(up, info) {
@@ -61,6 +71,11 @@ var zone_one_stored_file_upload = {
                 }
     		},
     		init : {
+                PostInit: function(up) {
+                    if (up.settings.over_quota()) {
+                        up.settings.disable_upload();
+                    }
+                },
         		// Post init events, bound after the internal events
     			FileUploaded: function(up, file, server_response) {
     				// Called when a single file has finished uploading and the server returns HTTP 200 response
