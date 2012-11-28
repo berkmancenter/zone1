@@ -4,6 +4,7 @@ config/resque.yml
 *.swp
 .bundle
 .sass-cache/
+.rvmrc
 log/
 uploads/
 downloads/
