@@ -18,9 +18,9 @@ class Admin::BaseController < ApplicationController
           Fits.validate_fits_script_path(v)
         end
 
-        Preference.cached_find_by_name(k).update_attributes(:value => v)
+        Preference.find_by_name(k).update_attributes(:value => v)
       rescue Exception => e
-        flash[:error] = "Not Updated: Invalid value for '#{Preference.find_by_name(k).label}'"
+        flash[:error] = "Could not update '#{Preference.find_by_name(k).label}' because: #{e}"
       end
     end
 
