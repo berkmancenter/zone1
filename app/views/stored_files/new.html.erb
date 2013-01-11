@@ -1,26 +1,25 @@
 <div id="stored_file">
-	   <h3>Upload</h3>
+   <h3>Upload</h3>
 	
-		<%= form_for @stored_file, :url => "/stored_files.json", :html => {:id => 'stored-file-upload'} do |f| %>
+     <%= form_for @stored_file, :url => "/stored_files.json", :html => {:id => 'stored-file-upload'} do |f| %>
 			<%= hidden_field_tag 'temp_batch_id', @temp_batch_id %>
 			<%= hidden_field_tag 'max_web_upload_file_size', @max_web_upload_file_size %>
-      <% if current_user.over_quota? %>
-        <span id="error">You are over the quota. Upload activity is disabled.</span>
-      <% end %> 
-			<h4>Enter Common Attributes</h4>
-			<%= render "form", :f => f %>
-      <% unless current_user.over_quota? %>
-        <table id="upload_table">
+        <% if current_user.over_quota? %>
+            <span id="error">You are over the quota. Upload activity is disabled.</span>
+        <% end %> 
+		<h4>Enter Common Attributes</h4>
+		<%= render "form", :f => f %>
+        <% if !current_user.over_quota? %>
+            <table id="upload_table">
             	<tr>
             		<td id="upload_table_left">
             			<h4>Upload Files</h4>
             
             	        <div id="stored_files_uploader" over-quota="<%= current_user.over_quota? %>">
-            		    	<p>Failed to initialize the upload tool. Not to point fingers, but
-            	               perhaps you are using a very old browser that is unsupported?</p>
+            		    	<p>Failed to initialize the upload tool. Perhaps you are using an old browser that is unsupported?</p>
             		    </div>
             		</td>
-            		<td id="upload_table_right">
+            		<td id="upload_table_right" style="display: none;">
             	        <%= render "sftp" %>
             		</td>
             	</tr>
@@ -31,7 +30,7 @@
                     <td></td>
                 </tr>
             </table>
-       <% end %>
-		<% end %>
+        <% end %>
+	<% end %>
 </div>
 <div class="clear"></div>
