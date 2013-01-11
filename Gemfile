@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.8'
+gem 'rails', '3.2.11'
 gem 'pg', :require => 'pg'
 gem 'json'
 gem 'will_paginate', '~> 3.0.3'
@@ -35,7 +35,6 @@ group :test, :development do
   gem 'factory_girl_rails'
   gem 'shoulda', :require => false
   gem 'simplecov', :require => false
-  #gem 'capybara'
   gem 'database_cleaner'
   gem 'remarkable', "~> 4.0.0.alpha4"
   gem 'remarkable_activerecord', "~> 4.0.0.alpha4"

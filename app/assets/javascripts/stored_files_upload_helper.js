@@ -1,5 +1,5 @@
 $(function() {
-    if (zone_one_stored_file_upload.get_uploader()) {
+    if ($("#stored_files_uploader").size() > 0) {
         // Only bother with all this if we're on the upload page
         zone_one_stored_file_upload.init_stored_file_uploader();
         zone_one_stored_file_upload.setup_handlers();
@@ -7,11 +7,14 @@ $(function() {
 });
 
 var zone_one_stored_file_upload = {
-
     get_uploader: function() {
-        // This method is implemented in multiple namespaces for other uploaders as well
-        var uploader = $('#stored_files_uploader').plupload('getUploader');
-        return uploader.length == 0 ? undefined : uploader;
+        if ($("#stored_files_uploader").size() > 0) {
+            // This method is implemented in multiple namespaces for other uploaders as well
+            return $('#stored_files_uploader').plupload('getUploader');
+        }
+        else {
+            return undefined;
+        }
     },
     setup_handlers: function() {
     	// prevent lazy firefox reload from leaving old credentials visible
@@ -25,6 +28,8 @@ var zone_one_stored_file_upload = {
     		e.preventDefault();
             zone_one_stored_file_upload.init_sftp();
     	});
+
+        $('#upload_table_right').show();
     },
     init_stored_file_uploader: function() {
     	$("#stored_files_uploader").plupload({
