@@ -1,0 +1,10 @@
+zone_one_base.close_quickview(""); 
+$('<div>').attr('id', 'quick_edit_panel').html("<%=j render "quick_edit"%>").dialog({
+	title: "<%=j render "quick_edit_title" %>",
+	width: 420,
+	resizable: false,
+	close: function() {
+		$(this).remove();
+	}
+});
+zone_one_single.setup_toggle_flag_note_listener();

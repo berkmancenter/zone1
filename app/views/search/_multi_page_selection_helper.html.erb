@@ -1,0 +1,23 @@
+<% if @hit_ids_on_other_pages.present? %>
+
+  <span id="offer-select-all">
+    All <%= per_page %> results on this page are selected. 
+    <a href="#" id="select-all-results">Select all <%= @all_hits.count %> results</a>
+  </span>
+
+  <span id="offer-clear-selection">
+    All <%= @all_hits.count %> results are selected.
+    <a href="#" id="clear-select-all-results">Clear selection</a>
+  </span>
+
+  <% @hit_ids_on_other_pages.each do |hit_id_not_shown| %>
+
+    <input class="downloadable-other-pages" 
+           type="checkbox" 
+           name="stored_file[<%= hit_id_not_shown %>]" 
+           value="1" 
+           data-stored-file-id="<%= hit_id_not_shown%>" />
+         
+  <% end %>
+
+<% end %>

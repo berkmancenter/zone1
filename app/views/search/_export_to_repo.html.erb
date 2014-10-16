@@ -1,0 +1,27 @@
+<div id="export-to-repo-dialog" style="display: none;">
+
+<%= form_tag(export_to_repo_stored_file_index_path, :method => "POST", :id => "export-to-repo", :remote => true) do %>
+<%= hidden_field_tag :repo_name, 'dash' %>
+<table id="export-to-repo-dialog-table">
+  <tr>
+    <td>Dash Username: </td>
+    <td><%= text_field_tag 'username', '', {:id => 'dash-username'} %></td>
+  </tr>
+  <tr>
+    <td>Dash Password: </td>
+    <td><%= password_field_tag 'password', '', {:id => 'dash-password'} %></td>
+  </tr>
+  <tr>
+    <td>Collection: <a href="#" id="dash-refresh-collections">(refresh)</a></td>
+    <td><select id="export-collections" name="collection">
+    <option value=""> <%= collections.any? ? '(please select)' : '(please refresh)' %> </option>
+    <% collections.each do |collection| %>
+      <option><%= collection %></option>
+    <% end %>
+    </select>
+    </td>
+  </tr>
+</table>
+<% end -%>
+
+</div>

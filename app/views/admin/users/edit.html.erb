@@ -1,0 +1,48 @@
+<h1>Edit/View User</h1>
+
+<%= form_for @user, :url => admin_user_path(@user) do |f| -%>
+<%= f.label :name %>
+<%= f.text_field :name %><br />
+
+<%= f.label :email %>
+<%= f.text_field :email %><br />
+
+<%= f.label :quota_max %> (Bytes)
+<%= f.text_field :quota_max %><br />
+
+<%= f.label :quota_used %>:
+<%= number_to_human_size @user.quota_used %><br />
+
+<h3>Roles</h3>
+<% @roles.each do |role| -%>
+<%= check_box_tag "user[role_ids][]", role.id, @user.roles.include?(role), :disabled => (role.admin? and current_user.id == @user.id) %>
+<%= hidden_field_tag "user[role_ids][]", role.id if role.admin? and current_user.id == @user.id %>
+<%= role.name %><br />
+<% end -%>
+
+<h3>User Rights Based on Roles</h3>
+<%= @user.role_rights.join(', ') %>
+
+<h3>User Rights Based on Groups</h3>
+<%= @user.group_rights.join(', ') %>
+
+<h3>User-Override Rights</h3>
+<% @rights.each do |right| -%>
+<%= check_box_tag "user[right_ids][]", right.id, @user.rights.include?(right) %>
+<%= right.action %><br />
+<% end -%>
+
+<%= f.submit "Update User" %>
+<% end -%>
+
+<h2>Owned Groups</h2>
+
+<% @user.owned_groups.each do |group| %>
+<%= link_to group.name, edit_group_path(group) %><br />
+<% end -%>
+
+<h2>Groups as Member</h2>
+
+<% @user.groups.each do |group| %>
+<%= link_to group.name, edit_group_path(group) %><br />
+<% end -%>

@@ -1,0 +1,53 @@
+#results #panel h3 {
+  text-transform: uppercase;
+  padding: 6px 15px;
+  margin-top: 0;
+  color: #323232;
+  background: #b4b4b4;
+}
+
+.admin_table {
+    padding: 5px;
+}
+
+.admin_table tr.even {
+/* background: none repeat scroll 0 0 #FFFFFF; */
+}
+
+.admin_table th {
+    font-size: 12px;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.draggable {
+ margin:3px;
+ display:inline-block;
+ padding: 5px 10px;
+ border-radius: 10px;
+ background-color: #dddddd;
+}
+.mime-type-category {
+ float: left;
+ margin: 0 20px;
+ min-height: 300px;
+ width: 200px;
+}
+.mime-type-category-title {
+ text-transform:uppercase;
+ vertical-align:top;
+}
+.delete-link {
+ float:right;
+}
+.droppable {
+ 
+}
+.message {
+ display:none;
+ background-color:#ffcc99;
+ padding:5px 10px;
+ width: 80%;
+ margin:0 20px;
+ border-radius: 3px;
+}

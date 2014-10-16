@@ -1,0 +1,34 @@
+<div class="flagging">
+    <% if stored_file.flag_set?(flag) %>
+      
+      <% if current_user.can_unflag?(flag) %>
+        <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", f.object.flag_id) if bulk_edit? %>
+
+        <%# Standard rails hidden_field+checkbox technique here %>
+        <%= f.hidden_field :_destroy, :value => 1 %>       
+        <%= check_box_tag f.object_name + "[_destroy]", 0, true, :class => 'flag' %>
+
+      <% else -%>
+
+        <%= check_box_tag "disabled_flagging_#{f.object.id}", 1, true, :disabled => true, :class => 'flag' %>
+
+      <% end -%>
+
+      <%= f.hidden_field :user_id %>
+
+    <% else -%>
+
+      <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", flag.id) if bulk_edit? %>
+
+      <%# Standard rails hidden_field+checkbox technique here %>
+      <%= f.hidden_field :_destroy, :value => 1 %>       
+      <%= check_box_tag f.object_name + "[_destroy]", 0, false, :class => 'flag'%> 
+
+    <% end -%>
+
+    <%= f.label :flag_id, flag.label %><br/>
+    <%= f.text_area :note, :rows => 2, :cols => 20 %>
+
+    <%= f.hidden_field :flag_id %>
+
+</div> 

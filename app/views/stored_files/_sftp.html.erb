@@ -1,0 +1,24 @@
+<div id="sftp_container" class="centered">
+<!-- TODO: Get javascript straightened out so this works with just a 'button' tag -->
+<button id="sftp_init_button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+<span class="ui-button-text">Enable SFTP Upload Mode</span>
+</button>
+
+<div id="sftp_credentials">
+<h4>SFTP Upload Instructions</h4>
+<ol id="sftp_instructions">
+    <li>Login to the SFTP server with the account info below</li>
+    <li>Use SFTP to upload your large files or entire directories</li>
+    <li>Once you're done uploading through SFTP, click the &quot;Start Upload&quot; button to the left.</li>
+    <li>The files you uploaded via SFTP will be imported into Zone 1 in the background, and associated with the metadata you've entered on this page</li>
+</ol>
+	<div id="sftp_form_div">
+		<label>Connect To:</label>
+		<%= text_field_tag :sftp_url, '', {:id => 'sftp_url', :readonly => 'readonly'} %><br/>
+		<%= label_tag :password %>: 
+		<%= text_field_tag :sftp_password, '', {:id => 'sftp_password', :readonly => 'readonly'} %>
+		<%= hidden_field_tag :sftp_username, '', {:id => 'sftp_username'} %>
+	</div>
+</div>
+
+</div>

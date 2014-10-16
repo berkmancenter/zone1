@@ -1,0 +1,91 @@
+#groups_body {
+  .ui-dialog .ui-dialog-titlebar a { border: none; }
+  #groups {
+    background: #EFEFEF;
+    padding: 2px;
+    hgroup {
+      clear: both;
+      background-color: #cc0001;
+      color: #FFF;
+      height: 30px;
+      h3 {
+        display: inline; 
+        margin: 0px;
+        line-height: 30px;
+        padding-left: 10px; 
+      }
+      ul {
+        float: right; 
+        padding: 0px;
+        margin: 0px;
+        list-style-type: none;
+        li {
+          background-image: url(<%= image_path "button_gradient.png" %>);
+          border-left: 1px solid #efefef;
+          float: left; 
+          > a {
+            color: #FFF;
+            font-weight: bold;
+            font-size: 11px;
+            display: inline-block; 
+            padding: 6px 12px 6px 12px;
+            text-transform: uppercase;
+          }
+        }
+      }
+    }
+    table {
+      margin-bottom: 100px; 
+      a {
+        color: #336699;
+        font-weight: bold;
+      }
+      tr.even { background: #FFFFFF; }
+    }
+    .status_cell { width: 215px; }
+    .invited_links { font-size: 10px; }
+  }
+  
+  .group_quick_edit form {
+    padding: 10px; 
+    label {
+      font-weight: bold; 
+      display: block;
+    } 
+    small { display: block;
+      margin-bottom: 10px; 
+    }
+    #group_name {
+      display: block;
+      margin-bottom: 10px; 
+    }
+    #group_assignable_rights {
+      position: relative; 
+      top: 2px;
+    }
+    #rights_label { display: inline; }
+    table {
+      width: 100%; 
+    }
+    #entered_emails {
+      border-top: 1px solid #ededed;
+      padding-top: 10px;
+    }
+    .submit_buttons { 
+      border-top: 1px solid #ededed;
+      margin-top: 10px;
+      padding-top: 10px;
+    }
+  }
+  #quick_edit_delete { padding: 0px; }
+  #user_email { 
+    width: 370px;
+    height: 150px;
+  }
+  .invitation_notice {
+    font-size: smaller;
+  }
+  .re-sent {
+    color: green;
+  }
+}

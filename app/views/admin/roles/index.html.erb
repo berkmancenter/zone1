@@ -1,0 +1,29 @@
+<section id="filter">
+<div id="panel">	
+
+<h3>New Role</h3>
+<%= form_for(@role, :url => admin_roles_path) do |f| %>
+<%= f.label :name %>
+<%= f.text_field :name %><br />
+<%= f.submit %>
+<% end -%>
+
+</div>
+</section>
+
+<section id="results" class="right">
+<div id="panel">	 
+
+<h3>Existing Roles</h3>
+
+<table class="admin_table">
+<% @roles.each do |role| %>
+<tr>
+<td><%= link_to role.name, edit_admin_role_path(role) %></td>
+<td><%= link_to 'Delete',  admin_role_path(role), :confirm => "Are you sure you want to delete the role?", :method => "DELETE" %></td>
+</tr>
+<% end -%>
+</table>
+
+</div>
+</section>

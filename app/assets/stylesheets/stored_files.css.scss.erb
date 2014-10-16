@@ -1,0 +1,136 @@
+.readonly { background: #d3d3d3; }
+
+.info td {
+  vertical-align: top;
+}
+
+#quick_edit_form {
+  .flagging textarea {
+    display: none;
+    font-size: 11px;  
+  }
+}
+
+#stored_file {
+  background: #EFEFEF; 
+  padding: 2px; 
+  margin-bottom: 1px; 
+  a {
+    color: #336699;
+  }
+  a.submit_link {
+    color: #FFF;
+  }
+  fieldset {
+    border: none; 
+    padding: 0px;
+  }
+  h3 {
+    margin: 0px;
+    line-height: 30px;
+    text-indent: 15px;
+    background: #000 url(<%= image_path "header_gradient.png" %>) repeat-x;
+    color: #FFF;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+  h4 {
+    margin: 10px 0px 5px 0px; 
+    color: #cc0001;
+  }
+  #thumbnail {
+    text-align: center;
+    width: 220px;
+    float: right;
+    border: 1px solid #656565;
+    margin-bottom: 10px;
+    line-height: 0px;
+  }
+  form { padding: 15px; }
+  label { font-weight: bold; }
+  h5 { font-size: 15px; margin: 0px 0px 10px 0px; }
+  input[type=text], textarea, select {
+    display: block;
+    background: #EFEFEF;
+    border: 1px solid #000;
+    width: 280px; 
+    padding: 3px; 
+    margin-bottom: 10px;
+  }
+  textarea {
+    resize: vertical;
+  }
+  select { width: 160px; }
+  hr {
+    clear: both;
+    border-color: #b5b5b5; 
+    border-top: none;
+  } 
+  #comments {
+    .single_comment {
+      border: 1px dashed #cdcdcd;
+    }
+  }
+
+  .flagging textarea { 
+    display: none; 
+    font-size: 11px;
+  }
+
+  #upload_table {
+    width: 100%;
+    line-height: 16px;
+  }
+
+  #upload_table_left {
+    vertical-align: top;
+    width: 70%;
+    padding-right: 5px;
+  }
+
+  #upload_table_right {
+    vertical-align: top;
+    padding-left: 5px;
+  }
+
+  #upload_table_status {
+    display: none;
+    background: #D8D8D8;
+    font-weight: bold;
+    padding: 6px 0;
+  }
+
+  #upload_table_status a {
+    color: #336699;
+  }
+
+  .centered {    
+    text-align: center;
+  }
+
+  #sftp_container {
+    #sftp_init_button {
+      top: 130px;
+    }
+    #sftp_credentials { 
+      display: none; 
+      #sftp_instructions {
+        margin-top: 0px;
+        padding-left: 30px;
+      }
+      #sftp_url {
+        width: 185px;
+        display: inline;
+      }
+      #sftp_password {
+        width: 185px;
+        display: inline;
+      }
+    }
+  }
+
+}
+
+#single_dash_export {
+ display: none;
+}

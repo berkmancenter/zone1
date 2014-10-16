@@ -1,0 +1,65 @@
+<%= form_for @group, :remote => true do |f| %>
+	<%= f.label :name %>
+	<%= f.text_field :name %>
+
+	<% if current_user.can_do_global_method?("edit_group_rights") -%>
+	<%= f.check_box :assignable_rights %>
+	<%= f.label :assignable_rights, "Assign rights to this group", :id => "rights_label" %>
+	<small>Note: This is a dangerous field to play with.</small>
+
+	<% if @group.assignable_rights %>
+	<% Right.all.each do |right| -%>
+	<p>
+	<%= check_box_tag "group[right_ids][]", right.id, @group.rights.include?(right) %>
+	<%= right.action %><br />
+	<small><%= right.description %></small>
+	</p>
+	<% end -%>
+	<% end -%>
+	<% end -%>
+
+	<% if @group.memberships.any? -%>
+	<table id="group_members">
+		<tr>
+			<th>Members</th>
+			<th>Owner</th>
+			<th>Remove</th>
+    </tr>
+    <%= f.fields_for :memberships do |member_fields| %>
+      <% member = member_fields.object %>
+    <tr id="row">
+      <%= member_fields.hidden_field :id, :value => member.id %>
+      <td>
+        <%= member.user.name %>
+        <% if member.invited? %>
+          <span class="invitation_notice">(Invited by <%= member.invited_by_name(current_user) %>
+            <%= time_ago_in_words member.updated_at %> ago.) 
+            <% if @group.owners.include? current_user -%>
+                <span>(<%= link_to 'Re-send invite', resend_group_invite_path(member), :remote => true, :class => "resend_invite" %>)</span>
+            <% end -%>
+          </span>
+        <% end %>
+      </td>
+			<td align="center"><%= member_fields.check_box :is_owner, :disabled => member.invited? %></td>
+			<td align="center"><%= member_fields.check_box :_destroy %></td>
+		</tr>
+    <% end %>
+	</table>
+	<% end -%>
+
+	<div id="entered_emails">
+		<%= text_area_tag :user_email, nil, :placeholder => "Enter emails, one per line" %>
+	</div>
+
+	<div class="submit_buttons">
+	<% if @group.new_record? -%>
+	<%= f.submit "CREATE GROUP", :class => "update" %>
+	<% else -%>
+	<%= f.submit "UPDATE", :class => "update" %>
+	<%= f.submit "DELETE", :class => "delete" %>
+	<% end -%>
+	</div>
+<% end %>
+
+<%= form_for @group, :remote => true, :method => :delete, :html => { :id => "quick_edit_delete" } do |f| %>
+<% end -%>

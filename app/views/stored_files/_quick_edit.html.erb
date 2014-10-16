@@ -1,0 +1,87 @@
+<table width="416" cellpadding="0" cellspacing="0" class="info">
+	<tr>
+		<td colspan="2" align="center">
+			<%= preview @stored_file %>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<p>
+				<label>Created:</label>
+				<span>
+					<%= link_to @stored_file.original_date, search_path(:original_date_start_date => @stored_file.original_date, :original_date_end_date => @stored_file.original_date) %>
+				</span>
+			</p>
+			<p>
+				<label>Uploaded:</label>
+				<span>
+					<%= link_to @stored_file.created_at, search_path(:created_at_start_date => @stored_file.created_at, :created_at_end_date => @stored_file.created_at) %>
+				</span>
+			</p>
+			<p>
+				<label>Collection:</label>
+				<span><%= search_by_tags(@stored_file, :collection_list) %></span>
+			</p>
+			<p>
+				<label>Office:</label>
+				<span><%= @stored_file.office ? link_to(@stored_file.office, search_path(:search => @stored_file.office)) : '' %></span>
+			</p>
+			<p>
+				<label>Creator:</label>
+				<span><%= @stored_file.author ? link_to(@stored_file.author, search_path(:author => @stored_file.author)) : '' %></span>
+			</p>
+			<p>
+				<label>Contributor:</label>
+				<span><%= @stored_file.contributor_name ? link_to(@stored_file.contributor_name, search_path(:contributor_name => @stored_file.contributor_name)) : '' %></span>
+			</p>
+		</td>
+		<td>
+			<p>
+				<label>Tags:</label>
+				<span><%= search_by_tags(@stored_file, :tag_list) %></span>
+			</p>
+			<p>
+				<label>Attributes:</label>
+				<span><%= [@stored_file.mime_type.try(:name), @stored_file.flags.map(&:label).presence].compact.join(', ') %></span>
+			</p>
+			<p>
+				<label>Copyright:</label>
+				<span><%= @stored_file.copyright_holder %></span>
+			</p>
+			<p>
+				<label>License:</label>
+				<span><%= @stored_file.license_name %></span>
+			</p>
+		</td>
+	<tr>
+</table>
+
+<% if current_user -%>
+	<a href="#" id="quick_edit">Quick Edit<span></span></a>
+
+	<%= form_for @stored_file, :remote => true, :html => { :id => "quick_edit_form" } do |f| %>
+	<%= render "flags/form", :f => f %>
+	<table width="100%" cellpadding="0" cellspacing="0">
+		<tr>
+			<td style="padding-right:30px;">
+				<%= editable_field(f, @attr_accessible, :tag_list, {}, "text_field", "Tags") %>
+			</td>
+			<td>
+				<%= render "access_levels/form", :attrs => @attr_accessible, :f => f %>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center">
+				<div class="submit_buttons">
+					<%= submit_tag "UPDATE", :class => "update" %>	
+					<% if @stored_file.can_user_destroy?(current_user) %>
+					<%= submit_tag "DELETE", :class => "delete" %>
+					<% end -%>
+				</div>
+			</td>
+		</tr>
+	</table>
+	<% end %>
+	<%= form_for @stored_file, :remote => true, :method => :delete, :html => { :id => "quick_edit_delete" } do |f| %>
+    <% end -%>
+<% end -%>

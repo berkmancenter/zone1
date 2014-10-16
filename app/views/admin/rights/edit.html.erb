@@ -1,0 +1,18 @@
+<h1>Right</h1>
+
+<%= form_for @right, :url => admin_right_path(@right) do |f| -%>
+<%= f.label :action %>
+<%= f.text_field :action %><br />
+<%= f.label :description %>
+<%= f.text_field :description %><br />
+
+<h3>Attached Roles</h3>
+<%= hidden_field_tag "right[role_ids][]" %>
+
+<% @roles.each do |role| -%>
+<%= check_box_tag "right[role_ids][]", role.id, @right.roles.include?(role) %>
+<%= role.name %><br />
+<% end -%>
+
+<%= f.submit "Update Right" %>
+<% end -%>

@@ -1,0 +1,6 @@
+<% if !@group.new_record? -%>
+<%= @group.name %>
+<% else -%>
+New Group
+<% end -%>
+<%= link_to raw('<span></span>'), '#', :class => 'close-quickview' %>

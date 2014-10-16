@@ -1,0 +1,141 @@
+<div id="panel">	
+	<h3>Find Files</h3>
+
+	<% if @removable_facets.try(:any?) -%>
+	<div id="current_search">
+		Current Search Criteria <a href="/search">(Clear All)</a>
+		<div id="current_facets">
+		<% @removable_facets.each do |k, v| -%>
+		<span><%= k %></span>:
+		<% v.each do |remove_link| -%>
+			<%= remove_link[:label] %> <%= link_to 'X', remove_link[:url] %>
+		<% end -%>
+		<br />
+		<% end -%>
+		</div>
+	</div>
+	<% end -%>
+
+  <%= form_tag search_path, :method => :get, :id => "search_form" do %>
+
+    <input type="hidden" name="per_page" id="per_page" value="<%= per_page %>" />
+
+		<div id="hidden_facets">
+		<% if @hidden_facets -%>
+		<% @hidden_facets.each do |k, v| %>
+		<% if v.is_a?(Array) %>
+			<% v.each do |b| %>
+			<%= hidden_field_tag "#{k}[]", b %>
+			<% end -%>
+		<% else -%>
+			<%= hidden_field_tag k, v %>
+		<% end -%>
+		<% end -%>
+		<% end -%>
+		</div>
+	<div id="search_keyword">
+		Search by Keyword <a href="#" id="tips">(SEARCH TIPS)</a>
+		<div id="search_bar">
+			<%= text_field_tag "search[]", '' %>
+			<input type="image" src="<%= image_path "search.png" %>" id="execute_search_image" />
+			<div class="clear"></div>
+		</div>
+	</div>
+
+	<div id="accordion">
+		<a class="acc_header active" href="#">Tags</a>
+		<div id="tags" class="acc_content">
+ 			<%= text_field_tag "indexed_tag_list[]" %>
+			<%= render "search/tag_filter" -%>
+			<div class="clear"></div>
+		</div>
+		<a class="acc_header" href="#">Dates</a>
+		<div id="dates" class="acc_content">
+			<%= radio_button_tag "date_type", "created_at", (!params.has_key?(:date_type) || params[:date_type] == "created_at") %>
+			Upload Date
+			<%= radio_button_tag "date_type", "original_date", params[:date_type] == "original_date" %>
+			Original Document Date
+			<table width="100%" cellpadding="0" cellspacing="0">
+				<tr>
+					<td>
+						From
+ 						<%= text_field_tag "start_date", safe_strftime(@start_date) %>
+					</td>
+					<td>
+						To
+						<%= text_field_tag "end_date", safe_strftime(@end_date) %>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<a class="acc_header" href="#">People</a>
+		<div id="people" class="acc_content">
+			<table width="100%" cellpadding="0" cellspacing="0">
+				<tr>
+					<td>
+						<%= radio_button_tag "people_type", "author", true %>
+						Creator<br />
+						<%= radio_button_tag "people_type", "contributor_name", false %>
+						Contributor<br />
+						<%= radio_button_tag "people_type", "copyright_holder", false %>
+						Copyright Holder<br />
+					</td>
+					<td>
+						<input type="text" id="people_value" />
+					</td>
+				</tr>
+			</table>
+		</div>
+		<a class="acc_header" href="#">File Attributes</a>
+		<div class="acc_content">
+			<table width="100%" cellpadding="0" cellspacing="0">
+				<tr>
+					<td width="170">
+						Collection name<br />
+ 						<%= text_field_tag "indexed_collection_list[]" %><br />
+					</td>
+					<td width="100">
+						Batch Number<br />
+ 						<%= text_field_tag "batch_id" %>
+					</td>
+				</tr>
+				<tr>
+					<td id="flags">
+						<%= render "search/flag_filter" %>
+					</td>
+					<td valign="top" id="mime">
+						<%= render "search/mime_type_filter" %>
+                		<div id="license">
+                			<%= render "search/license_filter" %>
+                		</div>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2">
+                        <br/>
+                        <label>Metadata Status</label> <br/>
+                        <%= check_box_tag "complete", 0, params[:complete] == "0" %> Incomplete Files Only?
+					</td>
+				</tr>
+
+			</table>
+		</div>
+
+	</div>
+	<% end -%>
+	<div class="clear"></div>
+</div>
+
+<div id="expand">
+<a href="#">Expand All<span></span></a>
+</div>
+ 
+<div id="search_tips">
+<p>Fields allowing multiple values:</p>
+<ul>
+<li>keywords</li>
+<li>tags</li>
+<li>collections</li>
+</ul>
+<p>Dates can be selected as a range, or by only a starting or ending date.</p>
+</div>

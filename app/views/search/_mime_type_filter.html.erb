@@ -1,0 +1,14 @@
+<label>File Type</label>
+<select id="mime_type">
+	<option></option>
+<% file_types = (@facets && @facets[:mime_hierarchy]) ? @facets[:mime_hierarchy] : MimeTypeCategory.cached_mime_type_tree %>
+	<% file_types.each do |opt| %>
+      <option
+        data-class="<%= opt.class.name.underscore + '_id' %>"
+        title="<%= opt.to_title %>"
+        value="<%= opt.id %>"
+      >
+      <%= opt.is_a?(MimeType) ? raw('&nbsp;&nbsp;') + (opt.extension.presence || '(none)') : opt.name %>
+      </option>
+	<% end -%>
+</select>

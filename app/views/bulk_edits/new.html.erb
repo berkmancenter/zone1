@@ -1,0 +1,24 @@
+<section id="filter">
+<%= render 'search/filter' %>
+</section>
+
+<div class="right" id="stored_file">
+	<h3>EDIT</h3>
+	<%= form_for @stored_file, :url => "/bulk_edits", :method => "POST" do |f| %>
+		<h5><%= pluralize @stored_files.size, 'File' %> Selected</h5>
+		<% if flash[:error] %>
+    <div id="form_error"><%= flash[:error] %></div>
+    <% end %>
+		<%= f.label :contributor %>: <%= @stored_file.user.present? ? @stored_file.user.name : '' %><br />
+		<% if @stored_file.batch_id -%>
+		<%= f.label "Batch:" %> <%= @stored_file.batch_id.to_s %><br />
+		<% end -%>
+  		<% @stored_files.each do |stored_file| %>
+    		<%= hidden_field_tag "stored_file_ids[]", stored_file.id %>
+  		<% end %>
+  		<%= render "stored_files/form", :f => f %>  
+		<div class="submit_buttons">
+  			<%= f.submit "UPDATE #{@stored_files.count} FILES", :class => "update" %> 
+		</div>
+	<% end %>
+</div>

@@ -1,0 +1,43 @@
+<section id="filter">
+<div id="panel">	
+
+<h3>New Right</h3>
+
+<%= form_for @right, :url => admin_rights_path do |f| -%>
+<%= f.label :action %>
+<%= f.text_field :action %><br />
+<%= f.label :description %>
+<%= f.text_field :description %><br />
+<%= f.submit "Create Right" %>
+<% end -%>
+
+</div>
+</section>
+
+<section id="results" class="right">
+<div id="panel">	 
+
+<h3>Current Rights</h3>
+
+<table width="100%" cellpadding="0" cellspacing="0" class="admin_table">
+<tr>
+<th>Action</th>
+<th>Description</th>
+<th></th>
+</tr>
+<% @rights.each do |right| %>
+<tr>
+<td><%= link_to right.action, edit_admin_right_path(right) %></td>
+<td><%= right.description %></td>
+<td><%= link_to 'Delete', admin_right_path(right), :confirm => "Are you sure you want to delete the right?", :method => "DELETE" %></td>
+</tr>
+<% end -%>
+</table>
+
+</div>
+</section>
+
+<br /><br />
+&nbsp;
+
+

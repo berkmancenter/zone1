@@ -1,0 +1,7 @@
+You've been invited to join <%= @group.try(:name) %>
+==============================================
+
+To accept your invitation from <%= @inviter.try(:name) %> (<%= @inviter.try(:email) %>), please follow this link:
+<%= @url %>
+
+Thanks for joining and have a great day!

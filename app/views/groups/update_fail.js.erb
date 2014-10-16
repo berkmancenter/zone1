@@ -1,0 +1,2 @@
+$('#quick_edit_panel #edit_group_<%= @group.id %> #fail_response').remove();
+$('#quick_edit_panel #edit_group_<%= @group.id %>').prepend($('<p>').attr('id', 'fail_response').html('Unable to update group: ' + "<%= @message %>"));

@@ -1,0 +1,27 @@
+<section id="filter">
+<%= render 'search/filter' %>
+</section>
+<% if flash[:error] %>
+<div id="form_error"><%= flash[:error] %></div>
+<% end %> 
+<section class="right" id="groups">
+	<p id="response"></p>
+	<hgroup>
+		<h3>Manage Groups</h3>
+		<ul><li><%= link_to 'Create group', new_group_path, :remote => true %></li></ul>
+	</hgroup>
+	<table cellpadding="5" cellspacing="0" width="100%">
+		<tr> 
+			<th>Group Name</th>
+			<th class="status_cell">Status</th>
+			<th>Created</th>
+			<th>Modified</th>
+		</tr>
+        <%= render :partial => "group", :collection => @groups %>
+		<% if @groups.empty? %>
+    		<tr id="empty_groups"><td>You don't belong to or own any groups.</td></tr>
+		<% end %>
+	</table>
+	<hgroup>
+	</hgroup>
+</section>
