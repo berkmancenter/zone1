@@ -44,7 +44,7 @@ class StoredFilesController < ApplicationController
 
   def show
     @licenses = License.all
-    @stored_file = StoredFile.find(params[:id], :include => [{:comments => :user}])
+    @stored_file = StoredFile.find(params[:id])#, :include => [{:comments => :user}]
     @attr_accessible = []
 	@export_dash_collections = current_user ? current_user.dash_collections : []
     @title = 'DETAIL'

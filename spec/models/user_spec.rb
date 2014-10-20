@@ -1,6 +1,7 @@
 require "spec_helper"
 
 describe User do
+  subject{ FactoryGirl.create(:user) }
   it { should have_many(:memberships).dependent(:destroy) }
   it { should have_many :groups }
   it { should have_and_belong_to_many :roles }

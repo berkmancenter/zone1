@@ -1,6 +1,6 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.2.11'
+gem 'rails', '3.2.19'
 gem 'pg', :require => 'pg'
 gem 'json'
 gem 'will_paginate', '~> 3.0.3'
@@ -12,7 +12,7 @@ gem 'sunspot_solr'
 gem 'acl9'
 gem 'nokogiri'
 gem 'carrierwave'
-gem 'rmagick'
+gem 'rmagick', require: false
 gem 'rubyzip'
 gem 'resque', :require => "resque/server"
 gem 'execjs'
@@ -32,10 +32,12 @@ end
 
 group :test, :development do
   gem 'rspec-rails'
+  gem 'shoulda-matchers'
   gem 'factory_girl_rails'
-  gem 'shoulda', :require => false
-  gem 'simplecov', :require => false
   gem 'database_cleaner'
-  gem 'remarkable', "~> 4.0.0.alpha4"
-  gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
+  # gem 'simplecov', :require => false
+  # gem 'remarkable', "~> 4.0.0.alpha4"
+  # gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
+  # gem 'remarkable_rails'
+  # gem 'pry'
 end
