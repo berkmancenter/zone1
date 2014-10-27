@@ -35,6 +35,7 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable_on :tags, :collections
 
   attr_accessor :wants_thumbnail, :defer_quota_update, :defer_search_commit
+  attr_accessible :mime_type_id, :has_thumbnail, :file
   
   before_save :update_file_size
   after_create :register_user_stored_file, :unless => :defer_quota_update
@@ -302,6 +303,14 @@ class StoredFile < ActiveRecord::Base
       end
     end
 
+    # image related data, using same logic to isolate images as FileUploader#wants_thumbnail?
+    if params[:file].headers =~ /^image|pdf$/i
+      ext = File.extname(params['original_filename']).downcase
+      params[:mime_type_id] = MimeType.where(extension: ext).first.id
+      params[:has_thumbnail] = true
+    end
+
+
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
       update_tags(collection_list, :collections, user) if collection_list
@@ -526,7 +535,7 @@ class StoredFile < ActiveRecord::Base
 
   def self.cached_thumbnail_path(stored_file_id)
     Rails.cache.fetch("thumbnail-url-#{stored_file_id}") do
-      find(stored_file_id).file_url(:thumbnail)
+      find(stored_file_id).file_url
     end
   end
 
