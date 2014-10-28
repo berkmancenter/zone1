@@ -15,7 +15,7 @@
 
 <h3>Roles</h3>
 <% @roles.each do |role| -%>
-<%= check_box_tag "user[role_ids][]", role.id, @user.roles.include?(role), :disabled => (role.admin? and current_user.id == @user.id) %>
+  <%= check_box_tag "user[role_ids][]", role.id, @user.roles.include?(role), :disabled => (role.admin? and current_user.id == @user.id) %>
 <%= hidden_field_tag "user[role_ids][]", role.id if role.admin? and current_user.id == @user.id %>
 <%= role.name %><br />
 <% end -%>

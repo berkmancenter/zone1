@@ -4,6 +4,16 @@ class ApplicationController < ActionController::Base
   require File.join(Rails.root, 'lib', 'zone1', 'version.rb')
   helper_method :app_version
      
+  def temp_admin_toggle_for_testing
+    if current_user.roles.pluck(:name).include?('admin')
+      current_user.roles.delete(Role.find_by_name('admin'))
+    else
+      current_user.roles << Role.find_by_name('admin')
+      current_user.save!
+    end
+    redirect_to root_path
+  end
+
   def app_version
     #@zone1_version ||= Zone1::VERSION
     Zone1::VERSION

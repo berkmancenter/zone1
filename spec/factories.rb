@@ -64,7 +64,7 @@ FactoryGirl.define do
   end
 
   factory :role do
-    sequence(:name) {|n| "Role ##{n}" }
+    name 'user'
   end
 
   factory :right do

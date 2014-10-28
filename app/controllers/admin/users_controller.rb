@@ -24,6 +24,6 @@ class Admin::UsersController < Admin::BaseController
       flash[:error] = "problems updating. try again."
       log_exception e
       redirect_to edit_admin_user_path(user)
-    end
+   end
   end
 end
