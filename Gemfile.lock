@@ -113,6 +113,7 @@ GEM
     pg (0.14.1)
     polyglot (0.3.5)
     pr_geohash (1.0.0)
+<<<<<<< HEAD
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -120,6 +121,13 @@ GEM
     pry-byebug (2.0.0)
       byebug (~> 3.4)
       pry (~> 0.10)
+||||||| merged common ancestors
+=======
+    pry (0.10.1)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+>>>>>>> fixes set downloads from being deleted before zip is sent
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -347,8 +355,13 @@ DEPENDENCIES
   nokogiri
   paranoia
   pg
+<<<<<<< HEAD
   pry
   pry-byebug
+||||||| merged common ancestors
+=======
+  pry
+>>>>>>> fixes set downloads from being deleted before zip is sent
   rails (= 3.2.19)
   rake
   resque
