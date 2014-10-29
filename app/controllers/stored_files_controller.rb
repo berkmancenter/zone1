@@ -239,9 +239,8 @@ class StoredFilesController < ApplicationController
     stored_files = StoredFile.find(params[:stored_file].keys)
 
     set = DownloadSet.new(stored_files)
-    send_file set.path, :x_sendfile => true
-
-    File.delete(set.path) rescue nil
+    send_file set.path, x_sendfile: true
+    #TODO setup cronjob to delete the files older than 30 minutes periodically
   end
 
   def export_to_repo
