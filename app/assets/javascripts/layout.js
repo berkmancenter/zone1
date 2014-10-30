@@ -322,6 +322,8 @@ var zone_one_base = {
 		zone_one_base.init_csv_edit_uploader();
 	},
 	get_uploader: function() {
+    // undefined makes dialog show up
+    return undefined;
 		// This method is implemented in multiple namespaces for other uploaders as well
 		var uploader = $('#csv_edit_uploader').plupload('getUploader');
 		return uploader.state == undefined ? undefined : uploader;
