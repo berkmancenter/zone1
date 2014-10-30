@@ -19,7 +19,7 @@ pgsql/
 public/assets/
 public/mime_type_cat_icons/
 vendor/bundle
-solr/*
+solr/
 solr/conf/*
-!solr/conf
+!solr/conf/*
 !solr/conf/schema.xml
