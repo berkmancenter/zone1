@@ -36,6 +36,7 @@
 			<li id="userlinks">
 				<%= link_to raw("#{current_user.name}<span></span>"), "#", :id => "username" %>
 				<div>
+					<%= link_to "Edit Info", edit_user_registration_path %>
 					<%= link_to "Manage Files", search_path(:user_id => current_user.id), :id => 'manage_files' %>
 					<%= link_to "Manage Groups", groups_path %>
 					<%= link_to "CSV Edit Import", "#", :id => "import-csv" %>
