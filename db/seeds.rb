@@ -116,6 +116,10 @@ User.transaction do
   user = User.create :email => 'user@endpoint.com', :password => 'password', :password_confirmation => 'password', :name => 'User'
   user.roles << role_user
 
+  puts "Generating Regular user dgmcguire4rp@gmail.com"
+  user = User.create :email => 'dgmcguire4rp@gmail.com', :password => 'password', :password_confirmation => 'password', :name => 'Dan'
+  user.roles << role_user
+
   puts "Generating rights"
   Right.create([{ :action => "add_preserved", :description => "Ability to add PRESERVED flag." },
     { :action => "add_nominated_for_preservation", :description => "Ability to add NOMINATED_FOR_PRESERVATION flag." },
