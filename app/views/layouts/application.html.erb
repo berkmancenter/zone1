@@ -14,6 +14,9 @@
   <div id="wrapper">
     <div id='header'>
       <a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>
+      <div id='version'>
+        v<%= Zone1::VERSION %>
+      </div>
       <ul id="nav">
         <% if current_user %>
           <% if can_view_admin? %>
@@ -46,20 +49,13 @@
         <%= image_tag 'LL_mini.png' %>
       </div>
       <p>
-        Thanks to the generous support of the 
-      <%= link_to 'Harvard Library Lab', 'http://lab.library.harvard.edu/' %>
-      , the
-      <%= link_to 'Harvard Library Office for Scholarly Communication',
-        'http://lab.library.harvard.edu/' %>
-      , the
-      <%= link_to 'Harvard Library Lab', 'http://lab.library.harvard.edu/' %>
-      and the
-      <%= link_to 'Harvard Library Lab', 'http://lab.library.harvard.edu/' %>
-      .
+        Thanks to the generous support of
+        the <%= link_to 'Harvard Library Lab', 'http://lab.library.harvard.edu/', :target => "_blank" %>,
+        the <%= link_to 'Harvard Library Office for Scholarly Communication', 'https://osc.hul.harvard.edu/', :target => "_blank" %>,
+        <br />
+        the <%= link_to 'Berkman Center for Internet & Society', 'http://cyber.law.harvard.edu', :target => "_blank" %>
+        and the <%= link_to 'Arcadia Fund', 'http://www.arcadiafund.org.uk/', :target => "_blank" %>.
       </p>
-      <div id='version'>
-        Zone One v<%= Zone1::VERSION %>
-      </div>
     </div>
 
     <div id="import-csv-dialog">
