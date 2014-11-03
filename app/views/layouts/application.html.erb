@@ -37,11 +37,13 @@
       <div id="breadcrumbs"><%= render_breadcrumbs %></div>
     </div> <!--header-->
 
-    <div id="error">
-      <%= flash[:error] %>
-    </div>
+    <div id="content">
+      <div id="error">
+        <%= flash[:error] %>
+      </div>
 
-    <%= yield %>
+      <%= yield %>
+    </div> <!--content-->
 
     <div id="footer" style="clear: both;">
       <hr>
