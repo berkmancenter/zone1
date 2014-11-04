@@ -1,0 +1,14 @@
+<li id="adminlinks">
+  <%= link_to raw('Zone1 Admin<span></span>'), "#", :id => "admin_link" %>
+
+  <div>
+    <%= link_to 'App Configuration', "/admin" %>
+    <%= link_to 'File Type Categories', admin_mime_type_categories_path %>
+    <%= link_to 'File Types', admin_mime_types_path %> 
+    <%= link_to 'Users', admin_users_path %>
+    <%= link_to 'Flags', admin_flags_path %>
+    <%= link_to 'Rights', admin_rights_path %>
+    <%= link_to 'Roles', admin_roles_path %>
+    <%= link_to 'Groups', groups_path %>
+  </div>
+</li>
