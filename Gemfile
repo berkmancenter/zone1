@@ -42,4 +42,5 @@ group :test, :development do
   # gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
   # gem 'remarkable_rails'
   gem 'pry'
+  gem 'pry-byebug'
 end

@@ -42,6 +42,10 @@ GEM
       debug_inspector (>= 0.0.1)
     breadcrumbs_on_rails (2.3.0)
     builder (3.0.4)
+    byebug (3.5.1)
+      columnize (~> 0.8)
+      debugger-linecache (~> 1.2)
+      slop (~> 3.6)
     carrierwave (0.8.0)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -53,8 +57,10 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.4.0)
+    columnize (0.8.9)
     database_cleaner (0.9.1)
     debug_inspector (0.0.2)
+    debugger-linecache (1.2.0)
     devise (2.2.0)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.1)
@@ -95,6 +101,9 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    pry-byebug (2.0.0)
+      byebug (~> 3.4)
+      pry (~> 0.10)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -315,6 +324,7 @@ DEPENDENCIES
   paranoia
   pg
   pry
+  pry-byebug
   rails (= 3.2.19)
   rake
   resque
