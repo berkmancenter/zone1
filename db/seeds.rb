@@ -108,9 +108,13 @@ User.transaction do
     { :name => "user" }])
   (role_admin, role_steward, role_records_manager, role_user) = Role.all
 
-  puts "Generating Admin user"
+  puts "Generating Admin user admin@endpoint.com:berkman"
   admin_user = User.create :email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin'
   admin_user.roles << role_admin
+
+  puts "Generating Regular user user@endpoint.com:password"
+  user = User.create :email => 'user@endpoint.com', :password => 'password', :password_confirmation => 'password', :name => 'User'
+  user.roles << role_user
 
   puts "Generating rights"
   Right.create([{ :action => "add_preserved", :description => "Ability to add PRESERVED flag." },

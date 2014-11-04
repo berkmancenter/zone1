@@ -12,6 +12,8 @@ class MimeType < ActiveRecord::Base
   after_save :destroy_cache
   after_destroy :destroy_cache
 
+  accepts_nested_attributes_for :stored_files
+
   def self.all
     Rails.cache.fetch("mime_types") do
       MimeType.find(:all)

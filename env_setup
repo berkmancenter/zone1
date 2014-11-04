@@ -1,0 +1,22 @@
+OSX has old gcc version and can't build v8 gem
+
+brew install v8
+bundle config build.libv8 --with-system-v8
+bundle config build.libv8
+
+I updated their rmagick gem so it may work out of the box for you, if not I also did this
+http://blog.paulopoiati.com/2013/01/28/installing-rmagick-in-mac-os-x-mountain-lion-with-homebrew/
+
+was having depend issues with rubyracer so I got rid of it and opted for just letting node handle my js
+
+they have postgres gem for the project so I'm guessing their example db.yml is wrong about production being mysql
+
+copy example config/resque.ymcopy exmample config/resque.yml
+copy example config/resque.ymcopy exmample config/sunspot.yml
+
+install redis
+install solr
+
+startup redis daemon
+solr is started up via rake task (be) rake sunspot:solr:start
+should be good to be rails s

@@ -48,15 +48,11 @@ describe Preference do
     it "should find it via cached_find_by_name" do
       Preference.cached_find_by_name('test_pref1').should == 'pref_value1'
     end
-
   end
 
   context "when a given preference does not exist" do
     it "should return nil with no errors" do
       Preference.cached_find_by_name('some_fake_pref').should == nil
     end
-    
   end
-
 end
-

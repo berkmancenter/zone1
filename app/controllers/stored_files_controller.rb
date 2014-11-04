@@ -44,7 +44,7 @@ class StoredFilesController < ApplicationController
 
   def show
     @licenses = License.all
-    @stored_file = StoredFile.find(params[:id], :include => [{:comments => :user}])
+    @stored_file = StoredFile.find(params[:id])#, :include => [{:comments => :user}]
     @attr_accessible = []
 	@export_dash_collections = current_user ? current_user.dash_collections : []
     @title = 'DETAIL'
@@ -56,6 +56,8 @@ class StoredFilesController < ApplicationController
   def destroy
     begin
       StoredFile.find(params[:id]).soft_destroy
+      StoredFile.reindex
+      Sunspot.commit
       respond_to do |format|
         format.js
         format.html do
@@ -87,6 +89,8 @@ class StoredFilesController < ApplicationController
     StoredFile.find(stored_file_ids).each do |stored_file|
       if stored_file.can_user_destroy?(current_user)
         if stored_file.soft_destroy
+          StoredFile.reindex
+          Sunspot.commit
           destroyed += 1
         end
       end
