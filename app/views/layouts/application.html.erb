@@ -22,7 +22,6 @@
           <% if can_view_admin? %>
             <%= render 'layouts/admin_links' %>
           <% end %>
-
           <li>
             <%= render 'layouts/user_links' %>
             <%= link_to 'LOGOUT', destroy_user_session_path, method: :delete, class: "last" %>
