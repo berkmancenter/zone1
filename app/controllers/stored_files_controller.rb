@@ -56,6 +56,8 @@ class StoredFilesController < ApplicationController
   def destroy
     begin
       StoredFile.find(params[:id]).soft_destroy
+      StoredFile.reindex
+      Sunspot.commit
       respond_to do |format|
         format.js
         format.html do
@@ -87,6 +89,8 @@ class StoredFilesController < ApplicationController
     StoredFile.find(stored_file_ids).each do |stored_file|
       if stored_file.can_user_destroy?(current_user)
         if stored_file.soft_destroy
+          StoredFile.reindex
+          Sunspot.commit
           destroyed += 1
         end
       end
