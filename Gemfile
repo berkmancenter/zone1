@@ -33,6 +33,9 @@ group :assets do
 end
 
 group :test, :development do
+  gem "capistrano"
+  gem 'capistrano-rbenv'
+  gem 'capistrano-bundler'
   gem "better_errors"
   gem 'rspec-rails'
   gem 'shoulda-matchers'
