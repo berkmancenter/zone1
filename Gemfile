@@ -12,7 +12,7 @@ gem 'sunspot_solr'
 gem 'acl9'
 gem 'nokogiri'
 gem 'carrierwave'
-gem 'rmagick', require: false
+gem 'rmagick', require: 'RMagick'
 gem 'rubyzip'
 gem 'resque', :require => "resque/server"
 gem 'execjs'
