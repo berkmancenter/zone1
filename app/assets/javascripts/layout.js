@@ -246,7 +246,7 @@ var zone_one_base = {
 				handles: 'e',
 				containment: 'parent',
 				minWidth: 60,
-				stop: function(event, ui) {
+				start: function(event, ui) {
 					//After any item is resized, all other resizable item 
 					//maxWidths are reset to prevent wrapping of columns
 					var visible = $('#files .menu span:visible');
@@ -254,7 +254,7 @@ var zone_one_base = {
 					$.each(visible, function(a, b) {
 						total_width += $(b).width();
 					});
-					var adjust_width = 660 - total_width - visible.size()*8;
+					var adjust_width = 800 - total_width - visible.size()*8;
 					$.each(visible, function(a, b) {
 						$(b).resizable('option', 'maxWidth', $(b).width() + adjust_width);
 					});

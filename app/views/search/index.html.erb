@@ -95,14 +95,14 @@
 
   <div id="files">
     <div class="file menu">
-      <span class="filename" data-pad="30" data-type="filename"><%= sortable "display_name", "Name" %></span>
+      <span class="filename" data-pad="100" data-type="filename"><%= sortable "display_name", "Name" %></span>
       <span class="size" data-pad="5" data-type="size"><%= sortable "file_size", "Size" %></span>
       <span class="date" data-pad="20" data-type="date"><%= sortable "created_at", "Date" %></span>
       <span class="tags" data-pad="40" data-type="tags">Tags</span>
-      <span class="flags" data-pad="15" data-type="flags">Flags</span>
-      <span class="author" data-pad="0" data-type="author"><%= sortable "author" %></span>
-      <span class="license" data-pad="5" data-type="license">License</span>
-      <span class="batch" data-pad="0" data-type="batch"><%= sortable "batch_id" %></span>
+      <span class="flags" data-pad="20" data-type="flags">Flags</span>
+      <span class="author" data-pad="20" data-type="author"><%= sortable "author" %></span>
+      <span class="license" data-pad="10" data-type="license">License</span>
+      <span class="batch" data-pad="20" data-type="batch"><%= sortable "batch_id" %></span>
     </div>
 
 	<% @hits.each do |hit| %> 

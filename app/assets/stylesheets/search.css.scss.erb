@@ -117,11 +117,9 @@
         padding-right: 25px; 
       }
       .asc {
-        color: #000;
         background: transparent url(<%= image_path "sort_up.png?body=1" %>) right 2px no-repeat;
       }
       .desc {
-        color: #000;
         background: transparent url(<%= image_path "sort_down.png?body=1" %>) right 2px no-repeat;
       }
     }
@@ -177,9 +175,20 @@
 .file span.selected { color: #c36969; }
 
 .ui-resizable-e {
-  background-image: url(<%= image_path "dark_right_arrow.png?body=1" %>);
+  background-image: url(<%= image_path "arrow_resize.png" %>); 
   background-repeat: no-repeat;
-  background-position: -1px 4px;
+  background-position: 0px 6px;
+  width: 17px;
+}
+
+.ui-resizable a {
+  padding-right: 20px;
+}
+a.asc {
+  background: url(<%= image_path "sort_up.png?body=1" %>) #eee right 2px no-repeat;
+}
+a.desc {
+  background: url(<%= image_path "sort_down.png?body=1" %>) #eee right 2px no-repeat;
 }
 
 .list {
