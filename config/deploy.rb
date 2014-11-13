@@ -19,6 +19,15 @@ set :rbenv_ruby, '2.1.2'
 set :rack_env, :staging
 
 namespace :db do
+  task :create do
+    on roles(:app) do
+      within current_path do
+        with rails_env: fetch(:rails_env, 'staging') do
+          execute :bundle, 'exec', :rake, 'db:create'
+        end
+      end
+    end
+  end
   task :reset do
     on roles(:app) do
       within current_path do
