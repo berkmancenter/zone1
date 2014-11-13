@@ -237,11 +237,8 @@ class StoredFilesController < ApplicationController
 
   def download_set
     stored_files = StoredFile.find(params[:stored_file].keys)
-
     set = DownloadSet.new(stored_files)
-    send_file set.path, :x_sendfile => true
-
-    File.delete(set.path) rescue nil
+    send_file set.path
   end
 
   def export_to_repo
