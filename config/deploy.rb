@@ -18,6 +18,12 @@ set :linked_dirs, %w{log system public/static solr}
 set :rbenv_ruby, '2.1.2'
 set :rack_env, :staging
 
+namespace :db do
+  task :reset do
+    run "cd #{current_path} && bundle exec rake db:reset RAILS_ENV=#{rails_env}"
+  end
+end
+
 namespace :deploy do
   before :updated, :setup_solr_data_dir do
     on roles(:app) do
