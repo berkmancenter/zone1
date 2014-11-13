@@ -45,6 +45,12 @@ group :test, :development do
   # gem 'remarkable', "~> 4.0.0.alpha4"
   # gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
   # gem 'remarkable_rails'
+<<<<<<< HEAD
   gem 'pry'
   gem 'pry-byebug'
+||||||| merged common ancestors
+  # gem 'pry'
+=======
+  gem 'pry'
+>>>>>>> c7a6f8e6c5b2fea6a00fd029d4a0a96feb81bddd
 end
