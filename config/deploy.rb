@@ -20,7 +20,13 @@ set :rack_env, :staging
 
 namespace :db do
   task :reset do
-    run "cd #{current_path} && bundle exec rake db:reset RAILS_ENV=#{rails_env}"
+    on roles(:app) do
+      within current_path do
+        with rails_env: fetch(:rails_env, 'staging') do
+          execute :bundle, 'exec', :rake, 'db:reset'
+        end
+      end
+    end
   end
 end
 
