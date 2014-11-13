@@ -237,10 +237,8 @@ class StoredFilesController < ApplicationController
 
   def download_set
     stored_files = StoredFile.find(params[:stored_file].keys)
-
     set = DownloadSet.new(stored_files)
-    send_file set.path, x_sendfile: true
-    #TODO setup cronjob to delete the files older than 30 minutes periodically
+    send_file set.path
   end
 
   def export_to_repo
