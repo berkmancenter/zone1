@@ -194,9 +194,18 @@ a.desc {
 .list {
   .even { background: #fafafa; }
   .file { 
+    white-space:nowrap;
+    overflow:hidden;
     float: none;
     width: 100%;
     span { display: inline-block; margin: 3px 2px; }
+    .col {
+      border-right:1px solid #ccc;
+      white-space:nowrap;
+      overflow:hidden;
+      vertical-align:top;
+      height:24px;
+    }
     .filename { 
       width: 90px;
       input { position: relative; top: 2px; }
