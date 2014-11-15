@@ -254,7 +254,7 @@ var zone_one_base = {
 					$.each(visible, function(a, b) {
 						total_width += $(b).width();
 					});
-					var adjust_width = 800 - total_width - visible.size()*8;
+					var adjust_width = 1200 - total_width - visible.size()*8;
 					$.each(visible, function(a, b) {
 						$(b).resizable('option', 'maxWidth', $(b).width() + adjust_width);
 					});
