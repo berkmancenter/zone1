@@ -2,7 +2,7 @@
   <% if bulk_edit?  %>
     <div>
       <%= check_box_tag("attr_for_bulk_edit[]group_ids[]", group.id, false, class: 'bulk_checkbox') %>
-      <%= label_tag 'bulk_checkbox', 'Mark for bulk edit?' %>
+      <%= label_tag 'bulk_checkbox', 'Mark for bulk edit' %>
     </div>
   <% end %>
     <%= f.hidden_field :_destroy, :value => 1 %>
