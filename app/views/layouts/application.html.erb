@@ -44,21 +44,6 @@
       <%= yield %>
     </div> <!--content-->
 
-    <div id="footer" style="clear: both;">
-      <hr>
-      <div id='footer_img'>
-        <%= image_tag 'LL_mini.png' %>
-      </div>
-      <p>
-        Thanks to the generous support of
-        the <%= link_to 'Harvard Library Lab', 'http://lab.library.harvard.edu/', :target => "_blank" %>,
-        the <%= link_to 'Harvard Library Office for Scholarly Communication', 'https://osc.hul.harvard.edu/', :target => "_blank" %>,
-        <br />
-        the <%= link_to 'Berkman Center for Internet & Society', 'http://cyber.law.harvard.edu', :target => "_blank" %>
-        and the <%= link_to 'Arcadia Fund', 'http://www.arcadiafund.org.uk/', :target => "_blank" %>.
-      </p>
-    </div>
-
     <div id="import-csv-dialog">
       <%= form_tag('/bulk_edits/csv_edit.json', :method => 'POST', :id => 'csv-edit-upload') do %>
         <div id="csv_edit_uploader">
