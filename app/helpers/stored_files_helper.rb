@@ -11,7 +11,7 @@ module StoredFilesHelper
   end
 
   def bulk_edit(attr)
-    check_box_tag("attr_for_bulk_edit[]", attr) if bulk_edit?
+    render('bulk_edits/mark_for_edit', attr: attr) if bulk_edit?
   end
 
   def bulk_edit?

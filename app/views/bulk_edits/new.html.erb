@@ -6,6 +6,7 @@
 	<h3>EDIT</h3>
 	<%= form_for @stored_file, :url => "/bulk_edits", :method => "POST" do |f| %>
 		<h5><%= pluralize @stored_files.size, 'File' %> Selected</h5>
+		<p>Select the "Mark for bulk edit" checkbox for each field you want to update. You must select at least one.</p>
 		<% if flash[:error] %>
     <div id="form_error"><%= flash[:error] %></div>
     <% end %>
