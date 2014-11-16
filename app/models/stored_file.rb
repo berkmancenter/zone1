@@ -1,5 +1,5 @@
 class StoredFile < ActiveRecord::Base
-  require 'rmagick'
+  require 'RMagick'
   require 'zone1/fits'
 
   include ApplicationHelper
