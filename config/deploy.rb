@@ -39,6 +39,12 @@ namespace :db do
   end
 end
 
+namespace :maid do
+  on roles(:app) do
+    execute "echo '#{release_path}' >> /.maid/rules.same.rb"
+  end
+end
+
 namespace :deploy do
   before :updated, :setup_solr_data_dir do
     on roles(:app) do
