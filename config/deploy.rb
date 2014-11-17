@@ -13,7 +13,7 @@ set :scm, :git
 # set :pty, true
 
 set :linked_files, %w{.env config/database.yml config/sunspot.yml config/resque.yml config/application.yml}
-set :linked_dirs, %w{log system public/static solr}
+set :linked_dirs, %w{log system public/static solr downloads uploads}
 
 set :rbenv_ruby, '2.1.2'
 set :rack_env, :staging
