@@ -53,5 +53,9 @@ module Zone1
 
     #Require all attributes to be marked as accessible in models
     config.active_record.whitelist_attributes = true
+
+    config.action_mailer.delivery_method = :sendmail
+
+    config.action_mailer.default_url_options { host: 'zone1.metabahn.net' }
   end
 end
