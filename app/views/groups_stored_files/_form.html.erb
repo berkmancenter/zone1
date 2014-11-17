@@ -1,5 +1,10 @@
 <div class="groups_stored_files">
-    <%= check_box_tag("attr_for_bulk_edit[]group_ids[]", group.id) if bulk_edit? %>
+  <% if bulk_edit?  %>
+    <div>
+      <%= check_box_tag("attr_for_bulk_edit[]group_ids[]", group.id, false, class: 'bulk_checkbox') %>
+      <%= label_tag 'bulk_checkbox', 'Mark for bulk edit' %>
+    </div>
+  <% end %>
     <%= f.hidden_field :_destroy, :value => 1 %>
     <%= check_box_tag f.object_name + "[_destroy]", 0, f.object.checked? %>
     <%= f.label :group_id, group.name %>

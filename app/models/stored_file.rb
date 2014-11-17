@@ -305,7 +305,7 @@ class StoredFile < ActiveRecord::Base
     end
 
     # image related data, using same logic to isolate images as FileUploader#wants_thumbnail?
-    if params[:file] && params[:file].headers =~ /image|pdf/
+    if params[:file].try(:headers) =~ /image|pdf/
       ext = File.extname(params['original_filename']).downcase
       params[:mime_type_id] = MimeType.where(extension: ext).first.id
       params[:has_thumbnail] = true
