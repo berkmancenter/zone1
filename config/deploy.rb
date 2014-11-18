@@ -40,8 +40,10 @@ namespace :db do
 end
 
 namespace :maid do
-  on roles(:app) do
-    execute "echo '#{release_path}' >> /.maid/rules.same.rb"
+  task :deploy do
+    on roles(:app) do
+      upload! "config/maid.rb", '/root/.maid/rules.rb'
+    end
   end
 end
 
