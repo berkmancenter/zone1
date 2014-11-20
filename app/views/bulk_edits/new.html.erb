@@ -6,7 +6,26 @@
 	<h3>EDIT</h3>
 	<%= form_for @stored_file, :url => "/bulk_edits", :method => "POST" do |f| %>
 		<h5><%= pluralize @stored_files.size, 'File' %> Selected</h5>
-		<p>Select the "Mark for bulk edit" checkbox for each field you want to update. You must select at least one.</p>
+		<p>
+			Use the "Mark for bulk edit" checkbox to indicate which fields you want to update for all of the selected files.
+			It will become available once you've modified the form.
+		<p>
+
+		<p>
+			The red highlight indicates that you've changed the associated field's value but haven't marked it for bulk edit,
+			which means that particular change will <em>not</em> be applied when you click "Update".
+		</p>
+
+		<p>
+			Selecting the "Mark for bulk edit" checkbox will turn it green, signifying that your change <em>will</em>
+			be applied once you click "Update".
+		</p>
+
+		<p>
+			<label>Selected files:</label>
+			<%= @stored_files.map(&:original_filename).join(', ') %>
+		</p>
+
 		<% if flash[:error] %>
     <div id="form_error"><%= flash[:error] %></div>
     <% end %>
@@ -23,3 +42,66 @@
 		</div>
 	<% end %>
 </div>
+
+<script>
+	$(function() {
+
+		setTimeout( function() {
+			setupForm();
+		}, 250);
+
+		function setupForm() {
+			$.each($('input'), function() {
+				var input = $(this);
+				if ( input.prop('type') == "submit" || input.hasClass('bulk_checkbox') )
+					return true;
+				else if ( /(checkbox|radio)/.test(input.prop('type')) ) {
+					input.data('originalValue', input.is(":checked"));
+					input.change(handleInputChange);
+				}
+				else {
+					input.data('originalValue', input.val());
+					input.keyup(handleInputChange);
+					input.change(handleInputChange);
+				}
+				input.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', true);
+			});
+
+			$.each($('select'), function() {
+				var select = $(this);
+				select.data('originalValue', select.val());
+				select.change(handleInputChange);
+				select.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', true);
+			});
+
+			$.each($('textarea'), function() {
+				var textarea = $(this);
+				textarea.data('originalValue', textarea.val());
+				textarea.keyup(handleInputChange);
+				textarea.change(handleInputChange);
+				textarea.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', true);
+			});
+		}
+
+		function hasOriginalValue(selector) {
+			if (/(checkbox|radio)/.test(selector.prop('type'))) {
+				return selector.data('originalValue') == selector.is(":checked");
+			} else {
+				return selector.data('originalValue') == selector.val();
+			}
+		}
+
+		function handleInputChange(e) {
+			var input = $(this);
+
+			if (hasOriginalValue(input)) {
+				input.prevAll("div.bulk_checkbox_wrapper:first").removeClass('dirty');
+				input.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('checked', false);
+				input.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', true);
+			} else {
+				input.prevAll("div.bulk_checkbox_wrapper:first").addClass('dirty');
+				input.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', false);
+			}
+		}
+	});
+</script>

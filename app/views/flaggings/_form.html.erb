@@ -2,7 +2,13 @@
     <% if stored_file.flag_set?(flag) %>
       
       <% if current_user.can_unflag?(flag) %>
-        <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", ) if bulk_edit? %>
+        <% if bulk_edit?  %>
+          <div class="bulk_checkbox_wrapper">
+            <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", flag.id, false, class: 'bulk_checkbox') %>
+            <%= label_tag 'bulk_checkbox', 'Mark for bulk edit' %>
+          </div>
+        <% end %>
+
 
         <%# Standard rails hidden_field+checkbox technique here %>
         <%= f.hidden_field :_destroy, :value => 1 %>       
@@ -19,7 +25,7 @@
     <% else -%>
 
       <% if bulk_edit?  %>
-        <div>
+        <div class="bulk_checkbox_wrapper">
           <%= check_box_tag("attr_for_bulk_edit[]flag_ids[]", flag.id, false, class: 'bulk_checkbox') %>
           <%= label_tag 'bulk_checkbox', 'Mark for bulk edit' %>
         </div>
