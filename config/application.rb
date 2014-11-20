@@ -56,6 +56,6 @@ module Zone1
 
     config.action_mailer.delivery_method = :sendmail
 
-    config.action_mailer.default_url_options { host: 'zone1.metabahn.net' }
+    config.action_mailer.default_url_options = { host: 'zone1.metabahn.net' }
   end
 end
