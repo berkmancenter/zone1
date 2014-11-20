@@ -16,10 +16,12 @@
 		<header>
 			<a href="/" id="logo"><%= image_tag "zoneone.png", :alt => "Zone One" %></a>
       <ul id="nav">
-        <% if current_user -%>
-        <%= form_tag toggle_admin_path(current_user.id), method: :put do %>
-          <%= submit_tag "Toggle Admin #{admin_stat_helper}" %>
-        <% end %>
+        <% if current_user %>
+          <% if can_toggle_admin? %>
+            <%= form_tag toggle_admin_path(current_user.id), method: :put do %>
+              <%= submit_tag "Toggle Admin #{admin_stat_helper}" %>
+            <% end %>
+          <% end %>
                 <% if can_view_admin? -%>
        			<li id="adminlinks">
                     <%= link_to raw('Zone1 Admin<span></span>'), "#", :id => "admin_link" %>

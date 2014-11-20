@@ -1,5 +1,14 @@
 module ApplicationHelper
 
+  def can_toggle_admin?
+    begin
+      current_user.roles.pluck(:name).include?('tester')
+    rescue
+      binding.pry
+      return false
+    end
+  end
+
   def admin_stat_helper
     if current_user.roles.pluck(:name).include?('admin')
       'to off'
