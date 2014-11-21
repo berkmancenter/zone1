@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
       current_user.roles << Role.find_by_name('admin')
       current_user.save!
     end
-    redirect_to root_path
+    redirect_to request.referer
   end
 
   def app_version
