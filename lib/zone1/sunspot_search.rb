@@ -86,8 +86,6 @@ module Zone1
         end
 
         # Excluded deleted files
-        with(:deleted_at, nil)
-
         with(:complete, false) if params[:complete] == "0"
 
         paginate :page => 1, :per_page => StoredFile.count

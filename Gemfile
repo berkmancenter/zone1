@@ -22,6 +22,8 @@ gem 'paranoia'
 gem 'sword2ruby'
 gem 'htmlentities', "~>4.3.1"
 gem 'breadcrumbs_on_rails'
+gem 'figaro'
+gem "binding_of_caller"
 
 # Gems used only for assets and not required in production environments by default.
 group :assets do
@@ -31,6 +33,10 @@ group :assets do
 end
 
 group :test, :development do
+  gem "capistrano"
+  gem 'capistrano-rbenv'
+  gem 'capistrano-bundler'
+  gem "better_errors"
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'factory_girl_rails'
@@ -40,4 +46,5 @@ group :test, :development do
   # gem 'remarkable_activerecord', "~> 4.0.0.alpha4"
   # gem 'remarkable_rails'
   gem 'pry'
+  gem 'pry-byebug'
 end

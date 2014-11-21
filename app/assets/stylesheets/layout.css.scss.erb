@@ -1,14 +1,29 @@
+@font-face {
+  font-family: 'Apercu';
+  src:url('apercu-webfonts/apercu_light-web.eot');
+  src:url('apercu-webfonts/apercu_light-web.eot?#iefix') format('embedded-opentype'),
+    url('apercu-webfonts/apercu_light-web.svg#webfont') format('svg'),
+    url('apercu-webfonts/apercu_light-web.woff') format('woff'),
+    url('apercu-webfonts/apercu_light-web.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html{
+  height: 100%;
+}
 body {
   font-family: Verdana, Arial, Helvetica, Sans-Serif;
   background-color: #fff;
   color: #333;
   font-size: 11px;
   line-height: 18px; 
+  min-height: 100%;
 }
 textarea { font-family: Verdana, Arial, Helvetica, Sans-Serif; }
 #search_body #wrapper {
-  margin:0px 8%;
-  width: auto !important;
+  width: 100%;
+  min-height: 100%;
 }  
 
 #wrapper {
@@ -46,7 +61,7 @@ a:hover { text-decoration: none; }
 
 /* Header */
 
-header { 
+#header { 
   display: block;
   margin: 10px 0px;
   #breadcrumbs {
@@ -116,10 +131,19 @@ header {
     float: left;
     margin-top: 5px; 
   }
+  #version{
+    float:left;
+    font-size: 8px;
+    margin:24px 0 0 3px;
+  }
   #upload_link {
     color: #c80106;
     font-weight: bold;
   }
+}
+
+#content {
+  min-height:360px;
 }
 
 .right {
@@ -374,9 +398,36 @@ widghtXX: 300px;
 }
 
 #footer {
-  text-align: right;
-  color: #AAAAAA;
-  margin-top: 10px;
-  clear: both;
+  text-align: center;
+  font-family: 'Apercu', 'Helvetica';
+  width:940px;
+  margin:auto;
+  margin-top:20px;
+  margin-bottom:20px;
+  padding-top:60px;
+
+  p {
+    font-size:14px;
+    line-height:30px;
+    margin:0;
+  }
+
+  a {
+    color: #306FB7;
+    text-decoration: underline;
+  }
+  #footer_img{
+    margin-left: auto;
+    margin-right: auto;
+    width: 36px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+  }
+  hr {
+    width: 940px;
+    height: 2px;
+    background:#000;
+    border:0;
+  }
 }
 

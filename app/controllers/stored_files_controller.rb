@@ -19,12 +19,8 @@ class StoredFilesController < ApplicationController
   end
 
   def allow_show?
-    if current_user
-      return current_user.can_view_cached?(params[:id])
-    elsif StoredFile.find(params[:id]).access_level_name == "open"
-      return true
-    end
-    false
+   return true if StoredFile.find(params[:id]).access_level_name == "open"
+   current_user.can_view_cached?(params[:id])
   end
 
   def edit
@@ -56,6 +52,8 @@ class StoredFilesController < ApplicationController
   def destroy
     begin
       StoredFile.find(params[:id]).soft_destroy
+      StoredFile.reindex
+      Sunspot.commit
       respond_to do |format|
         format.js
         format.html do
@@ -87,6 +85,8 @@ class StoredFilesController < ApplicationController
     StoredFile.find(stored_file_ids).each do |stored_file|
       if stored_file.can_user_destroy?(current_user)
         if stored_file.soft_destroy
+          StoredFile.reindex
+          Sunspot.commit
           destroyed += 1
         end
       end
@@ -237,11 +237,8 @@ class StoredFilesController < ApplicationController
 
   def download_set
     stored_files = StoredFile.find(params[:stored_file].keys)
-
     set = DownloadSet.new(stored_files)
-    send_file set.path, :x_sendfile => true
-
-    File.delete(set.path) rescue nil
+    send_file set.path
   end
 
   def export_to_repo

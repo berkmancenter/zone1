@@ -1,5 +1,5 @@
 class StoredFile < ActiveRecord::Base
-  require 'rmagick'
+  require 'RMagick'
   require 'zone1/fits'
 
   include ApplicationHelper
@@ -35,6 +35,7 @@ class StoredFile < ActiveRecord::Base
   acts_as_taggable_on :tags, :collections
 
   attr_accessor :wants_thumbnail, :defer_quota_update, :defer_search_commit
+  attr_accessible :mime_type_id, :has_thumbnail, :file
   
   before_save :update_file_size
   after_create :register_user_stored_file, :unless => :defer_quota_update
@@ -93,6 +94,7 @@ class StoredFile < ActiveRecord::Base
     boolean :has_thumbnail, :stored => true
     boolean :complete
 
+    string :author, :stored => true
     string :display_name, :stored => true
     # Original tags and collections. Used for hit *display*
     string :indexed_tag_list, :stored => true, :multiple => true
@@ -301,6 +303,14 @@ class StoredFile < ActiveRecord::Base
       rescue
       end
     end
+
+    # image related data, using same logic to isolate images as FileUploader#wants_thumbnail?
+    if params[:file].try(:headers) =~ /image|pdf/
+      ext = File.extname(params['original_filename']).downcase
+      params[:mime_type_id] = MimeType.where(extension: ext).first.id
+      params[:has_thumbnail] = true
+    end
+
 
     if update_attributes(params)
       update_tags(tag_list, :tags, user) if tag_list
@@ -526,7 +536,7 @@ class StoredFile < ActiveRecord::Base
 
   def self.cached_thumbnail_path(stored_file_id)
     Rails.cache.fetch("thumbnail-url-#{stored_file_id}") do
-      find(stored_file_id).file_url(:thumbnail)
+      find(stored_file_id).file_url
     end
   end
 

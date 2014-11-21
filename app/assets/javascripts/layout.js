@@ -246,7 +246,7 @@ var zone_one_base = {
 				handles: 'e',
 				containment: 'parent',
 				minWidth: 60,
-				stop: function(event, ui) {
+				start: function(event, ui) {
 					//After any item is resized, all other resizable item 
 					//maxWidths are reset to prevent wrapping of columns
 					var visible = $('#files .menu span:visible');
@@ -254,7 +254,7 @@ var zone_one_base = {
 					$.each(visible, function(a, b) {
 						total_width += $(b).width();
 					});
-					var adjust_width = 660 - total_width - visible.size()*8;
+					var adjust_width = 1200 - total_width - visible.size()*8;
 					$.each(visible, function(a, b) {
 						$(b).resizable('option', 'maxWidth', $(b).width() + adjust_width);
 					});
@@ -322,10 +322,14 @@ var zone_one_base = {
 		zone_one_base.init_csv_edit_uploader();
 	},
 	get_uploader: function() {
-		// This method is implemented in multiple namespaces for other uploaders as well
-		var uploader = $('#csv_edit_uploader').plupload('getUploader');
-		return uploader.state == undefined ? undefined : uploader;
+		if (zone_one_base.uploader_is_initialized) {
+			var uploader = $('#csv_edit_uploader').plupload('getUploader');
+			return uploader.state === undefined ? undefined : uploader;
+		} else {
+			return undefined;
+		}
 	},
+	uploader_is_initialized: false,
 	init_csv_edit_uploader: function() {
 		// You could use $("#csv_edit_uploader").plupload('notify', 'error', 'lol') if .plupload_header was displayed.
 		//zone_one_base.reset_ui_labels();
@@ -400,6 +404,7 @@ var zone_one_base = {
 				},
 			},
 		});
+		zone_one_base.uploader_is_initialized = true;
 		//var uploader = $('#csv_edit_uploader').plupload('getUploader');
 	},
 	reset_ui_labels_csv_edit: function() {
