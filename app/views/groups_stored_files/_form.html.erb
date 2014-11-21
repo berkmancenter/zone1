@@ -1,6 +1,6 @@
 <div class="groups_stored_files">
   <% if bulk_edit?  %>
-    <div>
+    <div class="bulk_checkbox_wrapper">
       <%= check_box_tag("attr_for_bulk_edit[]group_ids[]", group.id, false, class: 'bulk_checkbox') %>
       <%= label_tag 'bulk_checkbox', 'Mark for bulk edit' %>
     </div>

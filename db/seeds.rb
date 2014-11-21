@@ -118,8 +118,8 @@ User.transaction do
   user = User.create :email => 'user@endpoint.com', :password => 'password', :password_confirmation => 'password', :name => 'User'
   user.roles << role_user
 
-  puts "Generating Regular user dgmcguire4rp@gmail.com"
-  user = User.create :email => 'dgmcguire4rp@gmail.com', :password => 'password', :password_confirmation => 'password', :name => 'Dan'
+  puts "Generating Regular user dan@metabahn.com"
+  user = User.create :email => 'dan@metabahn.com', :password => 'password', :password_confirmation => 'password', :name => 'Dan'
   user.roles << role_user
 
   puts "Generating rights"
