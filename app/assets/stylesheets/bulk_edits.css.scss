@@ -7,7 +7,7 @@
 	// visibility:hidden;
 	// display:none;
 
-	&.dirty {
+	&.dirty, &.checked {
 		opacity:1;
 		// visibility:visible;
 		// display:block;

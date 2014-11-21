@@ -8,7 +8,7 @@
 		<h5><%= pluralize @stored_files.size, 'File' %> Selected</h5>
 		<p>
 			Use the "Mark for bulk edit" checkbox to indicate which fields you want to update for all of the selected files.
-			It will become available once you've modified the form.
+			It will become highlighted when you check it or modify the value of its associated field.
 		<p>
 
 		<p>
@@ -17,7 +17,7 @@
 		</p>
 
 		<p>
-			Selecting the "Mark for bulk edit" checkbox will turn it green, signifying that your change <em>will</em>
+			Selecting the "Mark for bulk edit" checkbox will highlight it in green, signifying that your change <em>will</em>
 			be applied once you click "Update".
 		</p>
 
@@ -51,6 +51,10 @@
 		}, 250);
 
 		function setupForm() {
+			$('input.bulk_checkbox').change(function () {
+				$(this).parent().toggleClass('checked', $(this).is(':checked'));
+			});
+
 			$.each($('input'), function() {
 				var input = $(this);
 				if ( input.prop('type') == "submit" || input.hasClass('bulk_checkbox') )
@@ -64,14 +68,12 @@
 					input.keyup(handleInputChange);
 					input.change(handleInputChange);
 				}
-				input.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', true);
 			});
 
 			$.each($('select'), function() {
 				var select = $(this);
 				select.data('originalValue', select.val());
 				select.change(handleInputChange);
-				select.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', true);
 			});
 
 			$.each($('textarea'), function() {
@@ -79,7 +81,6 @@
 				textarea.data('originalValue', textarea.val());
 				textarea.keyup(handleInputChange);
 				textarea.change(handleInputChange);
-				textarea.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', true);
 			});
 		}
 
@@ -96,11 +97,9 @@
 
 			if (hasOriginalValue(input)) {
 				input.prevAll("div.bulk_checkbox_wrapper:first").removeClass('dirty');
-				input.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('checked', false);
-				input.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', true);
+				input.prevAll("div.bulk_checkbox_wrapper:first").removeClass('checked').find('input').prop('checked', false);
 			} else {
 				input.prevAll("div.bulk_checkbox_wrapper:first").addClass('dirty');
-				input.prevAll("div.bulk_checkbox_wrapper:first").find('input').prop('disabled', false);
 			}
 		}
 	});
