@@ -1,5 +1,22 @@
 module ApplicationHelper
 
+  def can_toggle_admin?
+    begin
+      current_user.roles.pluck(:name).include?('tester')
+    rescue
+      binding.pry
+      return false
+    end
+  end
+
+  def admin_stat_helper
+    if current_user.roles.pluck(:name).include?('admin')
+      'to off'
+    else
+      'to on'
+    end
+  end
+
   def safe_strftime(date,format="%m/%d/%Y")
     if date.present? && date.respond_to?(:strftime)
       date.strftime(format)
@@ -22,6 +39,7 @@ module ApplicationHelper
   end
 
   def can_view_admin?
-    current_user.try :can_do_global_method?, "view_admin"
+    current_user.roles.pluck(:name).include?('admin')
+    # current_user.try :can_do_global_method?, "view_admin"
   end
 end

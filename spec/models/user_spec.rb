@@ -444,4 +444,30 @@ describe User do
     end
   end
 
+  describe 'with admin role' do
+    let(:admin_user) { FactoryGirl.create(:user) }
+    let(:admin_role) { FactoryGirl.create(:role, name: 'admin') }
+    before do
+      admin_user.roles << admin_role
+    end
+
+    it 'can toggle user roles' do
+      pending
+    end
+
+    it 'can`t toggle other admins admin role' do
+      pending
+    end
+  end
+
+  describe 'without admin role' do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:user_role) { FactoryGirl.create(:role, name: 'user') }
+    before do
+      user.roles << user_role
+    end
+    it 'can`t toggle roles' do
+      pending
+    end
+  end
 end
