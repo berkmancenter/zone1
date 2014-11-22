@@ -12,8 +12,16 @@ set :scm, :git
 # set :log_level, :debug
 # set :pty, true
 
+<<<<<<< HEAD
+set :linked_files, %w{.env config/database.yml config/sunspot.yml config/resque.yml config/application.yml}
+set :linked_dirs, %w{log system public/static solr downloads uploads}
+||||||| merged common ancestors
+set :linked_files, %w{.env config/database.yml config/sunspot.yml config/resque.yml config/application.yml}
+set :linked_dirs, %w{log system public/static solr}
+=======
 set :linked_files, %w{.env config/application.rb config/database.yml config/sunspot.yml config/resque.yml config/application.yml}
 set :linked_dirs, %w{log system public/static solr}
+>>>>>>> develop
 
 set :rbenv_ruby, '2.1.2'
 set :rack_env, :staging
@@ -35,14 +43,6 @@ namespace :db do
           execute :bundle, 'exec', :rake, 'db:reset'
         end
       end
-    end
-  end
-end
-
-namespace :maid do
-  task :deploy do
-    on roles(:app) do
-      upload! "config/maid.rb", '/root/.maid/rules.rb'
     end
   end
 end
