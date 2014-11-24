@@ -141,7 +141,7 @@ class BulkEditsController < ApplicationController
     end
     # Build flaggings hash for each flag to generate the same hash that custom_save
     # sees when flag_hash are modified through the web edit UI
-    flag_hash.each do |label, flag|
+    @flag_hash.each do |label, flag|
       flag_id = flag.id.to_s
       flag_value = file_params[label].downcase.strip
 

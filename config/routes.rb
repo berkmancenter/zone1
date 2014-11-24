@@ -4,6 +4,8 @@ Zone1::Application.routes.draw do
 
   root :to => "home#index"
 
+  put 'temp_admin_toggle/:id', to: 'application#temp_admin_toggle_for_testing', as: :toggle_admin
+
   resources :bulk_edits, :only => [:new, :create] do
     collection do 
       post :csv_edit

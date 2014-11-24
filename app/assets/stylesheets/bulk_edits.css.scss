@@ -2,11 +2,22 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-.bulk_checkbox {
-  & + label{
-    background: rgba(204,0,0,.2);
-  }
-  &:checked + label {
-    background: lightgreen;
-  }
+.bulk_checkbox_wrapper {
+	opacity:0.5;
+	// visibility:hidden;
+	// display:none;
+
+	&.dirty, &.checked {
+		opacity:1;
+		// visibility:visible;
+		// display:block;
+		.bulk_checkbox {
+		  & + label{
+		    background: rgba(204,0,0,.2);
+		  }
+		  &:checked + label {
+		    background: lightgreen;
+		  }
+		}
+	}
 }

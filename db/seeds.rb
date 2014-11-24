@@ -105,19 +105,21 @@ User.transaction do
   Role.create([{ :name => "admin" },
     { :name => "steward" },
     { :name => "records_manager" },
-    { :name => "user" }])
-  (role_admin, role_steward, role_records_manager, role_user) = Role.all
+    { :name => "user" },
+    { name: 'tester' }])
+  (role_admin, role_steward, role_records_manager, role_user, role_tester) = Role.all
 
   puts "Generating Admin user admin@endpoint.com:berkman"
   admin_user = User.create :email => 'admin@endpoint.com', :password => 'berkman', :password_confirmation => 'berkman', :name => 'Admin'
   admin_user.roles << role_admin
+  admin_user.roles << role_tester
 
   puts "Generating Regular user user@endpoint.com:password"
   user = User.create :email => 'user@endpoint.com', :password => 'password', :password_confirmation => 'password', :name => 'User'
   user.roles << role_user
 
-  puts "Generating Regular user dgmcguire4rp@gmail.com"
-  user = User.create :email => 'dgmcguire4rp@gmail.com', :password => 'password', :password_confirmation => 'password', :name => 'Dan'
+  puts "Generating Regular user dan@metabahn.com"
+  user = User.create :email => 'dan@metabahn.com', :password => 'password', :password_confirmation => 'password', :name => 'Dan'
   user.roles << role_user
 
   puts "Generating rights"

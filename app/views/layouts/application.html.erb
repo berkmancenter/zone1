@@ -19,6 +19,11 @@
       </div>
       <ul id="nav">
         <% if current_user %>
+          <% if can_toggle_admin? %>
+            <%= form_tag toggle_admin_path(current_user.id), method: :put do %>
+              <%= submit_tag "Toggle Admin #{admin_stat_helper}" %>
+            <% end %>
+          <% end %>
           <% if can_view_admin? %>
             <%= render 'layouts/admin_links' %>
           <% end %>
@@ -30,7 +35,6 @@
             <li><%= link_to 'LOG IN', new_user_session_path %></li>
         <% end %>
       </ul>
-
       <div id="message"><%= flash[:notice] %></div>
       <div class="clear"></div>
       <div id="breadcrumbs"><%= render_breadcrumbs %></div>
