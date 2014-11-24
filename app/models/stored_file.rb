@@ -313,8 +313,8 @@ class StoredFile < ActiveRecord::Base
 
 
     if update_attributes(params)
-      update_tags(tag_list, :tags, user) if tag_list
-      update_tags(collection_list, :collections, user) if collection_list
+      update_tags(tag_list, :tags, user)
+      update_tags(collection_list, :collections, user)
       update_column(:complete, true) if (!self.new_record? && !self.complete && metadata_check?)
       self.index
     else
@@ -396,7 +396,7 @@ class StoredFile < ActiveRecord::Base
   def update_tags(param, context, user)
     begin
       existing_tags = self.anonymous_tag_list(context).split(", ")
-      submitted_tags = param.gsub(/\s+/, ' ').split(',').map {|string| string.rstrip.lstrip}
+      submitted_tags = param.to_s.gsub(/\s+/, ' ').split(',').map {|string| string.rstrip.lstrip}
 
       removed_tags = existing_tags - (existing_tags & submitted_tags)
 
