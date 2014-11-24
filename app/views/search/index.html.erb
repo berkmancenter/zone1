@@ -118,7 +118,7 @@
 					<%= link_to raw('<span></span>'), edit_stored_file_path(hit.stored(:id)), :class => 'edit-single' %>
 				</span>
 				<span class="name">
-					<%= link_to hit.stored(:display_name).first, edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link", :title => hit.stored(:display_name).first %>
+					<%= link_to hit.stored(:display_name).try(:first), edit_stored_file_path(hit.stored(:id)), :remote => true, :class => "quick_edit_link", :title => hit.stored(:display_name).try(:first) %>
 				</span>
 			</span>
 			<span class="size col"><%= number_to_human_size(hit.stored(:file_size), :precision => 2) %></span>
@@ -128,8 +128,8 @@
 				<%= preserved_flag_display(hit.stored(:flag_ids)) %>
 				<%= university_flag_display(hit.stored(:flag_ids)) %>
 			</span>
-			<span class="author col"><%= hit.stored(:author).first %></span>
-			<span class="contributor col"><%= hit.stored(:contributor_name).first %></span>
+			<span class="author col"><%= hit.stored(:author).try(:first) %></span>
+			<span class="contributor col"><%= hit.stored(:contributor_name).try(:first) %></span>
 			<span class="license col"><%= hit.stored(:license_name).try(:first) %></span>
 			<span class="batch col"><%= hit.stored(:batch_id) %></span>
 		</div>
