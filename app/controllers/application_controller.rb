@@ -19,6 +19,16 @@ class ApplicationController < ActionController::Base
     Zone1::VERSION
   end
 
+  def user_docs
+    file_path = "#{Rails.root}/public/docs/Zone1 User Docs.pdf"
+    send_file file_path, :filename => 'Zone1 User Docs.pdf', :disposition => 'attachment'
+  end
+
+  def admin_docs
+    file_path = "#{Rails.root}/public/docs/Zone1 Admin Docs.pdf"
+    send_file file_path, :filename => 'Zone1 Admin Docs.pdf', :disposition => 'attachment'
+  end
+
   Warden::Manager.after_authentication do |user, auth, opts|
     Rails.cache.delete("user-rights-#{user.id}")
   end

@@ -34,6 +34,9 @@ Zone1::Application.routes.draw do
   match 'search' => 'search#index', :as => :search
   match 'search/tags' => 'search#tags'
 
+  match 'documentation/user' => 'application#user_docs'
+  match 'documentation/admin' => 'application#admin_docs'
+
   match 'memberships/:membership_code/accept' => 'memberships#accept', :as => :accept_membership
   match 'memberships/:group_id/group_accept' => 'memberships#group_accept', :as => :group_accept
   match 'memberships/:group_id/group_decline' => 'memberships#group_decline', :as => :group_decline
