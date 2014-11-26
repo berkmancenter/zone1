@@ -20,12 +20,12 @@ class ApplicationController < ActionController::Base
   end
 
   def user_docs
-    file_path = "#{Rails.root}/public/docs/Zone1 User Docs.pdf"
+    file_path = "#{Rails.root}/app/assets/docs/Zone1 User Docs.pdf"
     send_file file_path, :filename => 'Zone1 User Docs.pdf', :disposition => 'attachment'
   end
 
   def admin_docs
-    file_path = "#{Rails.root}/public/docs/Zone1 Admin Docs.pdf"
+    file_path = "#{Rails.root}/app/assets/docs/Zone1 Admin Docs.pdf"
     send_file file_path, :filename => 'Zone1 Admin Docs.pdf', :disposition => 'attachment'
   end
 
